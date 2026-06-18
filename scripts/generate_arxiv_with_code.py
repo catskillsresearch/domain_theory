@@ -13,6 +13,12 @@ FILES = [
     "Domain.lean",
     "Domain/Constructive.lean",
     "Domain/ContinuousLattice/Injective.lean",
+    "Domain/ContinuousLattice/WayBelow.lean",
+    "Domain/ContinuousLattice/Specialization.lean",
+    "Domain/ContinuousLattice/ScottMaps.lean",
+    "Domain/ContinuousLattice/MilnerCorrection.lean",
+    "Domain/ContinuousLattice/Constructions.lean",
+    "Domain/ContinuousLattice/FunctionSpaces.lean",
     "Domain/InfoSys.lean",
 ]
 

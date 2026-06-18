@@ -71,6 +71,13 @@ the constructivity audit, §[Goal 3]). The descent in proof machinery across the
 versions — measured concretely by mathlib dependencies and by `#print axioms` footprints —
 is itself a quantitative gauge of where the conceptual depth is concentrated.
 
+**1972 closure (March 2026).** The Scott 1972 vision transcription is complete through the
+Milner correction (pp. 135–136). Lean modules `MilnerCorrection.lean` and expanded
+`Constructions.lean` record the corrected hypothesis (`CoarserThanScottTopology`) and the
+`j(⊔S′) = ⊔S` identity; §1, §2 core, and §3 scaffolding are in `Domain/ContinuousLattice/`.
+Full proofs of 2.9–2.11 and 3.3 under that hypothesis remain the last 1972 items before
+the chronological narrative pivots to the 1981/1982 route.
+
 ---
 
 ## 2. Information systems
