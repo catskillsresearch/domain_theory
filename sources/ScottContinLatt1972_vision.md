@@ -421,7 +421,7 @@ This theorem is an immediate consequence of the preceding results: an injective 
 Let $D_i$ for $i \in I$ be a system of continuous lattices. The product
 
 $$
-D^* = \bigtimes_{i \in I} D_i
+D^* = \prod_{i \in I} D_i
 $$
 
 is a complete lattice in the usual way and has its induced topology. Suppose $y \in D^*$ and let $i \in I$. Then $y_i \in D_i$. Since $D_i$ is a continuous lattice
@@ -453,7 +453,7 @@ $$
 It follows that
 
 $$
-y = \bigsqcup \bigl \bigcap  z : z_i \in U  : i \in I, y_i \in U \bigr,
+y = \bigsqcup \bigcap \{ z : z_i \in U \text{ for all } i \in I,\, y_i \in U \},
 $$
 
 where $i$ ranges over $I$ and $U$ over the open subsets of $D_i$, because
@@ -487,7 +487,7 @@ Suppose $x, y \in D$. Let $z' = x \sqcup y \in D'$ (join taken in $D'$) and defi
 To show that $D$ has a least element $\bot$ (which may be larger than the $\bot' \in D'$), we need a well-known lemma about monotonic functions: Every monotonic function on a complete lattice into itself has a least fixed point. (Cf. Birkhoff (1970), p. 115.) In our case $j$ is monotonic and
 
 $$
-\bot = \bigsqcap  x \in D' : j(x) \sqsubseteq x '
+\bot = \sqcap \ x \in D' : j(x) \sqsubseteq x
 $$
 
 is the desired element in $D$.
@@ -527,11 +527,11 @@ $$U =  z \in D : x \ll z $$
 
 are open in $D$ for each $x \in D'$. Note too that if $z \in U$, then $x \sqsubseteq z$ and so $j(x) \sqsubseteq j(z) = z$. This means that
 
-$$j(x) \sqsubseteq \bigsqcap U$$
+$$j(x) \sqsubseteq \sqcap U$$
 
 in $D$. We can then write in $D$:
 
-$$y = \bigsqcup  \bigsqcap U : y \in U $$
+$$y = \bigsqcup \sqcap U : y \in U $$
 
 where $U$ ranges over the open subsets of $D$, and so the lattice is continuous by 2.4. Inasmuch as the open sets $U$ just used were open in the subspace topology, it follows by the remark after 2.4 that the subspace and the lattice-induced topologies coincide. $\square$
 
@@ -545,7 +545,7 @@ $$\bar{f} : Y \to D$$
 
 by the formula:
 
-$$\bar{f}(y) = \bigsqcup \bigl \bigsqcap  f(x) : x \in X \cap U  : y \in U \bigr,$$
+$$\bar{f}(y) = \bigsqcup \sqcap f(x) : x \in X \cap U : y \in U ,$$
 
 where $U$ ranges over the open subsets of $Y$. We need to show that $\bar{f}$ extends $f$ and that it is continuous.
 
@@ -555,7 +555,7 @@ $$d \ll d' \ll \bar{f}(y)$$
 
 with $d' \in D$. From the definition of $\bar{f}$ it follows that
 
-$$d' \sqsubseteq \bigsqcap  f(x) : x \in X \cap U $$
+$$d' \sqsubseteq \sqcap f(x) : x \in X \cap U $$
 
 for some open $U \subseteq Y$ with $y \in U$. Thus
 
@@ -579,7 +579,7 @@ $$d \ll f(x'')$$
 
 for all $x'' \in X \cap U$ where $U$ is a suitable open subset of $Y$ with $x' \in U$. In particular we have:
 
-$$d \sqsubseteq \bigsqcap  f(x'') : x'' \in X \cap U ,$$
+$$d \sqsubseteq \sqcap f(x'') : x'' \in X \cap U ,$$
 
 and so $d \sqsubseteq \bar{f}(x')$. Since $d \ll f(x')$ always implies $d \sqsubseteq \bar{f}(x')$, we see that $f(x') \sqsubseteq \bar{f}(x')$ follows by the continuity of $D$, and the proof is complete. $\square$
 

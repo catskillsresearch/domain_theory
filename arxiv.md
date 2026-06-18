@@ -26,8 +26,8 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **12 / 32** tracked numbered results are **Pass**, **8 Stuck**,
-**12 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+correction is complete; **13 / 32** tracked numbered results are **Pass**, **8 Stuck**,
+**11 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
 **classical** (see §1.2).
@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (32 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **12 Pass · 8 Stuck · 12 Not Yet**.
+full deliverable. Score: **13 Pass · 8 Stuck · 11 Not Yet**.
 
 
 | §   | Scott     | Lean name(s)                                                                                                                     | Module                | Status      | Notes                                |
@@ -178,7 +178,7 @@ full deliverable. Score: **12 Pass · 8 Stuck · 12 Not Yet**.
 | 2   | Prop 2.2  | `bot_wayBelow`, `WayBelow.sup`, `WayBelow.trans_le`, `WayBelow.le_trans`, `wayBelow_self_iff_scottOpen_Ici`, `wayBelow_sSup_iff` | `WayBelow.lean`       | **Pass**    | seven clauses                        |
 | 2   | Prop 2.4  | `isContinuousLattice_iff_isLUB_sInf_nhds`                                                                                        | `WayBelow.lean`       | **Pass**    |                                      |
 | 2   | Prop 2.5  | `proposition_2_5`                                                                                                                | `ScottMaps.lean`      | **Pass**    |                                      |
-| 2   | Prop 2.6  | —                                                                                                                                | —                     | **Not Yet** | joint vs separate continuity         |
+| 2   | Prop 2.6  | `proposition_2_6`                                                                                                                | `ScottMaps.lean`      | **Pass**    | joint ↔ separate continuity          |
 | 2   | Prop 2.8  | —                                                                                                                                | —                     | **Not Yet** | finite lattices                      |
 | 2   | Prop 2.9  | —                                                                                                                                | —                     | **Not Yet** | products; `CoarserThanScottTopology` |
 | 2   | Prop 2.10 | `retr_ambientSSup_eq_sSup`                                                                                                       | `FunctionSpaces.lean` | **Stuck**   | Milner identity; full prop open      |
@@ -383,12 +383,41 @@ flowchart TD
 
 
 
-### 3.7 Part I — next work (Composer vs Opus)
+### 3.7 Selected proof notes
+
+#### Proposition 2.6 (joint ↔ separate continuity) — `proposition_2_6`
+
+Scott's statement: *a function of several variables between complete lattices is continuous
+jointly iff it is continuous in each variable separately.* We formalize the two-variable case
+`f : D × D' → D''`, with continuity phrased as `PreservesDirectedSup` (justified by Prop 2.5),
+and the product `D × D'` carrying the componentwise complete-lattice structure (whose induced
+topology is the product topology). The proof follows Scott's directed-net argument:
+
+- **Joint ⟹ separate.** Precompose `f` with the slice map `x ↦ (x, y)`. The image of a directed
+  `S ⊆ D` under this map is directed in `D × D'` with least upper bound `(⊔S, y)` (computed
+  componentwise via `Prod.fst_sSup` / `Prod.snd_sSup`, using `S` nonempty for the constant second
+  coordinate). Joint preservation of that supremum therefore yields preservation in the first
+  variable; the second variable is symmetric.
+- **Separate ⟹ joint** (the substance). For directed `S* ⊆ D × D'`, project to the directed sets
+  `S = fst '' S*` and `S' = snd '' S*` (directedness via `DirectedOn.fst` / `DirectedOn.snd`), so
+  that `⊔S* = (⊔S, ⊔S')`. Then:
+  - `⊔(f '' S*) ≤ f(⊔S*)` is immediate from monotonicity of `f` (assembled from the separate
+    monotonicities `hmono1`, `hmono2`).
+  - `f(⊔S*) ≤ ⊔(f '' S*)`: unfolding separate continuity twice gives
+    `f(⊔S*) = ⊔_{x∈S} ⊔_{y∈S'} f(x, y)`; for each pair `x ∈ S`, `y ∈ S'` there exist witnesses
+    `(x, b), (a, y) ∈ S*`, and **directedness of `S*`** supplies `r ∈ S*` above both, so
+    `(x, y) ≤ r` and `f(x, y) ≤ f(r) ≤ ⊔(f '' S*)` by monotonicity. This is exactly Scott's
+    "monotonicity + directedness" step.
+
+Sorry-free; `#print axioms` gives `[propext, Classical.choice, Quot.sound]` (the standard
+classical footprint for Part I).
+
+### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Medium   | **2.6**, **2.8**, **3.5** left curry                                         | Composer 2.5                       |
+| Medium   | **2.8**, **3.5** left curry                                                  | Composer 2.5                       |
 | Hard     | **2.9**, **2.10** full, **2.11**, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 
