@@ -11,7 +11,6 @@ the PDF.
 | 1 | `ScottContinLatt1972.pdf` | `ScottContinLatt1972_vision.md` | `ScottContinLatt1972.md` |
 | 2 | `PRG19.pdf` | `PRG19_vision.md` | `PRG19.md` |
 | 3 | `Domains_for_Denotational_Semantics.pdf` | `Domains_for_Denotational_Semantics_vision.md` | `Domains_for_Denotational_Semantics.md` |
-| 4 (stretch) | `DTR97-1.pdf` | `DTR97-1_vision.md` | `DTR97-1.md` |
 
 **Prefer the `*_vision.md` files** for formalization — they use Cursor vision OCR with
 LaTeX notation. The older `*.md` drafts (pdftotext/OCR) remain as fallbacks.

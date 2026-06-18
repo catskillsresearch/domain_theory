@@ -9,7 +9,6 @@ and update verification_status in the YAML front matter.
 Usage:
     python3 scripts/pdf_to_source_md.py ScottContinLatt1972.pdf
     python3 scripts/pdf_to_source_md.py --all
-    python3 scripts/pdf_to_source_md.py DTR97-1.pdf --ocr   # force OCR
 """
 
 from __future__ import annotations
@@ -25,7 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "sources"
 
-# Canonical sequence for the three historical versions (+ stretch goal).
+# Canonical sequence for the three Scott historical sources (1972, 1981, 1982).
 CATALOG: dict[str, dict[str, str]] = {
     "ScottContinLatt1972.pdf": {
         "md": "ScottContinLatt1972.md",
@@ -62,18 +61,6 @@ CATALOG: dict[str, dict[str, str]] = {
             "ICALP 1982, LNCS 140, pp. 577–613."
         ),
         "alias": "Information systems presentation (ICALP 1982)",
-    },
-    "DTR97-1.pdf": {
-        "md": "DTR97-1.md",
-        "title": "Topical Categories of Domains",
-        "author": "Steven Vickers",
-        "year": "1996",
-        "citation_key": "Vic96",
-        "bib": (
-            "Vickers, S. Topical Categories of Domains. Draft, December 16, 1996. "
-            "Department of Computing, Imperial College, London."
-        ),
-        "alias": "Stretch goal (constructive categorical domain theory)",
     },
 }
 
