@@ -6,14 +6,18 @@ the PDF.
 
 ## Papers (chronological order)
 
-| # | PDF | Vision OCR output | Legacy pdftotext draft |
-| --- | --- | --- | --- |
-| 1 | `ScottContinLatt1972.pdf` | `ScottContinLatt1972_vision.md` | `ScottContinLatt1972.md` |
-| 2 | `PRG19.pdf` | `PRG19_vision.md` | `PRG19.md` |
-| 3 | `Domains_for_Denotational_Semantics.pdf` | `Domains_for_Denotational_Semantics_vision.md` | `Domains_for_Denotational_Semantics.md` |
+**One transcription per paper.** Each PDF has exactly one Markdown transcription — the good
+copy. The production method is the vision-OCR pipeline below; there is no separate
+pdftotext "legacy" copy.
 
-**Prefer the `*_vision.md` files** for formalization — they use Cursor vision OCR with
-LaTeX notation. The older `*.md` drafts (pdftotext/OCR) remain as fallbacks.
+| # | PDF | Transcription |
+| --- | --- | --- |
+| 1 | `ScottContinLatt1972.pdf` | `ScottContinLatt1972_vision.md` |
+| 2 | `PRG19.pdf` | `PRG19.md` |
+| 3 | `Domains_for_Denotational_Semantics.pdf` | `Domains_for_Denotational_Semantics.md` |
+
+Part I (1972) is a verified vision transcription. Parts II–III still carry an earlier
+extraction to be regenerated with the vision pipeline before they are formalized.
 
 ---
 
@@ -81,18 +85,7 @@ and the venv are gitignored (large/regenerable).
 
 ---
 
-## Legacy workflow: pdftotext draft + cleanup
-
-Faster but **no reliable LaTeX**; useful only as a rough index:
-
-```bash
-python3 scripts/pdf_to_source_md.py ScottContinLatt1972.pdf
-python3 scripts/clean_source_md.py ScottContinLatt1972.md
-```
-
----
-
 ## Formalization follows verification
 
-Lean proofs cite the **verified** `*_vision.md` (theorem numbers, definitions) — not raw
+Lean proofs cite the **verified** transcription (theorem numbers, definitions) — not raw
 PDF extraction.

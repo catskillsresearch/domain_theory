@@ -1,13 +1,10 @@
 ---
-source_pdf: ScottContinLatt1972.pdf
+
+## source_pdf: ScottContinLatt1972.pdf
 ocr_method: cursor-vision-triple-merge
 verification_status: draft
----
 
 # Transcription (LLM vision OCR)
-
-
-<!-- page 1 -->
 
 Scott, D. Continuous lattices. In: Toposes, Algebraic Geometry and Logic, edited by F. Lawvere. Springer-Verlag, LNM, vol. 274, 1972, pp. 97-136.
 
@@ -23,14 +20,13 @@ Starting from the topological point of view a certain wide class of $T_0$-spaces
 
 ## CONTENTS
 
-0. Introduction  
-1. Injective Spaces  
-2. Continuous Lattices  
-3. Function Spaces  
-4. Inverse Limits  
-References
+1. Introduction
+2. Injective Spaces
+3. Continuous Lattices
+4. Function Spaces
+5. Inverse Limits
 
-<!-- page 2 -->
+References
 
 98
 
@@ -40,10 +36,6 @@ Through a roundabout chain of mathematical events I have become interested in $T
 
 What I hope to show in this paper is that from a less geometric point of view $T_0$-spaces can be not only interesting but also natural. The interest for me lies in the construction of *function spaces*, and the main result is the production of a large number of $T_0$-spaces $D$ such that $D$ and $[D \to D]$ are *homeomorphic*. Here $[D \to D]$ is the space of all continuous functions from $D$ into $D$ with the topology of pointwise convergence (the product topology). It will be shown that every space can be embedded in such a space $D$, and that $D$ can be chosen to have quite strong extension properties for $D$-valued continuous functions. These properties make $D$ most convenient for applications to logic and recursive function theory, which was the author's original motivation. Some of the facts about these spaces seem to be most easily proved with the aid of some lattice theory, a circumstance that throws new light on the connections between topology and lattices. In fact, the required spaces are at the same time complete lattices whose topology is determined by the lattice structure in a special way, whence my title.
 
-<!-- page 3 -->
-
-<!-- page 99 -->
-
 99
 
 **1. INJECTIVE SPACES.** All spaces are $T_0$-spaces, and we begin by defining a class of spaces to be called *injective*.
@@ -52,19 +44,19 @@ What I hope to show in this paper is that from a less geometric point of view $T
 
 $$
 \begin{gathered}
-X \subseteq Y \\
-X \xrightarrow{f} D \\
+X \subseteq Y 
+X \xrightarrow{f} D 
 Y \xrightarrow{\bar{f}} D
 \end{gathered}
 $$
 
 Some people will object to this terminology because I use the subspace relationship rather than a monomorphism in the category of $T_0$-spaces and continuous maps. However, only the trivial 1-point space is injective in the sense of monomorphisms in that category, and so the notion is uninteresting. If the reader prefers another terminology, I do not mind. As we shall see these spaces have very strong retraction properties.
 
-A slightly less trivial example of an injective space is the 2-point space $\mathbb{O}$ with "points" $\bot$ and $\top$ where $\{\top\}$ is open but $\{\bot\}$ is not. (This space is sometimes called the *Sierpinski Space*.)
+A slightly less trivial example of an injective space is the 2-point space $\mathbb{O}$ with "points" $\bot$ and $\top$ where $\top$ is open but $\bot$ is not. (This space is sometimes called the *Sierpinski Space*.)
 
 **1.2 Proposition.** The space $\mathbb{O}$ is injective.
 
-**Proof:** As is obvious, the continuous maps $f: X \to \mathbb{O}$ are in a one-one correspondence with the open subsets of $X$ (consider $f^{-1}(\{\top\})$). If $X \subseteq Y$ as a subspace, then an open subset of $X$ is the restriction of some open subset of $Y$. Thus any $f: X \to \mathbb{O}$ can be extended to $\bar{f}: Y \to \mathbb{O}$. $\square$
+**Proof:** As is obvious, the continuous maps $f: X \to \mathbb{O}$ are in a one-one correspondence with the open subsets of $X$ (consider $f^{-1}(\top)$). If $X \subseteq Y$ as a subspace, then an open subset of $X$ is the restriction of some open subset of $Y$. Thus any $f: X \to \mathbb{O}$ can be extended to $\bar{f}: Y \to \mathbb{O}$. $\square$
 
 **1.3 Proposition.** The Cartesian product of any number of injective spaces is injective under the product topology.
 
@@ -76,14 +68,10 @@ We now have a large number of injective spaces, and further examples could be fo
 
 **Proof:** Let $D$ be injective. By a retract of $D$ we understand a subspace $D' \subseteq D$ for which there exists a retraction map $j: D \to D'$ such that
 
-<!-- page 4 -->
-
-<!-- page 100 -->
-
 100
 
 $$
-D' = \{x \in D : j(x) = x\}.
+D' = x \in D : j(x) = x.
 $$
 
 Then if $f: X \to D'$ and $X \subseteq Y$, we have $f: X \to D$ as a continuous map also. Taking $\bar{f}: Y \to D$, we have only to form
@@ -107,16 +95,16 @@ $$
 be the Cartesian power of $\mathbb{O}$. Then $D$ is injective by 1.3. Define the map $e: X \to D$ by:
 
 $$
-e(x)(U) = \begin{cases} \top & \text{if } x \in U, \\ \bot & \text{if } x \notin U, \end{cases}
+e(x)(U) = \begin{cases} \top & \text{if } x \in U,  \bot & \text{if } x \notin U, \end{cases}
 $$
 
 for $x \in X$ and $U \in \mathfrak{O}$. This map $e$ is continuous in view of the topology given to $\mathbb{O}$ and to $D$. The map $e$ is one-one, because $X$ is $T_0$. Finally, if $U \subseteq X$ is open, then
 
 $$
 \begin{aligned}
-e(U) &= \{e(x) : x \in U\} \\
-&= \{e(x) : e(x)(U) = \top\} \\
-&= e(X) \cap \{t \in D : t(U) \in \{\top\}\},
+e(U) &= e(x) : x \in U 
+&= e(x) : e(x)(U) = \top 
+&= e(X) \cap t \in D : t(U) \in \top,
 \end{aligned}
 $$
 
@@ -128,8 +116,6 @@ which shows that the image $e(U)$ is open in the subspace $e(X) \subseteq D$. Th
 
 **1.7 Corollary.** A space is injective iff it is a retract of every space of which it is a subspace.
 
-<!-- page 5 -->
-
 101
 
 **Proof:** As in the proof of 1.6, this property is obvious for injective spaces. But in view of 1.5 every such space is a retract of a power of $\mathbb{O}$ and hence is injective. $\square$
@@ -138,8 +124,8 @@ As a result of these very elementary considerations, the injective spaces could 
 
 $$
 \begin{gathered}
-X \xrightarrow{e} Y \\
-X \xrightarrow{f} \mathbb{O} \\
+X \xrightarrow{e} Y 
+X \xrightarrow{f} \mathbb{O} 
 Y \xrightarrow{\bar{f}} \mathbb{O}
 \end{gathered}
 $$
@@ -163,7 +149,7 @@ In the converse direction, every partially ordered set $\langle X, \sqsubseteq \
 The axioms for partial order make $X$ a $T_0$-space, because for any $y \in X$ the set
 
 $$
-\{x \in X : x \not\sqsubseteq y\}
+x \in X : x \not\sqsubseteq y
 $$
 
 is open. This connection is not very interesting, however.
@@ -174,16 +160,12 @@ $$
 x : I \to X
 $$
 
-<!-- page 6 -->
-
-<!-- page 102 -->
-
 102
 
 where $\langle I, \le \rangle$ is a directed set and where $i \le j$ implies $x_i \sqsubseteq x_j$ for all $i, j \in I$. In a $T_1$-space a monotone net is constant (hence, uninteresting) because the $\sqsubseteq$-relation is the identity. As usual (cf. Kelley (1955), p.66) we say that a net $x$ *converges* to an element $y$ iff whenever $U$ is open and $y \in U$, then for some $i \in I$ we have $x_j \in U$ for all $j \ge i$. Note that a monotone net $x$ converges to each of its terms $x_i$. Suppose that a monotone net $x$ converges to an element $y$ which is an upper bound to all the terms of $x$. Then $y$ must be the *least upper bound*, which we write as:
 
 $$
-y = \bigsqcup \{x_i : i \in I\}.
+y = \bigsqcup x_i : i \in I.
 $$
 
 To see this, assume that $z$ is any other upper bound with $x_i \sqsubseteq z$ for all $i \in I$. If $U$ is open and $y \in U$, then $x_i \in U$ for some $i \in I$. But then $z \in U$, and so $y \sqsubseteq z$ follows.
@@ -192,12 +174,12 @@ We shall find that most of the facts about the topology of the spaces we are con
 
 (ii) whenever $S \subseteq X$ is *directed*, $\bigsqcup S$ exists, and $\bigsqcup S \in U$, then $S \cap U \neq \emptyset$.
 
-By a directed subset of $X$ we of course mean that it is directed in the sense of the partial ordering $\sqsubseteq$. Note that in this paper directed sets are always *non-empty*. The sets satisfying (i) and (ii) form the *induced topology* on a partially ordered set $X$, which is still a $T_0$-space because the sets $\{x \in X : x \not\sqsubseteq y\}$ remain open even in the sense of (ii). Obviously a directed set $S \subseteq X$ can be regarded as a net, and now in view of (ii) it follows that $S$ converges to $\bigsqcup S$ — if this lub exists. We can summarize this discussion as follows.
+By a directed subset of $X$ we of course mean that it is directed in the sense of the partial ordering $\sqsubseteq$. Note that in this paper directed sets are always *non-empty*. The sets satisfying (i) and (ii) form the *induced topology* on a partially ordered set $X$, which is still a $T_0$-space because the sets $x \in X : x \not\sqsubseteq y$ remain open even in the sense of (ii). Obviously a directed set $S \subseteq X$ can be regarded as a net, and now in view of (ii) it follows that $S$ converges to $\bigsqcup S$ — if this lub exists. We can summarize this discussion as follows.
 
 **2.1 Proposition.** *In a partially ordered set $X$ with the induced topology, a monotone net $x : I \to X$ with a least upper bound converges to an element $y \in X$ iff*
 
 $$
-y \sqsubseteq \bigsqcup \{x_i : i \in I\}.
+y \sqsubseteq \bigsqcup x_i : i \in I.
 $$
 
 $\square$
@@ -205,19 +187,17 @@ $\square$
 Our main interest will lie with those partially ordered sets in which every subset has a lub: namely, *complete lattices*. If $D$ is such a space we write $\bot = \bigsqcup \emptyset$ and $\top = \bigsqcup D$ for the smallest and largest elements (read: bottom and top). As is well known, greatest lower bounds must exist, for:
 
 $$
-\sqcap S = \bigsqcup \{x \in D : x \sqsubseteq y \text{ for all } y \in S\}
+\sqcap S = \bigsqcup x \in D : x \sqsubseteq y \text{ for all } y \in S
 $$
 
 gives the definition.
 
 Given a complete lattice $D$ we define
 
-<!-- page 7 -->
-
 103
 
 $$
-x \ll y \text{ iff } y \in \text{Int}\,\{z \in D : x \sqsubseteq z\},
+x \ll y \text{ iff } y \in \text{Int}z \in D : x \sqsubseteq z,
 $$
 
 where the interior is taken in the sense of the induced topology. The relation $x \ll y$ behaves somewhat like a strict ordering relation; at least its meaning is clearly that $y$ should be definitely larger than $x$ in the partial ordering. Such a relation has many pleasant properties.
@@ -236,7 +216,7 @@ The primary purpose of introducing it is to provide a simple definition for the 
 
 (v) $x \ll y$ implies $x \sqsubseteq y$;
 
-(vi) $x \ll x$ iff $\{z \in D : x \sqsubseteq z\}$ is open;
+(vi) $x \ll x$ iff $z \in D : x \sqsubseteq z$ is open;
 
 (vii) if $S \subseteq D$ is directed, then $x \ll \bigsqcup S$ iff $x \ll y$ for some $y \in S$. $\square$
 
@@ -245,7 +225,7 @@ The proofs of these statements can be safely left to the reader.
 **2.3 Definition.** A *continuous lattice* is a complete lattice $D$ in which for every $y \in D$ we have:
 
 $$
-y = \bigsqcup \{x \in D : x \ll y\}.
+y = \bigsqcup x \in D : x \ll y.
 $$
 
 As an alternate definition we find:
@@ -253,12 +233,12 @@ As an alternate definition we find:
 **2.4 Proposition.** A complete lattice $D$ is continuous iff for every $y \in D$ we have:
 
 $$
-y = \bigsqcup \{\sqcap U : y \in U\},
+y = \bigsqcup \sqcap U : y \in U,
 $$
 
 where $U$ ranges over the open subsets of $D$.
 
-**Proof:** Suppose $D$ is continuous. If $y \in D$ and $x \ll y$, then let $U = \text{Int}\,\{z : x \sqsubseteq z\}$, an open set. Now $y \in U$ by definition, and $U \subseteq \{z : x \sqsubseteq z\}$. Thus,
+**Proof:** Suppose $D$ is continuous. If $y \in D$ and $x \ll y$, then let $U = \text{Int}z : x \sqsubseteq z$, an open set. Now $y \in U$ by definition, and $U \subseteq z : x \sqsubseteq z$. Thus,
 
 $$
 x \sqsubseteq \sqcap U \sqsubseteq y.
@@ -268,16 +248,12 @@ It easily follows by lattice theory that the equation of 2.3 implies that of 2.4
 
 In the converse direction we have only to note that if $U$ is open and $y \in U$, then $\sqcap U \ll y$. The implication from 2.4 to 2.3 results at once. $\square$
 
-<!-- page 8 -->
-
-<!-- page 8 -->
-
 104
 
 What is the idea of this definition? A continuous lattice is more special than a complete lattice: not only are lubs to be limits but every element must be a limit from below. This rather rough remark can be made more precise. In any complete lattice $D$ define the *principal limit* of a net $x : I \to D$ by the formula:
 
 $$
-\lim \langle x_i : i \in I \rangle = \bigsqcup \{\sqcap \{ x_j : j \ge i \} : i \in I \}.
+\lim \langle x_i : i \in I \rangle = \bigsqcup \sqcap  x_j : j \ge i  : i \in I .
 $$
 
 Then specify that $x$ converges to $y \in D$ iff
@@ -291,15 +267,15 @@ Having a notion of convergence, we can then say that $U \subseteq D$ is open iff
 For obviously by construction the limit definition of convergence implies the topological. Now if $D$ is a continuous lattice and $x$ converges to $y$ topologically, consider an open $U \subseteq D$ with $y \in U$. For some $i \in I$ we shall have $x_j \in U$ for all $j \ge i$. Therefore
 
 $$
-\sqcap U \sqsubseteq \sqcap \{ x_j : j \ge i \} \sqsubseteq \lim \langle x_i : i \in I \rangle.
+\sqcap U \sqsubseteq \sqcap  x_j : j \ge i  \sqsubseteq \lim \langle x_i : i \in I \rangle.
 $$
 
 From the formula of 2.4 it at once follows that $y \sqsubseteq \lim \langle x_i : i \in I \rangle$. Thus, in continuous lattices, we have shown that the two notions of convergence are the same.
 
-Finally, suppose that the two notions coincide for a complete lattice $D$. Define a directed set $I = \{(U, z) : y, z \in U\}$, where $z$ ranges over $D$ and $U$ over open subsets of $D$. This set is directed by the relation: $(U, z) \le (V, w)$ iff $U \supseteq V$. Let $x : I \to D$ be given by: $x(U, z) = z$. Then $x$ is a net converging to $y$ topologically. But
+Finally, suppose that the two notions coincide for a complete lattice $D$. Define a directed set $I = (U, z) : y, z \in U$, where $z$ ranges over $D$ and $U$ over open subsets of $D$. This set is directed by the relation: $(U, z) \le (V, w)$ iff $U \supseteq V$. Let $x : I \to D$ be given by: $x(U, z) = z$. Then $x$ is a net converging to $y$ topologically. But
 
 $$
-\lim \langle x_i : i \in I \rangle = \bigsqcup \{\sqcap U : y \in U\}.
+\lim \langle x_i : i \in I \rangle = \bigsqcup \sqcap U : y \in U.
 $$
 
 In this way we see that the assumption about the two styles of convergence implies that $D$ is a continuous lattice in view of 2.4.
@@ -315,30 +291,28 @@ for all nets $x : I \to D$. This is all very fine, but general limits are messy 
 Before going any deeper, however, we should clear up another point about topologies. Suppose that $D$ is any $T_0$-space which becomes a complete lattice under its induced partial ordering. Then it is evident from our definitions that every set open in the given topology is also open in the topology induced from the lattice structure. Question: when do the two topologies agree? Answer: a sufficient condition is that the equation:
 
 $$
-y = \bigsqcup \{\sqcap U : y \in U\}
+y = \bigsqcup \sqcap U : y \in U
 $$
 
-hold for all $y \in D$, where $U$ ranges over the given open sets. Because in that case if $V$ is open in the lattice sense and $y \in V$, then $\sqcap U \in V$ for some set $U$, open in the given sense, where $y \in U$. But $U \subseteq V$ follows, and so $V$ is a union of given open sets and is itself open in the given topology. Of course this equation implies that $D$ is a continuous lattice by virtue of 2.4. Notice that by the same token the sets of the form $\{y \in D : x \ll y\}$ will form a basis for the open sets of a continuous lattice.
-
-<!-- page 9 -->
+hold for all $y \in D$, where $U$ ranges over the given open sets. Because in that case if $V$ is open in the lattice sense and $y \in V$, then $\sqcap U \in V$ for some set $U$, open in the given sense, where $y \in U$. But $U \subseteq V$ follows, and so $V$ is a union of given open sets and is itself open in the given topology. Of course this equation implies that $D$ is a continuous lattice by virtue of 2.4. Notice that by the same token the sets of the form $y \in D : x \ll y$ will form a basis for the open sets of a continuous lattice.
 
 105
 
-hold for all $y \in D$, where $U$ ranges over the given open sets. Because in that case if $V$ is open in the lattice sense and $y \in V$, then $\sqcap U \in V$ for some set $U$, open in the given sense, where $y \in U$. But $U \subseteq V$ follows, and so $V$ is a union of given open sets and is itself open in the given topology. Of course this equation implies that $D$ is a continuous lattice by virtue of 2.4. Notice that by the same token the sets of the form $\{y \in D : x \ll y\}$ will form a basis for the open sets of a continuous lattice.
+hold for all $y \in D$, where $U$ ranges over the given open sets. Because in that case if $V$ is open in the lattice sense and $y \in V$, then $\sqcap U \in V$ for some set $U$, open in the given sense, where $y \in U$. But $U \subseteq V$ follows, and so $V$ is a union of given open sets and is itself open in the given topology. Of course this equation implies that $D$ is a continuous lattice by virtue of 2.4. Notice that by the same token the sets of the form $y \in D : x \ll y$ will form a basis for the open sets of a continuous lattice.
 
 **2.5 Proposition.** *If $D$ and $D'$ are complete lattices with their induced topologies, then a function $f : D \to D'$ is continuous iff for all directed subsets $S \subseteq D$:*
 
 $$
-f(\bigsqcup S) = \bigsqcup \{f(x) : x \in S\}.
+f(\bigsqcup S) = \bigsqcup f(x) : x \in S.
 $$
 
 **Proof:** If $f : D \to D'$ is continuous, the equation follows from the definition of continuous function and the fact that lubs are limits. Assume then that the equation holds for all directed sets $S$. Let $U' \subseteq D'$ be open in $D'$ and let
 
 $$
-U = \{x \in D : f(x) \in U'\}.
+U = x \in D : f(x) \in U'.
 $$
 
-We must show that $U$ is open in $D$. Note first that if $x \sqsubseteq y$, then $S = \{x, y\}$ is directed; hence,
+We must show that $U$ is open in $D$. Note first that if $x \sqsubseteq y$, then $S = x, y$ is directed; hence,
 
 $$
 f(x \sqcup y) = f(y) = f(x) \sqcup f(y),
@@ -357,17 +331,15 @@ $$
 is a map where the separate continuity holds as follows:
 
 $$
-f(\bigsqcup S, y) = \bigsqcup \{f(x, y) : x \in S\}
+f(\bigsqcup S, y) = \bigsqcup f(x, y) : x \in S
 $$
-
-<!-- page 10 -->
 
 106
 
 and
 
 $$
-f(x, \bigsqcup S') = \bigsqcup \{f(x, y) : y \in S'\}
+f(x, \bigsqcup S') = \bigsqcup f(x, y) : y \in S'
 $$
 
 where $S \subseteq D$ and $S' \subseteq D'$ are directed and $x \in D$ and $y \in D'$. Let now
@@ -385,13 +357,13 @@ $$
 Thus by assumption
 
 $$
-f(\bigsqcup S^*) = \bigsqcup \{f(x, y) : x \in S,\, y \in S'\}.
+f(\bigsqcup S^*) = \bigsqcup f(x, y) : x \in S, y \in S'.
 $$
 
 But since $S^*$ is directed, $x \in S$ and $y \in S'$ implies $x \sqsubseteq u$ and $y \sqsubseteq v$ for $(u, v) \in S^*$. Thus by monotonicity of $f$ we can show
 
 $$
-f(\bigsqcup S^*) = \bigsqcup \{f(u, v) : (u, v) \in S^*\}
+f(\bigsqcup S^*) = \bigsqcup f(u, v) : (u, v) \in S^*
 $$
 
 and that gives the joint continuity. $\square$
@@ -403,32 +375,30 @@ One of the justifications (by euphony at least) of the term *continuous lattice*
 **Proof:** It is trivial to show that $\sqcup$ is continuous in every complete lattice; this is not so for $\sqcap$. In view of 2.6 we need only show
 
 $$
-x \sqcap \bigsqcup S = \bigsqcup \{x \sqcap y : y \in S\}
+x \sqcap \bigsqcup S = \bigsqcup x \sqcap y : y \in S
 $$
 
 for every directed $S \subseteq D$. In fact it is enough to show
 
 $$
-x \sqcap \bigsqcup S \sqsubseteq \bigsqcup \{x \sqcap y : y \in S\}
+x \sqcap \bigsqcup S \sqsubseteq \bigsqcup x \sqcap y : y \in S
 $$
 
 because the opposite inequality is valid in all complete lattices. In view of the fact that $D$ is continuous, it is enough to show that
 
 $$
-t \ll x \sqcap \bigsqcup S \text{ implies } t \sqsubseteq \bigsqcup \{x \sqcap y : y \in S\}.
+t \ll x \sqcap \bigsqcup S \text{ implies } t \sqsubseteq \bigsqcup x \sqcap y : y \in S.
 $$
 
 So assume $t \ll x \sqcap \bigsqcup S$. Then $t \sqsubseteq x \sqcap \bigsqcup S \sqsubseteq x$. Also $t \ll \bigsqcup S$ because $x \sqcap \bigsqcup S \sqsubseteq \bigsqcup S$. Thus $t \ll y$ for some $y \in S$ since the set
 
 $$
-\{z \in D : t \ll z\}
+z \in D : t \ll z
 $$
 
 is open. But then $t \sqsubseteq y$, and so $t \sqsubseteq x \sqcap y$, and the result follows. $\square$
 
 It is now time to provide some examples of continuous lattices.
-
-<!-- page 11 -->
 
 107
 
@@ -457,47 +427,45 @@ $$
 is a complete lattice in the usual way and has its induced topology. Suppose $y \in D^*$ and let $i \in I$. Then $y_i \in D_i$. Since $D_i$ is a continuous lattice
 
 $$
-y_i = \bigsqcup \{x \in D_i : x \ll y_i\}.
+y_i = \bigsqcup x \in D_i : x \ll y_i.
 $$
 
 For $x \in D_i$, let $[x]^i \in D^*$ be defined by:
 
 $$
-[x]^i_j = \begin{cases} x & \text{if } i = j, \\ \perp & \text{if } i \neq j. \end{cases}
+[x]^i_j = \begin{cases} x & \text{if } i = j,  \perp & \text{if } i \neq j. \end{cases}
 $$
 
 Note that since $D_i$ is continuous we have:
 
 $$
-[y_i]^i = \bigsqcup \{[x]^i : x \ll y_i\},
+[y_i]^i = \bigsqcup [x]^i : x \ll y_i,
 $$
 
 and
 
 $$
-y = \bigsqcup \{[y_i]^i : i \in I\}.
+y = \bigsqcup [y_i]^i : i \in I.
 $$
-
-<!-- page 12 -->
 
 108
 
 It follows that
 
 $$
-y = \bigsqcup \bigl\{ \bigcap \{ z : z_i \in U \} : i \in I,\, y_i \in U \bigr\},
+y = \bigsqcup \bigl \bigcap  z : z_i \in U  : i \in I, y_i \in U \bigr,
 $$
 
 where $i$ ranges over $I$ and $U$ over the open subsets of $D_i$, because
 
 $$
-[x]^i \sqsubseteq \bigcap \{ z : z_i \in U \}, \quad \text{where } U = \{ u \in D_i : x \ll u \}.
+[x]^i \sqsubseteq \bigcap  z : z_i \in U , \quad \text{where } U =  u \in D_i : x \ll u .
 $$
 
-But the sets $\{ z : z_i \in U \}$ are open in the product sense, and so
+But the sets $ z : z_i \in U $ are open in the product sense, and so
 
 $$
-y = \bigsqcup \{ \bigcap U : y \in U \},
+y = \bigsqcup  \bigcap U : y \in U ,
 $$
 
 where $U$ ranges now over the open subsets of the product topology on $D^*$. By the remark following 2.4 we conclude that $D^*$ is continuous with the lattice-induced topology being the product topology. $\square$
@@ -507,7 +475,7 @@ where $U$ ranges now over the open subsets of the product topology on $D^*$. By 
 Let $D'$ be a continuous lattice and let $D \subseteq D'$ be a subspace which is a retract. We have for a suitable $j : D' \to D$,
 
 $$
-D = \{ x \in D' : j(x) = x \},
+D =  x \in D' : j(x) = x ,
 $$
 
 where of course $j$ is continuous.
@@ -519,7 +487,7 @@ Suppose $x, y \in D$. Let $z' = x \sqcup y \in D'$ (join taken in $D'$) and defi
 To show that $D$ has a least element $\bot$ (which may be larger than the $\bot' \in D'$), we need a well-known lemma about monotonic functions: Every monotonic function on a complete lattice into itself has a least fixed point. (Cf. Birkhoff (1970), p. 115.) In our case $j$ is monotonic and
 
 $$
-\bot = \bigsqcap \{ x \in D' : j(x) \sqsubseteq x \}'
+\bot = \bigsqcap  x \in D' : j(x) \sqsubseteq x '
 $$
 
 is the desired element in $D$.
@@ -534,14 +502,12 @@ and this is a limit of a monotone net. So by 2.1, and the continuity of $j$:
 
 $$
 \begin{aligned}
-j(\bigsqcup S') &= \bigsqcup \{ j(x) : x \in S \} \\
+j(\bigsqcup S') &= \bigsqcup  j(x) : x \in S  
 &= \bigsqcup S
 \end{aligned}
 $$
 
 in $D$. In this way we now know that $D$ is a complete lattice. We must
-
-<!-- page 13 -->
 
 109
 
@@ -549,15 +515,15 @@ still show that $D$ is continuous.
 
 Suppose $y \in D$. In $D'$ we can write:
 
-$$y = \bigsqcup \{ x \in D' : x \ll y \}'$$
+$$y = \bigsqcup  x \in D' : x \ll y '$$
 
 and this is the limit of a monotone net. Thus
 
-$$j(y) = y = \bigsqcup \{ j(x) : x \ll y,\, x \in D' \},$$
+$$j(y) = y = \bigsqcup  j(x) : x \ll y, x \in D' ,$$
 
 where the lub is taken in $D$. Note that the sets
 
-$$U = \{ z \in D : x \ll z \}$$
+$$U =  z \in D : x \ll z $$
 
 are open in $D$ for each $x \in D'$. Note too that if $z \in U$, then $x \sqsubseteq z$ and so $j(x) \sqsubseteq j(z) = z$. This means that
 
@@ -565,11 +531,11 @@ $$j(x) \sqsubseteq \bigsqcap U$$
 
 in $D$. We can then write in $D$:
 
-$$y = \bigsqcup \{ \bigsqcap U : y \in U \}$$
+$$y = \bigsqcup  \bigsqcap U : y \in U $$
 
 where $U$ ranges over the open subsets of $D$, and so the lattice is continuous by 2.4. Inasmuch as the open sets $U$ just used were open in the subspace topology, it follows by the remark after 2.4 that the subspace and the lattice-induced topologies coincide. $\square$
 
-<u>Proof of 2.11</u>: Let $D$ be a continuous lattice with its induced topology, and let $X \subseteq Y$ be two $T_0$-spaces in the subspace relation. Suppose
+++Proof of 2.11++: Let $D$ be a continuous lattice with its induced topology, and let $X \subseteq Y$ be two $T_0$-spaces in the subspace relation. Suppose
 
 $$f : X \to D$$
 
@@ -579,7 +545,7 @@ $$\bar{f} : Y \to D$$
 
 by the formula:
 
-$$\bar{f}(y) = \bigsqcup \bigl\{ \bigsqcap \{ f(x) : x \in X \cap U \} : y \in U \bigr\},$$
+$$\bar{f}(y) = \bigsqcup \bigl \bigsqcap  f(x) : x \in X \cap U  : y \in U \bigr,$$
 
 where $U$ ranges over the open subsets of $Y$. We need to show that $\bar{f}$ extends $f$ and that it is continuous.
 
@@ -589,11 +555,9 @@ $$d \ll d' \ll \bar{f}(y)$$
 
 with $d' \in D$. From the definition of $\bar{f}$ it follows that
 
-$$d' \sqsubseteq \bigsqcap \{ f(x) : x \in X \cap U \}$$
+$$d' \sqsubseteq \bigsqcap  f(x) : x \in X \cap U $$
 
 for some open $U \subseteq Y$ with $y \in U$. Thus
-
-<!-- page 14 -->
 
 110
 
@@ -615,7 +579,7 @@ $$d \ll f(x'')$$
 
 for all $x'' \in X \cap U$ where $U$ is a suitable open subset of $Y$ with $x' \in U$. In particular we have:
 
-$$d \sqsubseteq \bigsqcap \{ f(x'') : x'' \in X \cap U \},$$
+$$d \sqsubseteq \bigsqcap  f(x'') : x'' \in X \cap U ,$$
 
 and so $d \sqsubseteq \bar{f}(x')$. Since $d \ll f(x')$ always implies $d \sqsubseteq \bar{f}(x')$, we see that $f(x') \sqsubseteq \bar{f}(x')$ follows by the continuity of $D$, and the proof is complete. $\square$
 
@@ -629,13 +593,11 @@ then $x \sqsubseteq z$ for some $z \in Z$.
 
 Finally we assume that for all $y \in D$:
 
-$$y = \bigsqcup \{ x \in D : x \ll y \}.$$
+$$y = \bigsqcup  x \in D : x \ll y .$$
 
-That makes $D$ a continuous lattice with the sets $\{ y \in D : x \ll y \}$ as a basis for the topology. Such $T_0$-spaces are injective and every injective space can be obtained in this way with the lattice structure being uniquely determined by the topology. Furthermore, as we have seen, the injective property can be exhibited, as in the proof of 2.11, by an explicit formula for extending functions.
+That makes $D$ a continuous lattice with the sets $ y \in D : x \ll y $ as a basis for the topology. Such $T_0$-spaces are injective and every injective space can be obtained in this way with the lattice structure being uniquely determined by the topology. Furthermore, as we have seen, the injective property can be exhibited, as in the proof of 2.11, by an explicit formula for extending functions.
 
 The retract approach to injective spaces should also be considered. The Cartesian powers $\mathbb{O}^I$ are very simple spaces; indeed, as lattices these are just the Boolean algebras of *all subsets* of $I$ (that is, isomorphic thereto). The topology has as a basis the
-
-<!-- page 15 -->
 
 111
 
@@ -645,7 +607,7 @@ $$j : \mathcal{P}I \to \mathcal{P}I$$
 
 is one of "finite character" so that
 
-$$j(X) = \bigcup \{ j(F) : F \subseteq X \}$$
+$$j(X) = \bigcup  j(F) : F \subseteq X $$
 
 where $X \subseteq I$ and $F$ ranges over *finite sets*. Such a function $j$ is a *retraction* iff it is an *idempotent*:
 
@@ -653,7 +615,7 @@ $$j \circ j = j,$$
 
 which means that the range of $j$ is the set of fixed points of $j$. As we have seen
 
-$$D = \{ X \in \mathcal{P}I : j(X) = X \}$$
+$$D =  X \in \mathcal{P}I : j(X) = X $$
 
 is a continuous lattice (under $\subseteq$ in this case), and *every* continuous lattice is isomorphic to one obtained in this way. This provides a representation theorem of sorts for continuous lattices, but it does not seem to be of too much help in proving theorems.
 
@@ -663,7 +625,7 @@ The reader should not forget that any space (any *given* number of spaces $X$, $
 
 **3.1 Definition.** For $T_0$-spaces $X$ and $Y$ we let $[X \to Y]$ be the *space of all continuous functions* $f : X \to Y$ endowed with the product topology, sometimes called the topology of pointwise convergence. This topology has as a subbase sets of the form:
 
-$$\{ f : f(x) \in U \}$$
+$$ f : f(x) \in U $$
 
 where $x \in X$ and $U \subseteq Y$ is open.
 
@@ -674,8 +636,6 @@ The pointwise aspect of the topology is immediately apparent in the partial orde
 $$f \sqsubseteq g \quad \text{iff} \quad f(x) \sqsubseteq g(x) \text{ for all } x \in X,$$
 
 where $f, g \in [X \to Y]$. $\square$
-
-<!-- page 16 -->
 
 112
 
@@ -689,43 +649,41 @@ The first question, of course, is what kind of a partial ordering this is.
 
 $$(f \sqcup g)(x) = f(x) \sqcup g(x)$$
 
-for all $x \in D$, is also continuous and represents the lub of $\{f, g\}$ in $[D \to D']$. (The same arguments apply to $\top$ and $\sqcap$, so $[D \to D']$ is at least a lattice.) To show that $[D \to D']$ is complete it is sufficient now to show that lubs of directed subsets exist. So let $\mathcal{F} \subseteq [D \to D']$ be directed. Define a function from $D$ into $D'$ by the equation:
+for all $x \in D$, is also continuous and represents the lub of $f, g$ in $[D \to D']$. (The same arguments apply to $\top$ and $\sqcap$, so $[D \to D']$ is at least a lattice.) To show that $[D \to D']$ is complete it is sufficient now to show that lubs of directed subsets exist. So let $\mathcal{F} \subseteq [D \to D']$ be directed. Define a function from $D$ into $D'$ by the equation:
 
-$$(\bigsqcup \mathcal{F})(x) = \bigsqcup \{f(x) : f \in \mathcal{F}\},$$
+$$(\bigsqcup \mathcal{F})(x) = \bigsqcup f(x) : f \in \mathcal{F},$$
 
 for all $x \in D$. If we can show that $\bigsqcup \mathcal{F}$ is continuous, then being in $[D \to D']$ it has to be the lub. Consider $U \subseteq D'$, an open subset. Taking the inverse image and remembering that $\mathcal{F}$ is directed, we find:
 
-$$\{x : (\bigsqcup \mathcal{F})(x) \in U\} = \bigcup \{\{x : f(x) \in U\} : f \in \mathcal{F}\}.$$
+$$x : (\bigsqcup \mathcal{F})(x) \in U = \bigcup x : f(x) \in U : f \in \mathcal{F}.$$
 
 This is an open set, and so $\bigsqcup \mathcal{F}$ is indeed continuous. (Warning: the infinite $\sqcap \mathcal{F}$ are not in general computed pointwise; however, it is easy to extend the above argument to show that arbitrary $\bigsqcup \mathcal{F}$ are.)
 
 To show that $[D \to D']$ is continuous, we establish first that for $f \in [D \to D']$
 
-$$f = \bigsqcup \{\overrightarrow{e}[e, e'] : e' \ll f(e)\},$$
+$$f = \bigsqcup \overrightarrow{e}[e, e'] : e' \ll f(e),$$
 
 where $e$ ranges over $D$ and $e'$ over $D'$, and where the function $\overrightarrow{e}[e, e']$ is defined by:
 
-$$\overrightarrow{e}[e, e'](x) = \begin{cases} e' & \text{if } e \ll x, \\ \bot & \text{if not,} \end{cases}$$
+$$\overrightarrow{e}[e, e'](x) = \begin{cases} e' & \text{if } e \ll x,  \bot & \text{if not,} \end{cases}$$
 
 for all $x \in D$. Call the function on the right $f'$. Calculate:
-
-<!-- page 17 -->
 
 113
 
 $$
-f'(x) = \bigsqcup \{\overrightarrow{e}[e, e'](x) : e' \ll f(e)\}
+f'(x) = \bigsqcup \overrightarrow{e}[e, e'](x) : e' \ll f(e)
 $$
 
 $$
-= \bigsqcup \{ e' : \exists e \ll x\ [e' \ll f(e)] \}
+= \bigsqcup  e' : \exists e \ll x\ [e' \ll f(e)] 
 $$
 
 $$
-= \bigsqcup \{ e' : e' \ll f(x) \} = f(x).
+= \bigsqcup  e' : e' \ll f(x)  = f(x).
 $$
 
-With the equation for $f$ proved, note next that for all $g \in [D \to D']$, $e' \ll g(e)$ implies $\overrightarrow{e}[e, e'] \sqsubseteq g$ by an easy pointwise argument. If we let $V = \{ g : e' \ll g(e) \}$, we see then that $V$ is open in the product topology and that $\overrightarrow{e}[e, e'] \sqsubseteq \sqcap V$. We may then conclude that $f = \bigsqcup \{ \sqcap V : f \in V \}$, which proves both that $[D \to D']$ is a continuous lattice and that the two topologies agree by the remark following 2.4. $\square$
+With the equation for $f$ proved, note next that for all $g \in [D \to D']$, $e' \ll g(e)$ implies $\overrightarrow{e}[e, e'] \sqsubseteq g$ by an easy pointwise argument. If we let $V =  g : e' \ll g(e) $, we see then that $V$ is open in the product topology and that $\overrightarrow{e}[e, e'] \sqsubseteq \sqcap V$. We may then conclude that $f = \bigsqcup  \sqcap V : f \in V $, which proves both that $[D \to D']$ is a continuous lattice and that the two topologies agree by the remark following 2.4. $\square$
 
 The above theorem might possibly be generalized to $[X \to D]$ where $X$ is merely a $T_0$-space, but I was unable to see the argument. In any case we are mostly interested in the continuous lattices. Note as a consequence of our proof:
 
@@ -748,8 +706,6 @@ $$
 $$
 
 is continuous.
-
-<!-- page 18 -->
 
 114
 
@@ -779,8 +735,8 @@ The proof of the principle is easy. For let the variable $y$, say range over $D'
 
 $$
 \begin{aligned}
-\lambda x : D . \mathcal{E}(x, \bigsqcup S, z, \dots) &= \lambda x : D . \bigsqcup \{ \mathcal{E}(x, y, z, \dots) : y \in S \} \\
-&= \bigsqcup \{ \lambda x : D . \mathcal{E}(x, y, z, \dots) : y \in S \},
+\lambda x : D . \mathcal{E}(x, \bigsqcup S, z, \dots) &= \lambda x : D . \bigsqcup  \mathcal{E}(x, y, z, \dots) : y \in S  
+&= \bigsqcup  \lambda x : D . \mathcal{E}(x, y, z, \dots) : y \in S ,
 \end{aligned}
 $$
 
@@ -794,8 +750,6 @@ $$
 
 What will be useful will be to return at this point to a discussion of the injective properties of continuous lattices. If one continuous lattice is a subspace of another it is of course a retract. This relationship between spaces can be given by a pair of continuous maps
 
-<!-- page 19 -->
-
 115
 
 $$i : D \to D' \quad \text{and} \quad j : D' \to D,$$
@@ -808,8 +762,8 @@ The composition $i \circ j : D' \to i(D)$ is the retraction onto the subspace co
 
 $$
 \begin{gathered}
-D \xrightarrow[\ j\ ]{i} D' \\
-f \searrow \qquad \swarrow \tilde{f} = f \circ j \\
+D \xrightarrow[\ j\ ]{i} D' 
+f \searrow \qquad \swarrow \tilde{f} = f \circ j 
 D''
 \end{gathered}
 $$
@@ -838,8 +792,6 @@ Thus, in case our retraction is a projection, we have $\tilde{f} \sqsubseteq f'$
 
 $$i_n : D_n \to D'_n \quad \text{and} \quad j_n : D'_n \to D_n$$
 
-<!-- page 20 -->
-
 116
 
 for $n = 0,1$ make $D_n$ a retraction (projection) of $D'_n$. Then $[D_0 \rightarrow D_1]$ is also a retraction (projection) of $[D'_0 \rightarrow D'_1]$ by means of the pair of maps:
@@ -854,7 +806,7 @@ Returning now to $\bar{f}$ we can prove:
 
 **3.8 Proposition.** If $D$ is a continuous lattice and $e : X \rightarrow Y$ a subspace embedding, then for each $f : X \rightarrow D$, the function $\bar{f} : Y \rightarrow D$ given by the formula
 
-$$\bar{f}(y) = \bigsqcup \{ \sqcap \{ f(x) : e(x) \in U \} : y \in U \},$$
+$$\bar{f}(y) = \bigsqcup  \sqcap  f(x) : e(x) \in U  : y \in U ,$$
 
 where $U$ ranges over open subsets of $Y$ and $x$ over $X$, is the maximal extension of $f$ to a function in the partially ordered set $[Y \rightarrow D]$.
 
@@ -866,10 +818,10 @@ We already know it is a solution, so let $f'$ be any other. We have
 
 $$
 \begin{aligned}
-f'(y) &= \bigsqcup \{ \sqcap \{ f'(z) : z \in U \} : y \in U \} \\
-&\sqsubseteq \bigsqcup \{ \sqcap \{ f'(z) : z \in e(X) \cap U \} : y \in U \} \\
-&= \bigsqcup \{ \sqcap \{ f'(e(x)) : e(x) \in U \} : y \in U \} \\
-&= \bigsqcup \{ \sqcap \{ f(x) : e(x) \in U \} : y \in U \} \\
+f'(y) &= \bigsqcup  \sqcap  f'(z) : z \in U  : y \in U  
+&\sqsubseteq \bigsqcup  \sqcap  f'(z) : z \in e(X) \cap U  : y \in U  
+&= \bigsqcup  \sqcap  f'(e(x)) : e(x) \in U  : y \in U  
+&= \bigsqcup  \sqcap  f(x) : e(x) \in U  : y \in U  
 &= \bar{f}(y),
 \end{aligned}
 $$
@@ -882,8 +834,6 @@ $$\overline{g \circ e} \sqsubseteq \bar{f}.$$
 
 But $g \circ e = \overline{g \circ e} \circ e$, so by 3.8, $g \sqsubseteq \overline{g \circ e}$, and $\bar{f}$ is thus maximal.
 
-<!-- page 21 -->
-
 117
 
 In the case that the range spaces are being extended, the following lemma relating the extensions will be very useful when we consider inverse limits.
@@ -892,8 +842,8 @@ In the case that the range spaces are being extended, the following lemma relati
 
 $$
 \begin{gathered}
-X \xrightarrow{\quad e\quad} Y \\
-f \Big\downarrow \qquad\qquad g \searrow \qquad \bar{f} \swarrow \qquad \downarrow \bar{g} \\
+X \xrightarrow{\quad e\quad} Y 
+f \Big\downarrow \qquad\qquad g \searrow \qquad \bar{f} \swarrow \qquad \downarrow \bar{g} 
 D \xrightarrow[\ j\ ]{\quad i\quad} D'
 \end{gathered}
 $$
@@ -940,13 +890,11 @@ $$
 
 for $x \in D$.
 
-<!-- page 22 -->
-
 118
 
 **3.10 Proposition.** If the continuous lattice $D$ is a projection of the continuous lattice $D'$ via the pair of maps $i, j$; then for all $S \subseteq D$ and all $x, y \in D$ we have:
 
-(i) $i(\bigsqcup S) = \bigsqcup \{i(x) : x \in S\}$,
+(i) $i(\bigsqcup S) = \bigsqcup i(x) : x \in S$,
 
 (ii) $i(x) = i(y)$ implies $x = y$,
 
@@ -954,7 +902,7 @@ for $x \in D$.
 
 Conversely, if a map $i : D \to D'$ satisfies (i)–(iii), then there exists a continuous $j : D' \to D$ making $D$ a projection of $D'$, and in fact $j$ is uniquely determined by:
 
-(iv) $j(x') = \bigsqcup \{x \in D : i(x) \sqsubseteq x'\}$
+(iv) $j(x') = \bigsqcup x \in D : i(x) \sqsubseteq x'$
 
 for all $x' \in D'$.
 
@@ -1002,70 +950,66 @@ $$
 
 which completes the argument for equation (i).
 
-<!-- page 23 -->
-
 119
 
 Condition (ii) is obvious. For (iii) we argue as follows. Assume $x \ll y$. Since $D'$ is continuous we can write:
 
-$$i(y) = \bigsqcup \{ z' \in D' : z' \ll i(y) \},$$
+$$i(y) = \bigsqcup  z' \in D' : z' \ll i(y) ,$$
 
 and conclude by the continuity of $j$ that:
 
-$$y = j(i(y)) = \bigsqcup \{ j(z') : z' \ll i(y) \}.$$
+$$y = j(i(y)) = \bigsqcup  j(z') : z' \ll i(y) .$$
 
 But $x \ll y$, so $x \ll j(z')$ for some $z' \ll i(y)$. Now $x \sqsubseteq j(z')$ follows; therefore $i(x) \sqsubseteq i(j(z')) \sqsubseteq z'$. Thus $i(x) \ll i(y)$.
 
 Turning now to the converse, assume of the map $i$ that it satisfies (i)–(iii). Compute:
 
-$$i(j(x')) = \bigsqcup \{ i(x) : i(x) \sqsubseteq x' \} \sqsubseteq x'.$$
+$$i(j(x')) = \bigsqcup  i(x) : i(x) \sqsubseteq x'  \sqsubseteq x'.$$
 
-This is correct because $i$ is continuous and the set $\{ x : i(x) \sqsubseteq x' \}$ is directed in view of condition (i). Thus $i \circ j \sqsubseteq \mathrm{id}_{D'}$. Note that by virtue of (i) and (ii) it is the case that
+This is correct because $i$ is continuous and the set $ x : i(x) \sqsubseteq x' $ is directed in view of condition (i). Thus $i \circ j \sqsubseteq \mathrm{id}_{D'}$. Note that by virtue of (i) and (ii) it is the case that
 
 $$i(x) \sqsubseteq i(y) \text{ implies } x \sqsubseteq y.$$
 
 (The reason is that $x \sqsubseteq y$ is equivalent to $x \sqcup y = y$.) This remark allows us to compute:
 
-$$j(i(y)) = \bigsqcup \{ x : i(x) \sqsubseteq i(y) \}$$
-$$= \bigsqcup \{ x : x \sqsubseteq y \} = y.$$
+$$j(i(y)) = \bigsqcup  x : i(x) \sqsubseteq i(y) $$
+$$= \bigsqcup  x : x \sqsubseteq y  = y.$$
 
 Hence, $j \circ i = \mathrm{id}_D$. It remains to show that $j$ is continuous. Suppose $S' \subseteq D'$ is directed. Since $j$ is by definition monotonic, it is sufficient to prove that
 
-$$j(\bigsqcup S') \sqsubseteq \bigsqcup \{ j(x') : x' \in S' \}.$$
+$$j(\bigsqcup S') \sqsubseteq \bigsqcup  j(x') : x' \in S' .$$
 
 Now
 
-$$j(\bigsqcup S') = \bigsqcup \{ x : i(x) \sqsubseteq \bigsqcup S' \},$$
+$$j(\bigsqcup S') = \bigsqcup  x : i(x) \sqsubseteq \bigsqcup S' ,$$
 
 so suppose $i(x) \sqsubseteq \bigsqcup S'$. Let $z \ll x$; whence $i(z) \ll i(x)$. Thus $i(z) \ll x'$ for some $x' \in S'$, and therefore $i(z) \sqsubseteq x'$. We obtain then $z \sqsubseteq j(x')$, which means that
 
-$$z \sqsubseteq \bigsqcup \{ j(x') : x' \in S' \}$$
+$$z \sqsubseteq \bigsqcup  j(x') : x' \in S' $$
 
 holds for all $z \ll x$. By the continuity of $D$ we conclude
 
-$$x \sqsubseteq \bigsqcup \{ j(x') : x' \in S' \}$$
+$$x \sqsubseteq \bigsqcup  j(x') : x' \in S' $$
 
 holds for all $x$ with $i(x) \sqsubseteq \bigsqcup S'$. The desired result follows. $\square$
 
 As a corollary of 3.10 we can easily see which *subspaces* of a continuous lattice $D'$ are projections of it. Such a subspace $D \subseteq D'$ must first be closed under $\bigsqcup$. That is, if $S \subseteq D$, then $\bigsqcup S \in D$ for
 
-<!-- page 24 -->
-
 120
 
 all $S$, where the lub is taken in the sense of $D'$. The identity map on $D$ will then satisfy (i) and (ii). But this is not enough, since we would not know that $D$ is a continuous lattice, nor whether (iii) holds. The following additional condition would be sufficient, if assumed for all $y \in D$:
 
-$$y = \bigsqcup \{x \in D : x \ll y\},$$
+$$y = \bigsqcup x \in D : x \ll y,$$
 
 where $\ll$ is taken in the sense of $D'$. This implies that
 
-$$y = \bigsqcup \{\sqcap (D \cap U) : y \in U\}$$
+$$y = \bigsqcup \sqcap (D \cap U) : y \in U$$
 
 where $U$ ranges over the open subsets of $D'$ and where the $\sqcap$ is taken in the sense of $D$. This condition makes the subspace topology the same as the lattice topology on $D$ and besides makes $D$ continuous, which is just what we need. (Another way to put it is that whenever $z \ll y$, where $y \in D$ but $z \in D'$, then $z \sqsubseteq x \ll y$, for some $x \in D$.)
 
 It seems a bit troublesome to characterize in a simple way just which maps $j : D' \to D$ are projections. (Other than saying outright that the map $i : D \to D'$ such that for all $x \in D$:
 
-$$i(x) = \sqcap \{x' \in D' : x \sqsubseteq j(x')\}$$
+$$i(x) = \sqcap x' \in D' : x \sqsubseteq j(x')$$
 
 is the continuous partial inverse to $j$.) But we can say very easily which continuous maps $j : D' \to D'$ are projections onto *subspaces*; namely, we must have
 
@@ -1073,27 +1017,25 @@ $$j = j \circ j \sqsubseteq \mathrm{id}.$$
 
 The subspace in question then is:
 
-$$D = \{x \in D' : j(x) = x\}.$$
+$$D = x \in D' : j(x) = x.$$
 
 This non-empty subspace is the exact range of $j$ and is closed under $\bigsqcup$. Let $y \in D$. Then if $x' \ll y$ in $D'$, we find $j(x') \sqsubseteq x' \ll y$. Thus since
 
-$$y = \bigsqcup \{x' \in D' : x' \ll y\},$$
+$$y = \bigsqcup x' \in D' : x' \ll y,$$
 
 we see that
 
-$$y = j(y) = \bigsqcup \{j(x') : x' \ll y\}.$$
+$$y = j(y) = \bigsqcup j(x') : x' \ll y.$$
 
-But each $j(x') \in D$, so $y = \bigsqcup \{x \in D : x \ll y\}$, as desired.
+But each $j(x') \in D$, so $y = \bigsqcup x \in D : x \ll y$, as desired.
 
 The foregoing discussion suggests looking more closely at the space of all projections of a continuous lattice since they are so easily characterized.
-
-<!-- page 25 -->
 
 121
 
 **3.11 Definition.** Given a continuous lattice $D$, we let the space of projections be denoted by:
 
-$$J_D = \{j \in [D \to D] : j = j \circ j \sqsubseteq \mathrm{id}\}.$$
+$$J_D = j \in [D \to D] : j = j \circ j \sqsubseteq \mathrm{id}.$$
 
 **3.12 Proposition.** For a continuous lattice $D$ the space $J_D$ of projections forms a complete lattice as a $\bigsqcup$-closed subspace of $[D \to D]$.
 
@@ -1109,13 +1051,13 @@ because $j(x) \sqcup k(x) \sqsubseteq x$. Similarly for $k(x)$. Therefore, we fi
 
 Suppose finally that $S \subseteq J_D$ is directed. We wish to show that $\bigsqcup S \in J_D$. Clearly $\bigsqcup S \sqsubseteq \mathrm{id}$, so compute by continuity of $\circ$:
 
-$$\bigsqcup S \circ \bigsqcup S = \bigsqcup \{j \circ j : j \in S\} = \bigsqcup \{j : j \in S\} = \bigsqcup S.$$
+$$\bigsqcup S \circ \bigsqcup S = \bigsqcup j \circ j : j \in S = \bigsqcup j : j \in S = \bigsqcup S.$$
 
 It follows that $J_D$ is $\bigsqcup$-closed and hence is a complete lattice. $\square$
 
 The significance of the above result becomes clearer if we consider the connection between projections and subspaces. Let us write:
 
-$$D(j) = \{x \in D : j(x) = x\}.$$
+$$D(j) = x \in D : j(x) = x.$$
 
 For $j \in J_D$, each $D(j)$ is a projection of $D$ onto a subspace. We show first that
 
@@ -1123,13 +1065,11 @@ $$j \sqsubseteq k \quad \text{iff} \quad D(j) \subseteq D(k).$$
 
 Because if $j \sqsubseteq k$, then $j \sqsubseteq j \circ j \sqsubseteq k \circ j \sqsubseteq \mathrm{id} \circ j = j$. Therefore if $j(x) = x$, then $k(x) = k(j(x)) = j(x) = x$, which means that $D(j) \subseteq D(k)$. On the other hand, if $D(j) \subseteq D(k)$, then since $j(D) \subseteq D(j)$, we see that $k \circ j = j$, and so $j \sqsubseteq k \circ \mathrm{id} = k$. Hence $J_D$ is isomorphic to the partially ordered set of subspaces of $D$ that are projections. We thus conclude that these subspaces form a lattice. In fact, it is easy to show that
 
-$$D(j \sqcup k) = \{x \sqcup y : x \in D(j),\, y \in D(k)\}.$$
+$$D(j \sqcup k) = x \sqcup y : x \in D(j), y \in D(k).$$
 
 Similarly, if $S$ is a directed set of $J_D$, then $D(\bigsqcup S)$ is the $\bigsqcup$-closure in $D$ of the subset:
 
-$$\bigcup \{D(j) : j \in S\}.$$
-
-<!-- page 26 -->
+$$\bigcup D(j) : j \in S.$$
 
 122
 
@@ -1155,15 +1095,13 @@ for all $x, y \in D$ and $f \in [D \to D]$. They are obviously continuous. The m
 
 The pair $\mathrm{con}$, $\mathrm{min}$ are not the only pair for making $D$ a projection of $[D \to D]$. The following pair of maps were suggested by David Park:
 
-$$\lambda x.\,\vec{e}[t,x] \quad \text{and} \quad \lambda f.\, f(t),$$
+$$\lambda x.\vec{e}[t,x] \quad \text{and} \quad \lambda f. f(t),$$
 
 where $x$ ranges over $D$, and $f$ over $[D \to D]$, and where $t$ is a fixed *isolated* element of $D$ (that is, $t \ll t$ holds). The pair $\mathrm{con}$ and $\mathrm{min}$ will result if we set $t = \bot$. (Note that the expression $\vec{e}[t,x]$, though continuous in $x$, is not continuous—or even monotonic—in the variable $t$.) A lattice may very well possess a large number of isolated
 
-<!-- page 27 -->
-
 123
 
-elements, whence a large number of projections. And furthermore this is the only way the function $j = \lambda f.\, f(t)$ can be a projection. For assume the existence of an inverse $i : D \to [D \to D]$ satisfying the proper conditions. Then it would be the case that
+elements, whence a large number of projections. And furthermore this is the only way the function $j = \lambda f. f(t)$ can be a projection. For assume the existence of an inverse $i : D \to [D \to D]$ satisfying the proper conditions. Then it would be the case that
 
 $$i(x)(t) = x$$
 
@@ -1177,13 +1115,13 @@ $$i(x)(u) = \bot$$
 
 by substituting $\vec{e}[v,x]$ for $f$ in the second equation above, where $v$ is chosen so that $v \ll t$ but not $v \ll u$. But then note that
 
-$$i(x)(t) = \bigsqcup \{i(x)(u) : u \ll t\}.$$
+$$i(x)(t) = \bigsqcup i(x)(u) : u \ll t.$$
 
 If not $t \ll t$, then $u \ll t$ implies $t \not\sqsubseteq u$, which leads to absurdity. Hence $t$ must be isolated, and, as we noted earlier, the function $i$ is uniquely determined as being the one we already knew. Aside from these pairs of projections one could obtain others by combinations with automorphisms. I was unable to determine whether there are further pairs of an essentially different nature.
 
 The topic of projections in these spaces is rather interesting since one has in a way more freedom in $T_0$-spaces (particularly in injective spaces) than in ordinary spaces for defining functions. As another example, consider the Cartesian square $D \times D$. Aside from the two obvious projections onto $D$, there is also the “diagonal” system given by the pair:
 
-$$\lambda x.\,(x,x) \qquad \text{and} \qquad \lambda (x,y).\, x \sqcap y$$
+$$\lambda x.(x,x) \qquad \text{and} \qquad \lambda (x,y). x \sqcap y$$
 
 We shall note in the next section how the choice of an initial projection effects the construction of an inverse limit.
 
@@ -1198,8 +1136,6 @@ $$\mathrm{fix} : [D \to D] \to D$$
 $$f(\mathrm{fix}(f)) = \mathrm{fix}(f)$$
 
 and whenever $f(x) \sqsubseteq x$, then $\mathrm{fix}(f) \sqsubseteq x$.
-
-<!-- page 28 -->
 
 124
 
@@ -1243,8 +1179,6 @@ where for each $n$
 
 $$f_n = j_n \circ f_{n+1}.$$
 
-<!-- page 29 -->
-
 125
 
 Because, we can define
@@ -1263,7 +1197,7 @@ holds. So much for a review of inverse limits. In this paper our interest will c
 
 **4.1 Proposition.** Let $\langle D_n, j_n \rangle_{n=0}^{\infty}$ be an inverse system of continuous lattices where each $j_n : D_{n+1} \to D_n$ is a projection. Then the inverse limit space $D_{\infty}$ is also a continuous lattice.
 
-**Proof:** We need only show that $D_{\infty}$ as a $T_0$-space is injective. So suppose $f_{\infty} : X \to D_{\infty}$ is given and $X \subseteq Y$. Define $f_n : X \to D_n$ by $f_n = j_{\infty n} \circ f_{\infty}$. Let $\bar{f}_n : Y \to D_n$ be the maximal extension of $f_n$ according to 3.8. Now we can see the point of Lemma 3.9: by this construction we guarantee that $\bar{f}_n = j_n \circ \bar{f}_{n+1}$. Hence the required $\bar{f}_{\infty} : Y \to D_{\infty}$ exists. $\square$
+**Proof:** We need only show that $D_{\infty}$ as a $T_0$-space is injective. So suppose $f_{\infty} : X \to D_{\infty}$ is given and $X \subseteq Y$. Define $f_n : X \to D_n$ by $f_n = j_{\infty n} \circ f_{\infty}$. Let $\bar{f}*n : Y \to D_n$ be the maximal extension of $f_n$ according to 3.8. Now we can see the point of Lemma 3.9: by this construction we guarantee that $\bar{f}n = j_n \circ \bar{f}{n+1}$. Hence the required $\bar{f}*{\infty} : Y \to D_{\infty}$ exists. $\square$
 
 I do not know at the time of writing whether this theorem on inverse limits of continuous lattices extends to sequences where, say, the $j_n$ are only retractions. Fortunately, sufficiently many projections exist to make this construction useful. Note that by reference to the product space construction of $D_{\infty}$, its lattice ordering is given simply by the relation:
 
@@ -1277,14 +1211,12 @@ $$i_{n\infty}(x) = \langle y_m \rangle_{m=0}^{\infty}$$
 
 where
 
-<!-- page 30 -->
-
 126
 
 $$
 y_m = \begin{cases}
-j_m(y_{m+1}) & \text{if } m < n, \\
-x & \text{if } m = n, \\
+j_m(y_{m+1}) & \text{if } m < n, 
+x & \text{if } m = n, 
 i_m(y_{m-1}) & \text{if } m > n.
 \end{cases}
 $$
@@ -1323,8 +1255,6 @@ $$
 
 and introduce the pairs $i_{n+1}, j_{n+1}$ making $D_{n+1}$ a projection of $D_{n+2}$ by the method of 3.7. Specifically we shall have for $x \in D_{n+1}$ and $x' \in D_{n+2}$:
 
-<!-- page 31 -->
-
 127
 
 $$
@@ -1359,15 +1289,13 @@ Note that these formulae are simply generalizations at the limit for the formula
 
 $$
 \begin{aligned}
-j_\infty(i_\infty(x)) &= \bigsqcup_{n=0}^{\infty} i_{(n+1)\infty}(j_{\infty n} \circ i_{n\infty} \circ x_{n+1} \circ j_{\infty n} \circ i_{n\infty}) \\
-&= \bigsqcup_{n=0}^{\infty} i_{(n+1)\infty}(x_{n+1}) \\
+j_\infty(i_\infty(x)) &= \bigsqcup_{n=0}^{\infty} i_{(n+1)\infty}(j_{\infty n} \circ i_{n\infty} \circ x_{n+1} \circ j_{\infty n} \circ i_{n\infty}) 
+&= \bigsqcup_{n=0}^{\infty} i_{(n+1)\infty}(x_{n+1}) 
 &= x.
 \end{aligned}
 $$
 
 In the converse order the calculation is only a bit more complicated. The idea is that since all the functions $f$ are continuous and since the elements $x$ are the limits of their approximations, then each $f$ is actually completely determined by its
-
-<!-- page 32 -->
 
 128
 
@@ -1395,7 +1323,7 @@ for all $m \geqslant n$. This is obvious for $m = n$, and it can be readily prov
 
 $$
 \begin{aligned}
-i_\infty(j_\infty(f)) &= \bigsqcup_{n=0}^{\infty} (i_{n\infty} \circ j_{\infty n} \circ f \circ i_{n\infty} \circ j_{\infty n}) \\
+i_\infty(j_\infty(f)) &= \bigsqcup_{n=0}^{\infty} (i_{n\infty} \circ j_{\infty n} \circ f \circ i_{n\infty} \circ j_{\infty n}) 
 &= \bigsqcup_{n=0}^{\infty} (i_{n\infty} \circ j_{\infty n}) \circ f \circ \bigsqcup_{n=0}^{\infty} (i_{n\infty} \circ j_{\infty n}).
 \end{aligned}
 $$
@@ -1408,8 +1336,6 @@ and the proof that $i_\infty$ and $j_\infty$ are inverse to one another is compl
 
 We can explain the idea of this proof in other terms using a suggestion made to me by F. W. Lawvere. Consider the category of
 
-<!-- page 33 -->
-
 129
 
 We can explain the idea of this proof in other terms using a suggestion made to me by F. W. Lawvere. Consider the category of continuous lattices and projections. In that category our $D_\infty$ is, as we have remarked, both a *direct* and an *inverse* limit. Note too that with regard to projections $[D \to D']$ is a *functor*, for we can also define $[j \to j']$ when the maps are projections. In this language our particular inverse system is defined by the recursion:
@@ -1420,7 +1346,7 @@ where $D_0$ and $j_0$ are given in advance. Now the function space construction 
 
 $$
 \begin{aligned}
-D_\infty &= \varprojlim \langle D_n, j_n \rangle_{n=0}^{\infty} \\
+D_\infty &= \varprojlim \langle D_n, j_n \rangle_{n=0}^{\infty} 
 &= \varinjlim \langle D_n, i_n \rangle_{n=0}^{\infty}
 \end{aligned}
 $$
@@ -1429,8 +1355,8 @@ and
 
 $$
 \begin{aligned}
-[D_\infty \to D_\infty] &= \varprojlim \langle [D_n \to D_n], [j_n \to j_n] \rangle_{n=0}^{\infty} \\
-&= \varprojlim \langle D_{n+1}, j_{n+1} \rangle_{n=0}^{\infty} \\
+[D_\infty \to D_\infty] &= \varprojlim \langle [D_n \to D_n], [j_n \to j_n] \rangle_{n=0}^{\infty} 
+&= \varprojlim \langle D_{n+1}, j_{n+1} \rangle_{n=0}^{\infty} 
 &= D_\infty \quad \textit{(up to isomorphism).}
 \end{aligned}
 $$
@@ -1445,17 +1371,15 @@ Since we have shown $[D_\infty \to D_\infty]$ to be homeomorphic to $D_\infty$, 
 
 $$x(y) = \bigsqcup_{n=0}^{\infty} i_{n\infty}(x_{n+1}(y_n)).$$
 
-<!-- page 34 -->
-
 130
 
 Similarly we can define $\lambda$-abstraction on continuous expressions:
 
-$$\lambda x.\,[\ldots x \ldots] = j_\infty(\lambda x : D_\infty.\,[\ldots x \ldots]),$$
+$$\lambda x.[\ldots x \ldots] = j_\infty(\lambda x : D_\infty.[\ldots x \ldots]),$$
 
 and in this way $D_\infty$ becomes a model for the $\lambda$-calculus of Church and Curry. The model-theoretic and proof-theoretic aspects of this result will be explained in another paper (Scott (1972)).
 
-Suppose we were to start with the least, non-trivial lattice $0 = \{\top, \bot\}$ for $D_0$. Now $D_1 = [0 \to 0]$ has exactly three elements and there are just two ways of defining a projection $j_0 : D_1 \to D_0$. They are illustrated in the figure:
+Suppose we were to start with the least, non-trivial lattice $0 = \top, \bot$ for $D_0$. Now $D_1 = [0 \to 0]$ has exactly three elements and there are just two ways of defining a projection $j_0 : D_1 \to D_0$. They are illustrated in the figure:
 
 **Left projection**
 
@@ -1473,11 +1397,9 @@ Suppose we were to start with the least, non-trivial lattice $0 = \{\top, \bot\}
       ⊥  ←── j₀ ──  [⊥,⊥]
 ```
 
-Hence our construction gives two limit spaces $D_\infty$ and $D'_\infty$. Are they the same? No, they are not. It can be shown, for example, that the $\top$ of $D_\infty$ is *isolated* (that is, $\top \ll \top$), while the same is not true of $D'_\infty$. More interestingly, David Park has proved that the fixed-point operator *fix* mentioned in 3.14 has algebraic properties in $D_\infty$ quite different from those in $D'_\infty$. By *algebraic* here, we of course have reference to the functional algebra embodied in the application operation $x(y)$ defined on these limit spaces. Note, by the way, that in view of our isomorphism result we can regard *fix* (or any other similar continuous function for that matter) as an *element* of $D_\infty$. This makes the "algebra" of $D_\infty$ quite a rich field for study.
+Hence our construction gives two limit spaces $D_\infty$ and $D'*\infty$. Are they the same? No, they are not. It can be shown, for example, that the $\top$ of $D*\infty$ is *isolated* (that is, $\top \ll \top$), while the same is not true of $D'*\infty$. More interestingly, David Park has proved that the fixed-point operator fix mentioned in 3.14 has algebraic properties in $D*\infty$ quite different from those in $D'*\infty$. By algebraic here, we of course have reference to the functional algebra embodied in the application operation $x(y)$ defined on these limit spaces. Note, by the way, that in view of our isomorphism result we can regard fix (or any other similar continuous function for that matter) as an element of $D*\infty$. This makes the "algebra" of $D_\infty$ quite a rich field for study.
 
 The reader will have surely remarked that by virtue of 1.5, every $T_0$-space $X$ whatsoever can be embedded as a subspace in a $D_\infty$. Besides this all the continuous functions on $X$ (oh, into $D_\infty$, say) can be extended to $D_\infty$; whence they can be regarded as *elements* of $D_\infty$. Thus we have been able to embed not only the topology of $X$ into $D_\infty$ but also all of the continuous function theory over $X$. So far this is only a "logical" construction. For more interesting "mathematical" results we shall have to investigate whether any useful theorems about the usual function spaces $[X \to X]$ can be obtained with the aid of $D_\infty$. This method can easily be employed for real- or complex-valued continuous functions, though it seems more oriented toward pointwise convergence than anything else. Still, there seems to be a chance it might be useful—especially if one wished to consider continuous *operators* on function spaces.
-
-<!-- page 35 -->
 
 131
 
@@ -1489,12 +1411,12 @@ as we have done with the $D_\infty$ construction, we could also solve:
 
 $$V = T + [V \times V] + [V + V] + [V \to V],$$
 
-for example. Here $T = \{\bot, 0, 1, \top\}$ is the four-element lattice with $0$ and $1$ as incomparable elements. By $[V \times V]$ and $[V \to V]$ we understand the usual Cartesian product and function space construction. The $+$ operator, on the other hand works only in the category of lattices with $\top$ as an isolated element. It is defined so as to make:
+for example. Here $T = \bot, 0, 1, \top$ is the four-element lattice with $0$ and $1$ as incomparable elements. By $[V \times V]$ and $[V \to V]$ we understand the usual Cartesian product and function space construction. The $+$ operator, on the other hand works only in the category of lattices with $\top$ as an isolated element. It is defined so as to make:
 
 $$
 \begin{array}{ccc}
-D + D' & \longleftarrow & D' \\
-\uparrow & & \uparrow \\
+D + D' & \longleftarrow & D' 
+\uparrow & & \uparrow 
 D & \longleftarrow & 0
 \end{array}
 $$
@@ -1515,8 +1437,6 @@ $$(j \times k)\ ,\ (j + k)\ ,\ \text{and}\ (j \to k)$$
 
 on the projections obtaining again elements of $\mathcal{J}_V$. The projections so obtained correspond to the indicated constructions of subspaces, of course. (Indeed, if we had the time and space, we could show that $\mathcal{J}_V$ becomes a very interesting category). There will be a particular
 
-<!-- page 36 -->
-
 132
 
 projection $t$ corresponding to $T$, and reason for doing all this is to show that the existence of subspaces of $V$ can now be established by solving equations in $\mathcal{J}_V$. For example, by the fixed-point construction we could find a $j \in \mathcal{J}_V$ such that
@@ -1536,8 +1456,6 @@ The presentation of the material of the paper changed considerably after the Jan
 The outcome of this development was that I found I could describe the work in purely topological terms in a simple and natural way leaving the lattices to be introduced as a special technique of analysis. This gives the presentation a much less ad hoc appearance, and relates the results to standard point-set topology in a much more understandable way. No doubt the whole idea of using completeness, inverse limits, and continuous functions could be put into a more general, more abstract categorical context, but I am not the man to do it. My interests at present lie in the direction of specific applications, though I can see that there might be some worthwhile directions to pursue.
 
 For example, in understanding the connections of my kind of spaces with other topologies, one should consider the remarks on the topology of lattices in Birkhoff's paper in Abbott (1970). Some
-
-<!-- page 37 -->
 
 133
 
@@ -1565,8 +1483,6 @@ E. Michael, *Topologies on Spaces of Subsets*, Transactions of the American Math
 
 A. Nerode, *Some Stone Spaces and Recursion Theory*, Duke Mathematical Journal, vol. 26 (1959), pp. 397-406.
 
-<!-- page 38 -->
-
 134
 
 D. Scott, *Outline of a Mathematical Theory of Computation*, Proceedings of the Fourth Annual Princeton Conference on Information Sciences and Systems (1970), pp. 169-176.
@@ -1579,15 +1495,13 @@ E. Spanier, *Quasi-topologies*, Duke Mathematical Journal, vol. 30 (1963) pp. 1-
 
 W. Strother, *Fixed Points, Fixed Sets, and M-Retracts*, Duke Mathematical Journal, vol. 22 (1955), pp. 551-556.
 
-<u>Correction</u> (Added March, 1972). Robin Milner has pointed out to me that there is an error in the remark in the paragraph immediately preceding Proposition 2.5. I was mistaken in saying that if $D$ is a $T_0$-space which becomes a complete lattice under its induced partial ordering, then every set open in the given topology is also open in the induced topology. There are many counterexamples to this statement. Let $D$ be any complete lattice. There are two extreme $T_0$-topologies which will induce the given partial ordering. The smallest such topology has as a sub-base for its open sets those sets of the form:
+++Correction++ (Added March, 1972). Robin Milner has pointed out to me that there is an error in the remark in the paragraph immediately preceding Proposition 2.5. I was mistaken in saying that if $D$ is a $T_0$-space which becomes a complete lattice under its induced partial ordering, then every set open in the given topology is also open in the induced topology. There are many counterexamples to this statement. Let $D$ be any complete lattice. There are two extreme $T_0$-topologies which will induce the given partial ordering. The smallest such topology has as a sub-base for its open sets those sets of the form:
 
-$$\{x \in D : x \not\sqsubseteq y\}.$$
+$$x \in D : x \not\sqsubseteq y.$$
 
 These sets are easily proved to be open in any $T_0$-topology which induces the partial ordering. At the other extreme consider sets of the form:
 
-$$\{x \in D : y \sqsubseteq x\}.$$
-
-<!-- page 39 -->
+$$x \in D : y \sqsubseteq x.$$
 
 135
 
@@ -1595,7 +1509,7 @@ Such sets will give a base for a $T_0$-topology that is the maximal topology ind
 
 The remark was employed in the proof of three different propositions: 2.9, 2.10, and 3.3. In the case of 2.9 one must verify that the product topology is contained within the lattice topology. This need only be done for the basis for the product topology, and for such basic open sets the result needed is obvious. In the case of proposition 2.10 the question concerns a relationship between the topologies of a space and a subspace; the spaces in question are also lattices. Note in passing that a lub in the subspace is generally *larger* in the partial ordering than the corresponding lub relative to the whole space. This puts the inequalities in the wrong direction, and so it is not immediate that a relativized open set for the subspace is open in the lattice topology of the subspace. However, in this case we can appeal to the continuous retraction. Recall that the relativized open sets of the kind that we used in the proof of 2.10 are of the form:
 
-$$U = \{ z \in D : x < z \} \ .$$
+$$U =  z \in D : x < z  \ .$$
 
 Suppose then that $S$ is a directed set, and that using the lub in the sense of $D$ we have
 
@@ -1604,8 +1518,6 @@ $$\bigsqcup S \in U \ .$$
 Referring back to the proof of 2.10 we know that ($S' = S \subseteq D$, but $\bigsqcup S'$ is the join computed in the ambient lattice $D'$)
 
 $$j(\bigsqcup S') = \bigsqcup S \ ,$$
-
-<!-- page 40 -->
 
 136
 
@@ -1620,253 +1532,3 @@ $$x < j(z), \text{ some } z \in S \ .$$
 Now $j(z) = z$ , and we have what we need. This argument suffices only for a special type of open sets; but these open sets form a base for the topology, and so the argument is quite general.
 
 Turning now to the proof of theorem 2.3 we note that the topology on the function space is simply the *relativized* product topology. There is no difficulty with lubs in this case, because, as we showed in the proof of that theorem, all lubs are calculated pointwise. Thus, it is easy to verify now that the sets open in the product topology are also open in the lattice topology.
-
----
-
-## Formalization inventory (1972 layer)
-
-The vision transcription is **complete through the March 1972 correction (pp. 135–136)**.
-The Lean library lives in `Domain/ContinuousLattice/`. There are **zero `sorry`s** in the
-current build; **Pass** means the full numbered statement is proved, **Stuck** means partial
-(infrastructure, one direction, or a strict substatement), **Not Yet** means no deliverable
-for the full result.
-
-**Score (user inventory):** 11 **Pass** · 9 **Stuck** · 12 **Not Yet** (32 items).
-
-### Report card
-
-| § | Scott | Lean name(s) | Module | Status | Notes |
-|---|-------|--------------|--------|--------|-------|
-| 1 | Prop 1.2 | `proposition_1_2` | `Injective.lean` | **Pass** | |
-| 1 | Prop 1.3 | `proposition_1_3` | `Injective.lean` | **Pass** | |
-| 1 | Prop 1.4 | `proposition_1_4` | `Injective.lean` | **Pass** | |
-| 1 | Prop 1.5 | `proposition_1_5` | `Injective.lean` | **Pass** | |
-| 1 | Cor 1.6 | `corollary_1_6` | `Injective.lean` | **Pass** | |
-| 1 | Cor 1.7 | `corollary_1_7` | `Injective.lean` | **Pass** | |
-| 2 | Prop 2.1 | `proposition_2_1_of_le` | `Specialization.lean` | **Stuck** | backward direction only; forward missing |
-| 2 | Prop 2.2 | `bot_wayBelow`, `WayBelow.sup`, `WayBelow.trans_le`, `WayBelow.le_trans`, `wayBelow_self_iff_scottOpen_Ici`, `wayBelow_sSup_iff` | `WayBelow.lean` | **Pass** | seven clauses, no wrapper theorem |
-| 2 | Prop 2.4 | `isContinuousLattice_iff_isLUB_sInf_nhds` | `WayBelow.lean` | **Pass** | |
-| 2 | Prop 2.5 | `proposition_2_5` | `ScottMaps.lean` | **Pass** | |
-| 2 | Prop 2.6 | — | — | **Not Yet** | needed for joint continuity (2.7 meet, 3.4, 3.5) |
-| 2 | Prop 2.8 | — | — | **Not Yet** | finite lattices are continuous |
-| 2 | Prop 2.9 | — | — | **Not Yet** | products; needs `CoarserThanScottTopology` |
-| 2 | Prop 2.10 | `retr_ambientSSup_eq_sSup` | `FunctionSpaces.lean` | **Stuck** | Milner identity proved; full retract theorem open |
-| 2 | Prop 2.11 | — | — | **Not Yet** | continuous lattices are injective |
-| 2 | Thm 2.12 | `theorem_2_12_injective_half`, `theorem_2_12_sierpinski_backward` | `Constructions.lean` | **Stuck** | injectivity half only; CL ↔ injective open |
-| 3 | Prop 3.2 | `proposition_3_2` | `FunctionSpaces.lean` | **Pass** | |
-| 3 | Thm 3.3 | `theorem_3_3_sSup`, `theorem_3_3_sup` | `FunctionSpaces.lean` | **Stuck** | pointwise Scott-continuous sups only; full CL + topology open |
-| 3 | Cor 3.4 | `corollary_3_4`, `corollary_3_4_eval_on_C` | `FunctionSpaces.lean` | **Stuck** | eval at fixed `x`; joint eval needs 2.6 |
-| 3 | Prop 3.5 | `scottLambdaAt`, `curry_right_preservesDirectedSup` | `FunctionSpaces.lean` | **Stuck** | right curry only |
-| 3 | Prop 3.7 | `proposition_3_7_retraction`, `proposition_3_7_projection` | `FunctionSpaces.lean` | **Pass** | |
-| 3 | Prop 3.8 | `scottSubspaceExtend`, `proposition_3_8` | `FunctionSpaces.lean` | **Stuck** | one-sided maximality (`f' y ≤ f̄ y`); full characterization open |
-| 3 | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf` | `FunctionSpaces.lean` | **Stuck** | inf-level bounds; global `f̄ = j ∘ ḡ` open |
-| 3 | Prop 3.10 | `incl_bot`, `incl_sup`, `incl_sSup`, `incl_injective`, `incl_wayBelow` | `FunctionSpaces.lean` | **Stuck** | forward (i)–(iii); converse (iv) + uniqueness open |
-| 3 | Prop 3.12 | — | — | **Not Yet** | `J_D` is a complete lattice |
-| 3 | Prop 3.13 | — | — | **Not Yet** | `D` projects into `[D → D]` |
-| 3 | Prop 3.14 | — | — | **Not Yet** | unique continuous mapping |
-| 4 | Prop 4.1 | — | — | **Not Yet** | inverse limit is a CL; uses 3.8 |
-| 4 | Prop 4.2 | — | — | **Not Yet** | limit projections |
-| 4 | Cor 4.3 | — | — | **Not Yet** | universal property of limit maps |
-| 4 | Thm 4.4 | — | — | **Not Yet** | `D∞ ≅ [D∞ → D∞]` |
-| 4 | Lemma 4.5 | — | — | **Not Yet** | technical lemma for 4.4 |
-
-**Milner infrastructure (not a numbered result):** `CoarserThanScottTopology`, `scottOpen_of_coarserThanScott`, `scottLowerSubbasisSet`, `scottPrincipalUpSet` in `MilnerCorrection.lean`.
-
-**Notation locked in:** `⊔S′` = ambient join in `D′` (`ambientSSup`); `⊔S` = subspace join in `D`;
-identity `j(⊔S′) = ⊔S` = `retr_ambientSSup_eq_sSup`.
-
-**Gate before the 1982 article:** full **Pass** on **2.8–2.11** and **3.3** under
-`CoarserThanScottTopology`.
-
-**When to switch models:** stay on **Composer 2.5** for scaffolding, inventory, and medium
-lemmas (**2.6**, **2.1** forward, **2.8**, **3.5** left curry). Switch to **Opus 4.8** for the
-Milner-block topology proofs (**2.9**, **2.10** full, **2.11**, **3.3** full, **3.10**
-converse) and all of **§4** — one hard theorem per session.
-
----
-
-### Section dependency blueprint
-
-The four section titles are **not** independent boxes. Scott's narrative is mostly linear,
-with back-links from §2 into §1 at the classification theorem.
-
-```mermaid
-flowchart LR
-  S1["§1 Injective spaces<br/><i>Injective.lean</i>"]
-  S2["§2 Continuous lattices<br/><i>WayBelow · Specialization · ScottMaps · Constructions</i>"]
-  S3["§3 Function spaces<br/><i>FunctionSpaces.lean</i>"]
-  S4["§4 Inverse limits<br/><i>not started</i>"]
-  MIL["Milner correction<br/><i>MilnerCorrection.lean</i>"]
-
-  S1 -->|"2.11, 2.12 classify injectives"| S2
-  S2 -->|"CL + Scott maps + projections"| S3
-  S3 -->|"3.8 extension, 3.9 diagram"| S4
-  MIL -.->|"hypothesis for 2.9, 2.10, 3.3"| S2
-  MIL -.->|"function-space topology"| S3
-  S3 -.->|"retr_ambientSSup_eq_sSup<br/>(2.10 lemma)"| S2
-```
-
-Reading the diagram: **§1** stands alone for the injective-space theory, but **§2** closes the
-loop (**2.11–2.12**). **§3** assumes the continuous-lattice layer (**§2**). **§4** assumes
-subspace extension (**3.8**) and the projection diagram lemma (**3.9**). The March 1972
-correction is a cross-cutting hypothesis, not a fifth section.
-
----
-
-### §1 Injective spaces — inclusion hierarchy
-
-```mermaid
-flowchart TD
-  P12["proposition_1_2<br/>𝕆 injective"]
-  P13["proposition_1_3<br/>products"]
-  P14["proposition_1_4<br/>retracts"]
-  P15["proposition_1_5<br/>T₀ embeds in 𝕆^I"]
-  C16["corollary_1_6<br/>injectives = retracts of 𝕆^I"]
-  C17["corollary_1_7<br/>retract of every super-space"]
-
-  P12 --> P13
-  P12 --> P14
-  P12 --> P15
-  P12 --> C16
-  P14 --> C16
-  P15 --> C16
-  P14 --> C17
-  P15 --> C17
-```
-
-All six leaves in the user inventory are **Pass**.
-
----
-
-### §2 Continuous lattices — inclusion hierarchy
-
-```mermaid
-flowchart TD
-  P22["Prop 2.2 clauses<br/>bot_wayBelow · WayBelow.sup · … · wayBelow_sSup_iff"]
-  P21b["proposition_2_1_of_le<br/>(backward only)"]
-  P21f["proposition_2_1<br/>(forward)"]
-  D23["IsContinuousLattice<br/>(Def 2.3)"]
-  P24["isContinuousLattice_iff_isLUB_sInf_nhds"]
-  P25["proposition_2_5"]
-  P26["proposition_2_6"]
-  P27s["proposition_2_7_sup"]
-  P27i["proposition_2_7_inf_left · inf_right"]
-  P28["proposition_2_8"]
-  P29["proposition_2_9"]
-  P210["proposition_2_10"]
-  P210L["retr_ambientSSup_eq_sSup"]
-  P211["proposition_2_11"]
-  T212["theorem_2_12"]
-  T212h["theorem_2_12_injective_half"]
-  MIL["CoarserThanScottTopology"]
-
-  P22 --> P24
-  D23 --> P24
-  P22 --> P25
-  P25 --> P26
-  P26 --> P27i
-  P25 --> P27s
-  D23 --> P28
-  D23 --> P29
-  D23 --> P210
-  P25 --> P210
-  MIL --> P29
-  MIL --> P210
-  P210L --> P210
-  P210 --> P211
-  P211 --> T212
-  P12["proposition_1_2"] --> T212h
-  T212h --> T212
-  P21b -.-> P21f
-```
-
-Solid edges: proved infrastructure or **Pass**. Dashed: **Stuck** / **Not Yet**.
-`proposition_2_7_sup` / `inf_*` are proved but omitted from the user list; joint `⊓` on
-`D × D` still needs **2.6**.
-
----
-
-### §3 Function spaces — inclusion hierarchy
-
-```mermaid
-flowchart TD
-  P25["proposition_2_5"]
-  P26["proposition_2_6"]
-  P27["proposition_2_7_*"]
-  P32["proposition_3_2"]
-  T33c["theorem_3_3_sSup · theorem_3_3_sup"]
-  T33["theorem_3_3<br/>(full)"]
-  C34x["corollary_3_4"]
-  C34j["corollary_3_4<br/>(joint eval)"]
-  P35r["scottLambdaAt"]
-  P35["proposition_3_5<br/>(full abstraction)"]
-  P37r["proposition_3_7_retraction"]
-  P37p["proposition_3_7_projection"]
-  D36["IsContinuousLatticeRetraction · Projection"]
-  P310f["incl_bot · incl_sup · incl_sSup<br/>incl_injective · incl_wayBelow"]
-  P310c["proposition_3_10<br/>(converse)"]
-  P38p["scottSubspaceExtend · proposition_3_8"]
-  P38["proposition_3_8<br/>(full)"]
-  L39i["lemma_3_9_incl_inf"]
-  L39r["lemma_3_9_retr_inf"]
-  L39["lemma_3_9<br/>(f̄ = j ∘ ḡ)"]
-  P312["proposition_3_12"]
-  P313["proposition_3_13"]
-  P314["proposition_3_14"]
-
-  P25 --> T33c
-  P26 --> T33
-  P27 --> T33
-  T33c --> T33
-  T33 --> C34x
-  P26 --> C34j
-  T33 --> C34j
-  T33 --> P35
-  P26 --> P35
-  P35r --> P35
-  D36 --> P37r
-  D36 --> P37p
-  T33 --> P37r
-  T33 --> P312
-  P310f --> P310c
-  P310f --> L39
-  P38p --> P38
-  P38 --> L39
-  L39i --> L39
-  L39r --> L39
-  T33 --> P313
-  P313 --> P314
-  P312 --> P313
-  P32 --> T33
-```
-
-**Pass** leaves: `proposition_3_2`, `proposition_3_7_*`. Everything else in the user list is
-**Stuck** or **Not Yet**.
-
----
-
-### §4 Inverse limits — inclusion hierarchy
-
-```mermaid
-flowchart TD
-  P38["proposition_3_8<br/>(full)"]
-  L39["lemma_3_9<br/>(global)"]
-  P37["proposition_3_7_*"]
-  P41["proposition_4_1"]
-  P42["proposition_4_2"]
-  C43["corollary_4_3"]
-  L45["lemma_4_5"]
-  T44["theorem_4_4"]
-
-  P38 --> P41
-  L39 --> P41
-  P41 --> P42
-  P41 --> C43
-  P42 --> C43
-  P41 --> T44
-  P37 --> T44
-  L45 --> T44
-  L39 --> T44
-```
-
-All **§4** nodes are **Not Yet**; the section is blocked on full **3.8** and **3.9**.

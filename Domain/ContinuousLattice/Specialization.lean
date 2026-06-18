@@ -97,4 +97,29 @@ theorem proposition_2_1_of_le [Nonempty ι] (hx : IsMonotoneNet x) (hL : IsLUB (
   obtain ⟨i₀, rfl⟩ := hsS
   refine ⟨i₀, fun j hj => hU.1 (hx hj) hsU⟩
 
+/-- The complement of a principal lower set `Iic L` is Scott-open: it is an upper set, and it
+is inaccessible by directed suprema because if every member of a directed `S` lies below `L`
+then so does `⊔S`. -/
+theorem scottOpen_not_le (L : D) : ScottOpen {z : D | ¬ z ≤ L} := by
+  refine ⟨fun a b hab ha hb => ha (le_trans hab hb), fun S hSne hSdir hmem => ?_⟩
+  by_contra hcon
+  refine hmem (sSup_le fun s hs => ?_)
+  by_contra hsL
+  exact hcon ⟨s, hs, hsL⟩
+
+omit [IsDirected ι (· ≤ ·)] in
+/-- **Scott 1972, Proposition 2.1 (forward).** If a monotone net converges to `y` in the Scott
+topology and `L` is its least upper bound, then `y ≤ L`. -/
+theorem proposition_2_1_le_of_converges (hL : IsLUB (range x) L)
+    (hconv : ScottConvergesTo x y) : y ≤ L := by
+  by_contra hyL
+  obtain ⟨i, hi⟩ := hconv {z : D | ¬ z ≤ L} (scottOpen_not_le L) hyL
+  exact hi i le_rfl (hL.1 ⟨i, rfl⟩)
+
+/-- **Scott 1972, Proposition 2.1.** A monotone net with least upper bound `L` converges to
+`y` in the Scott topology iff `y ⊑ L = ⊔ {xᵢ}`. -/
+theorem proposition_2_1 [Nonempty ι] (hx : IsMonotoneNet x) (hL : IsLUB (range x) L) :
+    ScottConvergesTo x y ↔ y ≤ L :=
+  ⟨fun hconv => proposition_2_1_le_of_converges hL hconv, proposition_2_1_of_le hx hL⟩
+
 end Domain.ContinuousLattice
