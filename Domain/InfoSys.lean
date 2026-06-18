@@ -21,8 +21,11 @@ notion of element, and the partial order; later files build the function, produc
 and sum spaces.
 -/
 
-/-- A Scott information system on a type of tokens `α`. -/
-structure InfoSys (α : Type*) where
+/-- A Scott information system on a type of tokens `α`.
+
+`DecidableEq α` is required so that finite token sets support union (`X ∪ {a}`) and the
+other `Finset` operations the axioms mention. -/
+structure InfoSys (α : Type*) [DecidableEq α] where
   /-- The consistent finite sets of tokens. -/
   Con : Set (Finset α)
   /-- Entailment: `Ent X a` means the consistent set `X` forces the token `a`. -/
@@ -41,7 +44,7 @@ structure InfoSys (α : Type*) where
 
 namespace InfoSys
 
-variable {α : Type*} (sys : InfoSys α)
+variable {α : Type*} [DecidableEq α] (sys : InfoSys α)
 
 /-- An *element* (ideal) of the domain: a set of tokens that is consistent on every
 finite subset and closed under entailment. -/
