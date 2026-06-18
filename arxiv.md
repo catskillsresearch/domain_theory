@@ -26,8 +26,8 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **14 / 32** tracked numbered results are **Pass**, **9 Stuck**,
-**9 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+correction is complete; **15 / 32** tracked numbered results are **Pass**, **9 Stuck**,
+**8 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
 **classical** (see §1.2).
@@ -163,7 +163,11 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (32 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **14 Pass · 9 Stuck · 9 Not Yet**.
+full deliverable. Score: **15 Pass · 9 Stuck · 8 Not Yet**.
+
+**Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
+`wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
+(the `↟a` basis of the Scott topology) in `WayBelow.lean`; these underpin 2.11.
 
 
 | §   | Scott     | Lean name(s)                                                                                                                     | Module                | Status      | Notes                                |
@@ -182,8 +186,8 @@ full deliverable. Score: **14 Pass · 9 Stuck · 9 Not Yet**.
 | 2   | Prop 2.8  | `proposition_2_8`                                                                                                                 | `Constructions.lean`  | **Pass**    | finite lattices                      |
 | 2   | Prop 2.9  | `proposition_2_9`                                                                                                                 | `Constructions.lean`  | **Stuck**   | products: order part done; topology agreement (Milner) open |
 | 2   | Prop 2.10 | `retr_ambientSSup_eq_sSup`                                                                                                       | `FunctionSpaces.lean` | **Stuck**   | Milner identity; full prop open      |
-| 2   | Prop 2.11 | —                                                                                                                                | —                     | **Not Yet** | CL injective                         |
-| 2   | Thm 2.12  | `theorem_2_12_injective_half`, `theorem_2_12_sierpinski_backward`                                                                | `Constructions.lean`  | **Stuck**   | half of equivalence                  |
+| 2   | Prop 2.11 | `proposition_2_11`                                                                                                                | `Constructions.lean`  | **Pass**    | CL injective (`scottExtend`)         |
+| 2   | Thm 2.12  | `theorem_2_12_forward`, `isContinuousLattice_prop`, `sierpinski_isInjective_and_isContinuousLattice`                             | `Constructions.lean`  | **Stuck**   | forward (CL⟹injective) done; backward (injective⟹CL) needs 2.10 |
 | 3   | Prop 3.2  | `proposition_3_2`                                                                                                                | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Thm 3.3   | `theorem_3_3_sSup`, `theorem_3_3_sup`                                                                                            | `FunctionSpaces.lean` | **Stuck**   | pointwise sups only                  |
 | 3   | Cor 3.4   | `corollary_3_4`, `corollary_3_4_eval_on_C`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | fixed-`x` eval                       |
@@ -438,13 +442,57 @@ coordinatewise (`sSup_apply_eq_sSup_image`), so a directed `S` with `(⊔S)ᵢ �
 than Scott's exposition (no finite-support bookkeeping). `classical` supplies the `DecidableEq`
 for `Function.update`; footprint `[propext, Classical.choice, Quot.sound]`.
 
+#### Keystones for 2.11: interpolation and the `↟a` basis — `WayBelow.lean`
+
+Two standard facts about `≪` that mathlib does not provide and that the capstone needs:
+
+- **Interpolation** (`wayBelow_interpolate`): in a continuous lattice `a ≪ c ⟹ ∃ b, a ≪ b ≪ c`.
+  The set `M = {m | ∃ x, m ≪ x ∧ x ≪ c}` is directed (apply directedness of `{· ≪ x}` twice)
+  with `⊔M = c` (continuity twice); then `a ≪ c = ⊔M` forces `a ≪ m ≤ x ≪ c` for some
+  `m ≪ x ≪ c`, so `b := x`. Notably this is **axiom-free** (`#print axioms` reports none).
+- **`↟a` basis** (`exists_wayBelow_subset`): every Scott-open `U ∋ z` contains a basic
+  neighbourhood `↟a = {w | a ≪ w}` with `a ≪ z`. Since `z = ⊔{a | a ≪ z}` is a directed sup in
+  the open `U`, inaccessibility yields `a ≪ z` with `a ∈ U`, and `↟a ⊆ ↑a ⊆ U`.
+
+#### Proposition 2.11 (continuous lattices are injective) — `proposition_2_11`
+
+The substantial half of Theorem 2.12. The witness is an explicit operator
+`scottExtend e f y = ⊔ { ⊓ f''(e⁻¹V) : V an open nbhd of y }` (a standalone `def`, purely
+order-theoretic). Two lemmas about it:
+
+- **Extends `f`** (`scottExtend_eq_of_continuous`). The `≤` bound is immediate (`f x₀` is one of
+  the values met). For `≥`, continuity of the lattice is essential: for each `a ≪ f x₀`, the
+  Scott-open `↟a` pulls back along the continuous `f`, and the **embedding** turns that into an
+  open `V ⊆ Y` with `e⁻¹V = f⁻¹(↟a)`; on `e⁻¹V`, `f ≥ a`, so `a ≤ ⊓ f''(e⁻¹V) ≤ g(e x₀)`. Summing
+  over `a ≪ f x₀` (continuity) gives `f x₀ ≤ g(e x₀)`.
+- **Continuous** (`scottExtend_continuous`). Uses the `↟a` basis: for Scott-open `U` and `g y₀ ∈ U`
+  pick `a ≪ g y₀` with `↟a ⊆ U`; as `g y₀` is a directed sup, `a ≪ ⊓ f''(e⁻¹V)` for some open
+  `V ∋ y₀`, and that value is `≤ g y'` for all `y' ∈ V`, so `V ⊆ g⁻¹U`.
+
+A Lean-specific wrinkle: `E` carries no global `TopologicalSpace` instance (its topology is
+`scottTopologicalSpace`), so lemmas like `IsOpen.preimage` that *synthesize* `[TopologicalSpace E]`
+fail. The order-heavy `scottExtend_eq_of_continuous` uses `continuous_def` (whose topology
+arguments are ordinary implicits, unified from the hypothesis) to avoid both the synthesis failure
+and the specialization-order diamond a `letI` would introduce; the purely topological
+`scottExtend_continuous` and `proposition_2_11` use `letI : TopologicalSpace E := scottTopologicalSpace`.
+Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Theorem 2.12 — `theorem_2_12_forward`, `isContinuousLattice_prop`
+
+The **forward** direction ("every continuous lattice is injective") is now `theorem_2_12_forward`
+(= 2.11). The base case closes too: `Prop` (Scott's `𝕆`) is a continuous lattice by 2.8 (it is
+finite), recorded as `isContinuousLattice_prop`, so `sierpinski_isInjective_and_isContinuousLattice`
+exhibits `Prop` as both injective and a continuous lattice. The **backward** direction
+(injective ⟹ continuous lattice) remains **Stuck**: it needs Proposition 2.10 (a retract of a CL
+is a CL) plus transporting the lattice structure along a topological retract.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
 | Medium   | **3.5** left curry                                                          | Composer 2.5                       |
-| Hard     | **2.9** topology agreement, **2.10** full, **2.11**, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
+| Hard     | **2.9** topology agreement, **2.10** full (retract-of-CL-is-CL), **2.12** backward, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 
 ---

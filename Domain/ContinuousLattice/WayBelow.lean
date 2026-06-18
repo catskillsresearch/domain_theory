@@ -141,6 +141,51 @@ theorem IsContinuousLattice.sSup_wayBelow (h : IsContinuousLattice D) (y : D) :
     sSup {x | x ≪ y} = y :=
   (h y).sSup_eq
 
+/-- The set `{x | x ≪ y}` of elements way below `y` is directed: it is closed under binary
+joins by Proposition 2.2(ii) (`WayBelow.sup`). This holds in *any* complete lattice. -/
+theorem directedOn_wayBelow (y : D) : DirectedOn (· ≤ ·) {x | x ≪ y} :=
+  fun a ha b hb => ⟨a ⊔ b, ha.sup hb, le_sup_left, le_sup_right⟩
+
+/-- **Interpolation property of `≪`.** In a continuous lattice, the way-below relation
+interpolates: `a ≪ c` implies there is some `b` with `a ≪ b ≪ c`.
+
+The proof runs Scott's standard argument: the set `M = {m | ∃ x, m ≪ x ∧ x ≪ c}` is directed
+(using directedness of `{· ≪ x}` twice) and has supremum `c` (using continuity twice). Hence
+`a ≪ c = ⊔M` with `M` directed forces `a ≪ m` for some `m ∈ M`, say `m ≪ x ≪ c`; then
+`a ≪ m ≤ x` gives `a ≪ x ≪ c`, so `b := x` works. -/
+theorem wayBelow_interpolate (hD : IsContinuousLattice D) {a c : D} (hac : a ≪ c) :
+    ∃ b, a ≪ b ∧ b ≪ c := by
+  set M : Set D := {m | ∃ x, m ≪ x ∧ x ≪ c} with hM
+  have hMdir : DirectedOn (· ≤ ·) M := by
+    rintro m₁ ⟨x₁, hm₁x₁, hx₁c⟩ m₂ ⟨x₂, hm₂x₂, hx₂c⟩
+    obtain ⟨x₃, hx₃c, hx₁₃, hx₂₃⟩ := directedOn_wayBelow c x₁ hx₁c x₂ hx₂c
+    obtain ⟨m₃, hm₃x₃, hm₁m₃, hm₂m₃⟩ :=
+      directedOn_wayBelow x₃ m₁ (hm₁x₁.trans_le hx₁₃) m₂ (hm₂x₂.trans_le hx₂₃)
+    exact ⟨m₃, ⟨x₃, hm₃x₃, hx₃c⟩, hm₁m₃, hm₂m₃⟩
+  have hMne : M.Nonempty := ⟨⊥, a, bot_wayBelow a, hac⟩
+  have hsupM : sSup M = c := by
+    refine le_antisymm (sSup_le ?_) ?_
+    · rintro m ⟨x, hmx, hxc⟩
+      exact hmx.le.trans hxc.le
+    · rw [← hD.sSup_wayBelow c]
+      refine sSup_le fun x hxc => ?_
+      rw [← hD.sSup_wayBelow x]
+      exact sSup_le fun m hmx => le_sSup ⟨x, hmx, hxc⟩
+  rw [← hsupM] at hac
+  obtain ⟨m, ⟨x, hmx, hxc⟩, ham⟩ := (wayBelow_sSup_iff hMne hMdir).1 hac
+  exact ⟨x, ham.trans_le hmx.le, hxc⟩
+
+/-- In a continuous lattice the sets `↟a = {z | a ≪ z}` form a basis of the Scott topology:
+every Scott-open `U` containing `z` contains some basic neighbourhood `↟a` of `z`. Indeed
+`z = ⊔{a | a ≪ z}` is a directed supremum lying in the open set `U`, so some `a ≪ z` already
+lies in `U`, and then `↟a ⊆ ↑a ⊆ U`. -/
+theorem exists_wayBelow_subset (hD : IsContinuousLattice D) {U : Set D} (hU : ScottOpen U)
+    {z : D} (hz : z ∈ U) : ∃ a, a ≪ z ∧ {w | a ≪ w} ⊆ U := by
+  have hne : {a | a ≪ z}.Nonempty := ⟨⊥, bot_wayBelow z⟩
+  have hsup : sSup {a | a ≪ z} ∈ U := by rw [hD.sSup_wayBelow z]; exact hz
+  obtain ⟨a, haz, haU⟩ := hU.2 hne (directedOn_wayBelow z) hsup
+  exact ⟨a, haz, fun w hw => hU.1 hw.le haU⟩
+
 /-- The infimum of a Scott-open neighbourhood of `y` is way below `y`: the open set is itself
 the required witness. Scott uses this in moving between Definition 2.3 and Proposition 2.4. -/
 theorem sInf_wayBelow {U : Set D} (hU : ScottOpen U) {y : D} (hy : y ∈ U) :

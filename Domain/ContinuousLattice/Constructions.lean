@@ -19,6 +19,8 @@ correction and remain open.
 
 namespace Domain.ContinuousLattice
 
+open Topology Set
+
 variable {D : Type*} [CompleteLattice D]
 
 /-- A non-empty **finite** directed set attains its supremum: `⊔S ∈ S`. A maximal element of
@@ -89,14 +91,124 @@ theorem proposition_2_9 {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice 
   rw [hei] at hle
   exact hle
 
-/-- **Scott 1972, Theorem 2.12 (backward, Sierpiński base case).** Once
-`IsContinuousLattice Prop` is available, injectivity of `Prop` follows from Proposition 1.2. -/
+/-! ### Proposition 2.11: continuous lattices are injective
+
+The substance of Scott's Theorem 2.12. We give the explicit extension operator
+`g(y) = ⊔_{V ∋ y open} ⊓ f''(e⁻¹V)` and prove (a) it extends `f` along an embedding `e`
+(using continuity of `D` to interpolate from below) and (b) it is Scott-continuous (using the
+`↟a` basis of the Scott topology). -/
+
+section InjectiveExtension
+
+variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {E : Type*} [CompleteLattice E]
+
+/-- Scott's canonical extension of `f : X → E` along `e : X → Y` (Scott 1972, proof of 2.11):
+`y ↦ ⊔ { ⊓ f''(e⁻¹V) : V an open neighbourhood of y }`. No topology on `E` is needed to *state*
+the operator — it is purely order-theoretic. -/
+def scottExtend (e : X → Y) (f : X → E) (y : Y) : E :=
+  sSup {d | ∃ V : Set Y, IsOpen V ∧ y ∈ V ∧ d = sInf (f '' (e ⁻¹' V))}
+
+theorem scottExtend_aux_nonempty (e : X → Y) (f : X → E) (y : Y) :
+    {d | ∃ V : Set Y, IsOpen V ∧ y ∈ V ∧ d = sInf (f '' (e ⁻¹' V))}.Nonempty :=
+  ⟨_, Set.univ, isOpen_univ, Set.mem_univ y, rfl⟩
+
+/-- The defining family of `scottExtend` is directed: open neighbourhoods are closed under
+intersection, and `⊓ f''(e⁻¹ ·)` is monotone in the neighbourhood (smaller set, larger inf). -/
+theorem scottExtend_aux_directed (e : X → Y) (f : X → E) (y : Y) :
+    DirectedOn (· ≤ ·) {d | ∃ V : Set Y, IsOpen V ∧ y ∈ V ∧ d = sInf (f '' (e ⁻¹' V))} := by
+  rintro _ ⟨V₁, hV₁o, hyV₁, rfl⟩ _ ⟨V₂, hV₂o, hyV₂, rfl⟩
+  refine ⟨sInf (f '' (e ⁻¹' (V₁ ∩ V₂))), ⟨V₁ ∩ V₂, hV₁o.inter hV₂o, ⟨hyV₁, hyV₂⟩, rfl⟩, ?_, ?_⟩
+  · exact sInf_le_sInf (Set.image_mono (Set.preimage_mono Set.inter_subset_left))
+  · exact sInf_le_sInf (Set.image_mono (Set.preimage_mono Set.inter_subset_right))
+
+/-- The extension agrees with `f` on the (embedded) subspace. The `≤` direction is immediate
+(`f x₀` is one of the values being met); the `≥` direction uses continuity of `E`: for each
+`a ≪ f x₀` the Scott-open `↟a` pulls back along the continuous `f` and, by the embedding, to an
+open `V ⊆ Y` on whose `e`-preimage `f ≥ a`, so `a ≤ ⊓ f''(e⁻¹V) ≤ g(e x₀)`. -/
+theorem scottExtend_eq_of_continuous (hE : IsContinuousLattice E) (e : X → Y)
+    (he : IsEmbedding e) (f : X → E) (hf : @Continuous X E _ scottTopologicalSpace f) (x₀ : X) :
+    scottExtend e f (e x₀) = f x₀ := by
+  apply le_antisymm
+  · refine sSup_le ?_
+    rintro d ⟨V, hVo, hex₀V, rfl⟩
+    exact sInf_le ⟨x₀, hex₀V, rfl⟩
+  · rw [← hE.sSup_wayBelow (f x₀)]
+    refine sSup_le fun a ha => ?_
+    have hWopen : @IsOpen E scottTopologicalSpace {z : E | a ≪ z} :=
+      isOpen_iff_scottOpen.mpr (scottOpen_wayBelow a)
+    have hpre : IsOpen (f ⁻¹' {z : E | a ≪ z}) := continuous_def.mp hf _ hWopen
+    rw [he.isInducing.isOpen_iff] at hpre
+    obtain ⟨V, hVo, hVeq⟩ := hpre
+    have hx₀V : x₀ ∈ e ⁻¹' V := by rw [hVeq]; exact ha
+    refine le_trans ?_ (le_sSup ⟨V, hVo, hx₀V, rfl⟩)
+    refine le_sInf ?_
+    rintro w ⟨x, hxV, rfl⟩
+    have hxW : x ∈ f ⁻¹' {z : E | a ≪ z} := by rw [← hVeq]; exact hxV
+    exact (hxW : a ≪ f x).le
+
+/-- The extension is Scott-continuous. For a Scott-open `U` and a point `y₀` with `g y₀ ∈ U`, the
+basis lemma gives `a ≪ g y₀` with `↟a ⊆ U`; since `g y₀` is a directed supremum, `a ≪ ⊓ f''(e⁻¹V)`
+for some open `V ∋ y₀`, and that value is `≤ g y'` for every `y' ∈ V`, so `V ⊆ g⁻¹U`. -/
+theorem scottExtend_continuous (hE : IsContinuousLattice E) (e : X → Y) (f : X → E) :
+    @Continuous Y E _ scottTopologicalSpace (scottExtend e f) := by
+  letI : TopologicalSpace E := scottTopologicalSpace
+  rw [continuous_def]
+  intro U hU
+  rw [isOpen_iff_scottOpen] at hU
+  rw [isOpen_iff_forall_mem_open]
+  intro y₀ hy₀
+  have hgy₀U : scottExtend e f y₀ ∈ U := hy₀
+  obtain ⟨a, haz, hasub⟩ := exists_wayBelow_subset hE hU hgy₀U
+  obtain ⟨d, hd, had⟩ := (wayBelow_sSup_iff (scottExtend_aux_nonempty e f y₀)
+    (scottExtend_aux_directed e f y₀)).1 haz
+  obtain ⟨V, hVo, hy₀V, rfl⟩ := hd
+  refine ⟨V, ?_, hVo, hy₀V⟩
+  intro y' hy'V
+  show scottExtend e f y' ∈ U
+  refine hasub ?_
+  show a ≪ scottExtend e f y'
+  exact had.trans_le (le_sSup ⟨V, hVo, hy'V, rfl⟩)
+
+end InjectiveExtension
+
+/-- **Scott 1972, Proposition 2.11.** Every continuous lattice is an injective space under its
+induced (Scott) topology. The witness is `scottExtend`, which extends any continuous `f` along
+any embedding `e` (`scottExtend_eq_of_continuous`) and is itself continuous
+(`scottExtend_continuous`). -/
+theorem proposition_2_11 {E : Type*} [CompleteLattice E] (hE : IsContinuousLattice E) :
+    @IsInjectiveSpace E scottTopologicalSpace := by
+  letI : TopologicalSpace E := scottTopologicalSpace
+  intro X Y _ _ e he f
+  exact ⟨⟨scottExtend e f, scottExtend_continuous hE e f⟩,
+    fun x => scottExtend_eq_of_continuous hE e he f f.continuous x⟩
+
+/-- The Sierpiński space `Prop` (Scott's `𝕆`) is a continuous lattice: it is a finite complete
+lattice, so Proposition 2.8 applies. -/
+theorem isContinuousLattice_prop : IsContinuousLattice Prop :=
+  proposition_2_8
+
+/-- **Scott 1972, Theorem 2.12 (forward direction).** Every continuous lattice is an injective
+space under its Scott topology. This is the substantial half of the equivalence "injective
+spaces = continuous lattices", and is exactly Proposition 2.11. -/
+theorem theorem_2_12_forward {E : Type*} [CompleteLattice E] (hE : IsContinuousLattice E) :
+    @IsInjectiveSpace E scottTopologicalSpace :=
+  proposition_2_11 hE
+
+/-- **Scott 1972, Theorem 2.12 (backward, Sierpiński base case).** `Prop` is a continuous
+lattice (`isContinuousLattice_prop`), so its injectivity (Proposition 1.2) is an instance of the
+equivalence. -/
 theorem theorem_2_12_sierpinski_backward (_h : IsContinuousLattice Prop) : IsInjectiveSpace Prop :=
   proposition_1_2
 
 /-- **Scott 1972, Theorem 2.12 (injectivity half, unconditional).** `Prop` is injective
-(Sierpiński); the continuous-lattice half awaits `IsContinuousLattice Prop`. -/
+(Sierpiński); the continuous-lattice half is now `isContinuousLattice_prop`. -/
 theorem theorem_2_12_injective_half : IsInjectiveSpace Prop :=
   proposition_1_2
+
+/-- The Sierpiński space `𝕆 = Prop` realizes the smallest case of Theorem 2.12: it is both
+injective (1.2) and a continuous lattice (2.8). -/
+theorem sierpinski_isInjective_and_isContinuousLattice :
+    IsInjectiveSpace Prop ∧ IsContinuousLattice Prop :=
+  ⟨proposition_1_2, isContinuousLattice_prop⟩
 
 end Domain.ContinuousLattice
