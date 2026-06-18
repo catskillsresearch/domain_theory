@@ -26,8 +26,8 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **13 / 32** tracked numbered results are **Pass**, **8 Stuck**,
-**11 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+correction is complete; **14 / 32** tracked numbered results are **Pass**, **9 Stuck**,
+**9 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
 **classical** (see §1.2).
@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (32 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **13 Pass · 8 Stuck · 11 Not Yet**.
+full deliverable. Score: **14 Pass · 9 Stuck · 9 Not Yet**.
 
 
 | §   | Scott     | Lean name(s)                                                                                                                     | Module                | Status      | Notes                                |
@@ -179,8 +179,8 @@ full deliverable. Score: **13 Pass · 8 Stuck · 11 Not Yet**.
 | 2   | Prop 2.4  | `isContinuousLattice_iff_isLUB_sInf_nhds`                                                                                        | `WayBelow.lean`       | **Pass**    |                                      |
 | 2   | Prop 2.5  | `proposition_2_5`                                                                                                                | `ScottMaps.lean`      | **Pass**    |                                      |
 | 2   | Prop 2.6  | `proposition_2_6`                                                                                                                | `ScottMaps.lean`      | **Pass**    | joint ↔ separate continuity          |
-| 2   | Prop 2.8  | —                                                                                                                                | —                     | **Not Yet** | finite lattices                      |
-| 2   | Prop 2.9  | —                                                                                                                                | —                     | **Not Yet** | products; `CoarserThanScottTopology` |
+| 2   | Prop 2.8  | `proposition_2_8`                                                                                                                 | `Constructions.lean`  | **Pass**    | finite lattices                      |
+| 2   | Prop 2.9  | `proposition_2_9`                                                                                                                 | `Constructions.lean`  | **Stuck**   | products: order part done; topology agreement (Milner) open |
 | 2   | Prop 2.10 | `retr_ambientSSup_eq_sSup`                                                                                                       | `FunctionSpaces.lean` | **Stuck**   | Milner identity; full prop open      |
 | 2   | Prop 2.11 | —                                                                                                                                | —                     | **Not Yet** | CL injective                         |
 | 2   | Thm 2.12  | `theorem_2_12_injective_half`, `theorem_2_12_sierpinski_backward`                                                                | `Constructions.lean`  | **Stuck**   | half of equivalence                  |
@@ -412,13 +412,39 @@ topology is the product topology). The proof follows Scott's directed-net argume
 Sorry-free; `#print axioms` gives `[propext, Classical.choice, Quot.sound]` (the standard
 classical footprint for Part I).
 
+#### Proposition 2.8 (finite lattices are continuous) — `proposition_2_8`
+
+Scott states this as a one-line example. The Lean proof isolates the genuinely finite step in a
+reusable lemma `directedOn_finite_sSup_mem`: *a non-empty finite directed set attains its
+supremum* (`⊔S ∈ S`). A maximal element `m ∈ S` exists by `Set.Finite.exists_maximal`; by
+directedness any `s ∈ S` and `m` have an upper bound `c ∈ S`, and maximality forces `c ≤ m`, so
+`s ≤ m`. Hence `m` is the greatest element, `IsLUB S m`, and `⊔S = m ∈ S`. With this, every
+principal up-set `Set.Ici y` is Scott-open (a directed `S` with `y ≤ ⊔S` has `⊔S ∈ S`), so
+`y ≪ y` via `wayBelow_self_iff_scottOpen_Ici`, and `y` is trivially the supremum of
+`{x | x ≪ y}`. `[Finite D]` suffices (subsets are finite via `Set.toFinite`).
+
+#### Proposition 2.9 (products of continuous lattices) — `proposition_2_9`
+
+We prove the **order-theoretic content**: a product `∀ i, Eᵢ` of continuous lattices is a
+continuous lattice. (The accompanying topological claim — the induced topology agrees with the
+product topology — is the Milner-correction part and stays **Stuck**.) The construction is the
+cylinder element: for `a ≪ yᵢ` in factor `Eᵢ`, let `[a]ⁱ := Function.update ⊥ i a`. Then
+`[a]ⁱ ≪ y` in the product, witnessed by the preimage `{z | zᵢ ∈ U}` of a Scott-open `U ⊆ Eᵢ`
+with `yᵢ ∈ U ⊆ Ici a`: this set is an upper set, and inaccessible because suprema are
+coordinatewise (`sSup_apply_eq_sSup_image`), so a directed `S` with `(⊔S)ᵢ ∈ U` already has some
+`f ∈ S` with `fᵢ ∈ U`. Given any upper bound `b` of `{x | x ≪ y}`, each `[a]ⁱ ≤ b` gives
+`a = ([a]ⁱ)ᵢ ≤ bᵢ`; ranging over `a ≪ yᵢ` and using continuity of `Eᵢ`
+(`(hE i).sSup_wayBelow`) yields `yᵢ ≤ bᵢ` for all `i`, i.e. `y ≤ b`. This is a cleaner route
+than Scott's exposition (no finite-support bookkeeping). `classical` supplies the `DecidableEq`
+for `Function.update`; footprint `[propext, Classical.choice, Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Medium   | **2.8**, **3.5** left curry                                                  | Composer 2.5                       |
-| Hard     | **2.9**, **2.10** full, **2.11**, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
+| Medium   | **3.5** left curry                                                          | Composer 2.5                       |
+| Hard     | **2.9** topology agreement, **2.10** full, **2.11**, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 
 ---
