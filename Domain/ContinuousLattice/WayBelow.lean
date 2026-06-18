@@ -97,12 +97,27 @@ theorem WayBelow.sup {x y z : D} (hx : x ≪ z) (hy : y ≪ z) : x ⊔ y ≪ z :
   refine ⟨U ∩ V, scottOpen_inter hU hV, ⟨hzU, hzV⟩, fun w hw => ?_⟩
   exact Set.mem_Ici.2 (sup_le (hUsub hw.1) (hVsub hw.2))
 
-/-- **Scott 1972, Proposition 2.2(vi).** The set `{z | x ≪ z}` is Scott-open. -/
+/-- Auxiliary: the up-set `{z | x ≪ z}` is itself Scott-open. (This is *not* Scott's
+Proposition 2.2(vi) — see `wayBelow_self_iff_scottOpen_Ici` for that — but it is a standard
+and useful fact, the openness of the sets `↟x`.) -/
 theorem scottOpen_wayBelow (x : D) : ScottOpen {z | x ≪ z} := by
   refine ⟨fun a b hab ha => ha.trans_le hab, fun S hS hSdir hmem => ?_⟩
   obtain ⟨U, hU, hsupU, hsub⟩ := hmem
   obtain ⟨s, hsS, hsU⟩ := hU.2 hS hSdir hsupU
   exact ⟨s, hsS, ⟨U, hU, hsU, hsub⟩⟩
+
+/-- **Scott 1972, Proposition 2.2(vi).** `x ≪ x` iff the principal up-set `{z | x ⊑ z}` (i.e.
+`Set.Ici x`) is Scott-open. This characterizes the *compact* (finite, isolated) elements:
+`x` is compact exactly when `↑x` is open. -/
+theorem wayBelow_self_iff_scottOpen_Ici {x : D} : x ≪ x ↔ ScottOpen (Set.Ici x) := by
+  constructor
+  · rintro ⟨U, hU, hxU, hsub⟩
+    -- `Ici x = U`: `Ici x ⊆ U` since `U` is upper and `x ∈ U`; `U ⊆ Ici x` is `hsub`.
+    have hIci : Set.Ici x = U :=
+      le_antisymm (fun w hw => hU.1 (Set.mem_Ici.1 hw) hxU) hsub
+    rw [hIci]; exact hU
+  · intro hopen
+    exact ⟨Set.Ici x, hopen, Set.self_mem_Ici, le_refl _⟩
 
 /-- **Scott 1972, Proposition 2.2(vii).** For a non-empty directed set `S`, `x ≪ ⊔S` iff
 `x ≪ y` for some `y ∈ S`. The forward direction is exactly inaccessibility of a Scott-open
