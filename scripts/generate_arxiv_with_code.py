@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parent.parent
 # Library files in dependency order (matches Domain.lean import order).
 FILES = [
     "Domain.lean",
+    "Domain/Constructive.lean",
+    "Domain/ContinuousLattice/Injective.lean",
     "Domain/InfoSys.lean",
 ]
 

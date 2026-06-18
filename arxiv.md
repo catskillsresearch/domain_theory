@@ -48,20 +48,48 @@ This paper:
 4. (Planned) Constructs the function space `D → E`, product `D × E`, and sum `D + E`,
    with their universal properties, entirely in the information-system presentation.
 
+### 1.2 Where the difficulty lives: a note on the progression of ideas
+
+We present the three historical versions in chronological order (1972, 1981, 1982) not
+merely for tidiness but to make visible *where* the genuine technical difficulty of the
+foundations actually sits. Scott's original 1972 route is, in a precise sense, a piece of
+professional point-set topology and lattice theory: it turns on injective `T₀`-spaces, the
+Scott topology, the way-below relation `≪`, and inverse limits (culminating in the
+self-applicative model `D∞`). It is comfortable only for a reader with the training and
+mathematical culture of a topologist — a relatively rare intersection with the typical
+computer-science skill set. The 1981 *neighborhood systems* and then the 1982 *information
+systems* progressively trade that topological machinery for elementary, finite,
+combinatorial data; the barrier to entry falls, version by version, from professional
+topology to finite combinatorics.
+
+The formalization furnishes *objective* evidence for this reading rather than mere
+rhetoric. The 1972 layer leans on substantial mathlib topology and is irreducibly
+classical — it already depends on `Classical.choice`, and the passage to maximal/total
+elements is Zorn's lemma — whereas the 1982 information-system core is elementary enough to
+be carried out in a purely constructive, choice-free, *executable* fragment of Lean (see
+the constructivity audit, §[Goal 3]). The descent in proof machinery across the three
+versions — measured concretely by mathlib dependencies and by `#print axioms` footprints —
+is itself a quantitative gauge of where the conceptual depth is concentrated.
+
 ---
 
 ## 2. Information systems
 
-An **information system** is a triple `(A, Con, Ent)`:
+Following Scott's Definition 2.1, an **information system** is a structure
+`(P, Δ, Con, ⊢)`:
 
-- `A` is a type of *tokens*;
-- `Con` is a set of finite subsets of `A`, the *consistent* sets; and
-- `Ent X a` ("`X` entails `a`") relates a finite set `X` to a token `a`.
+- `P` is a set of *data objects* / *propositions* (our token type);
+- `Δ ∈ P` is a distinguished *least informative* object;
+- `Con` is a set of finite subsets of `P`, the *consistent* sets; and
+- `⊢` ("`u ⊢ a`") relates a finite set `u` to a token `a` it entails.
 
-subject to: consistency is downward closed; singletons are consistent; if `X` entails
-`a` then `X ∪ {a}` is consistent; entailment is reflexive on members of a consistent
-set; and entailment satisfies cut (transitivity). The Lean encoding is the structure
-`InfoSys` in `Domain/InfoSys.lean`.
+subject to Scott's six axioms: (i) consistency is downward closed; (ii) singletons are
+consistent; (iii) if `u ⊢ a` then `u ∪ {a}` is consistent; (iv) `Δ` is entailed by every
+consistent set; (v) entailment is reflexive on members of a consistent set; and (vi)
+entailment satisfies cut (transitivity). The Lean encoding is the structure `InfoSys` in
+`Domain/InfoSys.lean`. To keep the development constructive (choice-free), axiom (iii) is
+written with `insert a u` rather than `u ∪ {a}`, since mathlib's `Finset` union instance
+carries a `Classical.choice` dependency; the two are definitionally equal.
 
 ---
 

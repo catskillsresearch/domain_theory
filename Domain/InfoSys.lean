@@ -8,39 +8,62 @@ Following Dana Scott, *"Domains for Denotational Semantics"* (ICALP 1982) and th
 compact presentation in Glynn Winskel, *The Formal Semantics of Programming
 Languages*, Chapter 8.
 
-A **Scott information system** is a triple `(A, Con, Ent)` where
+Following Scott's **Definition 2.1**, an information system is a structure
+`(P, Δ, Con, ⊢)` where
 
-* `A` is a type of *tokens* (atomic units of information / propositions);
-* `Con` is a collection of *consistent* finite sets of tokens; and
-* `Ent` (entailment) relates a finite set of tokens to a token it forces.
+* `P` is a set of *data objects* / *propositions* (our token type `α`);
+* `Δ ∈ P` is a distinguished *least informative* object (here the field `bot`);
+* `Con` is a set of finite subsets of `P`, the *consistent* sets; and
+* `⊢` (entailment, here `Ent`) relates a finite set to a token it forces.
+
+Scott's six axioms (Def. 2.1) are, for finite `u, v ⊆ P` and `X ∈ P`:
+
+* (i)   `u ∈ Con` whenever `u ⊆ v ∈ Con`              — `con_subset`
+* (ii)  `{X} ∈ Con`                                    — `con_sing`
+* (iii) `u ∪ {X} ∈ Con` whenever `u ⊢ X`               — `ent_con`
+* (iv)  `u ⊢ Δ`                                         — `ent_bot`
+* (v)   `u ⊢ X` whenever `X ∈ u`                        — `ent_refl`
+* (vi)  if `v ⊢ Y` for all `Y ∈ u` and `u ⊢ X` then `v ⊢ X` — `ent_trans`
 
 The **domain** determined by an information system is the poset of its *elements*
 (a.k.a. *ideals*): sets of tokens that are consistent on every finite subset and
 closed under entailment, ordered by inclusion. This file sets up the structure, the
 notion of element, and the partial order; later files build the function, product,
 and sum spaces.
+
+This is the **1982** presentation; the development is kept choice-free (constructive),
+matching Scott's emphasis on the constructive nature of the definitions.
 -/
 
-/-- A Scott information system on a type of tokens `α`.
+/-- A Scott information system on a type of tokens `α`, following Scott's Definition 2.1
+in *"Domains for Denotational Semantics"* (ICALP 1982).
 
 `DecidableEq α` is required so that finite token sets support union (`X ∪ {a}`) and the
 other `Finset` operations the axioms mention. -/
 structure InfoSys (α : Type*) [DecidableEq α] where
+  /-- The distinguished least-informative object `Δ`. -/
+  bot : α
   /-- The consistent finite sets of tokens. -/
   Con : Set (Finset α)
-  /-- Entailment: `Ent X a` means the consistent set `X` forces the token `a`. -/
+  /-- Entailment: `Ent u a` means the consistent set `u` forces the token `a`. -/
   Ent : Finset α → α → Prop
-  /-- Consistency is downward closed under `⊆`. -/
-  con_subset : ∀ {X Y : Finset α}, X ∈ Con → Y ⊆ X → Y ∈ Con
-  /-- Every singleton is consistent. -/
+  /-- (i) Consistency is downward closed under `⊆`. -/
+  con_subset : ∀ {u v : Finset α}, u ∈ Con → v ⊆ u → v ∈ Con
+  /-- (ii) Every singleton is consistent. -/
   con_sing : ∀ a : α, {a} ∈ Con
-  /-- A set entailing `a` stays consistent when `a` is added. -/
-  ent_con : ∀ {X : Finset α} {a : α}, Ent X a → X ∪ {a} ∈ Con
-  /-- Entailment is reflexive on members of a consistent set. -/
-  ent_refl : ∀ {X : Finset α} {a : α}, X ∈ Con → a ∈ X → Ent X a
-  /-- Entailment is transitive (cut). -/
-  ent_trans : ∀ {X Y : Finset α} {c : α},
-    X ∈ Con → (∀ y ∈ Y, Ent X y) → Ent Y c → Ent X c
+  /-- (iii) A set entailing `a` stays consistent when `a` is added. Scott writes this as
+  `u ∪ {a} ∈ Con`; we use the definitionally identical `insert a u`, because mathlib's
+  `Finset` union instance (unlike `insert`) depends on `Classical.choice`, which would
+  break the constructive development. -/
+  ent_con : ∀ {u : Finset α} {a : α}, Ent u a → insert a u ∈ Con
+  /-- (iv) The least token `Δ` is entailed by every consistent set. -/
+  ent_bot : ∀ {u : Finset α}, u ∈ Con → Ent u bot
+  /-- (v) Entailment is reflexive on members of a consistent set. -/
+  ent_refl : ∀ {u : Finset α} {a : α}, u ∈ Con → a ∈ u → Ent u a
+  /-- (vi) Entailment is transitive (cut): if a consistent `v` entails every member of a
+  consistent `u`, and `u ⊢ c`, then `v ⊢ c`. -/
+  ent_trans : ∀ {u v : Finset α} {c : α},
+    v ∈ Con → u ∈ Con → (∀ y ∈ u, Ent v y) → Ent u c → Ent v c
 
 namespace InfoSys
 
@@ -63,10 +86,13 @@ instance : PartialOrder sys.Element where
   le_trans _ _ _ h1 h2 := Set.Subset.trans h1 h2
   le_antisymm x y h1 h2 := by
     -- Elements are determined by their carriers (the remaining fields are `Prop`s,
-    -- closed by proof irrelevance), so equality reduces to carrier antisymmetry.
+    -- closed by definitional proof irrelevance), so equality reduces to carrier
+    -- antisymmetry. We avoid `congr` here because it pulls in `Classical.choice`;
+    -- `subst` + `rfl` keeps the development constructive.
+    have hc : x.carrier = y.carrier := Set.Subset.antisymm h1 h2
     cases x
     cases y
-    congr
-    exact Set.Subset.antisymm h1 h2
+    subst hc
+    rfl
 
 end InfoSys
