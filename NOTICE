@@ -1,0 +1,13 @@
+domain_theory
+
+A Lean 4 formalization of Dana Scott's domain theory via Scott Information
+Systems, with an accompanying paper.
+
+    This work: https://github.com/catskillsresearch/domain_theory
+
+The mathematics follows Dana Scott, "Domains for Denotational Semantics"
+(ICALP, 1982), and the compact presentation of information systems in
+Glynn Winskel, "The Formal Semantics of Programming Languages" (Chapter 8).
+
+All original files in this repository are contributed under the Apache License,
+Version 2.0.

@@ -1,0 +1,253 @@
+Skip to main content
+Dana Scott's Domain Theory Resources
+33,998 tokens
+
+User 1:23 AM
+I took a course from Dana Scott using a little blue pamphlet printed by Oxford University.  Is that still around? It is the definitive resource for canonical Scott domain theory?
+Model 1:23 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+The "little blue pamphlet" you took a course from is "Lectures on a Mathematical Theory of Computation" (Technical Monograph PRG-19), published in 1981 by the Oxford University Computing Laboratory (OUCL) Programming Research Group (PRG)[1].
+During that era, the PRG famously printed its technical monographs as compact, A5-sized booklets bound in distinct blue cardstock covers[2]. For many computer scientists and logicians who studied denotational semantics in the late 1970s and 1980s, these "blue pamphlets" were iconic.
+Is it still around?
+Yes, it is. While physical printed copies of the original blue pamphlets are rare and mostly found in university archives or private collections, the material itself is highly accessible:
+Digitized PDF: The University of Oxford's Department of Computer Science (which grew out of the OUCL) maintains an online repository of historical publications[1]. You can download the complete digitized PDF of PRG-19 directly from their publications catalog[1].
+Alternative Book Publication: The monograph was also published as a chapter in Theoretical Foundations of Programming Methodology (edited by Manfred Broy and Gunther Schmidt, Reidel Publishing, 1982)[3].
+Is it the definitive resource for canonical Scott domain theory?
+While it is an incredibly important, historic, and beautifully written foundational text, it is no longer considered the definitive or modern canonical resource for domain theory[4]. There are a few reasons for this:
+The Neighborhood Systems Framework: In this 1981 monograph, Dana Scott formulated domain theory using a framework called neighborhood systems (where finite elements are represented as open sets of "tokens")[4][5].
+The Shift to Information Systems: Shortly after publishing the monograph, Scott realized that neighborhood systems could be mathematically clumsy and lacked intuitive appeal[4]. In 1982, he published a landmark paper, "Domains for Denotational Semantics" (ICALP 1982), which introduced Scott Information Systems[6][7]. Information systems became his preferred, simpler logical presentation of domains[4]. However, he never revised PRG-19 to reflect this change[4].
+What are the definitive resources today?
+If you are looking for the definitive, modern references on domain theory, the academic community generally points to the following:
+For Computer Scientists (Semantics & Logic):
+Domain Theory by Samson Abramsky and Achim Jung (originally published in 1994 in the Handbook of Logic in Computer Science, Vol. 3)[8][9]. This is widely regarded as the most comprehensive and definitive reference for the mathematical foundations of denotational semantics[8].
+For Mathematicians (Order Theory & Topology):
+Continuous Lattices and Domains (Cambridge University Press, 2003)[10]. This is an exhaustive, collaborative compendium co-authored by G. Gierz, K. H. Hofmann, K. Keimel, J. D. Lawson, M. W. Mislove, and Dana Scott himself[10]. It serves as the ultimate mathematical reference on the subject.
+Pedagogical Texts:
+If you want a modern textbook that behaves like the course notes you used, Domains and Lambda-Calculi (1998) by Roberto M. Amadio and Pierre-Louis Curien is highly regarded[9].
+Sources
+help
+ox.ac.uk
+computerhistory.org
+researchgate.net
+rice.edu
+arxiv.org
+pls-lab.org
+grokipedia.com
+ic.ac.uk
+uni-siegen.de
+ncatlab.org
+Google Search Suggestions
+Display of Search Suggestions is required when using Grounding with Google Search. Learn more
+Model 1:27 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+To formalize domain theory in Lean 4 without getting bogged down in topological boilerplate, the original "neighborhood systems" from the PRG-19 pamphlet—or abstract directed-complete partial orders (DCPOs)—are actually not the easiest paths[1].
+If you want to define domains and prove their properties in Lean 4 with minimum friction, the ideal mathematical framework is Scott Information Systems [1.2.2].
+Why Information Systems are Perfect for Lean 4
+Abstract domain theory relies on topologies (the Scott topology), infinite directed sets, and filter-like limits[2][3]. While elegant on paper, formalizing these concepts in a proof assistant requires navigating a massive amount of "bureaucratic" order-theoretic and topological proof overhead[1].
+By contrast, Information Systems are purely discrete, inductive, and combinatorial[1]. They construct Scott domains out of sets of "tokens" and relations on finite sets of those tokens [1.2.2]. Proving that these structures form algebraic, bounded-complete DCPOs is highly mechanical and relies mostly on basic set operations and inductive reasoning—making it incredibly satisfying to write in Lean 4.
+Two Highly Compact, "Pamphlet-Sized" References
+Rather than a giant textbook, you can use these highly compact, self-contained resources as your blueprint for formalization:
+Glynn Winskel, The Formal Semantics of Programming Languages (Chapter 8: "Information Systems")
+Size: ~15 pages.
+Why it works: It is arguably the most clean, pedagogical, and compact presentation of Scott's information systems ever written. It details the construction of the domain of "ideals," proves it is a Scott domain, and constructs the function space (
+D
+→
+E
+D→E
+), product space (
+D
+×
+E
+D×E
+), and sum space (
+D
++
+E
+D+E
+) purely using the information system syntax.
+Dana Scott, "Domains for Denotational Semantics" (ICALP, 1982)
+Size: ~30 pages.
+Why it works: This is the original paper where Scott introduced the concept of information systems to fix the clunkiness of his 1981 pamphlet [1.2.2]. It is self-contained and directly lays out the deductive axioms.
+Your Lean 4 Blueprint
+Below is an elegant, minimal template to get you started in Lean 4. It defines a Scott Information System and constructs the poset of its "elements" (which constitute the domain)[4].
+code
+Lean
+import Mathlib.Data.Finset.Basic
+import Mathlib.Data.Set.Basic
+
+/-!
+# Scott Information Systems in Lean 4
+An Information System is a triple (A, Con, Ent) where:
+- `A` is a type of "tokens" (propositions).
+- `Con` is a set of finite subsets of `A` representing consistent sets.
+- `Ent` (entailment) relates a consistent finite set of tokens to a single token.
+-/
+
+structure InfoSys (α : Type _) where
+  Con : Set (Finset α)
+  Ent : Finset α → α → Prop
+
+  -- Axioms of consistency and entailment
+  con_subset : ∀ {X Y : Finset α}, X ∈ Con → Y ⊆ X → Y ∈ Con
+  con_sing   : ∀ (a : α), {a} ∈ Con
+  ent_con    : ∀ {X : Finset α} {a : α}, Ent X a → X ∪ {a} ∈ Con
+  ent_refl   : ∀ {X : Finset α} {a : α}, X ∈ Con → a ∈ X → Ent X a
+  ent_trans  : ∀ {X Y : Finset α} {c : α}, 
+    X ∈ Con → (∀ y ∈ Y, Ent X y) → Ent Y c → Ent X c
+
+namespace InfoSys
+
+variable {α : Type _} (sys : InfoSys α)
+
+/-- 
+An "element" of the domain is a potentially infinite set of tokens 
+that is both consistently closed and deductively closed.
+-/
+structure Element where
+  carrier : Set α
+  /-- Every finite subset of the element must be consistent -/
+  consistent : ∀ (Y : Finset α), (Y : Set α) ⊆ carrier → Y ∈ sys.Con
+  /-- The element is closed under entailment -/
+  closed     : ∀ (Y : Finset α) (a : α), (Y : Set α) ⊆ carrier → sys.Ent Y a → a ∈ carrier
+
+/-- We can order the elements of our domain by subset inclusion. -/
+instance : PartialOrder sys.Element where
+  le x y := x.carrier ⊆ y.carrier
+  le_refl x := Set.Subset.refl _
+  le_trans x y z h1 h2 := Set.Subset.trans h1 h2
+  le_antisymm x y h1 h2 := by
+    -- Since the structures are defined by their carrier sets,
+    -- proving their equality reduces to showing their carriers are equal.
+    cases x; cases y
+    congr
+    exact Set.Subset.antisymm h1 h2
+
+end InfoSys
+An Alternative: Mathlib 4's Built-In Tools
+If you want to work with the abstract order-theoretic definitions (like 
+ω
+ω
+-CPOs and DCPOs) rather than coding everything from scratch, Lean's standard mathematical library (Mathlib4) already contains some of this machinery:
+Mathlib.Order.OmegaCompletePartialOrder: Models partial orders with suprema on countable monotone chains[5][6]. This is the standard "computer science" setting for defining recursive functions via Kleene fixed points[5][7].
+Mathlib.Order.CompletePartialOrder: Models general DCPOs where every directed set has a least upper bound[4].
+Mathlib.Topology.Order.ScottTopology: Fully defines the Scott topology on preorders[2].
+Sources
+help
+anna-maths.xyz
+github.io
+github.io
+github.io
+github.io
+github.io
+github.io
+Google Search Suggestions
+Display of Search Suggestions is required when using Grounding with Google Search. Learn more
+Model 1:32 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:35 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:39 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:43 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:46 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:48 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Model 1:52 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+Working directly with Dana Scott and knowing the CMU logic cohort is an incredible foundation. Since you want to cut straight to the chase and use frontier AI (like Claude 3.5 Sonnet / Cursor) as your primary proof-grinding engine, you are in a great position[1][2].
+When paired with a strict proof verifier like the Lean 4 compiler, LLMs change the game[3]. You write the math, the AI generates candidate proofs, and the Lean compiler acts as the ultimate filter[2][3].
+Here is the exact tactical playbook to power this project through quickly without getting bogged down in syntax errors.
+1. Set Up the Ultimate AI-Lean Workflow
+Do not just copy-paste back and forth to a web browser. Use a specialized editor setup:
+The Editor: Use Cursor (the AI-first code editor) or VS Code with the Claude 3.5 Sonnet API.
+The Loop: Keep a split screen with your Lean 4 file on one side and your AI chat on the other.
+The Compiler as a Guardrail: When you ask the AI to write a proof, it will often get 90% of it right but make a minor syntax error or reference a mathlib lemma that has changed names. Simply copy Lean's compiler error from the Infoview, paste it to the AI, and say, "Fix this compiler error." The AI will iterate and fix its own mistake within one or two rounds[4].
+2. Use the "Auto-Formalization" Prompting Strategy
+LLMs struggle when you ask them to write abstract proofs from scratch. They are highly capable, however, when you feed them "Informal Lean"—highly detailed, step-by-step mathematical blueprints written inside Lean comment blocks[5].
+Before writing any proof, write down exactly how the math works in a comment block directly above the theorem[5]:
+code
+Lean
+-- Informal Proof: 
+-- 1. Let x and y be elements of the Information System.
+-- 2. Assume x ⊆ y and y ⊆ x.
+-- 3. We show x = y by extensionality. 
+-- 4. In Lean, the Element structure wraps a set (carrier) and proof fields.
+-- 5. Show that x.carrier = y.carrier using Set.Subset.antisymm on h1 and h2.
+-- 6. Use 'congr' or constructor extensionality to show x = y because their carriers are equal.
+theorem element_eq {α : Type _} (sys : InfoSys α) (x y : sys.Element) 
+  (h1 : x.carrier ⊆ y.carrier) (h2 : y.carrier ⊆ x.carrier) : x = y := by
+  -- [Ask the AI to complete this proof based on the steps above]
+This technique (NL-to-FL translation) is the exact method used by state-of-the-art auto-formalizers[5][6].
+3. Force the AI to Use Lean 4’s Automation Tactics
+Often, LLMs will try to write incredibly long, fragile manual proof terms. You want to force it to use Lean's native search tactics, which are much more robust to mathlib version changes:
+aesop (Automated Extensible Search for Ordinary Proofs): This is Lean 4's most powerful general-purpose search tactic. It is highly effective at resolving set-theoretic inclusions, logical goals, and simple inductive proofs.
+simp and tauto: For simplifying set unions/intersections and solving pure propositional logic.
+omega: If you do anything involving integer bounds or finite set cardinalities.
+Prompt Rule: Tell the AI: "Prefer short proofs using aesop, simp, or tauto over manual term generation. Try aesop first."
+4. Keep Universes and Types Simple to Avoid Hallucinations
+LLMs frequently hallucinate or get confused by Lean 4's complex universe levels (Type u) and implicit coercions.
+The Fix: Start by making everything concrete.
+Instead of using arbitrary polymorphic universes (Type u), use Type (which defaults to Type 0, the universe of standard sets).
+Do not define your structures as typeclasses; define them as simple structure types.
+Once your proofs are compiling and working, you can easily ask the AI to refactor the completed proofs to be universe-polymorphic if you want to.
+5. Search Mathlib for the AI
+If the AI hallucinates a lemma name for Finset or Set (which it will, because Mathlib changes rapidly), do not guess.
+Use Loogle (loogle.lean-lang.org)[7].
+Type what you are looking for (e.g., Finset.union and ⊆), grab the correct lemma name, and paste it into the prompt: "Use the lemma Finset.subset_iff to rewrite the goal."
+By providing the conceptual blueprint, letting Lean 4's compiler verify the types, and using the AI strictly to grind out the boring intermediate steps, you can build this out surprisingly quickly.
+Sources
+help
+emergentmind.com
+emelia.io
+dev.to
+ycombinator.com
+arxiv.org
+takara.ai
+stackexchange.com
+Google Search Suggestions
+Display of Search Suggestions is required when using Grounding with Google Search. Learn more
+Model 1:56 AM
+ThinkingThoughts
+Expand to view model thoughts
+
+chevron_right
+info
+Google AI models may make mistakes, so double-check outputs.
+Use Arrow Up and Arrow Down to select a turn, Enter to jump to it, and Escape to return to the chat.
+Start typing a prompt to see what our models can do
+
+google
+Grounding with Google Search
+
+link
+URL context
+Response ready.
