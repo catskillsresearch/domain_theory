@@ -36,16 +36,17 @@ lake build
 
 - `Domain.lean` — root module (imports the library in dependency order).
 - `Domain/` — the Lean library.
-  - `InfoSys.lean` — Scott information systems, their elements (ideals), and the
-    partial order on elements.
+- `sources/` — **human-verified Markdown transcriptions** of the source PDFs (see
+  [`sources/README.md`](sources/README.md)). Formalization follows verified text.
 - `arxiv.md` — the paper narrative.
-- `scripts/` — the arXiv build pipeline (markdown → LaTeX → PDF, mermaid figures,
-  submission packaging), shared with the project template.
+- `scripts/` — arXiv build pipeline and `pdf_to_source_md.py` (PDF → draft MD).
 
 ## Status
 
-- Build environment set up on Lean v4.30.0 / mathlib v4.30.0.
-- Core information-system structures: in progress (see `arxiv.md`).
+- Build environment: Lean v4.30.0 / mathlib v4.30.0.
+- **Source transcriptions:** draft MD generated for all four PDFs under `sources/`;
+  human verification in progress (see `sources/README.md`).
+- Lean formalization: paused until transcriptions are verified page-by-page.
 
 ## License
 
