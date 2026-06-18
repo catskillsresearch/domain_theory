@@ -4,31 +4,36 @@
 
 ## Abstract
 
-We formalize Dana Scott's domain theory in **Lean 4** with **mathlib**, following **four
-historical layers in order**:
+This is **one formalization monograph** in **Lean 4** with **mathlib**. It has **four
+sequential parts**, each formalizing a historical presentation of Scott domains in
+chronological order:
 
-1. **Scott 1972** — *Continuous Lattices* (LNM 274): injective `T₀`-spaces, Scott topology,
-   way-below, function spaces, inverse limits.
-2. **Scott 1981** — PRG-19 *Lectures on a Mathematical Theory of Computation*: neighborhood
-   systems (filters of neighborhoods on a master set Δ; domain elements as filters).
-3. **Scott 1982** — *Domains for Denotational Semantics* (ICALP): information systems
-   (finite consistency + entailment on tokens).
-4. **Equivalence** — explicit Lean theorems relating the three presentations, showing they
-   determine the same class of domains up to isomorphism.
+1. **Part I (Scott 1972)** — *Continuous Lattices* (LNM 274): injective `T₀`-spaces, Scott
+   topology, way-below, function spaces, inverse limits.
+2. **Part II (Scott 1981)** — PRG-19 *Lectures on a Mathematical Theory of Computation*:
+   neighborhood systems (filters of neighborhoods on a master set Δ; domain elements as
+   filters).
+3. **Part III (Scott 1982)** — *Domains for Denotational Semantics* (ICALP): information
+   systems (finite consistency + entailment on tokens).
+4. **Part IV (Equivalence)** — the **finale** of this same paper: explicit Lean theorems
+   relating the three presentations, showing they determine the same class of domains up to
+   isomorphism, and showing that Scott 1982 (Part III) is constructive while 1972 and 1981
+   (Parts I–II) are not — yet the presentations are still isomorphic.
 
 The narrative thesis is that **required skill descends chronologically**: professional
 point-set topology and lattice theory (1972) → filter-theoretic neighborhoods (1981) →
-finite combinatorics (1982). The formalization makes this objective via mathlib dependency
-footprints and `#print axioms` audits.
+finite combinatorics (1982) → synthesis (Part IV). The formalization makes this objective
+via mathlib dependency footprints and `#print axioms` audits.
 
-**Paper 1 (1972)** is the active workstream: vision transcription through the March 1972
-Milner correction is complete; **11 / 32** tracked numbered results are **Pass**, **9 Stuck**,
-**12 Not Yet** (zero `sorry`s). **Papers 2–4** are stubbed with planned theorem names.
-**Paper 3** is the **fully constructive** target (`[propext, Quot.sound]` only); **Papers 1–2**
-and the **1972 leg of the equivalence** are **classical** (see §2.3).
+**STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
+correction is complete; **11 / 32** tracked numbered results are **Pass**, **9 Stuck**,
+**12 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+bridge theorems only. **Part III** is the **fully constructive** target
+(`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
+**classical** (see §1.2).
 
-Complete Lean source is indexed in **Appendix A**; `scripts/generate_arxiv_with_code.py` expands
-this narrative mechanically into `arxiv_with_code.md`.
+Complete Lean source is indexed in **Appendix A**; `scripts/generate_arxiv_with_code.py`
+expands this narrative mechanically into `arxiv_with_code.md`.
 
 ---
 
@@ -40,45 +45,48 @@ Instead, over a decade, he moved from **topological continuous lattices** (1972)
 **neighborhood systems** (1981 lectures, PRG-19) to **information systems** (1982 ICALP) —
 each time lowering the topological overhead and making the data more finitary.
 
-This document is the **master narrative** for a multi-part formalization. We do **not** treat
-the four layers as independent silos. They are related by **specific equivalence theorems**
-(§2.2), and Paper 1's §1–§4 internal dependency structure is spelled out in §3.
+This document is the **master narrative for that single monograph**. We do **not** treat
+the four parts as independent publications. Parts I–III follow Scott's historical sources;
+**Part IV** is not a fourth source text but the **equivalence finale** — specific bridge
+theorems (§2.2) showing the three presentations coincide. Part I's internal §1–§4
+dependency structure (injective spaces → continuous lattices → function spaces → inverse
+limits) is spelled out in §3.
 
 ### 1.1 Contribution (overall)
 
-1. **Paper 1:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
+1. **Part I:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
    and partial §3–§4 spine in `Domain/ContinuousLattice/`.
-2. **Paper 2 (planned):** PRG-19 neighborhood systems — stub module `Domain/Neighborhood/` (TBD).
-3. **Paper 3 (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
+2. **Part II (planned):** PRG-19 neighborhood systems — stub module `Domain/Neighborhood/` (TBD).
+3. **Part III (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
    and `Domain/Constructive.lean`.
-4. **Paper 4 (planned):** functors and isomorphisms tying Papers 1–3; constructive certification
-   for the 1982 route, documented classical frontier for the 1972 route.
+4. **Part IV (planned):** functors and isomorphisms tying Parts I–III; constructive certification
+   for the 1982 route; documented classical frontier for the 1972 route.
 
 ### 1.2 Constructivity discipline
 
-| Layer | Target fragment | Typical axioms beyond `propext`, `Quot.sound` |
-|-------|-----------------|--------------------------------------------------|
-| **Paper 1 (1972)** | Classical / topological | `Classical.choice`; mathlib Scott topology, embeddings, Zorn where used |
-| **Paper 2 (1981)** | Classical (expected) | Choice for maximal/total elements; filter theory |
-| **Paper 3 (1982)** | **Fully constructive** | **None** — audited choice-free `Finset` via `funion` (`Domain/Constructive.lean`) |
-| **Paper 4 (equivalence)** | Mixed | Constructive on the 1981↔1982 and 1982↔ideal-completion legs; **classical frontier** on any 1972↔1982 bridge using compact-open / basis-of-compacts |
+| Part | Target fragment | Typical axioms beyond `propext`, `Quot.sound` |
+|------|-----------------|--------------------------------------------------|
+| **Part I (1972)** | Classical / topological | `Classical.choice`; mathlib Scott topology, embeddings, Zorn where used |
+| **Part II (1981)** | Classical (expected) | Choice for maximal/total elements; filter theory |
+| **Part III (1982)** | **Fully constructive** | **None** — audited choice-free `Finset` via `funion` (`Domain/Constructive.lean`) |
+| **Part IV (equivalence finale)** | Mixed | Constructive on the 1981↔1982 and 1982↔ideal-completion legs; **classical frontier** on any 1972↔1982 bridge using compact-open / basis-of-compacts |
 
-Paper 3 is the **certified constructive core**. Papers 1 and 2 are allowed classical
-machinery; Paper 4 must **say explicitly** where classical steps enter when relating back to
-1972.
+Part III is the **certified constructive core**. Parts I and II are allowed classical
+machinery; **Part IV** must **say explicitly** where classical steps enter when relating
+back to 1972.
 
 ---
 
-## 2. Four-paper blueprint
+## 2. Four-part blueprint (one monograph)
 
 ### 2.1 Historical order and module map
 
 ```mermaid
 flowchart LR
-  P1["Paper 1 · 1972<br/>Continuous Lattices<br/><i>Domain/ContinuousLattice/</i>"]
-  P2["Paper 2 · 1981<br/>Neighborhood Systems<br/><i>Domain/Neighborhood/ TBD</i>"]
-  P3["Paper 3 · 1982<br/>Information Systems<br/><i>Domain/InfoSys.lean</i>"]
-  P4["Paper 4 · Equivalence<br/><i>Domain/Equivalence/ TBD</i>"]
+  P1["Part I · 1972<br/>Continuous Lattices<br/><i>Domain/ContinuousLattice/</i>"]
+  P2["Part II · 1981<br/>Neighborhood Systems<br/><i>Domain/Neighborhood/ TBD</i>"]
+  P3["Part III · 1982<br/>Information Systems<br/><i>Domain/InfoSys.lean</i>"]
+  P4["Part IV · Equivalence finale<br/><i>Domain/Equivalence/ TBD</i>"]
   C["Domain/Constructive.lean<br/>choice-free prelude"]
 
   P1 -->|"Thm: CL_to_neighborhood"| P2
@@ -91,38 +99,38 @@ flowchart LR
   C -.->|"audit only"| P4
 ```
 
-The four papers are **not** independent boxes. Chronological reading order is **1 → 2 → 3**;
-Paper **4** is the synthesis. Paper **3** also feeds back to Paper **1** via ideal completion
-(algebraic / consistently complete presentation of the same domains).
+The four parts are **not** independent silos within this monograph. Reading order is
+**I → II → III**, then **Part IV** closes the arc. Part III also feeds back to Part I via
+ideal completion (algebraic / consistently complete presentation of the same domains).
 
-### 2.2 Planned equivalence theorems (Paper 4)
+### 2.2 Planned equivalence theorems (Part IV finale)
 
-These are the **new theorems relating one presentation to the next** (Lean names provisional):
+These are the **bridge theorems for Part IV** (Lean names provisional):
 
 | Theorem (planned) | Direction | Depends on | Status |
 |-------------------|-----------|------------|--------|
-| `continuousLattice_to_neighborhoodSystem` | 1972 → 1981 | Paper 1 **2.11**, **2.12**; Δ as master set | **Not Yet** |
-| `neighborhoodSystem_to_infoSys` | 1981 → 1982 | Paper 2 domain-as-filter; finite basis | **Not Yet** |
-| `infoSys_to_idealCompletion` | 1982 → algebraic dcpo | Paper 3 `InfoSys.Element` | **Not Yet** |
+| `continuousLattice_to_neighborhoodSystem` | 1972 → 1981 | Part I **2.11**, **2.12**; Δ as master set | **Not Yet** |
+| `neighborhoodSystem_to_infoSys` | 1981 → 1982 | Part II domain-as-filter; finite basis | **Not Yet** |
+| `infoSys_to_idealCompletion` | 1982 → algebraic dcpo | Part III `InfoSys.Element` | **Not Yet** |
 | `idealCompletion_to_continuousLattice` | algebraic CL → 1972 | compact elements, Scott open sets | **Not Yet** (classical frontier) |
-| `presentation_domains_equiv` | 1 ↔ 2 ↔ 3 | all above | **Not Yet** |
-| `infoSys_constructions_equiv` | products, sums, function space | Papers 1 **3.3**, 3 **constructions** | **Not Yet** |
+| `presentation_domains_equiv` | I ↔ II ↔ III | all above | **Not Yet** |
+| `infoSys_constructions_equiv` | products, sums, function space | Part I **3.3**, Part III constructions | **Not Yet** |
 
 Scott himself notes (1982) that neighborhood systems and information systems are equivalent
-in a precise sense; our Paper 4 makes that equivalence **checkable in Lean**.
+in a precise sense; **Part IV** of this monograph makes that equivalence **checkable in Lean**.
 
-### 2.3 Gate between papers
+### 2.3 Gates between parts
 
 | Gate | Requirement |
 |------|-------------|
-| **Paper 1 → Paper 2** | **Pass** on **2.8–2.11**, **3.3** (under `CoarserThanScottTopology`) |
-| **Paper 2 → Paper 3** | Paper 2 domain definition + approximable maps (PRG-19 core) |
-| **Paper 3 standalone** | Prop 2.3 (1982), Scott domain = consistently complete algebraic dcpo |
-| **Paper 4** | All three presentations + functorial constructions |
+| **Part I → Part II** | **Pass** on **2.8–2.11**, **3.3** (under `CoarserThanScottTopology`) |
+| **Part II → Part III** | Part II domain definition + approximable maps (PRG-19 core) |
+| **Part III standalone** | Prop 2.3 (1982), Scott domain = consistently complete algebraic dcpo |
+| **Part IV finale** | All three presentations formalized + functorial constructions |
 
 ---
 
-## 3. Paper 1 — Scott 1972 *Continuous Lattices*
+## 3. Part I — Scott 1972 *Continuous Lattices*
 
 **Source:** Scott, *Continuous Lattices*, LNM 274 (1972); vision transcription in
 [`sources/ScottContinLatt1972_vision.md`](sources/ScottContinLatt1972_vision.md) through the
@@ -133,7 +141,7 @@ embedding into Sierpiński powers, and order-theoretic arguments not audited for
 
 **Lean root:** `Domain/ContinuousLattice/` (imported from `Domain.lean` before `InfoSys`).
 
-Scott's four section titles within this paper:
+Scott's four section titles within Part I:
 
 | § | Title | Lean modules |
 |---|-------|--------------|
@@ -188,7 +196,7 @@ full deliverable. Score: **11 Pass · 9 Stuck · 12 Not Yet**.
 **Notation:** `⊔S′` = ambient join in `D′` (`ambientSSup`); `⊔S` = subspace join;
 `j(⊔S′) = ⊔S` = `retr_ambientSSup_eq_sSup`.
 
-### 3.2 Paper 1 — section dependency (§1–§4 are not independent)
+### 3.2 Part I internal dependency (Scott §1–§4 are not independent)
 
 ```mermaid
 flowchart LR
@@ -211,7 +219,7 @@ flowchart LR
 All six results **Pass**.
 
 ```mermaid
-flowchart BT
+flowchart TD
   P12["proposition_1_2"]
   P13["proposition_1_3"]
   P14["proposition_1_4"]
@@ -232,7 +240,7 @@ flowchart BT
 ### 3.4 §2 Continuous lattices — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P22["bot_wayBelow · WayBelow.sup · … · wayBelow_sSup_iff"]
   P21b["proposition_2_1_of_le"]
   P21f["proposition_2_1 forward"]
@@ -274,7 +282,7 @@ flowchart BT
 ### 3.5 §3 Function spaces — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P25["proposition_2_5"]
   P26["proposition_2_6"]
   P27["proposition_2_7_*"]
@@ -330,7 +338,7 @@ flowchart BT
 All nodes **Not Yet**; blocked on full **3.8** and **3.9**.
 
 ```mermaid
-flowchart BT
+flowchart TD
   P38["proposition_3_8 full"]
   L39["lemma_3_9 global"]
   P37["proposition_3_7_*"]
@@ -351,16 +359,16 @@ flowchart BT
   L39 --> T44
 ```
 
-### 3.7 Paper 1 — next work (Composer vs Opus)
+### 3.7 Part I — next work (Composer vs Opus)
 
 | Priority | Items | Suggested agent |
 |----------|-------|-----------------|
 | Medium | **2.6**, **2.1** forward, **2.8**, **3.5** left curry | Composer 2.5 |
-| Hard | **2.9**, **2.10** full, **2.11**, **3.3** full, **3.10** converse, **§4** | Opus 4.8 (one theorem per session) |
+| Hard | **2.9**, **2.10** full, **2.11**, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 ---
 
-## 4. Paper 2 — Scott 1981 PRG-19 (stub)
+## 4. Part II — Scott 1981 PRG-19 (stub)
 
 **Source:** Scott, *Lectures on a Mathematical Theory of Computation*, Technical Monograph
 PRG-19, Oxford (May 1981). OCR draft: [`sources/PRG19.md`](sources/PRG19.md).
@@ -375,8 +383,8 @@ PRG-19, Oxford (May 1981). OCR draft: [`sources/PRG19.md`](sources/PRG19.md).
 - **Definition:** neighborhood system on master set Δ; domain elements as filters of neighborhoods.
 - **Core theorems (inventory TBD):** approximable maps, domain isomorphisms from neighborhood
   isomorphisms (PRG-19 Thm 2.7), function-space and product constructions.
-- **Bridge to Paper 1:** `continuousLattice_to_neighborhoodSystem` (§2.2).
-- **Bridge to Paper 3:** `neighborhoodSystem_to_infoSys` (§2.2).
+- **Bridge toward Part IV:** `continuousLattice_to_neighborhoodSystem` (§2.2).
+- **Bridge toward Part III:** `neighborhoodSystem_to_infoSys` (§2.2).
 
 ### 4.2 Status
 
@@ -388,7 +396,7 @@ PRG-19, Oxford (May 1981). OCR draft: [`sources/PRG19.md`](sources/PRG19.md).
 
 ---
 
-## 5. Paper 3 — Scott 1982 information systems (stub)
+## 5. Part III — Scott 1982 information systems (stub)
 
 **Source:** Scott, *Domains for Denotational Semantics*, ICALP 1982, LNCS 140. OCR draft:
 [`sources/Domains_for_Denotational_Semantics.md`](sources/Domains_for_Denotational_Semantics.md).
@@ -415,7 +423,7 @@ PRG-19, Oxford (May 1981). OCR draft: [`sources/PRG19.md`](sources/PRG19.md).
 ### 5.3 Planned dependency (stub)
 
 ```mermaid
-flowchart BT
+flowchart TD
   IS["InfoSys"]
   EL["InfoSys.Element"]
   PO["PartialOrder"]
@@ -435,19 +443,19 @@ flowchart BT
 
 ---
 
-## 6. Paper 4 — Equivalence of presentations (stub)
+## 6. Part IV — Equivalence (finale, stub)
 
-**Role:** Not a historical Scott PDF, but this project's **synthesis layer**: explicit
-isomorphisms showing Papers 1–3 determine the same domains and (where possible) the same
-constructions.
+**Role:** The **closing section of this monograph**, not a separate publication. After Parts
+I–III formalize Scott's three presentations, Part IV states and proves the bridge theorems
+that they determine the same domains (and, where possible, the same constructions).
 
 ### 6.1 Planned theorems (see §2.2)
 
 ```mermaid
 flowchart LR
-  CL["Paper 1<br/>IsContinuousLattice"]
-  NB["Paper 2<br/>NeighborhoodSystem"]
-  INF["Paper 3<br/>InfoSys"]
+  CL["Part I<br/>IsContinuousLattice"]
+  NB["Part II<br/>NeighborhoodSystem"]
+  INF["Part III<br/>InfoSys"]
   ALG["idealCompletion<br/>algebraic dcpo"]
 
   CL -->|"continuousLattice_to_neighborhoodSystem"| NB
@@ -462,7 +470,7 @@ flowchart LR
 - **1981 ↔ 1982:** target **constructive** (Scott's 1982 text emphasizes constructive
   definitions; PRG-19 notes equivalence).
 - **1982 → algebraic → 1972:** document **classical frontier** (compact elements / basis of
-  compacts) wherever Paper 1 topology cannot be eliminated.
+  compacts) wherever Part I topology cannot be eliminated.
 
 ### 6.3 Status
 
@@ -484,11 +492,70 @@ flowchart LR
 
 ## 8. Conclusion
 
-We are mid-transition through Scott's four-layer story: **Paper 1** has a complete vision
+We are mid-way through **one monograph** with four parts: **Part I** has a complete vision
 transcript and a sorry-free partial formalization (**11/32 Pass** on the tracked 1972
-inventory); **Papers 2–4** are architected with explicit bridge theorem names and
-constructivity boundaries. The next gate is Paper 1 **2.8–2.11** and **3.3** under the
-Milner hypothesis, then chronological entry into PRG-19.
+inventory); **Parts II–III** are stubbed; **Part IV** lists bridge-theorem goals for the
+finale. The next gate is Part I **2.8–2.11** and **3.3** under the Milner hypothesis, then
+chronological entry into Part II (PRG-19).
+
+---
+
+## Acknowledgments
+
+- **Dana Scott** — the three historical presentations (1972, 1981, 1982) that this
+  monograph formalizes in order.
+- **Robin Milner** — the March 1972 correction to *Continuous Lattices*, without which
+  Propositions 2.9, 2.10, and 3.3 would be wrong as originally stated.
+
+### AI-assisted development
+
+The human author(s) retain sole responsibility for the mathematical content, the
+choice of formalization route, and every formal claim in this work. Following standard
+publisher practice (e.g., COPE guidance on authorship and AI tools [COPE24]), **no
+large language model is listed as a co-author** — authorship implies an accountability
+that automated systems cannot bear.
+
+We gratefully acknowledge assistance from the following tools:
+
+- **Cursor** ([Cur26]): agent-assisted editing in the Cursor IDE. These agents helped
+  formalize Scott's 1972 continuous-lattice layer in Lean 4 / mathlib, run and repair
+  `lake build`, transcribe scanned sources via the vision-OCR pipeline, draft and
+  maintain this narrative (`arxiv.md`), and track the Pass / Stuck / Not Yet inventory
+  for numbered results. Generated Lean was treated as provisional until it compiled
+  under the pinned toolchain; no result was accepted on the basis of an LLM's assertion
+  alone.
+- **Cursor Composer 2.5 Fast** ([Cmp25]): the default agent for routine multi-step work —
+  module scaffolding and imports, dependency-ordered wiring of `Domain/ContinuousLattice/`,
+  `lake build` repair loops, the choice-free `Finset` prelude, documentation and Mermaid
+  blueprints, vision-transcript hygiene, and medium proof obligations where the strategy
+  was already fixed (e.g. Props 1.2–1.7, 2.2, 2.4–2.5, partial §3). Per its model card,
+  Composer 2.5 is optimized for codebase navigation and tool use rather than open-ended
+  topological proof design; accordingly, the Milner-block results (2.9–2.11, full 3.3)
+  were not delegated to it alone.
+- **Anthropic Claude Opus 4.8, High reasoning** ([Ant26]): used selectively for the
+  heaviest proof and design work — results that combine Scott topology, order theory,
+  and mathlib friction (planned: Propositions 2.9–2.11 under `CoarserThanScottTopology`,
+  the full function-space theorem 3.3, Proposition 3.10 converse, and Part I §4 inverse
+  limits). Per the model card, the system is a general-purpose reasoning model with no
+  formal soundness guarantee; every emitted proof term was checked by the Lean kernel,
+  and open obligations remain marked **Stuck** / **Not Yet** rather than papered over
+  with `sorry`.
+- **Google Gemini 3.5 Flash** ([Gem25]): occasional exploratory passes — comparing
+  Scott's typographic conventions (e.g. ambient vs subspace joins in the March 1972
+  correction), sanity-checking inventory and scope decisions, and discussing when to
+  escalate from Composer to Opus. Its suggestions informed, but did not dictate,
+  formalization choices (in particular, treating Part IV as the equivalence *finale*
+  of one monograph rather than a separate publication).
+
+All definitions, constructivity audits, remaining proof gaps, and final prose were
+reviewed by the human author(s), who take full responsibility for them.
+
+### Artifact availability
+
+The development [DT26] is at
+[`github.com/catskillsresearch/domain_theory`](https://github.com/catskillsresearch/domain_theory).
+Run `lake build Domain` for the current sorry-free fragment; `scripts/generate_arxiv_with_code.py`
+builds `arxiv_with_code.md` from this file plus the complete Lean source.
 
 ---
 
@@ -502,6 +569,21 @@ Milner hypothesis, then chronological entry into PRG-19.
 - **[Win93]** G. Winskel. *The Formal Semantics of Programming Languages*. MIT Press, 1993.
 - **[AJ94]** S. Abramsky and A. Jung. *Domain Theory*. Handbook of Logic in Computer Science, Vol. 3.
 - **[GHKLMS03]** G. Gierz et al. *Continuous Lattices and Domains*. Cambridge, 2003.
+- **[DT26]** Catskills Research. *domain_theory* (this work).
+  <https://github.com/catskillsresearch/domain_theory>.
+- **[COPE24]** Committee on Publication Ethics (COPE). *Authorship and AI tools: COPE
+  position statement*. 2024.
+  <https://publicationethics.org/guidance/cope-position/authorship-and-ai-tools>
+- **[Cur26]** Anysphere, Inc. *Cursor: AI-native code editor and agent environment*.
+  <https://cursor.com> (accessed 2026).
+- **[Cmp25]** Anysphere, Inc. *Composer 2.5*. Model announcement and documentation,
+  <https://cursor.com/blog/composer-2-5>; model card as integrated in Cursor,
+  <https://cursor.com/docs/models> (accessed 2026).
+- **[Ant26]** Anthropic. *Claude Opus 4.8* (high thinking/reasoning variant). System card
+  and announcement, <https://www.anthropic.com/news/claude-opus-4-8>; model documentation as
+  integrated in Cursor, <https://cursor.com/docs/models/claude-opus-4-8> (accessed 2026).
+- **[Gem25]** Google DeepMind. *Gemini 3.5 Flash*. Technical documentation and model
+  cards. <https://ai.google.dev/gemini-api/docs/models> (accessed 2026).
 
 ---
 
@@ -514,20 +596,20 @@ produce **`arxiv_with_code.md`**, which inlines the full source below this narra
 | # | File | Role |
 |---|------|------|
 | 1 | [`Domain.lean`](Domain.lean) | Root import graph |
-| 2 | [`Domain/Constructive.lean`](Domain/Constructive.lean) | Choice-free `Finset` prelude (Paper 3) |
-| 3 | [`Domain/ContinuousLattice/Injective.lean`](Domain/ContinuousLattice/Injective.lean) | Paper 1 §1 |
-| 4 | [`Domain/ContinuousLattice/WayBelow.lean`](Domain/ContinuousLattice/WayBelow.lean) | Paper 1 §2: `ScottOpen`, `≪`, Def 2.3, Prop 2.2, 2.4 |
-| 5 | [`Domain/ContinuousLattice/Specialization.lean`](Domain/ContinuousLattice/Specialization.lean) | Paper 1 §2: specialization, Prop 2.1 (partial) |
-| 6 | [`Domain/ContinuousLattice/ScottMaps.lean`](Domain/ContinuousLattice/ScottMaps.lean) | Paper 1 §2: Props 2.5, 2.7 |
+| 2 | [`Domain/Constructive.lean`](Domain/Constructive.lean) | Choice-free `Finset` prelude (Part III) |
+| 3 | [`Domain/ContinuousLattice/Injective.lean`](Domain/ContinuousLattice/Injective.lean) | Part I, Scott §1 |
+| 4 | [`Domain/ContinuousLattice/WayBelow.lean`](Domain/ContinuousLattice/WayBelow.lean) | Part I, Scott §2: `ScottOpen`, `≪`, Def 2.3, Prop 2.2, 2.4 |
+| 5 | [`Domain/ContinuousLattice/Specialization.lean`](Domain/ContinuousLattice/Specialization.lean) | Part I, Scott §2: specialization, Prop 2.1 (partial) |
+| 6 | [`Domain/ContinuousLattice/ScottMaps.lean`](Domain/ContinuousLattice/ScottMaps.lean) | Part I, Scott §2: Props 2.5, 2.7 |
 | 7 | [`Domain/ContinuousLattice/MilnerCorrection.lean`](Domain/ContinuousLattice/MilnerCorrection.lean) | March 1972 Milner hypothesis |
-| 8 | [`Domain/ContinuousLattice/Constructions.lean`](Domain/ContinuousLattice/Constructions.lean) | Paper 1 §2.8–2.12 (partial) |
-| 9 | [`Domain/ContinuousLattice/FunctionSpaces.lean`](Domain/ContinuousLattice/FunctionSpaces.lean) | Paper 1 §3 (+ 2.10 lemma) |
-| 10 | [`Domain/InfoSys.lean`](Domain/InfoSys.lean) | Paper 3 core (stub) |
+| 8 | [`Domain/ContinuousLattice/Constructions.lean`](Domain/ContinuousLattice/Constructions.lean) | Part I, Scott §2.8–2.12 (partial) |
+| 9 | [`Domain/ContinuousLattice/FunctionSpaces.lean`](Domain/ContinuousLattice/FunctionSpaces.lean) | Part I, Scott §3 (+ 2.10 lemma) |
+| 10 | [`Domain/InfoSys.lean`](Domain/InfoSys.lean) | Part III core (stub) |
 
 **Vision / OCR sources (not inlined by script):**
 
-- [`sources/ScottContinLatt1972_vision.md`](sources/ScottContinLatt1972_vision.md) — Paper 1 transcript + inventory
-- [`sources/PRG19.md`](sources/PRG19.md) — Paper 2 OCR draft
-- [`sources/Domains_for_Denotational_Semantics.md`](sources/Domains_for_Denotational_Semantics.md) — Paper 3 OCR draft
+- [`sources/ScottContinLatt1972_vision.md`](sources/ScottContinLatt1972_vision.md) — Part I transcript + inventory
+- [`sources/PRG19.md`](sources/PRG19.md) — Part II OCR draft
+- [`sources/Domains_for_Denotational_Semantics.md`](sources/Domains_for_Denotational_Semantics.md) — Part III OCR draft
 
 **Build:** `lake build Domain` (target: sorry-free).

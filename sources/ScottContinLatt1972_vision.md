@@ -1716,7 +1716,7 @@ correction is a cross-cutting hypothesis, not a fifth section.
 ### §1 Injective spaces — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P12["proposition_1_2<br/>𝕆 injective"]
   P13["proposition_1_3<br/>products"]
   P14["proposition_1_4<br/>retracts"]
@@ -1741,7 +1741,7 @@ All six leaves in the user inventory are **Pass**.
 ### §2 Continuous lattices — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P22["Prop 2.2 clauses<br/>bot_wayBelow · WayBelow.sup · … · wayBelow_sSup_iff"]
   P21b["proposition_2_1_of_le<br/>(backward only)"]
   P21f["proposition_2_1<br/>(forward)"]
@@ -1789,7 +1789,7 @@ Solid edges: proved infrastructure or **Pass**. Dashed: **Stuck** / **Not Yet**.
 ### §3 Function spaces — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P25["proposition_2_5"]
   P26["proposition_2_6"]
   P27["proposition_2_7_*"]
@@ -1848,7 +1848,7 @@ flowchart BT
 ### §4 Inverse limits — inclusion hierarchy
 
 ```mermaid
-flowchart BT
+flowchart TD
   P38["proposition_3_8<br/>(full)"]
   L39["lemma_3_9<br/>(global)"]
   P37["proposition_3_7_*"]
