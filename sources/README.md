@@ -36,8 +36,11 @@ python3 -m venv .venv-ocr
 # Segment PDF → PNGs, OCR each page 3×, merge, stitch
 bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf
 
-# Partial run (e.g. first 5 pages while reviewing quality)
-bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --pages 1-5
+# Partial run (resume skips pages that already have merged.md)
+bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --pages 3-40 --skip-render
+
+# Failed page retry
+bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --pages 20 --force
 
 # PNGs only (no API calls)
 bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --png-only
@@ -45,6 +48,10 @@ bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --png-only
 # Re-stitch after manual edits to sources/pages/<pdf>/page-NN/merged.md
 bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --merge-only
 ```
+
+Transient API errors are retried automatically (5 attempts, exponential backoff from
+15 s). Progress is logged to `sources/ocr_<PDF-stem>_run.log`. The stitched
+`*_vision.md` updates after each completed page.
 
 ### What the pipeline does
 
@@ -59,7 +66,7 @@ bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --merge-only
 Intermediate files (`pass1.md`, `pass2.md`, `pass3.md`) are kept for audit. Page PNGs
 and the venv are gitignored (large/regenerable).
 
-**Timing:** ~2–3 minutes per page (4 API calls). A 40-page paper ≈ 2 hours.
+**Timing:** ~2–4 minutes per page (4 API calls, ~30–90 s each). A 40-page paper ≈ 1.5–2.5 hours.
 
 ### Human verification
 
