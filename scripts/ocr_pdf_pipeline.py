@@ -38,7 +38,7 @@ PASS_PROMPTS = [
     """Transcription pass A (literal): Transcribe this page exactly as printed.
 Output Markdown only. Reflow broken lines into sentences/paragraphs.
 Use LaTeX for math: $T_0$, $\\ll$, $\\sqcup$, $\\lambda$, etc.
-Do not add commentary.""",
+Do not include standalone printed page numbers. Do not add commentary.""",
     """Transcription pass B (math-first): Transcribe this page; prioritize correct
 mathematical notation as LaTeX (inline $...$ or display $$...$$).
 Prose as normal paragraphs. Reflow line breaks. Markdown only.""",
@@ -70,6 +70,7 @@ Produce ONE final Markdown transcription:
 - Where they disagree, use the image to decide; if still uncertain, use [?…].
 - Proper LaTeX for all mathematics.
 - Reflowed prose paragraphs; preserve section headings and numbered statements.
+- Omit standalone printed page numbers (e.g. lines that are only "98" or "99").
 - Output ONLY the final page content (no meta-commentary)."""
 
 DEFAULT_RETRIES = 5
@@ -106,10 +107,11 @@ def pdf_page_count(pdf: Path) -> int:
 def log(msg: str, log_path: Path | None) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     line = f"[{ts}] {msg}"
-    print(line, file=sys.stderr)
     if log_path:
         with log_path.open("a", encoding="utf-8") as f:
             f.write(line + "\n")
+    else:
+        print(line, file=sys.stderr)
 
 
 def render_pdf_to_png(pdf: Path, out_dir: Path, dpi: int = 200, skip_if_exists: bool = False) -> list[Path]:
@@ -256,6 +258,14 @@ def ocr_page_triple(
     log(f"page {job.page_num}: done", log_path)
 
 
+def strip_book_page_numbers(text: str) -> str:
+    """Remove LNM printed page numbers accidentally transcribed as standalone lines."""
+    return "\n".join(
+        line for line in text.splitlines()
+        if not re.match(r"^\s*(9[7-9]|1[0-3][0-9])\s*$", line)
+    ).strip() + "\n"
+
+
 def stitch_document(pdf_stem: str, page_nums: list[int] | None, out_md: Path) -> None:
     png_dir = PAGES_ROOT / pdf_stem
     available: list[int] = []
@@ -289,7 +299,7 @@ verification_status: draft
             print(f"WARN: missing {merged}", file=sys.stderr)
             continue
         parts.append(f"\n<!-- page {n} -->\n\n")
-        parts.append(merged.read_text(encoding="utf-8"))
+        parts.append(strip_book_page_numbers(merged.read_text(encoding="utf-8")))
         if not parts[-1].endswith("\n"):
             parts.append("\n")
     out_md.write_text("".join(parts), encoding="utf-8")
