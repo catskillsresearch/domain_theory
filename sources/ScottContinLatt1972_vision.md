@@ -1,8 +1,8 @@
 ---
-
-## source_pdf: ScottContinLatt1972.pdf
+source_pdf: ScottContinLatt1972.pdf
 ocr_method: cursor-vision-triple-merge
 verification_status: draft
+---
 
 # Transcription (LLM vision OCR)
 
