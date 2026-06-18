@@ -1623,23 +1623,250 @@ Turning now to the proof of theorem 2.3 we note that the topology on the functio
 
 ---
 
-## Formalization closure (1972 layer)
+## Formalization inventory (1972 layer)
 
-The vision transcription is **complete through the March 1972 correction (pp. 135–136)**. The
-Lean library `Domain/ContinuousLattice/` implements the 1972 continuous-lattice route as follows.
+The vision transcription is **complete through the March 1972 correction (pp. 135–136)**.
+The Lean library lives in `Domain/ContinuousLattice/`. There are **zero `sorry`s** in the
+current build; **Pass** means the full numbered statement is proved, **Stuck** means partial
+(infrastructure, one direction, or a strict substatement), **Not Yet** means no deliverable
+for the full result.
 
-| Block | Lean module | Status |
-|-------|-------------|--------|
-| §1 injective spaces | `Injective.lean` | **complete** |
-| §2 core (`ScottOpen`, `≪`, 2.2–2.5, 2.7 partial) | `WayBelow.lean`, `Specialization.lean`, `ScottMaps.lean` | **core complete** |
-| March 1972 correction | `MilnerCorrection.lean` | **`CoarserThanScottTopology`**, subbasic sets, p. 136 product/function hypotheses |
-| §2.8–2.12 | `Constructions.lean` | **2.12 injectivity half** (`theorem_2_12_injective_half`); **2.8–2.11** proofs under `CoarserThanScottTopology` remain |
-| §3 function spaces | `FunctionSpaces.lean` | **3.1–3.2, 3.6–3.7, 3.10(i–iii)**; partial **3.3, 3.8–3.9** |
-| §3.11–3.14 | — | deferred (not required for 1982 article) |
+**Score (user inventory):** 11 **Pass** · 9 **Stuck** · 12 **Not Yet** (32 items).
+
+### Report card
+
+| § | Scott | Lean name(s) | Module | Status | Notes |
+|---|-------|--------------|--------|--------|-------|
+| 1 | Prop 1.2 | `proposition_1_2` | `Injective.lean` | **Pass** | |
+| 1 | Prop 1.3 | `proposition_1_3` | `Injective.lean` | **Pass** | |
+| 1 | Prop 1.4 | `proposition_1_4` | `Injective.lean` | **Pass** | |
+| 1 | Prop 1.5 | `proposition_1_5` | `Injective.lean` | **Pass** | |
+| 1 | Cor 1.6 | `corollary_1_6` | `Injective.lean` | **Pass** | |
+| 1 | Cor 1.7 | `corollary_1_7` | `Injective.lean` | **Pass** | |
+| 2 | Prop 2.1 | `proposition_2_1_of_le` | `Specialization.lean` | **Stuck** | backward direction only; forward missing |
+| 2 | Prop 2.2 | `bot_wayBelow`, `WayBelow.sup`, `WayBelow.trans_le`, `WayBelow.le_trans`, `wayBelow_self_iff_scottOpen_Ici`, `wayBelow_sSup_iff` | `WayBelow.lean` | **Pass** | seven clauses, no wrapper theorem |
+| 2 | Prop 2.4 | `isContinuousLattice_iff_isLUB_sInf_nhds` | `WayBelow.lean` | **Pass** | |
+| 2 | Prop 2.5 | `proposition_2_5` | `ScottMaps.lean` | **Pass** | |
+| 2 | Prop 2.6 | — | — | **Not Yet** | needed for joint continuity (2.7 meet, 3.4, 3.5) |
+| 2 | Prop 2.8 | — | — | **Not Yet** | finite lattices are continuous |
+| 2 | Prop 2.9 | — | — | **Not Yet** | products; needs `CoarserThanScottTopology` |
+| 2 | Prop 2.10 | `retr_ambientSSup_eq_sSup` | `FunctionSpaces.lean` | **Stuck** | Milner identity proved; full retract theorem open |
+| 2 | Prop 2.11 | — | — | **Not Yet** | continuous lattices are injective |
+| 2 | Thm 2.12 | `theorem_2_12_injective_half`, `theorem_2_12_sierpinski_backward` | `Constructions.lean` | **Stuck** | injectivity half only; CL ↔ injective open |
+| 3 | Prop 3.2 | `proposition_3_2` | `FunctionSpaces.lean` | **Pass** | |
+| 3 | Thm 3.3 | `theorem_3_3_sSup`, `theorem_3_3_sup` | `FunctionSpaces.lean` | **Stuck** | pointwise Scott-continuous sups only; full CL + topology open |
+| 3 | Cor 3.4 | `corollary_3_4`, `corollary_3_4_eval_on_C` | `FunctionSpaces.lean` | **Stuck** | eval at fixed `x`; joint eval needs 2.6 |
+| 3 | Prop 3.5 | `scottLambdaAt`, `curry_right_preservesDirectedSup` | `FunctionSpaces.lean` | **Stuck** | right curry only |
+| 3 | Prop 3.7 | `proposition_3_7_retraction`, `proposition_3_7_projection` | `FunctionSpaces.lean` | **Pass** | |
+| 3 | Prop 3.8 | `scottSubspaceExtend`, `proposition_3_8` | `FunctionSpaces.lean` | **Stuck** | one-sided maximality (`f' y ≤ f̄ y`); full characterization open |
+| 3 | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf` | `FunctionSpaces.lean` | **Stuck** | inf-level bounds; global `f̄ = j ∘ ḡ` open |
+| 3 | Prop 3.10 | `incl_bot`, `incl_sup`, `incl_sSup`, `incl_injective`, `incl_wayBelow` | `FunctionSpaces.lean` | **Stuck** | forward (i)–(iii); converse (iv) + uniqueness open |
+| 3 | Prop 3.12 | — | — | **Not Yet** | `J_D` is a complete lattice |
+| 3 | Prop 3.13 | — | — | **Not Yet** | `D` projects into `[D → D]` |
+| 3 | Prop 3.14 | — | — | **Not Yet** | unique continuous mapping |
+| 4 | Prop 4.1 | — | — | **Not Yet** | inverse limit is a CL; uses 3.8 |
+| 4 | Prop 4.2 | — | — | **Not Yet** | limit projections |
+| 4 | Cor 4.3 | — | — | **Not Yet** | universal property of limit maps |
+| 4 | Thm 4.4 | — | — | **Not Yet** | `D∞ ≅ [D∞ → D∞]` |
+| 4 | Lemma 4.5 | — | — | **Not Yet** | technical lemma for 4.4 |
+
+**Milner infrastructure (not a numbered result):** `CoarserThanScottTopology`, `scottOpen_of_coarserThanScott`, `scottLowerSubbasisSet`, `scottPrincipalUpSet` in `MilnerCorrection.lean`.
 
 **Notation locked in:** `⊔S′` = ambient join in `D′` (`ambientSSup`); `⊔S` = subspace join in `D`;
 identity `j(⊔S′) = ⊔S` = `retr_ambientSSup_eq_sSup`.
 
-**Gate before the 1982 article:** full proofs of **2.8–2.11** and **3.3** under
-`CoarserThanScottTopology`; the vision document, Milner infrastructure, and
-`j(⊔S′) = ⊔S` (`retr_ambientSSup_eq_sSup`) are in place.
+**Gate before the 1982 article:** full **Pass** on **2.8–2.11** and **3.3** under
+`CoarserThanScottTopology`.
+
+**When to switch models:** stay on **Composer 2.5** for scaffolding, inventory, and medium
+lemmas (**2.6**, **2.1** forward, **2.8**, **3.5** left curry). Switch to **Opus 4.8** for the
+Milner-block topology proofs (**2.9**, **2.10** full, **2.11**, **3.3** full, **3.10**
+converse) and all of **§4** — one hard theorem per session.
+
+---
+
+### Section dependency blueprint
+
+The four section titles are **not** independent boxes. Scott's narrative is mostly linear,
+with back-links from §2 into §1 at the classification theorem.
+
+```mermaid
+flowchart LR
+  S1["§1 Injective spaces<br/><i>Injective.lean</i>"]
+  S2["§2 Continuous lattices<br/><i>WayBelow · Specialization · ScottMaps · Constructions</i>"]
+  S3["§3 Function spaces<br/><i>FunctionSpaces.lean</i>"]
+  S4["§4 Inverse limits<br/><i>not started</i>"]
+  MIL["Milner correction<br/><i>MilnerCorrection.lean</i>"]
+
+  S1 -->|"2.11, 2.12 classify injectives"| S2
+  S2 -->|"CL + Scott maps + projections"| S3
+  S3 -->|"3.8 extension, 3.9 diagram"| S4
+  MIL -.->|"hypothesis for 2.9, 2.10, 3.3"| S2
+  MIL -.->|"function-space topology"| S3
+  S3 -.->|"retr_ambientSSup_eq_sSup<br/>(2.10 lemma)"| S2
+```
+
+Reading the diagram: **§1** stands alone for the injective-space theory, but **§2** closes the
+loop (**2.11–2.12**). **§3** assumes the continuous-lattice layer (**§2**). **§4** assumes
+subspace extension (**3.8**) and the projection diagram lemma (**3.9**). The March 1972
+correction is a cross-cutting hypothesis, not a fifth section.
+
+---
+
+### §1 Injective spaces — inclusion hierarchy
+
+```mermaid
+flowchart BT
+  P12["proposition_1_2<br/>𝕆 injective"]
+  P13["proposition_1_3<br/>products"]
+  P14["proposition_1_4<br/>retracts"]
+  P15["proposition_1_5<br/>T₀ embeds in 𝕆^I"]
+  C16["corollary_1_6<br/>injectives = retracts of 𝕆^I"]
+  C17["corollary_1_7<br/>retract of every super-space"]
+
+  P12 --> P13
+  P12 --> P14
+  P12 --> P15
+  P12 --> C16
+  P14 --> C16
+  P15 --> C16
+  P14 --> C17
+  P15 --> C17
+```
+
+All six leaves in the user inventory are **Pass**.
+
+---
+
+### §2 Continuous lattices — inclusion hierarchy
+
+```mermaid
+flowchart BT
+  P22["Prop 2.2 clauses<br/>bot_wayBelow · WayBelow.sup · … · wayBelow_sSup_iff"]
+  P21b["proposition_2_1_of_le<br/>(backward only)"]
+  P21f["proposition_2_1<br/>(forward)"]
+  D23["IsContinuousLattice<br/>(Def 2.3)"]
+  P24["isContinuousLattice_iff_isLUB_sInf_nhds"]
+  P25["proposition_2_5"]
+  P26["proposition_2_6"]
+  P27s["proposition_2_7_sup"]
+  P27i["proposition_2_7_inf_left · inf_right"]
+  P28["proposition_2_8"]
+  P29["proposition_2_9"]
+  P210["proposition_2_10"]
+  P210L["retr_ambientSSup_eq_sSup"]
+  P211["proposition_2_11"]
+  T212["theorem_2_12"]
+  T212h["theorem_2_12_injective_half"]
+  MIL["CoarserThanScottTopology"]
+
+  P22 --> P24
+  D23 --> P24
+  P22 --> P25
+  P25 --> P26
+  P26 --> P27i
+  P25 --> P27s
+  D23 --> P28
+  D23 --> P29
+  D23 --> P210
+  P25 --> P210
+  MIL --> P29
+  MIL --> P210
+  P210L --> P210
+  P210 --> P211
+  P211 --> T212
+  P12["proposition_1_2"] --> T212h
+  T212h --> T212
+  P21b -.-> P21f
+```
+
+Solid edges: proved infrastructure or **Pass**. Dashed: **Stuck** / **Not Yet**.
+`proposition_2_7_sup` / `inf_*` are proved but omitted from the user list; joint `⊓` on
+`D × D` still needs **2.6**.
+
+---
+
+### §3 Function spaces — inclusion hierarchy
+
+```mermaid
+flowchart BT
+  P25["proposition_2_5"]
+  P26["proposition_2_6"]
+  P27["proposition_2_7_*"]
+  P32["proposition_3_2"]
+  T33c["theorem_3_3_sSup · theorem_3_3_sup"]
+  T33["theorem_3_3<br/>(full)"]
+  C34x["corollary_3_4"]
+  C34j["corollary_3_4<br/>(joint eval)"]
+  P35r["scottLambdaAt"]
+  P35["proposition_3_5<br/>(full abstraction)"]
+  P37r["proposition_3_7_retraction"]
+  P37p["proposition_3_7_projection"]
+  D36["IsContinuousLatticeRetraction · Projection"]
+  P310f["incl_bot · incl_sup · incl_sSup<br/>incl_injective · incl_wayBelow"]
+  P310c["proposition_3_10<br/>(converse)"]
+  P38p["scottSubspaceExtend · proposition_3_8"]
+  P38["proposition_3_8<br/>(full)"]
+  L39i["lemma_3_9_incl_inf"]
+  L39r["lemma_3_9_retr_inf"]
+  L39["lemma_3_9<br/>(f̄ = j ∘ ḡ)"]
+  P312["proposition_3_12"]
+  P313["proposition_3_13"]
+  P314["proposition_3_14"]
+
+  P25 --> T33c
+  P26 --> T33
+  P27 --> T33
+  T33c --> T33
+  T33 --> C34x
+  P26 --> C34j
+  T33 --> C34j
+  T33 --> P35
+  P26 --> P35
+  P35r --> P35
+  D36 --> P37r
+  D36 --> P37p
+  T33 --> P37r
+  T33 --> P312
+  P310f --> P310c
+  P310f --> L39
+  P38p --> P38
+  P38 --> L39
+  L39i --> L39
+  L39r --> L39
+  T33 --> P313
+  P313 --> P314
+  P312 --> P313
+  P32 --> T33
+```
+
+**Pass** leaves: `proposition_3_2`, `proposition_3_7_*`. Everything else in the user list is
+**Stuck** or **Not Yet**.
+
+---
+
+### §4 Inverse limits — inclusion hierarchy
+
+```mermaid
+flowchart BT
+  P38["proposition_3_8<br/>(full)"]
+  L39["lemma_3_9<br/>(global)"]
+  P37["proposition_3_7_*"]
+  P41["proposition_4_1"]
+  P42["proposition_4_2"]
+  C43["corollary_4_3"]
+  L45["lemma_4_5"]
+  T44["theorem_4_4"]
+
+  P38 --> P41
+  L39 --> P41
+  P41 --> P42
+  P41 --> C43
+  P42 --> C43
+  P41 --> T44
+  P37 --> T44
+  L45 --> T44
+  L39 --> T44
+```
+
+All **§4** nodes are **Not Yet**; the section is blocked on full **3.8** and **3.9**.

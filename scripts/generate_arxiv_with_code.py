@@ -22,7 +22,9 @@ FILES = [
     "Domain/InfoSys.lean",
 ]
 
-PAPER_TITLE = "Scott Information Systems in Lean 4"
+PAPER_TITLE = (
+    "Four Presentations of Scott Domains in Lean 4: A Chronological Formalization"
+)
 
 
 def main() -> None:
