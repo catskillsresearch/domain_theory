@@ -6,19 +6,29 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 
 ## Status
 
-- Report card: **33 Pass · 0 Stuck · 2 Not Yet** (zero `sorry`s).
+- Report card: **34 Pass · 0 Stuck · 1 Not Yet** (zero `sorry`s).
 - HEAD `e344fc0`, working tree clean, `lake build` green.
 - Every proven result has axiom footprint `[propext, Classical.choice, Quot.sound]`.
-- Done through **§3 complete** and **§4.1–4.3**.
+- Done through **§3 complete** and **§4.1–4.3 + Lemma 4.5**; **Thm 4.4 infrastructure built**.
 
 ## Remaining (Scott §4)
 
-- **Lemma 4.5** — (see source ~line 1260+).
-- **Thm 4.4** — capstone `D∞ ≅ [D∞ → D∞]` (solution of the domain equation), uses 3.7 + 4.x.
+- **Thm 4.4** — capstone `D∞ ≅ [D∞ → D∞]` (solution of the domain equation). All scaffolding is in
+  place in `FunctionSpaceTower.lean` (see below). What remains is **only** the final isomorphism:
+  1. Define `i∞ : D∞ → [D∞→D∞]`, `i∞(x) = ⨆ₙ i_{n∞} ∘ x_{n+1} ∘ j_{∞n}`, and
+     `j∞ : [D∞→D∞] → D∞`, `j∞(f) = ⨆ₙ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})`, and prove each is a
+     `ScottMap` (sup-of-conjugations continuity, à la `coconeInf_preservesDirectedSup`).
+  2. `j∞ ∘ i∞ = id`: rewrite via `towerProj_succ_*`, collapse the resulting double `⨆ₙ⨆ₘ` to the
+     diagonal (monotone double-sup = diagonal sup — needs a small helper), use `projInf_embInf`
+     (`j_{∞n}∘i_{n∞}=id`) and `inverseLimit_eq_iSup`.
+  3. `i∞ ∘ j∞ = id`: compute `(j∞ f).1 (n+1) = j_{∞n}∘f∘i_{n∞}` via **`lemma_4_5`** (its recursion
+     hypothesis `j_{n+1}(u_{n+2})=u_{n+1}` follows from `embInf_succ` + `projInf_succ`), then reduce
+     `⨆ₙ i_{n∞}∘j_{∞n}∘f∘i_{n∞}∘j_{∞n}` to `f` using **`idInf_eq_iSup`** (`id=⨆ₙ i_{n∞}∘j_{∞n}`) and
+     continuity of `f`.
+  Bundle as `OrderIso` / mutually-inverse Scott maps → `theorem_4_4`.
 
-`i_{n∞} / j_{∞n}` (now `embInf` / `projInf` in `InverseLimits.lean`, with towers `embLE` / `projLE`
-and component map `iComp`) are reused by 4.4. The direct-limit mediating map `coconeInf` (= `f∞`)
-and its universal property (`corollary_4_3`) are available for 4.4.
+Reusable for 4.4: `embInf`/`projInf`, `embInf_succ`, `inverseLimit_eq_iSup`, **`idInf_eq_iSup`**,
+**`lemma_4_5`** (all in `InverseLimits.lean`); the whole tower in `FunctionSpaceTower.lean`.
 
 ## Key reusable infrastructure
 
@@ -37,7 +47,17 @@ and its universal property (`corollary_4_3`) are available for 4.4.
   ScottMaps, `proposition_4_2`, `embInf_succ` (recursion), `inverseLimit_eq_iSup` (monotone lub);
   **(4.3)** `coconeInf` (`f∞(x)=⊔ₙfₙ(xₙ)`) + `coconeInf_climb`/`coconeInf_descend`/
   `coconeInf_comp_embInf` (factorization `fₙ=f∞∘i_{n∞}`)/`coconeInf_preservesDirectedSup`,
-  `corollary_4_3` (∃! continuous mediating map — the direct-limit universal property).
+  `corollary_4_3` (∃! continuous mediating map — the direct-limit universal property);
+  **(remark after 4.2)** `idInf_eq_iSup` (`id_{D∞}=⨆ₙ i_{n∞}∘j_{∞n}`); **(4.5)** `lemma_4_5`
+  (recognize projections from limits — the key tool for the `i∞∘j∞=id` half of 4.4).
+- `FunctionSpaceTower.lean` (**Thm 4.4 scaffolding**): `CLat` (bundled lattice for recursion),
+  `towerCLat`/`towerType` (`Dₙ`: `D₀`, `[D₀→D₀]`, …) with carried `CompleteLattice` instances,
+  `towerType_succ` (`D_{n+1}=[Dₙ→Dₙ]` by `rfl`) + `towerCoeFun` (apply a `D_{n+1}` element as a
+  function); `conjMap` (`f↦post∘f∘pre`, Scott-continuous), `IsContinuousLatticeProjection.functionSpace`
+  (continuous Prop 3.7 on the diagonal: `[D→D]` is a projection of `[D'→D']`), `towerProj`
+  (`j_{n+1}=[jₙ→jₙ]` from a base `j₀`), and the recursion/algebra laws `towerProj_succ_incl_apply`
+  (`i_{n+1}(x)=iₙ∘x∘jₙ`), `towerProj_succ_retr_apply` (`j_{n+1}=jₙ∘·∘iₙ`), `towerProj_incl_apply`
+  (`iₙ(f(x))=i_{n+1}(f)(iₙ(x))`).
 
 ## Conventions / lessons that matter
 

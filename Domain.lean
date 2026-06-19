@@ -8,4 +8,5 @@ import Domain.ContinuousLattice.Constructions
 import Domain.ContinuousLattice.FunctionSpaces
 import Domain.ContinuousLattice.Theorem212
 import Domain.ContinuousLattice.InverseLimits
+import Domain.ContinuousLattice.FunctionSpaceTower
 import Domain.InfoSys

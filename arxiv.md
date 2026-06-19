@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **33 Pass · 0 Stuck · 2 Not Yet**.
+full deliverable. Score: **34 Pass · 0 Stuck · 1 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -205,8 +205,8 @@ full deliverable. Score: **33 Pass · 0 Stuck · 2 Not Yet**.
 | 4   | Prop 4.1  | `proposition_4_1`, `InverseLimit`, `inverseLimitRetraction`                                                                      | `InverseLimits.lean`  | **Pass**    | `D∞` is a continuous lattice         |
 | 4   | Prop 4.2  | `proposition_4_2`, `embInf`/`projInf`, `iComp`, `embInf_succ`, `inverseLimit_eq_iSup`                                            | `InverseLimits.lean`  | **Pass**    | `j_{∞n}` are projections; `i_{n∞}`, recursion, monotone lub |
 | 4   | Cor 4.3   | `corollary_4_3` (∃! mediating map), `coconeInf` (`f∞`), `coconeInf_comp_embInf`                                                  | `InverseLimits.lean`  | **Pass**    | `D∞` is also the *direct* limit      |
-| 4   | Thm 4.4   | —                                                                                                                                | —                     | **Not Yet** | `D∞ ≅ [D∞ → D∞]`                     |
-| 4   | Lemma 4.5 | —                                                                                                                                | —                     | **Not Yet** |                                      |
+| 4   | Lemma 4.5 | `lemma_4_5`, `idInf_eq_iSup` (remark after 4.2)                                                                                  | `InverseLimits.lean`  | **Pass**    | recognize projections from limits    |
+| 4   | Thm 4.4   | scaffolding: `towerType`/`towerProj`/`conjMap`/`IsContinuousLatticeProjection.functionSpace` (+ recursion/application laws)      | `FunctionSpaceTower.lean` | **Not Yet** | `D∞ ≅ [D∞ → D∞]`; only the `i∞`/`j∞` iso remains |
 
 
 **Milner infrastructure:** `CoarserThanScottTopology`, `scottOpen_of_coarserThanScott`,
@@ -393,14 +393,15 @@ flowchart TD
   P41["proposition_4_1 ✓"]
   P42["proposition_4_2 ✓"]
   C43["corollary_4_3 ✓"]
-  L45["lemma_4_5"]
-  T44["theorem_4_4"]
+  L45["lemma_4_5 ✓"]
+  T44["theorem_4_4 (iso remaining)"]
 
   P29a --> P41
   P210a --> P41
   P41 --> P42
   P41 --> C43
   P42 --> C43
+  P42 --> L45
   P41 --> T44
   P37 --> T44
   L45 --> T44
@@ -980,6 +981,42 @@ the *direct* (injective) limit along the embeddings `iₙ`. Given any complete l
   directed family (`embInf_family_directed`), and `ScottMap.ext`.
 
 Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Lemma 4.5 and the functional equation — `lemma_4_5`, `idInf_eq_iSup` (`InverseLimits.lean`)
+
+`idInf_eq_iSup` records Scott's "remark following 4.2": as Scott maps `D_∞ → D_∞`,
+`id = ⨆ₙ (i_{n∞} ∘ j_{∞n})`. Pointwise, `(⨆ₙ i_{n∞}∘j_{∞n})(x) = ⨆ₙ i_{n∞}(xₙ) = x`
+(`ScottMap.sSup_apply` to push the sup of maps through evaluation, then `inverseLimit_eq_iSup`).
+
+`lemma_4_5` is Scott's tool for *recognizing projections from limits*: if `u : ∀ n, D_{n+1}` obeys the
+shifted recursion `j_{n+1}(u_{n+2}) = u_{n+1}`, then `u_∞ = ⨆ₙ i_{(n+1)∞}(uₙ)` has
+`j_{∞(n+1)}(u_∞) = uₙ`. The trick is to *extend* `u` to a genuinely compatible sequence
+`w` (`w₀ = j₀(u₀)`, `w_{k+1} = u_k`; compatibility at `k=0` is `rfl`, at `k+1` it is the hypothesis),
+so `w ∈ D_∞`. Since the family `k ↦ i_{k∞}(w_k)` is monotone (`embInf_le_succ`), dropping its `0`-th
+term leaves the lub unchanged (`Monotone.iSup_nat_add … 1`), giving `u_∞ = ⨆ₖ i_{k∞}(w_k) = w` by
+`inverseLimit_eq_iSup`; hence `j_{∞(n+1)}(u_∞) = w_{n+1} = uₙ` by definitional unfolding of `w`.
+
+#### Theorem 4.4 scaffolding — `FunctionSpaceTower.lean`
+
+The capstone needs the *concrete* recursion `D_{n+1} = [Dₙ → Dₙ]`, `j_{n+1} = [jₙ → jₙ]` — the first
+place in §4 where the levels are genuine function spaces. Because the type at level `n+1` depends on
+the *lattice structure* at level `n`, we bundle carrier + instance in `CLat` and recurse
+(`towerCLat`); `towerType`/`towerCompleteLattice` project out the type and its `CompleteLattice`, and
+crucially `towerType_succ : D_{n+1} = [Dₙ→Dₙ]` holds by `rfl`, with a `CoeFun` (`towerCoeFun`) letting
+us apply a `D_{n+1}` element directly as a function `Dₙ → Dₙ`.
+
+The bonding maps come from a continuous form of Proposition 3.7: `conjMap post pre` (`f ↦ post∘f∘pre`)
+is Scott-continuous (directed sups in `[Y→Y]` are pointwise, so the conjugate commutes with them),
+whence `IsContinuousLatticeProjection.functionSpace` makes `[D→D]` a projection of `[D'→D']` from a
+projection `D ◁ D'`. Iterating from a chosen base `j₀ : [D₀→D₀] ◁ D₀` (Proposition 3.13 supplies one)
+gives the projection tower `towerProj`. The Scott recursion/algebra laws are then definitional:
+`towerProj_succ_incl_apply` (`i_{n+1}(x)=iₙ∘x∘jₙ`), `towerProj_succ_retr_apply` (`j_{n+1}=jₙ∘·∘iₙ`),
+and `towerProj_incl_apply` (`iₙ(f(x))=i_{n+1}(f)(iₙ(x))`, application preserved one level up).
+
+**Remaining for 4.4** (the actual homeomorphism): define `i∞`/`j∞`, prove each a `ScottMap`, and
+establish `j∞∘i∞=id` (double-limit-to-diagonal collapse + `j_{∞n}∘i_{n∞}=id`) and `i∞∘j∞=id`
+(`lemma_4_5` to read off `(j∞ f)_{n+1}`, then `idInf_eq_iSup` + continuity of `f`). All other pieces
+are in place. Footprint of everything landed so far: `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 

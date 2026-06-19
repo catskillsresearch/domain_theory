@@ -441,6 +441,45 @@ theorem inverseLimit_eq_iSup (x : InverseLimit D P) :
   · exact iSup_le fun n => by
       rw [← Subtype.coe_le_coe]; intro m; exact iComp_incl_le D P n x m
 
+/-- **Scott 1972, §4 (functional equation, "the remark following 4.2").** The identity of `D_∞` is
+the directed lub of the approximating projections `rₙ = i_{n∞} ∘ j_{∞n}`:
+`id = ⨆ₙ i_{n∞} ∘ j_{∞n}`. This is the algebraic identity at the heart of Theorem 4.4. -/
+theorem idInf_eq_iSup :
+    (ScottMap.idMap : ScottMap (InverseLimit D P) (InverseLimit D P))
+      = ⨆ n, (embInf D P n).comp (projInf D P n) := by
+  apply ScottMap.ext
+  intro x
+  rw [show (⨆ n, (embInf D P n).comp (projInf D P n))
+        = sSup (Set.range fun n => (embInf D P n).comp (projInf D P n)) from sSup_range.symm,
+    ScottMap.sSup_apply, ScottMap.idMap_apply, ← Set.range_comp, sSup_range]
+  exact inverseLimit_eq_iSup D P x
+
+/-- **Scott 1972, Lemma 4.5.** A criterion for recognizing projections out of the limit: if a
+sequence `u : ∀ n, D_{n+1}` satisfies the (shifted) recursion `j_{n+1}(u_{n+2}) = u_{n+1}`, then the
+monotone limit `u_∞ = ⨆ₙ i_{(n+1)∞}(uₙ)` has `j_{∞(n+1)}(u_∞) = uₙ`.
+
+Proof: extend `u` to a *compatible* sequence `w` (`w₀ = j₀(u₀)`, `w_{k+1} = u_k`); then `w` is a
+point of `D_∞`, and since the family `k ↦ i_{k∞}(w_k)` is monotone, dropping its `0`-th term does
+not change the lub (`Monotone.iSup_nat_add`), so `u_∞ = ⨆ₖ i_{k∞}(w_k) = w` by `inverseLimit_eq_iSup`.
+Hence `j_{∞(n+1)}(u_∞) = w_{n+1} = uₙ`. -/
+theorem lemma_4_5 (u : ∀ n, D (n + 1))
+    (hu : ∀ n, (P (n + 1)).retr (u (n + 1)) = u n) (n : ℕ) :
+    (⨆ k, embInf D P (k + 1) (u k) : InverseLimit D P).1 (n + 1) = u n := by
+  have hw : Compatible D P (fun k => Nat.casesOn k ((P 0).retr (u 0)) (fun m => u m)) := by
+    intro k
+    cases k with
+    | zero => rfl
+    | succ m => exact hu m
+  set wlim : InverseLimit D P :=
+    ⟨fun k => Nat.casesOn k ((P 0).retr (u 0)) (fun m => u m), hw⟩ with hwlim
+  have hGmono : Monotone (fun k => embInf D P k (wlim.1 k)) :=
+    monotone_nat_of_le_succ (embInf_le_succ D P wlim)
+  have hsup : (⨆ k, embInf D P (k + 1) (u k) : InverseLimit D P) = wlim := by
+    have h1 : (⨆ k, embInf D P (k + 1) (u k) : InverseLimit D P)
+        = ⨆ k, embInf D P (k + 1) (wlim.1 (k + 1)) := rfl
+    rw [h1, Monotone.iSup_nat_add hGmono 1, ← inverseLimit_eq_iSup D P wlim]
+  rw [hsup]
+
 /-! ### Corollary 4.3: `D_∞` is also the *direct* limit
 
 Given continuous `fₙ : Dₙ → D'` into any complete lattice with `fₙ = f_{n+1} ∘ iₙ`, the map
