@@ -720,3 +720,841 @@ $$
 So, as relations, $h \circ (g \circ f) = (h \circ g) \circ f$. $\square$
 
 It may seem as though we have, in the definition of composition, written things backwards. But the reason is that when mappings are taken as elementwise functions, then the order is preserved in expressions involving the usual function value notation. We have, for example:
+
+<!-- page 30 -->
+
+**PROPOSITION 2.6.** Given $f : D_0 \to D_1$ and $g : D_1 \to D_2$, the following equations hold:
+
+(i) $I_{D_0}(x) = x$, and
+
+(ii) $(g \circ f)(x) = g(f(x))$,
+
+for all $x \in |D_0|$. $\square$
+
+The proof is not troublesome and is left as an exercise. In technical language the result shows that the category defined in Theorem 2.5 is equivalent to a "concrete category" of sets and functions, namely the domains and elementwise transformations of 2.2.
+
+Toward the end of the last lecture (see 1.9) we promised to show that isomorphisms of domains always come from approximable mappings, and this we now do. It means that the category contains all the isomorphisms it should have.
+
+**THEOREM 2.7.** Every isomorphism between domains results from an approximable mapping between the neighbourhood systems. Moreover, finite elements are always transformed into finite elements.
+
+*Proof:* Suppose that $f : |D_0| \to |D_1|$ is a one-one, inclusion-preserving function defined on elements, where the range of the function is the whole of $|D_1|$, of course. Taking the hint from 2.2, there is only one way we could define a neighbourhood mapping; namely, we consider the relation $Y \in f(\uparrow X)$ for $X \in D_0$ and $Y \in D_1$. What has to be shown is that this is an approximable mapping which determines the original function via the formula 2.2 (i).
+
+The first part is easy; indeed, there is a general result that monotone functions on finite elements of one domain to arbitrary elements of another domain always determine approximable mappings (cf. Exercise 2.8). What remains, then, is to show that the relation re-defines the function. This comes down to showing that for $x \in |D_0|$
+
+$$
+f(x) = \{ Y \in D_1 \mid \exists X \in x.\ Y \in f(\uparrow X) \}.
+$$
+
+<!-- page 31 -->
+
+Consider the right-hand side of this equation: it is a filter. (This either can be proved directly or Exercise 2.11 can be used.) Because $f$ is an onto-function, we can call the right-hand side $f(x')$ for some $x' \in |D_0|$. But since $X \in x$ implies $\uparrow X \subseteq x$ and $f(\uparrow X) \subseteq f(x)$, the right-hand side is included in the left-hand side. In other words $f(x') \subseteq f(x)$. But, since $f$ is an isomorphism, $x' \subseteq x$ follows.
+
+In the other direction, if $X \in x$, then $f(\uparrow X) \subseteq f(x')$ holds by definition, so $\uparrow X \subseteq x'$. This implies $X \in x'$; and, as $X$ is arbitrary, $x \subseteq x'$. So $x = x'$, and $f(x) = f(x')$ as desired.
+
+Finally, consider any finite element $\uparrow X \in |D_0|$, where $X \in D_0$. What we have to show is that $f(\uparrow X)$ is finite in $|D_1|$. Because $f$ is an isomorphism, we can associate uniquely to every $Y \in f(\uparrow X)$ an element $y_Y \subseteq \uparrow X$ in $|D_0|$ where $f(y_Y) = \uparrow Y$. (Just apply the inverse of the function $f$.) Define
+
+$$
+z = \bigcup \{ y_Y \mid Y \in f(\uparrow X) \}.
+$$
+
+Because $Y' \subseteq Y$ always implies $y_{Y'} \subseteq y_Y$ and each $y_Y \in |D_0|$, it is easy to show $z$ is a filter and hence is in $|D_0|$ also (cf. Exercise 2.11). Because each $y_Y \subseteq \uparrow X$, then $z \subseteq \uparrow X$, too. But each $y_Y \subseteq z$, so $\uparrow Y = f(y_Y) \subseteq f(z)$ and hence $Y \in f(z)$. As this holds for all $Y \in f(\uparrow X)$, the inclusion $f(\uparrow X) \subseteq f(z)$ follows, as well as $\uparrow X \subseteq z$. Therefore, $z = \uparrow X$ and so $X \in z$. But then $X \in y_Y$ for some $Y \in f(\uparrow X)$, by definition of $z$. Since $\uparrow X \subseteq y_Y$, we obtain $f(\uparrow X) \subseteq \uparrow Y$, but of course the opposite inclusion is also true from the choice of $Y$. This means that $f(\uparrow X) = \uparrow Y$ is finite in $|D_1|$ as claimed. We can apply the same argument to the inverse function; and, thus, the finite elements of $|D_0|$ and $|D_1|$ are in a one-one inclusion-preserving correspondence under the isomorphism. $\square$
+
+## EXERCISES
+
+**EXERCISE 2.8.** With reference to the proof of 2.2 show that an approximable mapping is uniquely determined by its elementwise effect on finite elements. Moreover any arbitrary monotone function on finite elements of $|D_0|$ with values in $|D_1|$ comes from an approximable $f : D_0 \to D_1$.
+
+<!-- page 32 -->
+
+**EXERCISE 2.9.** Prove that if $f : D_0 \to D_1$ is an approximable mapping, then the elementwise mapping $f : |D_0| \to |D_1|$ satisfies the equation
+
+$$
+f(x) = \bigcup \{ f(\uparrow X) \mid X \in x \}
+$$
+
+for all $x \in |D_0|$. Conversely, show that every elementwise function satisfying this equation comes from an approximable mapping as defined in 2.2.
+
+**EXERCISE 2.10.** Carry out the proof of Proposition 2.6; and in addition show that, if $f, g : D_0 \to D_1$ are two approximable mappings, there exists $h : D_0 \to D_1$ such that
+
+$$
+h(x) = f(x) \cap g(x)
+$$
+
+for all $x \in |D_0|$.
+
+**EXERCISE 2.11.** Let $(I, \le)$ be a non-empty abstract partially ordered set; suppose it is <u>directed</u> in the sense that whenever $i, j \in I$, then $i \le k$ and $j \le k$ for some $k \in I$. Suppose that $a : I \to |D|$ is such that
+
+$$
+i \le j \text{ implies } a_i \subseteq a_j
+$$
+
+for all $i, j \in I$. Prove that
+
+$$
+\bigcup \{ a_i \mid i \in I \}
+$$
+
+is always a filter in $|D|$. (Note the ways this lemma could be used in the proof of 2.7; but be careful in defining the partially ordered set and do not confuse $\subseteq$ and $\supseteq$.) In words we could say that the domain of filters is <u>closed under directed unions</u>. Prove also that if $f : D \to D'$ is an approximable mapping, then for any directed union
+
+$$
+f(\bigcup \{ a_i \mid i \in I \}) = \bigcup \{ f(a_i) \mid i \in I \};
+$$
+
+that is, <u>approximable mappings always preserve directed unions</u>. If an elementwise function preserves directed unions, must it come from an approximable mapping? (Hint: Invoke 2.9.)
+
+<!-- page 33 -->
+
+**EXERCISE 2.12.** Suppose $(I, \le)$ is a directed, partially ordered set and $f_i : D_0 \to D_1$ is a family of approximable mappings indexed by $i \in I$, where we assume
+
+$$
+i \le j \text{ implies } f_i(x) \subseteq f_j(x)
+$$
+
+for all $i, j \in I$ and all $x \in |D_0|$. Prove that there is an approximable mapping $g : D_0 \to D_1$ where
+
+$$
+g(x) = \bigcup \{ f_i(x) \mid i \in I \}
+$$
+
+for all $x \in |D_0|$.
+
+**EXERCISE 2.13.** (For topologists.) Recall Exercise 1.22 where it was shown that any domain $|D|$ is a topological space. Prove from Exercise 2.9 that the functions $f : |D_0| \to |D_1|$ determined by approximable mappings are exactly *the continuous functions between these spaces.* (Hint: To prove continuity, remark that by 2.9
+
+$$
+f^{-1}[Y] = \bigcup \{ [X] \mid Y \in f(\uparrow X) \};
+$$
+
+hence, the inverse image of any open set is open. In the other direction, suppose that $f : |D_0| \to |D_1|$ is topologically continuous. Argue that for all $x \in |D_0|$ and all open subsets $U \subseteq |D_1|$ we have
+
+$$
+f(x) \in U \text{ iff } \exists X \in x.\ f(\uparrow X) \in U.
+$$
+
+This holds because an open subset of $|D_0|$ is always a union of basic open subsets of the form $[X']$ for $X \in D_0$ and because
+
+$$
+x = \bigcup \{ \uparrow X \mid X \in x \}
+$$
+
+for all $x \in |D_0|$.)
+
+**EXERCISE 2.14.** Let $f : |D_0| \to |D_1|$ be an isomorphism between domains. Let $\varphi : D_0 \to D_1$ be the one-one correspondence between neighbourhoods provided by Theorem 2.7 where
+
+$$
+f(\uparrow X) = \uparrow \varphi(X)
+$$
+
+for all $X \in D_0$. Show that the approximable mapping determined by $f$ is just the relationship $\varphi(X) \subseteq Y$. In addition prove that if $X, X' \in D_0$ are consistent, then
+
+$$
+\varphi(X \cap X') = \varphi(X) \cap \varphi(X').
+$$
+
+<!-- page 34 -->
+
+Remark that the isomorphisms between domains correspond exactly to the isomorphisms between neighbourhood systems (in the sense of one-one inclusion preserving correspondences).
+
+**EXERCISE 2.15.** (For topologists.) Consider the one-token system with
+
+$$\mathcal{O} = \{ \{0\}, \emptyset \}.$$
+
+We can regard $|\mathcal{O}|$ as having just two finite elements $\bot$ (bottom) and $\top$ (top), where $\bot \sqsubseteq \top$. For any system $D$, show that the open subsets $U$ of $|D|$ are in a one-one correspondence with the approximable mappings $f : D \to \mathcal{O}$, where the correspondence is given by the equation
+
+$$U = \{ x \in |D| \mid f(x) = \top \}.$$
+
+What are the open subsets of $|\mathcal{O}|$? of $|\mathbb{T}|$? of $|\mathbb{B}|$?
+
+**EXERCISE 2.16.** In the discussion of $\mathbb{B}$ in Chapter 1 we defined a mapping $x \mapsto \sigma x$ for any given $\sigma \in \Sigma^*$. Is this (elementwise) mapping approximable? Show in addition that the mapping $f : \mathbb{B} \to \mathbb{T}$ of 2.3 is uniquely determined among approximable mappings by the equations:
+
+$$f(1x) = \text{true},$$
+$$f(01x) = \text{false, and}$$
+$$f(00x) = f(x).$$
+
+**EXERCISE 2.17.** Establish in detail that the mapping $g : \mathbb{B} \to \mathbb{B}$ of Exercise 2.4 is approximable. Is it uniquely determined by these equations:
+
+$$g(0x) = 0g(x),$$
+$$g(11x) = g(1x),$$
+$$g(10x) = 0x,$$
+$$g(1) = \bot,$$
+
+or are some missing?
+
+<!-- page 35 -->
+
+**EXERCISE 2.18.** What is the meaning in words of the approximable mapping $h : \mathbb{B} \to \mathbb{B}$, where
+
+$$h(0x) = 00h(x), \text{ and}$$
+$$h(1x) = 10h(x),$$
+
+for all elements $x \in |\mathbb{B}|$? Is $h$ an isomorphism? Does there exist a map $k : \mathbb{B} \to \mathbb{B}$ where
+
+$$k \circ h = I_{\mathbb{B}},$$
+
+and is $k$ one-one?
+
+**EXERCISE 2.19.** Generalize Definition 2.1 in an appropriate way in order to define the concept of *an approximable mapping*
+
+$$f : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_2$$
+
+of two variables. (Hint: $f$ can be taken to be a certain kind of ternary relation
+
+$$f \subseteq \mathcal{D}_0 \times \mathcal{D}_1 \times \mathcal{D}_2,$$
+
+where we can write
+
+$$X, Y\ f\ Z$$
+
+for the relationship among neighbourhoods.) What is the corresponding version of Proposition 2.2 for functions of two variables?
+
+**EXERCISE 2.20.** Discuss again the example of Exercise 1.15 where the domain turns out to be the powerset (set of all subsets) of $\mathbf{N}$. Show how the finite elements can be taken to be the finite subsets of $\mathbf{N}$ and can be identified with the tokens of a suitable neighbourhood system $\mathcal{P}$. (Hint: Define $\uparrow F$ for finite sets $F \subseteq \mathbf{N}$.) Show that both union and intersection ($x \cup y$ and $x \cap y$) are functions on $|\mathcal{P}|$ that are approximable in the sense of Exercise 2.19. (The elements of $|\mathcal{P}|$ are being identified with arbitrary sets $x \subseteq \mathbf{N}$.) Show also that the following transformations are approximable:
+
+$$x + 1 = \{n + 1 \mid n \in x\}, \text{ and}$$
+$$x - 1 = \{n \mid n + 1 \in x\}.$$
+
+<!-- page 36 -->
+
+**EXERCISE 2.21.** The system $\mathcal{B}$ of 2.3 has as its total elements only the infinite sequences. Modify the construction of $\mathcal{B}$ to another neighbourhood system $\mathcal{C}$ which has *both* the finite and infinite sequences as total elements. (Hint: $\mathcal{B} \subseteq \mathcal{C}$.) Show that there is an approximable map $xy$ on elements naturally extending ordinary juxtaposition of sequences. (Hint: Write $01001$ for a *total* finite sequence and $01001\perp$ for the corresponding finite partial element. Remember to distinguish between $\Lambda$ (the total empty sequence) and $\perp$ (the undefined sequence). The definition should work out so that if $x$ is an infinite sequence (hence, total), then $xy = x$ for all $y$. What will $xy$ equal if $x$ is not total? In other words, the construction possesses a rather strong left-to-right bias.)
+
+**EXERCISE 2.22.** (For set theorists). We have remarked in Exercise 1.18 and in Exercise 2.11 that any domain $|D|$, as a family of sets (in fact, a family of subsets of the set $D$ itself), is closed under the intersection of an arbitrary non-empty sub family and under the union of any directed sub family. For those familiar with the subject matter, the example of the (proper) ideals of a commutative ring (with unit) is also seen to be such a family. What is the abstract situation? Let $\mathbf{C}$ be *any* family of sets with these closure properties. It is to be shown that $\mathbf{C}$ is inclusion-isomorphic to a domain. (Hint: Let $\Delta$ be the set of finite sets included in sets in $\mathbf{C}$. For $F \in \Delta$, define its "closure" by the equation:
+
+$$\overline{F} = \bigcap \{ X \in \mathbf{C} \mid F \subseteq X \}.$$
+
+Every $\overline{F} \in \mathbf{C}$, and these will prove to be the "finite" elements of $\mathbf{C}$. The neighbourhood system $\mathcal{D}$ over $\Delta$ can be taken to be the sets of the form
+
+$$C(F) = \{ G \in \Delta \mid F \subseteq \overline{G} \}$$
+
+for $F \in \Delta$. Notice that for all $X \in \mathbf{C}$
+
+$$X = \bigcup \{ \overline{F} \mid F \subseteq X \text{ and } F \in \Delta \}.$$)
+
+Check that approximable functions on these families are just those preserving directed unions.
+
+<!-- page 37 -->
+
+**LECTURE III**
+
+**DOMAIN CONSTRUCTS**
+
+Having now seen a number of domains presented through their neighbourhood systems, we need next to introduce general constructs for forming new domains from old. There are an unlimited number of such constructs (technically called *functors*), but we have time only to single out a few of the more important ones. Outstanding among all of them is the notion of product of systems, which in our chosen category has all the expected properties. For the time being in order to simplify notation we assume of the underlying sets $\Delta_0$ and $\Delta_1$ of systems $\mathcal{D}_0$ and $\mathcal{D}_1$ that they are disjoint. There is no loss of generality as $\mathcal{D}_1$ can always be replaced by an isomorphic system disjoint from $\mathcal{D}_0$ in the required sense.
+
+**DEFINITION 3.1.** Let neighbourhood systems $\mathcal{D}_0$ and $\mathcal{D}_1$ be given over disjoint sets $\Delta_0$ and $\Delta_1$. The *product system* over $\Delta_0 \cup \Delta_1$ is defined by:
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 = \{X \cup Y \mid X \in \mathcal{D}_0 \text{ and } Y \in \mathcal{D}_1\}.
+$$
+
+For elements $x \in |\mathcal{D}_0|$ and $y \in |\mathcal{D}_1|$ we also define:
+
+$$
+\langle x, y \rangle = \{X \cup Y \mid X \in x \text{ and } Y \in y\}.
+$$
+
+$\square$
+
+**PROPOSITION 3.2.** The construct $\mathcal{D}_0 \times \mathcal{D}_1$ always gives a neighbourhood system where for elements $x, x' \in |\mathcal{D}_0|$ and $y, y' \in |\mathcal{D}_1|$ we have
+
+(i) $\langle x, y \rangle \subseteq \langle x', y' \rangle$ iff $x \subseteq x'$ and $y \subseteq y'$.
+
+Moreover, there is a one-one correspondence between the elements of $|\mathcal{D}_0 \times \mathcal{D}_1|$ and pairs of elements of $|\mathcal{D}_0|$ and $|\mathcal{D}_1|$ since all elements of $|\mathcal{D}_0 \times \mathcal{D}_1|$ are of the form $\langle x, y \rangle$.
+
+*Proof:* Owing to the disjointness of $\Delta_0$ and $\Delta_1$, we note that for $X, X' \in \mathcal{D}_0$ and $Y, Y' \in \mathcal{D}_1$ we have
+
+$$
+\text{(1) } X \cup Y \subseteq X' \cup Y' \text{ iff } X \subseteq X' \text{ and } Y \subseteq Y'.
+$$
+
+Thus, $\{X \cup Y, X' \cup Y'\}$ is consistent in $\mathcal{D}_0 \times \mathcal{D}_1$ iff $\{X, X'\}$ is
+
+<!-- page 38 -->
+
+consistent in $\mathcal{D}_0$ and $\{Y, Y'\}$ is consistent in $\mathcal{D}_1$. In the consistent case we find
+
+$$
+\text{(2)}\qquad (X \cup Y) \cap (X' \cup Y') = (X \cap X') \cup (Y \cap Y'),
+$$
+
+and so $\mathcal{D}_0 \times \mathcal{D}_1$ is closed under consistent intersection. As $\Delta_0 \cup \Delta_1 \in \mathcal{D}_0 \times \mathcal{D}_1$, it is certainly a neighbourhood system.
+
+It is easy to check by the previous calculations that $\langle x, y \rangle \in |\mathcal{D}_0 \times \mathcal{D}_1|$ if $x \in |\mathcal{D}_0|$ and $y \in |\mathcal{D}_1|$. The proof of 3.2(i) follows directly from the definition and (1).
+
+Suppose $z \in |\mathcal{D}_0 \times \mathcal{D}_1|$. Define as a temporary notation:
+
+$$
+z_0 = \{X \in \mathcal{D}_0 \mid X \cup \Delta_1 \in z\}, \quad \text{and} \quad z_1 = \{Y \in \mathcal{D}_1 \mid \Delta_0 \cup Y \in z\}.
+$$
+
+Clearly, both $z_0 \in |\mathcal{D}_0|$ and $z_1 \in |\mathcal{D}_1|$. In view of the formula
+
+$$
+\text{(3)}\qquad (X \cup \Delta_1) \cap (\Delta_0 \cup Y) = X \cup Y,
+$$
+
+we can calculate that
+
+$$
+z = \langle z_0, z_1 \rangle.
+$$
+
+Moreover, if $z = \langle x, y \rangle$, then $\langle x, y \rangle_0 = x$ and $\langle x, y \rangle_1 = y$.
+
+The one-one correspondence required is thus established. $\square$
+
+There is more going on in the proof of 3.2 than just a one-one correspondence between elements and pairs. The extra information is best formalized by introducing a notation for mappings.
+
+**DEFINITION 3.3.** *Projection mappings*
+
+$$
+p_0 : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_0 \quad \text{and} \quad p_1 : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_1
+$$
+
+are defined as relations where
+
+$$
+(X \cup Y)\ p_0\ X' \text{ iff } X \subseteq X', \quad \text{and} \quad (X \cup Y)\ p_1\ Y' \text{ iff } Y \subseteq Y'
+$$
+
+hold for all $X, X' \in \mathcal{D}_0$ and $Y, Y' \in \mathcal{D}_1$. Given $f : \mathcal{D}_2 \to \mathcal{D}_0$ and $g : \mathcal{D}_2 \to \mathcal{D}_1$, the *paired mapping*
+
+$$
+\langle f, g \rangle : \mathcal{D}_2 \to \mathcal{D}_0 \times \mathcal{D}_1
+$$
+
+is defined as a relation where
+
+$$
+Z\ \langle f, g \rangle\ (X \cup Y) \text{ iff } Z\ f\ X \text{ and } Z\ g\ Y
+$$
+
+holds for all $X \in \mathcal{D}_0$, $Y \in \mathcal{D}_1$, and $Z \in \mathcal{D}_2$. $\square$
+
+<!-- page 39 -->
+
+**PROPOSITION 3.4.** The mappings $p_0$, $p_1$ and $\langle f, g \rangle$ are approximable mappings, provided $f$ and $g$ are, and we have:
+
+(i) $p_0 \circ \langle f, g \rangle = f$ and $p_1 \circ \langle f, g \rangle = g$.
+
+Moreover, for $z \in |\mathcal{D}_0 \times \mathcal{D}_1|$, we have:
+
+(ii) $p_0(z) = z_0$ and $p_1(z) = z_1$,
+
+in the notation of the proof of 3.2. Further if $h : \mathcal{D}_2 \to \mathcal{D}_0 \times \mathcal{D}_1$ is any approximable mapping, then
+
+(iii) $h = \langle p_0 \circ h, p_1 \circ h \rangle$.
+
+Moreover, for all $w \in |\mathcal{D}_2|$, we have:
+
+(iv) $\langle f, g \rangle(w) = \langle f(w), g(w) \rangle$,
+
+where again on the right-hand side the notation of the proof of 3.2 is used. $\square$
+
+The proof of this result is left as an exercise. Note the consequence that there is a one-one correspondence between pairs of approximable mappings $f : \mathcal{D}_2 \to \mathcal{D}_0$ and $g : \mathcal{D}_2 \to \mathcal{D}_1$ and mappings $h : \mathcal{D}_2 \to \mathcal{D}_0 \times \mathcal{D}_1$. It is clear that we generalize all this to products
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 \times \cdots \times \mathcal{D}_{n-1}
+$$
+
+of several systems.
+
+The product construct also neatly explains functions of several variables. In Exercise 2.19 we used the informal notation
+
+$$
+f : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_2
+$$
+
+and suggested regarding $f$ as a ternary relation
+
+$$
+X, Y\ f\ Z.
+$$
+
+But now with $\mathcal{D}_0 \times \mathcal{D}_1$ given an independent meaning, all we have to do is to regard $f$ as a binary relation with
+
+$$
+(X, Y)\ f\ Z
+$$
+
+equivalent to the old relationship. We can also employ an element-wise notation as in $f(\langle x, y \rangle)$, which can more easily be written $f(x, y)$. Similar remarks apply to functions of more than two arguments.
+
+<!-- page 40 -->
+
+We have discussed several times what it means for a function $f(x)$ to come from an approximable mapping. It is interesting to ask the analogous question for functions of several arguments.
+
+**THEOREM 3.5.** An elementwise function
+$$f : |D_0 \times D_1| \to |D_2|$$
+of two arguments comes from an approximable mapping iff for each fixed $a \in |D_0|$ and each fixed $b \in |D_1|$ the transformations
+$$x \mapsto f(x, b) \quad \text{and} \quad y \mapsto f(a, y)$$
+come from approximable mappings of one argument.
+
+*Proof:* As this is the first time we have had to deal with constants in functions, a lemma is useful.
+
+**LEMMA 3.6.** Given $b \in |D_1|$, the constant function
+$$b : |D_0| \to |D_1|$$
+where $b(x) = b$ for all $x \in |D_0|$, comes from the approximable mapping such that
+$$X\ b\ Y \quad \text{iff} \quad Y \in b,$$
+for all $X \in D_0$ and $Y \in D_1$. $\square$
+
+There is no real confusion here in using “$b$” both for function and value. Returning, then, to the proof of 3.5, we see that the reason that $x \mapsto f(x, b)$ comes from an approximable mapping is that the mapping in question is the composition of two approximable mappings, namely $f \circ \langle I_{D_0}, b \rangle$. Clearly we can interchange the rôles of $D_0$ and $D_1$ to get at $y \mapsto f(a, y)$.
+
+Conversely, assume that both these functions come from approximable mappings no matter the choice of $a$ and $b$. Clearly the mapping to determine $f$ is the relation from $X \cup Y$ to $Z$ where
+$$Z \in f(\uparrow X, \uparrow Y) = f(\uparrow(X \cup Y)).$$
+To prove that this determines $f$ we calculate by the formula of Exercise 2.9:
+
+<!-- page 41 -->
+
+$$
+\begin{aligned}
+f(x, y) &= \bigcup \{ f(\uparrow X, y) \mid X \in x \} \\
+&= \bigcup \{ \bigcup \{ f(\uparrow X, \uparrow Y) \mid Y \in y \} \mid X \in x \} \\
+&= \bigcup \{ f(\uparrow X, \uparrow Y) \mid X \in x \text{ and } Y \in y \} \\
+&= \bigcup \{ f(\uparrow (X \cup Y)) \mid (X \cup Y) \in \langle x, y \rangle \}.
+\end{aligned}
+$$
+
+And, again by 2.9, this is what was needed. $\square$
+
+Said more informarily, a function of several arguments is approximable in all the variables *jointly* if it is approximable in each of the variables *separately*.
+
+The type of argument used in 3.5 in the first half of the proof also provides a generalization of 2.6 to functions of several arguments. When we form a function like
+
+$$
+f(g(x, z, \ldots), h(y, x, \ldots), k(z, w, \ldots), \ldots)
+$$
+
+from given functions $f, g, h, k, \ldots$; we call the process *substitution*.
+
+**PROPOSITION 3.7.** The functions of several arguments between domains coming from approximable mappings are closed under substitution.
+
+*Proof:* An example will establish the method. Suppose there are four variables involved taking values in domains provided by systems $D_0, D_1, D_2, D_3$. We might have a substitution like:
+
+$$
+f(g(x_0, x_1), h(x_1, x_2), k(x_3, x_0, x_2)).
+$$
+
+Here it might be that the values of the functions inside come from quite other systems; for instance,
+
+$$
+k : D_3 \times D_0 \times D_2 \to D_4
+$$
+
+might be possible. By using projections
+
+$$
+p_i : D_0 \times D_1 \times D_2 \times D_3 \to D_i,
+$$
+
+where $i < 4$, we can assure that we have several functions all on the same product; thus,
+
+$$
+k \cdot \langle p_3, p_0, p_2 \rangle : D_0 \times D_1 \times D_2 \times D_3 \to D_4.
+$$
+
+Now no matter on what domains $f$ is defined, the following composition makes sense:
+
+<!-- page 42 -->
+
+$$
+f \circ \langle g \circ \langle p_0, p_1 \rangle, h \circ \langle p_1, p_2 \rangle, k \circ \langle p_3, p_0, p_2 \rangle \rangle ;
+$$
+
+and in fact this is the desired function. Writing it this way makes it clear that the function comes from an approximable mapping: we apply 3.3 (generalized, of course, to products with several terms) to construe the parts between brackets $\langle$ and $\rangle$ as approximable mappings, and then by this trick the composition $\circ$ is the ordinary composition of 2.6. $\square$
+
+It has to be admitted that there is a slight point overlooked in forming products like $D \times D$ with two identical domains. This is discussed in Exercise 3.14, invoking explicit isomorphisms.
+
+The construct that makes the whole theory of domains work so smoothly is the function-space construct: it is possible to regard functions as *objects* which form a domain. Look back at Definition 2.1 and compare it with the original definition of element in 1.6. There are obvious formal similarities, except that filters are sets of neighbourhoods and mappings are sets of pairs of neighbourhoods (relations). But as we saw in 1.10 it is possible to turn the filters into tokens via a simple definition of neighbourhood. We apply the same kind of definition to the mappings.
+
+**DEFINITION 3.8.** Given neighbourhood systems $D_0$ and $D_1$, the *function space* $(D_0 \to D_1)$ is the system whose set of tokens is the set of approximable mappings of Definition 2.1 and whose neighbourhoods are finite non-empty intersections of sets of the form
+
+$$
+[X, Y] = \{f : D_0 \to D_1 \mid X f Y\},
+$$
+
+where $X \in D_0$ and $Y \in D_1$. $\square$
+
+We have been calling our mappings "approximable" for a long time now without saying exactly how they can be approximated! Definition 3.8 supplies the missing key, because once a domain has been defined, then the general theory gives an explicit meaning to the word approximation. We still have to verify, however, that the mappings do correspond to the elements of the domain.
+
+<!-- page 43 -->
+
+**PROPOSITION 3.9.** Let neighbourhoods $X_i \in D_0$ and $Y_i \in D_1$ be given for $i < n$. Then the set of $[X_i, Y_i]$ for $i < n$ is consistent in $(D_0 \to D_1)$ iff the following condition holds:
+
+(i) whenever $I \subseteq \{0, 1, \ldots, n-1\}$ and $\{X_i \mid i \in I\}$ is consistent in $D_0$, then $\{Y_i \mid i \in I\}$ must be consistent in $D_1$.
+
+Moreover, when consistency holds, the least approximable mapping $f_0$ belonging to the intersection of the $[X_i, Y_i]$ is defined by:
+
+(ii) $X f_0 Y$ iff $\bigcap \{Y_i \mid X \subseteq X_i\} \subseteq Y$ for $X \in D_0$ and $Y \in D_1$.
+
+*Proof:* Suppose the $[X_i, Y_i]$ are consistent in $(D_0 \to D_1)$. Since the function space is being defined outright as a positive system, consistency means
+
+$$
+f \in \bigcap \{[X_i, Y_i] \mid i < n\}
+$$
+
+for some $f : D_0 \to D_1$. Now, with $f$ in hand, let us check condition (i). Suppose $\{X_i \mid i \in I\}$ is consistent. This means
+
+$$
+x \in \bigcap \{[X_i] \mid i \in I\}
+$$
+
+for some $x \in |D_0|$. Suppose $i \in I$, so $x \in [X_i]$. Since $X_i f Y_i$ holds, $f(x) \in [Y_i]$. This means, therefore, that
+
+$$
+f(x) \in \bigcap \{[Y_i] \mid i \in I\},
+$$
+
+and so $\{Y_i \mid i \in I\}$ is consistent.
+
+For the converse, suppose (i) is the case. We take (ii) as the definition of a mapping and remark that for an arbitrary $X \in D_0$, the set $\{X_i \mid X \subseteq X_i\}$ is automatically consistent in $D_0$. By our assumption, the set $\{Y_i \mid X \subseteq X_i\}$ is therefore consistent. This means that
+
+$$
+\bigcap \{Y_i \mid X \subseteq X_i\} \in D_1.
+$$
+
+(Keep in mind that $i$ is restricted to those $i < n$, and there are only finitely many neighbourhoods being considered here.) It is thus almost immediate that the relation $f_0$ defined by (ii) satisfies conditions of 2.1 and so is an approximable mapping $f_0 : D_0 \to D_1$. By construction
+
+$$
+X_i f_0 Y_i
+$$
+
+<!-- page 44 -->
+
+holds trivially for all $i < n$; therefore,
+
+$$
+f_0 \in \bigcap \{[X_i, Y_i] \mid i < n\}
+$$
+
+and the desired consistency is established.
+
+Finally suppose that $f$ is any mapping in the neighbourhood under discussion; this means $X_i f Y_i$ holds for all $i < n$. Suppose $X f_0 Y$ holds. We have for $X \subseteq X_i$, $X f Y_i$; so
+
+$$
+X f \bigcap \{Y_i \mid X \subseteq X_i\} \subseteq Y.
+$$
+
+Thus, $X f Y$ follows; hence, as relations, $f_0 \subseteq f$. In other words $f_0$ is the minimal element of the neighbourhood. $\square$
+
+We note that, as a consequence of what we have just proved, when the neighbourhood is consistent, then
+
+$$
+\bigcap \{[X_i, Y_i] \mid i < n\} \subseteq [X, Y]
+$$
+
+is exactly equivalent to
+
+$$
+\bigcap \{Y_i \mid X \subseteq X_i\} \subseteq Y.
+$$
+
+Note also that a single neighbourhood $[X_0, Y_0]$ is always consistent since it contains the *constant mapping* $k$ where
+
+$$
+X k Y \text{ iff } Y_0 \subseteq Y,
+$$
+
+for all $X \in \mathcal{D}_0$ and $Y \in \mathcal{D}_1$. Some other simple observations about these neighbourhoods are just translations of the conditions of Definition 2.1:
+
+$$
+[\Delta_0, \Delta_1] = |\mathcal{D}_0 \to \mathcal{D}_1|;
+$$
+
+$$
+[X, Y] \cap [X, Y'] = [X, Y \cap Y']; \text{ and}
+$$
+
+$$
+X' \subseteq X \text{ and } Y \subseteq Y' \text{ imply } [X, Y] \subseteq [X', Y'],
+$$
+
+for all $X, X' \in \mathcal{D}_0$ and $Y, Y' \in \mathcal{D}_1$. We are now ready to prove the main result about the construct.
+
+**THEOREM 3.10.** Given neighbourhood systems $\mathcal{D}_0$ and $\mathcal{D}_1$, the function space system $(\mathcal{D}_0 \to \mathcal{D}_1)$ is complete in the sense that every filter in $|\mathcal{D}_0 \to \mathcal{D}_1|$ is fixed by a unique approximable mapping.
+
+*Proof:* Let $f : \mathcal{D}_0 \to \mathcal{D}_1$ be an approximable mapping. By the very definition of $(\mathcal{D}_0 \to \mathcal{D}_1)$ it determines a filter by the definition:
+
+<!-- page 45 -->
+
+$$\hat{f} = \{ F \in (D_0 \to D_1) \mid f \in F \}.$$
+
+Trivially $[X, Y] \in \hat{f}$ iff $f \in [X, Y]$ iff $X f Y$; so this filter uniquely determines the relation $f$. What we have to show is that every filter in $|D_0 \to D_1|$ is of this form.
+
+Suppose $\varphi \in |D_0 \to D_1|$ is any filter. A relation can be defined at once by
+
+$$X \hat{\varphi} Y \quad \text{iff} \quad [X, Y] \in \varphi.$$
+
+In view of the remarks we made just before stating this theorem, there is no problem in showing that $\hat{\varphi}$ is an approximable mapping. Since the neighbourhoods of the function space are in any case finite intersections of sets like $[X, Y]$, those $[X, Y] \in \varphi$ generate $\varphi$. This means that $\hat{\hat{\varphi}} = \varphi$. By definition $\hat{\hat{f}} = f$, so there is a one-one correspondence between mappings and filters. (This correspondence is obviously inclusion preserving, too.) $\square$
+
+We now know just about everything about $|D_0 \to D_1|$ as a domain: the elements correspond isomorphically to the approximable mappings; the finite elements are explained completely by 3.9; and we have seen how to calculate with neighbourhoods. The final step is to relate the function space to other domains by appropriate mappings. In doing this we shall freely construe elements of $|D_0 \to D_1|$ as approximable mappings in view of 3.10.
+
+**THEOREM 3.11.** Given neighbourhood systems $D_1$ and $D_2$, there is a uniquely determined approximable mapping
+
+$$\text{eval} : (D_1 \to D_2) \times D_1 \to D_2,$$
+
+where for all $f : D_1 \to D_2$ and all $x \in |D_1|$ we have
+
+(i) $\text{eval}(f, x) = f(x)$.
+
+*Proof:* For $F \in (D_1 \to D_2)$ and $X \in D_1$ and $Y \in D_2$ define $\text{eval}$ as a relation by:
+
+$$F, X \text{ eval } Y \quad \text{iff} \quad X f Y \text{ for all } f \in F.$$
+
+<!-- page 46 -->
+
+Remember that neighbourhoods in the function space are sets of approximable mappings. It is easily checked that this definition makes eval approximable. We now calculate the function values by the formula of 2.2 (i):
+
+$$
+\text{eval}(f, x) = \{Y \in D_2 \mid \exists F \in (D_1 \to D_2)\ \exists X \in x.\ f \in F \text{ and } F \cup X \text{ eval } Y\}
+$$
+
+Because, again by 2.2 (i), we have
+
+$$
+f(x) = \{Y \in D_2 \mid \exists X \in x.\ X f Y\},
+$$
+
+we can see from the definition of eval that $\text{eval}(f, x) \subseteq f(x)$. Suppose that $Y \in f(x)$. Then $X f Y$ holds for some $X \in x$. We can write $f \in [X, Y] \in (D_1 \to D_2)$ and it is clear that
+
+$$
+[X, Y] \cup X \text{ eval } Y
+$$
+
+holds by definition. Therefore, $Y \in \text{eval}(f, x)$, and so $f(x) \subseteq \text{eval}(f, x)$. $\square$
+
+This theorem is essential for our programme: it shows that in taking functions as objects the very basic operation of forming the function value is an approximable mapping. In other words we can treat the expression $f(x)$ not just as a function of $x$, as we have done from the start, but also as a function of $f$ as well. The result also indicates that there are useful maps defined on domains that themselves are function spaces; we shall meet many more of these. The next theorem provides further examples.
+
+**THEOREM 3.12.** Given neighbourhood systems $D_0$, $D_1$, $D_2$ there is associated with every approximable mapping $g : D_0 \times D_1 \to D_2$ a uniquely determined approximable mapping
+
+$$
+\text{curry}(g) : D_0 \to (D_1 \to D_2)
+$$
+
+such that for $x \in |D_0|$ and $y \in |D_1|$
+
+(i) $\text{curry}(g)(x)(y) = g(x, y)$.
+
+Moreover we have these functional equations:
+
+(ii) $\text{eval} \circ \langle \text{curry}(g) \circ p_0,\ p_1 \rangle = g$, and
+
+(iii) $\text{curry}(\text{eval} \circ \langle h \circ p_0,\ p_1 \rangle) = h$,
+
+<!-- page 47 -->
+
+where the $p_i : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_i$ are the projection mappings and $h : \mathcal{D}_0 \to (\mathcal{D}_1 \to \mathcal{D}_2)$ is any approximable mapping. This provides an isomorphism between the domains $|\mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_2|$ and $|\mathcal{D}_0 \to (\mathcal{D}_1 \to \mathcal{D}_2)|$ and so we can regard
+
+$$\mathrm{curry} : (\mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}_2) \to (\mathcal{D}_0 \to (\mathcal{D}_1 \to \mathcal{D}_2))$$
+
+as itself being an approximable mapping.
+
+*Proof:* Given $g$ as indicated, we can define $\mathrm{curry}(g)$ as a relation and as an approximable mapping by:
+
+$$X\ \mathrm{curry}(g)\ [Y, Z]\ \text{iff}\ X \cup Y\ g\ Z \quad \text{(but see Ex. 3.21)}$$
+
+for all $X \in \mathcal{D}_0$, $Y \in \mathcal{D}_1$, $Z \in \mathcal{D}_2$. This is sufficient because an approximable mapping is intersective in the right-hand neighbourhood, so we know from the above exactly what $X\ \mathrm{curry}(g)\ \bigcap \{[Y_i, Z_i] \mid i < n\}$ means for all finite intersections. The remark after 3.9 is then helpful in checking that by this definition $\mathrm{curry}(g)$ satisfies the monotonicity condition and so is indeed approximable. We now calculate:
+
+$$\begin{aligned}
+\mathrm{curry}(g)(x)(y) &= \{Z \in \mathcal{D}_2 \mid \exists Y \in y.\ Y\ \mathrm{curry}(g)\ (x)\ Z\} \\
+&= \{Z \in \mathcal{D}_2 \mid \exists Y \in y\ \exists X \in x.\ X\ \mathrm{curry}(g)\ [Y, Z]\} \\
+&= \{Z \in \mathcal{D}_2 \mid \exists Y \in y\ \exists X \in x.\ X \cup Y\ g\ Z\} \\
+&= \{Z \in \mathcal{D}_2 \mid \exists W \in \langle x, y \rangle.\ W\ g\ Z\} \\
+&= g(\langle x, y \rangle) = g(x, y).
+\end{aligned}$$
+
+This proves (i). We also see, that if we take the left-hand side of (ii) and apply it to a pair $\langle x, y \rangle$, it reduces to $g(x, y)$ by virtue of (i). Thus, the two functions in (ii) are the same.
+
+Turning to (iii), call the left-hand side $k$. Using (i) again, we find
+
+$$\begin{aligned}
+k(x)(y) &= \mathrm{eval} \circ \langle h \circ p_0, p_1 \rangle(\langle x, y \rangle) \\
+&= \mathrm{eval}(\langle h \circ p_0(\langle x, y \rangle), p_1(\langle x, y \rangle) \rangle) \\
+&= \mathrm{eval}(\langle h(x), y \rangle) \\
+&= h(x)(y).
+\end{aligned}$$
+
+As this is true for all $y \in |\mathcal{D}_1|$, then $k(x) = h(x)$ follows. As this is true for all $x \in |\mathcal{D}_0|$, then $k = h$ follows, and (iii) is proved.
+
+<!-- page 48 -->
+
+Taking (ii) and (iii) together, it is clear that the domains $|D_0 \times D_1 \to D_2|$ and $|D_0 \to (D_1 \to D_2)|$ are in a one-one correspondence.
+
+$$
+\text{curry}(g) \sqsubseteq \text{curry}(g') \text{ iff } g \sqsubseteq g'.
+$$
+
+Hence, curry is an isomorphism, and we can invoke 2.7 to conclude that it comes from an approximable mapping. $\square$
+
+We close this lecture with some order-theoretic properties of function spaces that characterize inclusion and upper bounds of functions in a "pointwise" manner.
+
+**THEOREM 3.13.** For approximable functions $f, g : D_0 \to D_1$ we have
+
+(i) $f \sqsubseteq g$ iff $f(x) \sqsubseteq g(x)$ for all $x \in |D_0|$.
+
+For subsets $F \subseteq |D_0 \to D_1|$ we have
+
+(ii) $F$ is bounded in $|D_0 \to D_1|$ iff $\{f(x) \mid f \in F\}$ is bounded in $|D_1|$ for each $x \in |D_0|$;
+
+and in that case for all $x \in |D_0|$:
+
+(iii) $(\bigsqcup F)(x) = \bigsqcup \{f(x) \mid f \in F\}$.
+
+*Proof.* The implication in (i) from left to right follows because evaluation is monotone in the function as well as the argument. The converse implication is a consequence of 2.2(ii).
+
+For the proof of (ii) and (iii) we see that by (i) if $F$ is bounded, so is every set $\{f(x) \mid f \in F\}$. For the converse direction, it is clear that (iii) defines *some* pointwise mapping; we have only to prove that it is *approximable*. The calculation that $\sqcup F$ preserves directed unions (see 2.9 and 2.11) is probably the simplest way to reach the conclusion. $\square$
+
+<!-- page 49 -->
+
+## EXERCISES
+
+**EXERCISE 3.14.** For the most part we can assume that there is at most a countable number of tokens; thus, without loss of generality the underlying sets $\Delta_i$ of given systems $\mathcal{D}_i$ could be assumed to be subsets of $\Sigma^*$ where $\Sigma = \{0, 1\}$. (Any denumerable set would do.) Show that the product $\mathcal{D}_0 \times \mathcal{D}_1$ could be defined as the system over the set $0\Delta_0 \cup 1\Delta_1$ where
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 = \{0X \cup 1Y \mid X \in \mathcal{D}_0 \text{ and } Y \in \mathcal{D}_1\}.
+$$
+
+In other words, the assumption of the disjointness of $\Delta_0$ and $\Delta_1$ is unnecessary. Give, therefore, the revised definition of $\langle x, y \rangle$ for elements, and prove that for a single system $\mathcal{D}$, there exists an approximable mapping
+
+$$
+\mathrm{diag} : \mathcal{D} \to \mathcal{D} \times \mathcal{D}
+$$
+
+where $\mathrm{diag}(x) = \langle x, x \rangle$ for all $x \in |\mathcal{D}|$. Also extend the definition to a product of $n$-factors
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 \times \cdots \times \mathcal{D}_{n-1}
+$$
+
+which will be a system over the set
+
+$$
+\bigcup_{i < n} 1^i 0 \Delta_i.
+$$
+
+Note that for a 2-termed product we simplify $10\Delta_1$ to $1\Delta_1$.
+
+**EXERCISE 3.15.** Establish the usual isomorphisms:
+
+(i) $\mathcal{D}_0 \times \mathcal{D}_1 \cong \mathcal{D}_1 \times \mathcal{D}_0$;
+
+(ii) $\mathcal{D}_0 \times (\mathcal{D}_1 \times \mathcal{D}_2) \cong (\mathcal{D}_0 \times \mathcal{D}_1) \times \mathcal{D}_2 \cong \mathcal{D}_0 \times \mathcal{D}_1 \times \mathcal{D}_2$.
+
+How does the product of no factors fit in? Prove also:
+
+(iii) $\mathcal{D}_0 \cong \mathcal{D}'_0$ and $\mathcal{D}_1 \cong \mathcal{D}'_1$ imply $\mathcal{D}_0 \times \mathcal{D}_1 \cong \mathcal{D}'_0 \times \mathcal{D}'_1$.
+
+<!-- page 50 -->
+
+**EXERCISE 3.16.** Let $\mathcal{D}$ be a given neighbourhood system over $\Delta \subseteq \Sigma^*$. Define
+
+$$
+\Delta^\infty = \bigcup_{n=0}^\infty 1^n 0 \Delta,
+$$
+
+so that $\Delta^\infty$ is split into infinitely many disjoint copies of $\Delta$. Let $\mathcal{D}^\infty$ be the least family of subsets of $\Sigma^*$ where
+
+1. $\Delta^\infty \in \mathcal{D}^\infty$, and
+2. whenever $X \in \mathcal{D}$ and $Y \in \mathcal{D}^\infty$, then $0X \cup 1Y \in \mathcal{D}^\infty$.
+
+Show that $\mathcal{D}^\infty$ is a neighbourhood system over $\Delta^\infty$. Prove the isomorphism
+
+$$
+\mathcal{D}^\infty \cong \mathcal{D} \times \mathcal{D}^\infty.
+$$
+
+Show, moreover, that the elements of $|\mathcal{D}^\infty|$ are in a one-one correspondence with arbitrary infinite sequences $\langle x_n \rangle_{n=0}^\infty$ of elements $x_n \in |\mathcal{D}|$ by using combinations of neighbourhoods
+
+$$
+0X_0 \cup 10X_1 \cup \cdots \cup 1^n 0X_n \cup \cdots,
+$$
+
+where from some point on all the $X_m$ are equal to $\Delta$.
+
+**EXERCISE 3.17.** Using the $\mathcal{B}$ and $\mathcal{T}$ of Example 2.3 show there is a one-one approximable mapping
+
+$$
+f : \mathcal{B} \to \mathcal{T}^\infty
+$$
+
+and another approximable mapping
+
+$$
+g : \mathcal{T}^\infty \to \mathcal{B}
+$$
+
+such that
+
+$$
+g \circ f = I_{\mathcal{B}} \quad \text{and} \quad f \circ g \subseteq I_{\mathcal{T}^\infty}.
+$$
+
+Are $\mathcal{B}$ and $\mathcal{T}^\infty$ isomorphic? Are $\mathcal{B}$ and $\mathcal{T} \times \mathcal{B}$ isomorphic?
+
+<!-- page 51 -->
+
+**EXERCISE 3.18.** Let $\mathcal{D}_0$ and $\mathcal{D}_1$ be neighbourhood systems over $\Delta_0$ and $\Delta_1$, where we again assume that these are subsets of $\Sigma^*$. We assume that in addition *no neighbourhood is empty*. Why is this possible without loss of generality?
+
+Define the *sum system* by:
+
+$$
+\mathcal{D}_0 + \mathcal{D}_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in \mathcal{D}_0\} \cup \{1Y \mid Y \in \mathcal{D}_1\}.
+$$
+
+Prove that this is a neighbourhood system over $\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1$. (Throwing in $\{\Lambda\}$ was not all that necessary, but note that $\mathcal{B} = \mathcal{B} + \mathcal{B}$, and this is an equality of sets not just an isomorphism of systems.)
+
+Prove that in general there are mappings
+
+$$
+in_i : \mathcal{D}_i \to \mathcal{D}_0 + \mathcal{D}_1 \quad \text{and} \quad out_i : \mathcal{D}_0 + \mathcal{D}_1 \to \mathcal{D}_i,
+$$
+
+where $out_i \circ in_i = I_{\mathcal{D}_i}$. Where does the assumption $\emptyset \notin \mathcal{D}_i$ come in? How can these sums be generalized to $n$-terms? (Hint: As for products use sets $1^i 0 \Delta_i$.) Draw some pictures.
+
+**EXERCISE 3.19.** Suppose we are given systems and approximable mappings
+
+$$
+f : \mathcal{D}_0 \to \mathcal{D}'_0 \quad \text{and} \quad g : \mathcal{D}_1 \to \mathcal{D}'_1.
+$$
+
+Prove there are approximable mappings
+
+$$
+f \times g : \mathcal{D}_0 \times \mathcal{D}_1 \to \mathcal{D}'_0 \times \mathcal{D}'_1 \quad \text{and} \quad f + g : \mathcal{D}_0 + \mathcal{D}_1 \to \mathcal{D}'_0 + \mathcal{D}'_1
+$$
+
+such that
+
+(i) $(f \times g)(x, y) = \langle f(x), g(y) \rangle$ for all $x \in |\mathcal{D}_0|$ and $y \in |\mathcal{D}_1|$, and rewrite this as:
+
+(ii) $f \times g = \langle f \circ p_0, g \circ p_1 \rangle$.
+
+In addition prove that
+
+(iii) $out_0 \circ (f + g) \circ in_0 = f$, and
+
+(iv) $out_1 \circ (f + g) \circ in_1 = g$.
+
+Do equations (iii) and (iv) uniquely determine $f + g$?
+
+<!-- page 52 -->
+
+**EXERCISE 3.20.** (For category theorists). Show that the result of 3.19 can be used to prove that $\mathbf{+}$ and $\mathbf{\times}$ on the category of domains and approximable maps are indeed functors. Show further that $\mathbf{\times}$ is the categorical product for this category.
+
+**EXERCISE 3.21.** In the proofs of 3.12 in the definition of curry ($g$) it is rather cavalierly assumed that the neighbourhood $[Y, Z]$ uniquely determines $Y$ and $Z$. Show that this is true if $Z \neq \Delta_2$. (Hint: Find explicitly the least of $f \in [Y, Z]$.) Show that if $Z = \Delta_2$ the biconditional stated at the start of the proof is still valid even though $Y$ is not uniquely determined. (Hint: Remember that $\Delta_1\ g\ \Delta_2$ must hold.) For arbitrary pairs of neighbourhoods of $(D_1 \to D_2)$ is there a simple criterion for identity?
+
+**EXERCISE 3.22.** Prove that there is an approximable mapping
+
+$$
+\text{comp} : (D_1 \to D_2) \times (D_0 \to D_1) \to (D_0 \to D_2)
+$$
+
+where for all $g : D_1 \to D_2$ and $f : D_0 \to D_1$ we have
+
+$$
+\text{comp}(g, f) = g \circ f.
+$$
+
+Show this directly by writing down the neighbourhood relation and by building the mapping up from eval and curry (on suitable domains) using $\circ$ and $\langle,\,\rangle$. (Hint: Fill in maps in the following sequence of domains:
+
+1. $(D_0 \to D_1) \times D_0 \to D_1$
+2. $(D_1 \to D_2) \times ((D_0 \to D_1) \times D_0) \to (D_1 \to D_2) \times D_1$
+3. $((D_1 \to D_2) \times (D_0 \to D_1)) \times D_0 \to (D_1 \to D_2) \times D_1$
+4. $((D_1 \to D_2) \times (D_0 \to D_1)) \times D_0 \to D_2$
+5. $(D_1 \to D_2) \times (D_0 \to D_1) \to (D_0 \to D_2)$.
+
+The maps are of course not uniquely determined, but the shifting of brackets ought to suggest the right choice.)
