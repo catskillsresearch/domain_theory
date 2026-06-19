@@ -15,5 +15,11 @@ import Domain.Neighborhood.Example13
 import Domain.Neighborhood.Example14
 import Domain.Neighborhood.Example15
 import Domain.Neighborhood.ExampleB
+import Domain.Neighborhood.Theorem110
+import Domain.Neighborhood.Theorem111
+import Domain.Neighborhood.Exercise112
+import Domain.Neighborhood.Exercise113
+import Domain.Neighborhood.Exercise114
+import Domain.Neighborhood.Exercise115
 import Domain.Neighborhood.Exercise122
 import Domain.InfoSys

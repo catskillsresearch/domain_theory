@@ -59,8 +59,11 @@ limits) is spelled out in §3.
 1. **Part I:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
   and partial §3–§4 spine in `Domain/ContinuousLattice/`.
 2. **Part II (live, §1 foundations):** PRG-19 neighborhood systems in `Domain/Neighborhood/` —
-  Defs 1.1/1.6/1.7/1.8-order, Theorem 1.1c, Examples 1.2–1.5, Factoids 1.1a–1.7b, Exercise 1.22
-  (topology on `|𝒟|`); **17 results**, §1 core audited choice-free (`[propext, Quot.sound]`).
+  Defs 1.1/1.6/1.7/1.8/1.9, Theorems 1.1c/1.10 (element-token system `𝒟 ≅ᴰ {[X]}`)/1.11
+  (`⋂`/ascending-`⋃` closure), Examples 1.2–1.5/1.B, Factoids 1.1a–1.8b, Exercises 1.12–1.15, 1.22
+  (topology on `|𝒟|`); **32 results**, foundational constructions audited choice-free
+  (`[propext, Quot.sound]`); the infinite-system classification / maximality / non-isomorphism
+  results (Ex 1.12/1.14/1.15) use `Classical.choice` (deciding boundedness/membership).
 3. **Part III (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
   and `Domain/Constructive.lean`.
 4. **Part IV (planned):** functors and isomorphisms tying Parts I–III; constructive certification
@@ -1169,13 +1172,13 @@ every numbered item and exercise below has its statement transcribed.)
 | **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` — `sigmaElt σ x` (witness `σ(X₁∩X₂)` is a cone); `sigmaElt σ ⊥ = σ⊥` (`sigmaElt_bot`) | **Pass** |
 | **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` — `sigmaBot_le_iff` (`σ₀⊥⊑σ₁⊥ ⟺ σ₀<+:σ₁`) | **Pass** |
 | **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` (element = limit of finite approx.) — `mem_iff_exists_sigmaBot` (union-of-`σ⊥` form; chain enumeration left to prose / choice) | **Pass** |
-| **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` | **Not Yet** |
-| **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}`; `{[X] ∣ X∈𝒟}` is a nbhd system over `\|𝒟\|` with `𝒟 ≅ {[X]}` (one-one, inclusion-preserving; `[Δ]=\|𝒟\|`, `[X]∩[Y]=[X∩Y]`, `↑X∈[X]`). `[X]` exists as `basicOpen` (Ex 1.22); system+iso not built | **Not Yet** |
-| **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` and under ascending `⋃` (`x₀⊆x₁⊆⋯`) — each is again a filter | **Not Yet** |
-| **Exercise 1.12** | Exercise | 441–447 | `Δ=ℕ`, neighbourhoods = final segments `{n,n+1,…}`; generalizes Example 1.3 (= Scott's "Exercise 1.1" forward-ref at line 281) | **Not Yet** |
-| **Exercise 1.13** | Exercise | 449 | verify all assertions about the infinite binary system `B` (Example 1.B); picture with limit nodes | **Not Yet** |
-| **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; is a system; its total / finite elements | **Not Yet** |
-| **Exercise 1.15** | Exercise | 453 | construct non-isomorphic infinite domains, all elements finite, with no strictly ascending infinite chain | **Not Yet** |
+| **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` — `DomainIso := V₀.Element ≃o V₁.Element`, `Isomorphic`/`≅ᴰ := Nonempty DomainIso` with `refl`/`symm`/`trans` (`Basic.lean`); `≃o` *reflects* `⊑` (`map_rel_iff`) = Scott's two-way inclusion-preservation | **Pass** |
+| **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}` (`bracket`); `tokenSystem : NeighborhoodSystem \|𝒟\|`; `𝒟 ≅ᴰ tokenSystem` via `tokenIso`/`isomorphic_tokenSystem` (mutually-inverse `toToken`/`ofToken`). Facts: `bracket_master` (1), `bracket_inter_nonempty_iff` (2), `bracket_inter` (3), `principal_mem_bracket` (4); one-one `bracket_injective`, preserving `bracket_subset_iff` (`Theorem110.lean`) | **Pass** |
+| **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` (`iInter`, no proviso) and ascending `⋃` (`iUnion`, `Monotone x`) — each again a filter; GLB `iInter_le`/`le_iInter`, LUB `le_iUnion`/`iUnion_le`; `mem_iInter`/`mem_iUnion` (`Theorem111.lean`) | **Pass** |
+| **Exercise 1.12** | Exercise | 441–447 | `Δ=ℕ`, final-segment `tail n={m ∣ n≤m}`; `neighborhoodSystem` (chain via `ofNestedOrDisjoint`); finite elts `fin n=↑(tail n)` (`fin_strictMono`); unique limit/total `top` (`le_top`, `top_isTotal`, `isTotal_iff_top`); `element_eq` (every elt `fin n` or `top`, classical) (`Exercise112.lean`) | **Pass** |
+| **Exercise 1.13** | Exercise | 449 | assertions about `B` = `ExampleB.lean`; this file adds the **limit nodes**: `branch p = ⋃ₙ (p↾n)⊥` (via Thm 1.11 `iUnion`), `branch_mem_iff`, `branchSeq_le_branch`, and `branch_isTotal` (each infinite path is a total/maximal element) (`Exercise113.lean`) | **Pass** |
+| **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; `neighborhoodSystem` (manual `inter_mem`, not nested-or-disjoint); finite elts `fin h=↑X`; total elts = singletons `singleton_isTotal` (`↑{n}` maximal) (`Exercise114.lean`) | **Pass** |
+| **Exercise 1.15** | Exercise | 453 | two infinite finite-element domains: `flat` (`{ℕ}∪{{n}}`, fully classified: `flat_classify`, `flat_atom_maximal`, `flat_no_three_chain`, `flat_no_infinite_chain`, `flat_all_finite`) and `stem` (`{ℕ,{0,1}}∪{{n}}`, `stem_three_chain`); `not_isomorphic` (3-chain transports under `≃o`) (`Exercise115.lean`) | **Pass** |
 | **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆`; other `∩`-closed systems | **Not Yet** |
 | **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `{X ∣ t∈X}` is a filter; total elements | **Not Yet** |
 | **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (every finite subset consistent); pairwise-but-not-jointly example; least filter `⊇C`; `⋂` of filters is a filter | **Not Yet** |
@@ -1286,6 +1289,13 @@ flowchart TD
   D18b["Def 1.8 ⊥ · total · Factoids 1.8a/1.8b ✓"]
   EB["Example 1.B B binary · σ⊥ · σx · x=⋃σₙ⊥ ✓"]
   E122["Exercise 1.22 topology on |𝒟| · ⊑ = specialization ✓"]
+  D19["Def 1.9 𝒟₀ ≅ᴰ 𝒟₁ (order-iso) ✓"]
+  T110["Theorem 1.10 token system {[X]} · 𝒟 ≅ᴰ {[X]} ✓"]
+  T111["Theorem 1.11 ⋂ · ascending ⋃ closure ✓"]
+  E112["Exercise 1.12 ℕ tails · unique limit ✓"]
+  E113["Exercise 1.13 B limit nodes · branch total ✓"]
+  E114["Exercise 1.14 ℕ finite subsets · singletons total ✓"]
+  E115["Exercise 1.15 flat ≇ stem (no/has 3-chain) ✓"]
 
   D11 --> F11a
   D11 --> F11b
@@ -1318,6 +1328,18 @@ flowchart TD
   F17b --> EB
   D16 --> E122
   D18o --> E122
+  D18o --> D19
+  D19 --> T110
+  D17 --> T110
+  D16 --> T111
+  F14a --> E112
+  D18b --> E112
+  EB --> E113
+  T111 --> E113
+  D18b --> E114
+  F14a --> E115
+  D19 --> E115
+  D18b --> E115
 ```
 
 ### 4.4 Status
@@ -1326,18 +1348,18 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Exercise122.lean`) |
-| Report card  | **25 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, `Exercise122.lean`) |
+| Report card  | **32 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.15**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
 **complete inventories** of PRG-19 Lectures I–III:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
-| I (domains by neighbourhoods) | §4.2 | 40 | **25** |
+| I (domains by neighbourhoods) | §4.2 | 40 | **32** |
 | II (approximable mappings) | §4.2.II | 22 | 0 |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **90** | **25** |
+| **Total PRG-19 I–III** | | **90** | **32** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
@@ -1559,6 +1581,77 @@ cone (so `Basic.eq_iUnion_principal` specializes), and `x` is the union of the f
 with `σΣ* ∈ x`. Arranging the `σ` into a single ascending chain `σ₀ ⪯ σ₁ ⪯ …` needs an
 enumeration/choice and is left to Scott's prose. **All declarations audit to `[propext, Quot.sound]`**
 — decidability of list-prefix keeps even the trichotomy choice-free.
+
+#### Definition 1.9 (isomorphic domains) — `DomainIso`, `Isomorphic` / `≅ᴰ` (`Basic.lean`)
+
+Scott asks for "a one-one correspondence between `|𝒟₀|` and `|𝒟₁|` which preserves inclusion". An
+`OrderIso` (`≃o`) packages exactly this: it is a bijection that both preserves *and reflects* `⊑`
+(`map_rel_iff`), the two-way inclusion-preservation Scott wants. `DomainIso V₀ V₁ := V₀.Element ≃o
+V₁.Element` (over possibly *different* token types); `V₀ ≅ᴰ V₁ := Nonempty (DomainIso V₀ V₁)` with
+`refl`/`symm`/`trans` from `OrderIso.refl`/`symm`/`trans`. Choice-free.
+
+#### Theorem 1.10 (the element-token system `{[X]}`) — `bracket`, `tokenSystem`, `tokenIso` (`Theorem110.lean`)
+
+`[X] := {x ∈ |𝒟| ∣ X ∈ x}` (`bracket X`). Scott's four facts are short lemmas: `bracket_master`
+`[Δ]=|𝒟|` (every filter contains `Δ`); `bracket_inter` `[X]∩[Y]=[X∩Y]` (`⊆` is filter closure under
+`∩`, `⊇` is upward closure); `principal_mem_bracket` `↑X ∈ [X]`; and `bracket_inter_nonempty_iff` the
+consistency criterion. The correspondence `X ↦ [X]` is one-one (`bracket_injective`) and
+inclusion-preserving (`bracket_subset_iff` `[X]⊆[Y] ↔ X⊆Y`, both tested at the principal `↑X`). The
+system `tokenSystem : NeighborhoodSystem |𝒟|` has `mem S := ∃ X∈𝒟, S=[X]` and `master := univ`; its
+`inter_mem` reads a witness `W ⊆ X∩Y` off `↑W ∈ [W] ⊆ [X]∩[Y]`, so `X∩Y ∈ 𝒟` and `[X]∩[Y]=[X∩Y]`.
+The isomorphism `tokenIso : |𝒟| ≃o |{[X]}|` is built by hand from `toToken x := {[X] ∣ X∈x}` and
+`ofToken y := {X ∣ [X]∈y}`, proved mutually inverse and order-reflecting via `bracket_injective`.
+`isomorphic_tokenSystem : 𝒟 ≅ᴰ tokenSystem`. All choice-free (`[propext, Quot.sound]`).
+
+#### Theorem 1.11 (`⋂` and ascending `⋃` closure) — `iInter`, `iUnion` (`Theorem111.lean`)
+
+For `x : ℕ → |𝒟|`, `iInter x` has `mem X := ∀ n, X ∈ xₙ`: all four filter laws are pointwise, so the
+countable intersection is again a filter with **no proviso**, and it is the *greatest* lower bound
+(`iInter_le`, `le_iInter`) — "exactly what is common to all the `xₙ`". `iUnion x hmono` (for
+`hmono : Monotone x`) has `mem X := ∃ n, X ∈ xₙ`; only the intersection law needs the ascending
+proviso (`X∈xₙ`, `Y∈xₘ` ⟹ both in `x_{max n m}`), and it is the *least* upper bound (`le_iUnion`,
+`iUnion_le`) — "just what the increasing sequence approximates". Choice-free.
+
+#### Exercise 1.12 (final segments of `ℕ`) — `tail`, `neighborhoodSystem`, `element_eq` (`Exercise112.lean`)
+
+`tail n = {m ∣ n≤m}` (Scott's `{m ∣ m>n}` is `tail (n+1)`); `tail 0 = ℕ = Δ` and the tails form a
+descending chain, so `ofNestedOrDisjoint` builds the system (the infinite analogue of the chain
+Example 1.3). Finite elements `fin n = ↑(tail n)` form an ascending `ω`-chain (`fin_strictMono`). The
+single **limit element** `top` is the filter of *all* tails — the greatest element (`le_top`), the
+unique total element (`top_isTotal`, `isTotal_iff_top`). `element_eq` classifies every element as
+some `fin n` or `top` (Scott's "only one limit element"): this decides whether the indices in `x`
+are bounded (`Nat.find` over a `¬`-predicate), so it is the *classical* step (`Classical.choice`);
+the system and order facts are choice-free.
+
+#### Exercise 1.13 (limit nodes of `B`) — `prefixSeq`, `branch`, `branch_isTotal` (`Exercise113.lean`)
+
+The "assertions about `B`" are `ExampleB.lean` (system, `σ⊥`, `σx`, monotonicity, `x=⋃ₙσₙ⊥`). This
+file supplies the **limit nodes "all along the top"**: for an infinite path `p : ℕ → Bool`,
+`branch p := ⋃ₙ (p↾n)⊥` is the ascending union (Theorem 1.11's `iUnion`) of the finite
+approximations `prefixSeq p n`. `branch_mem_iff` characterizes its members; `branchSeq_le_branch`
+shows each finite `(p↾n)⊥` approximates it; and `branch_isTotal` proves it is a **total/maximal**
+element: any `y` it approximates approximates it back, since a member `cone σ` of `y` is comparable
+to `p↾|σ|` (their cones meet inside `y ⊆ B`), forcing `σ = p↾|σ|` on the path.
+
+#### Exercise 1.14 (finite non-empty subsets of `ℕ`) — `neighborhoodSystem`, `singleton_isTotal` (`Exercise114.lean`)
+
+`mem X := X = ℕ ∨ (X.Finite ∧ X.Nonempty)`. Unlike the tail/binary examples this is *not*
+nested-or-disjoint, so `inter_mem` is checked by hand: the consistency witness `Z ⊆ X∩Y` keeps `X∩Y`
+non-empty (`nonempty_of_mem`), and `X∩Y` is finite as soon as either factor is. The total elements
+are exactly the **singletons** `↑{n}`: `singleton_isTotal` shows `↑{n}` is maximal — a `y ⊋ ↑{n}`
+would contain a `W ∌ n`, whence `{n}∩W = ∅ ∈ y ⊆ 𝒟`, contradicting `empty_not_mem`.
+
+#### Exercise 1.15 (non-isomorphic finite-element domains) — `flat`, `stem`, `not_isomorphic` (`Exercise115.lean`)
+
+Two infinite neighbourhood systems over `ℕ`, both nested-or-disjoint. **`flat`** (`{ℕ}∪{{n}}`) is the
+flat domain: `flat_classify` shows every element is `⊥` or a pairwise-incomparable atom `↑{n}`, so
+all elements are finite (`flat_all_finite`), atoms are maximal (`flat_atom_maximal`), there is **no
+strict 3-chain** (`flat_no_three_chain`: `⊥` is least, atoms maximal) and hence **no infinite
+ascending chain** (`flat_no_infinite_chain`). **`stem`** (`{ℕ,{0,1}}∪{{n}}`) inserts one length-3
+stem and so contains the strict 3-chain `⊥ ⊏ ↑{0,1} ⊏ ↑{0}` (`stem_three_chain`). An order-iso would
+transport that 3-chain into `flat`, which has none — so `not_isomorphic : ¬ (flat ≅ᴰ stem)`. The
+classifications use `Classical.choice` (deciding whether an element contains an atom); the
+constructions and the 3-chain transfer are otherwise elementary.
 
 #### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
 
