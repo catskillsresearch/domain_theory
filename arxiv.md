@@ -1152,7 +1152,7 @@ pages.
 | **Factoid 1.5a** | Factoid | 203–205 | in 1.5: `consistent_iff_inter_nonempty` (consistent ⟺ non-empty intersection); `𝒟` is a system | **Pass** |
 | **Factoid 1.5b** | Factoid | 227–233 | `limitFamily`, `SeqEquiv`, `limitFamily_eq_iff`: limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}` equal ⟺ sequences equivalent; choice-free | **Pass** |
 | **Def 1.6** | Definition | 235–243 | `Element` (filter: `sub`, `master_mem`, `inter_mem`, `up_mem`) + `Element.ext`; domain `\|𝒟\|` | **Pass** |
-| **Exercise 1.22** | Exercise | 247 (ref) | a filter need not be sequence-generated | **Ref** |
+| **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
 | **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}`; the finite elements | **Not Yet** |
 | **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** (`X⊆Y ⟺ ↑Y⊆↑X`) | **Not Yet** |
 | **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` | **Not Yet** |
@@ -1196,6 +1196,7 @@ flowchart TD
   F17a["Factoid 1.7a ↑ one-one, reversing"]
   F17b["Factoid 1.7b x = ⋃ ↑X"]
   D18b["Def 1.8 ⊥ · total"]
+  E122["Exercise 1.22 topology on |𝒟| · ⊑ = specialization ✓"]
 
   D11 --> F11a
   D11 --> F11b
@@ -1221,6 +1222,8 @@ flowchart TD
   D17 --> F17a
   D17 --> F17b
   D16 --> D18b
+  D16 --> E122
+  D18o --> E122
 ```
 
 ### 4.4 Status
@@ -1229,8 +1232,8 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`) |
-| Report card  | **13 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b) · rest queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean`) |
+| Report card  | **14 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest queued |
 
 
 ### 4.5 Selected proof notes
@@ -1362,6 +1365,38 @@ deep") when `∀ m, ∃ n, Xₙ ⊆ Yₘ` and `∀ n, ∃ m, Yₘ ⊆ Xₙ`. `li
 each `Yₘ ∈ limitFamily Y` through the family equality to extract `Xₙ ⊆ Yₘ` (and symmetrically);
 `←` chains `Yₘ ⊆ Xₙ ⊆ Z` (and symmetrically) via transitivity. Antitonicity of the sequences is not
 needed for the criterion itself. Footprint `[propext, Quot.sound]`.
+
+#### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
+
+Scott's exercise "(for topologists)" asks to topologize the domain `|𝒟|` by the *basic opens*
+`[X] = {x ∈ |𝒟| ∣ X ∈ x}` (his Theorem 1.10 notation), and to characterize the topology two ways.
+We take `basicOpen X := {x : V.Element | x.mem X}` and *define* the topology by Scott's condition
+(ii): `IsOpenFilter U := ∀ x ∈ U, ∃ X, x.mem X ∧ [X] ⊆ U` (a set is open iff it is a union of basic
+opens). The three `TopologicalSpace` axioms come straight from the filter laws of `Element`:
+`isOpen_univ` uses `Δ ∈ x` with `[Δ] = |𝒟|`; `isOpen_inter` uses that filters are `∩`-closed
+(`x.inter_mem`) together with the base identity `[X ∩ Y] ⊆ [X]`, `[X ∩ Y] ⊆ [Y]`
+(`basicOpen_inter_subset_left/right`, each one application of upward closure `x.up_mem`); and
+`isOpen_sUnion` is immediate (the witness `[X] ⊆ t ⊆ ⋃₀ S` — the `⊆ ⋃₀` step written out by hand,
+`fun _ ha => ⟨t, htS, ha⟩`, to dodge the classical `Set.subset_sUnion_of_mem`). Each `[X]` is open
+(`isOpen_basicOpen`, witness `X` itself).
+
+The two **characterizations**:
+
+* `isOpen_iff_upper_basic` — `IsOpen U ↔ (i) U is ⊑-upper ∧ (ii) U is a union of basic opens`.
+  Conceptually (ii) *already* characterizes openness (it is the definition), so the content is that
+  (i) is a **consequence** of (ii): if `[X] ⊆ U` witnesses `x ∈ U` and `x ⊑ y` then `X ∈ x ⊆ y`, so
+  `y ∈ [X] ⊆ U` (`isOpen_isUpperSet`). We keep both conjuncts to match Scott verbatim.
+* `le_iff_isOpen_imp` — condition (iii), the **specialization order**:
+  `x ⊑ y ↔ ∀ U open, x ∈ U → y ∈ U`. `→` is `isOpen_isUpperSet`; `←` tests `x ∈ [X]` against the
+  open `[X]` for each `X ∈ x` to conclude `y ∈ [X]`, i.e. `X ∈ y`. The bridge `specializes_iff_le`
+  identifies this with Mathlib's `⤳`: `y ⤳ x ↔ x ⊑ y`.
+
+So `|𝒟|` is a genuine (T₀, generally non-T₁) space whose specialization order is exactly Scott's
+approximation order — a topological recovery of `⊑`. The space, both characterizations, and (iii)
+audit to `[propext, Quot.sound]`; only the optional `specializes_iff_le` bridge inherits
+`Classical.choice` from Mathlib's `specializes_iff_forall_open`. The open-ended tail of the exercise
+(Hausdorffness, limit points of ascending chains and of `{↑X ∣ X ∈ x}`) needs Definition 1.7 (`↑X`)
+and is deferred.
 
 ---
 

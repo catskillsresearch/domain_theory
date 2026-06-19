@@ -7,6 +7,14 @@ Computation* (Technical Monograph PRG-19, "the blue pamphlet") in:
 
 **Part I (Scott 1972, *Continuous Lattices*) is complete: 38 Pass · 0 Stuck · 0 Not Yet.**
 
+**Just landed (last session): Exercise 1.22** — the topology on `|𝒟|` via the basic opens
+`[X] = {x ∣ X ∈ x}` (`Domain/Neighborhood/Exercise122.lean`): `basicOpen`,
+`instTopologicalSpaceElement`, `isOpen_basicOpen`, the open-set characterization
+`isOpen_iff_upper_basic` (Scott's (i) ⊑-upper ∧ (ii) basic-nbhd), the specialization-order
+characterization `le_iff_isOpen_imp` (Scott's (iii)), and the Mathlib bridge `specializes_iff_le`
+(`y ⤳ x ↔ x ⊑ y`). Core results audit to `[propext, Quot.sound]`; only the optional `⤳` bridge
+pulls `Classical.choice`. **→ 14 Pass.** Report card updated in `arxiv.md §4.2/4.3/4.4/4.5`.
+
 **Part II is live.** The §1 Goal List in `arxiv.md §4` tracks a *biblical*, line-by-line parse of
 PRG-19 Lecture I: Definitions, Theorems, **Factoids** (unnamed prose assertions), **Examples**, and
 **Exercises** are all first-class deliverables. **Proof notes** in `arxiv.md §4.5` are part of the
@@ -40,8 +48,8 @@ them in `Basic.lean` and keep them **constructive** (`[propext, Quot.sound]`).
 | Block | Status |
 | ----- | ------ |
 | Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`, ~880 lines and growing) |
-| Lean modules | `Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean` |
-| Report card | **13 Pass** · rest queued (see `arxiv.md §4.2`) |
+| Lean modules | `Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean` |
+| Report card | **14 Pass** · rest queued (see `arxiv.md §4.2`) |
 
 **Already Pass:**
 
@@ -58,6 +66,7 @@ them in `Basic.lean` and keep them **constructive** (`[propext, Quot.sound]`).
 | Example 1.3 | `Example13.*` (chain, two partial / one total) |
 | Example 1.4 | `Example14.*` (binary tree, 7 filters, branching) |
 | **Example 1.5 / Factoid 1.5a** | `Example15.neighborhoodSystem` (all non-empty subsets of `Fin 4`), `consistent_iff_inter_nonempty` — fully constructive |
+| **Exercise 1.22** | `Exercise122.*`: topology on `\|𝒟\|` (`basicOpen [X]`, `instTopologicalSpaceElement`), open-set + specialization-order characterizations — core `[propext, Quot.sound]` |
 
 `lake build Domain` is green today.
 
