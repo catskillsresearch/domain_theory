@@ -338,6 +338,80 @@ lattice, so Proposition 2.8 applies. -/
 theorem isContinuousLattice_prop : IsContinuousLattice Prop :=
   proposition_2_8
 
+/-- The Scott topology on Scott's two-point space `𝕆 = Prop` is exactly the Sierpiński topology
+(`generateFrom {{True}}`). The Scott-open sets of `Prop` are the upper sets `∅`, `{True}`, `univ`,
+which are precisely the Sierpiński-open sets. This is the topological identification underlying
+Theorem 2.12: the building block `𝕆` carries its Scott topology. -/
+theorem scottTopology_prop :
+    (scottTopologicalSpace : TopologicalSpace Prop) = sierpinskiSpace := by
+  apply le_antisymm
+  · -- `scott ≤ sierpinski`: the single Sierpiński sub-basic open `{True}` is Scott-open.
+    show (scottTopologicalSpace : TopologicalSpace Prop) ≤ TopologicalSpace.generateFrom {{True}}
+    apply le_generateFrom
+    intro s hs
+    rw [Set.mem_singleton_iff] at hs
+    subst hs
+    rw [isOpen_iff_scottOpen]
+    refine ⟨?_, ?_⟩
+    · intro a b hab ha
+      rw [Set.mem_singleton_iff] at ha ⊢
+      exact le_antisymm le_top (ha ▸ hab)
+    · intro S _ _ hmem
+      rw [Set.mem_singleton_iff] at hmem
+      have hex : ∃ p ∈ S, p := by rw [← sSup_Prop_eq, hmem]; trivial
+      obtain ⟨p, hpS, hp⟩ := hex
+      exact ⟨p, hpS, by rw [Set.mem_singleton_iff]; exact eq_true hp⟩
+  · -- `sierpinski ≤ scott`: every Scott-open upper set of `Prop` is `∅`, `{True}`, or `univ`.
+    rw [TopologicalSpace.le_def]
+    intro U hU
+    rw [isOpen_iff_scottOpen] at hU
+    by_cases hT : True ∈ U
+    · by_cases hF : False ∈ U
+      · have hUuniv : U = Set.univ := by
+          ext p
+          simp only [Set.mem_univ, iff_true]
+          by_cases hp : p
+          · rwa [eq_true hp]
+          · rwa [eq_false hp]
+        rw [hUuniv]; exact isOpen_univ
+      · have hUtrue : U = {True} := by
+          ext p
+          rw [Set.mem_singleton_iff]
+          constructor
+          · intro hpU
+            by_cases hp : p
+            · exact eq_true hp
+            · exact absurd (eq_false hp ▸ hpU) hF
+          · intro hp; rw [hp]; exact hT
+        rw [hUtrue]; exact isOpen_singleton_true
+    · have hUempty : U = ∅ := by
+        ext p
+        simp only [Set.mem_empty_iff_false, iff_false]
+        intro hpU
+        exact hT (hU.1 le_top hpU)
+      rw [hUempty]; exact isOpen_empty
+
+/-- A power of Scott's two-point space `𝕆 = Prop` is a continuous lattice: `Prop` is a continuous
+lattice (`isContinuousLattice_prop`) and products of continuous lattices are continuous
+(Proposition 2.9(a)). This is the order-theoretic content of "a Cartesian power of `𝕆` is a
+continuous lattice", the construction Theorem 2.12 retracts onto. -/
+theorem sierpinskiPower_isContinuousLattice (ι : Type*) : IsContinuousLattice (ι → Prop) :=
+  proposition_2_9_a (fun _ => Prop) (fun _ => isContinuousLattice_prop)
+
+/-- The Scott topology on a power `ι → 𝕆` of the Sierpiński space coincides with the product
+(= Sierpiński power) topology. Combine Proposition 2.9(b) (the Scott topology of a product is the
+product of the factors' Scott topologies) with `scottTopology_prop` (each factor's Scott topology
+is the Sierpiński topology). -/
+theorem scottTopology_sierpinskiPower (ι : Type*) :
+    (scottTopologicalSpace : TopologicalSpace (ι → Prop)) =
+      (inferInstance : TopologicalSpace (ι → Prop)) := by
+  rw [proposition_2_9_b (fun _ => Prop) (fun _ => isContinuousLattice_prop)]
+  show (@Pi.topologicalSpace ι (fun _ => Prop) (fun _ => scottTopologicalSpace)) =
+    @Pi.topologicalSpace ι (fun _ => Prop) (fun _ => sierpinskiSpace)
+  congr 1
+  funext _
+  exact scottTopology_prop
+
 /-- **Scott 1972, Theorem 2.12 (forward direction).** Every continuous lattice is an injective
 space under its Scott topology. This is the substantial half of the equivalence "injective
 spaces = continuous lattices", and is exactly Proposition 2.11. -/
