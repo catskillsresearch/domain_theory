@@ -6,29 +6,27 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 
 ## Status
 
-- Report card: **34 Pass · 0 Stuck · 1 Not Yet** (zero `sorry`s).
+- Report card: **35 Pass · 0 Stuck · 3 Not Yet** (zero `sorry`s). Thm 4.4 split into subgoals (a)–(d); **(a) Pass**.
 - HEAD `e344fc0`, working tree clean, `lake build` green.
 - Every proven result has axiom footprint `[propext, Classical.choice, Quot.sound]`.
-- Done through **§3 complete** and **§4.1–4.3 + Lemma 4.5**; **Thm 4.4 infrastructure built**.
+- Done through **§3 complete** and **§4.1–4.3 + Lemma 4.5**; **Thm 4.4 infrastructure built + (a) done**
+  (`embInfInf`/`projInfInf` defined as Scott maps; continuity free as sups of Scott maps).
+- **4.4 session prompt:** `HANDOFF-Theorem-4.4.md` (paste into a fresh chat).
 
-## Remaining (Scott §4)
+## Remaining (Scott §4) — Thm 4.4 subgoals
 
-- **Thm 4.4** — capstone `D∞ ≅ [D∞ → D∞]` (solution of the domain equation). All scaffolding is in
-  place in `FunctionSpaceTower.lean` (see below). What remains is **only** the final isomorphism:
-  1. Define `i∞ : D∞ → [D∞→D∞]`, `i∞(x) = ⨆ₙ i_{n∞} ∘ x_{n+1} ∘ j_{∞n}`, and
-     `j∞ : [D∞→D∞] → D∞`, `j∞(f) = ⨆ₙ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})`, and prove each is a
-     `ScottMap` (sup-of-conjugations continuity, à la `coconeInf_preservesDirectedSup`).
-  2. `j∞ ∘ i∞ = id`: rewrite via `towerProj_succ_*`, collapse the resulting double `⨆ₙ⨆ₘ` to the
-     diagonal (monotone double-sup = diagonal sup — needs a small helper), use `projInf_embInf`
-     (`j_{∞n}∘i_{n∞}=id`) and `inverseLimit_eq_iSup`.
-  3. `i∞ ∘ j∞ = id`: compute `(j∞ f).1 (n+1) = j_{∞n}∘f∘i_{n∞}` via **`lemma_4_5`** (its recursion
-     hypothesis `j_{n+1}(u_{n+2})=u_{n+1}` follows from `embInf_succ` + `projInf_succ`), then reduce
-     `⨆ₙ i_{n∞}∘j_{∞n}∘f∘i_{n∞}∘j_{∞n}` to `f` using **`idInf_eq_iSup`** (`id=⨆ₙ i_{n∞}∘j_{∞n}`) and
-     continuity of `f`.
-  Bundle as `OrderIso` / mutually-inverse Scott maps → `theorem_4_4`.
+Capstone `D∞ ≅ [D∞ → D∞]`. Scaffolding is in `FunctionSpaceTower.lean`; abstract API in
+`InverseLimits.lean`. Work one subgoal per session.
 
-Reusable for 4.4: `embInf`/`projInf`, `embInf_succ`, `inverseLimit_eq_iSup`, **`idInf_eq_iSup`**,
-**`lemma_4_5`** (all in `InverseLimits.lean`); the whole tower in `FunctionSpaceTower.lean`.
+| Subgoal | Task | Lean target(s) |
+| ------- | ---- | -------------- |
+| **(a)** ✅ | Define `i∞`/`j∞` as `ScottMap`s; prove continuity | **DONE**: `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`) in `FunctionSpaceTower.lean` |
+| **(b)** | `j∞ ∘ i∞ = id` on `D∞` | `projInfInf_comp_embInfInf` (double-sup collapse + `inverseLimit_eq_iSup`) |
+| **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` | `embInfInf_comp_projInfInf` (`lemma_4_5` + `idInf_eq_iSup`) |
+| **(d)** | Package the theorem | `theorem_4_4` (`OrderIso` or mutually-inverse `ScottMap`s) |
+
+Reusable: `embInf`/`projInf`, `embInf_succ`, `inverseLimit_eq_iSup`, **`idInf_eq_iSup`**,
+**`lemma_4_5`**, `coconeInf_preservesDirectedSup`; tower in `FunctionSpaceTower.lean`.
 
 ## Key reusable infrastructure
 
@@ -91,3 +89,6 @@ Reusable for 4.4: `embInf`/`projInf`, `embInf_succ`, `inverseLimit_eq_iSup`, **`
 4. Update `arxiv.md`: score line, §3.1 results table row, blueprint (§3.6 for §4), add a proof note
    under §3.7 (statement, proof sketch, engineering lessons, footprint).
 5. Add new modules to `Domain.lean`. Commit + push **only when asked**.
+
+**Thm 4.4:** use `HANDOFF-Theorem-4.4.md`; work one subgoal (a)–(d) per session; mark each row Pass
+in the results table as it lands.

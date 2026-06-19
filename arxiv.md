@@ -160,10 +160,13 @@ Scott's four section titles within Part I:
 | §4  | **Inverse limits**      | `InverseLimits.lean` (4.1, 4.2 done)                                                                    |
 
 
-### 3.1 Report card (34 tracked results)
+### 3.1 Report card (38 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **34 Pass · 0 Stuck · 1 Not Yet**.
+full deliverable. Score: **35 Pass · 0 Stuck · 3 Not Yet**.
+
+Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
+Session prompt: `HANDOFF-Theorem-4.4.md`.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -206,7 +209,10 @@ full deliverable. Score: **34 Pass · 0 Stuck · 1 Not Yet**.
 | 4   | Prop 4.2  | `proposition_4_2`, `embInf`/`projInf`, `iComp`, `embInf_succ`, `inverseLimit_eq_iSup`                                            | `InverseLimits.lean`  | **Pass**    | `j_{∞n}` are projections; `i_{n∞}`, recursion, monotone lub |
 | 4   | Cor 4.3   | `corollary_4_3` (∃! mediating map), `coconeInf` (`f∞`), `coconeInf_comp_embInf`                                                  | `InverseLimits.lean`  | **Pass**    | `D∞` is also the *direct* limit      |
 | 4   | Lemma 4.5 | `lemma_4_5`, `idInf_eq_iSup` (remark after 4.2)                                                                                  | `InverseLimits.lean`  | **Pass**    | recognize projections from limits    |
-| 4   | Thm 4.4   | scaffolding: `towerType`/`towerProj`/`conjMap`/`IsContinuousLatticeProjection.functionSpace` (+ recursion/application laws)      | `FunctionSpaceTower.lean` | **Not Yet** | `D∞ ≅ [D∞ → D∞]`; only the `i∞`/`j∞` iso remains |
+| 4   | Thm 4.4(a) | `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`)                                       | `FunctionSpaceTower.lean` | **Pass**    | `i∞`/`j∞` as `ScottMap`s (sups of Scott maps) |
+| 4   | Thm 4.4(b) | `projInfInf_comp_embInfInf` (or similar)                                                                                        | `FunctionSpaceTower.lean` | **Not Yet** | `j∞ ∘ i∞ = id` on `D∞`                    |
+| 4   | Thm 4.4(c) | `embInfInf_comp_projInfInf` (or similar)                                                                                        | `FunctionSpaceTower.lean` | **Not Yet** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5`) |
+| 4   | Thm 4.4(d) | `theorem_4_4`                                                                                                                   | `FunctionSpaceTower.lean` | **Not Yet** | capstone `D∞ ≅ [D∞ → D∞]`                 |
 
 
 **Milner infrastructure:** `CoarserThanScottTopology`, `scottOpen_of_coarserThanScott`,
@@ -381,7 +387,8 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-**4.1** and **4.2** are now **Pass** (see proof notes); remaining §4 nodes **Not Yet**.
+**4.1**, **4.2**, **4.3**, **4.5**, and **4.4(a)** are now **Pass** (see proof notes); remaining
+§4 nodes (4.4(b)–(d)) **Not Yet**.
 
 ```mermaid
 flowchart TD
@@ -394,7 +401,10 @@ flowchart TD
   P42["proposition_4_2 ✓"]
   C43["corollary_4_3 ✓"]
   L45["lemma_4_5 ✓"]
-  T44["theorem_4_4 (iso remaining)"]
+  T44a["Thm 4.4(a) i∞/j∞ ✓"]
+  T44b["Thm 4.4(b) j∞∘i∞=id"]
+  T44c["Thm 4.4(c) i∞∘j∞=id"]
+  T44d["Thm 4.4(d) theorem_4_4"]
 
   P29a --> P41
   P210a --> P41
@@ -402,10 +412,14 @@ flowchart TD
   P41 --> C43
   P42 --> C43
   P42 --> L45
-  P41 --> T44
-  P37 --> T44
-  L45 --> T44
-  L39 --> T44
+  P41 --> T44a
+  P37 --> T44a
+  T44a --> T44b
+  T44a --> T44c
+  L45 --> T44c
+  T44b --> T44d
+  T44c --> T44d
+  L39 --> T44d
 ```
 
 
@@ -1013,17 +1027,45 @@ gives the projection tower `towerProj`. The Scott recursion/algebra laws are the
 `towerProj_succ_incl_apply` (`i_{n+1}(x)=iₙ∘x∘jₙ`), `towerProj_succ_retr_apply` (`j_{n+1}=jₙ∘·∘iₙ`),
 and `towerProj_incl_apply` (`iₙ(f(x))=i_{n+1}(f)(iₙ(x))`, application preserved one level up).
 
-**Remaining for 4.4** (the actual homeomorphism): define `i∞`/`j∞`, prove each a `ScottMap`, and
-establish `j∞∘i∞=id` (double-limit-to-diagonal collapse + `j_{∞n}∘i_{n∞}=id`) and `i∞∘j∞=id`
-(`lemma_4_5` to read off `(j∞ f)_{n+1}`, then `idInf_eq_iSup` + continuity of `f`). All other pieces
-are in place. Footprint of everything landed so far: `[propext, Classical.choice, Quot.sound]`.
+**Thm 4.4(a) — `embInfInf` / `projInfInf` (Pass).** With `DInf := InverseLimit (towerType D₀)
+(towerProj D₀ j₀)` (a continuous lattice by Proposition 4.1) and `DInfFn := [D∞ → D∞]`, Scott's
+limit pair is written down directly:
+
+```
+i∞(x) = ⨆ₙ (i_{n∞} ∘ x_{n+1} ∘ j_{∞n})       : D∞ → [D∞ → D∞]
+j∞(f) = ⨆ₙ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})   : [D∞ → D∞] → D∞
+```
+
+The engineering payoff: **each summand is already a `ScottMap`.** The `n`-th summand of `i∞`,
+`iInfTerm n`, is the composite `conjMap (i_{n∞}, j_{∞n}) ∘ j_{∞(n+1)}` (conjugation by the Prop 4.2
+projection pair, precomposed with the component projection `j_{∞(n+1)} : D∞ → D_{n+1}` reading off
+`x_{n+1}`); the `n`-th summand of `j∞`, `jInfTerm n`, is `i_{(n+1)∞} ∘ conjMap (j_{∞n}, i_{n∞})`.
+Both are honest Scott maps because `conjMap`, `embInf`, `projInf`, and `.comp` are. Consequently `i∞`
+and `j∞` are *suprema of Scott maps* — `⨆ₙ iInfTerm n`, `⨆ₙ jInfTerm n` — taken in the complete
+lattices `[D∞ → [D∞→D∞]]` and `[[D∞→D∞] → D∞]` (Theorem 3.3), so they are Scott-continuous *for
+free*: no bespoke directed-sup/`iSup_comm` argument is needed (contrast the `coconeInf` template).
+The pointwise unfolding `embInfInf_apply : i∞(x) = ⨆ₙ iInfTerm n x` (and `projInfInf_apply`) follows
+from `ScottMap.sSup_apply` + `Set.range_comp`, and the `*_apply` reductions of the summands hold by
+`rfl` (riding on `towerType_succ` defeq). `*_preservesDirectedSup` is then immediate from
+`.continuous` via Proposition 2.5. Footprint `[propext, Classical.choice, Quot.sound]`.
+
+**Remaining for 4.4** — report-card subgoals (session prompt: `HANDOFF-Theorem-4.4.md`):
+
+| Subgoal | Task |
+| ------- | ---- |
+| **(a)** | Define `i∞`/`j∞` as `ScottMap`s; prove continuity — **Pass** (`embInfInf`/`projInfInf`) |
+| **(b)** | `j∞ ∘ i∞ = id` on `D∞` (double-limit collapse + `inverseLimit_eq_iSup`) |
+| **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5` + `idInf_eq_iSup`) |
+| **(d)** | Package `theorem_4_4` |
+
+Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Hard     | Scott §4 (inverse limits: 4.1–4.4)                                          | Opus 4.8 (one theorem per session) |
+| Hard     | Scott §4 Thm 4.4 subgoals (a)–(d); see `HANDOFF-Theorem-4.4.md`             | Opus 4.8 (one subgoal per session) |
 
 
 ---
