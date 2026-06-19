@@ -157,13 +157,13 @@ Scott's four section titles within Part I:
 | §1  | **Injective spaces**    | `Injective.lean`                                                                                        |
 | §2  | **Continuous lattices** | `WayBelow.lean`, `Specialization.lean`, `ScottMaps.lean`, `Constructions.lean`, `MilnerCorrection.lean` |
 | §3  | **Function spaces**     | `FunctionSpaces.lean`                                                                                   |
-| §4  | **Inverse limits**      | `InverseLimits.lean` (4.1 done)                                                                         |
+| §4  | **Inverse limits**      | `InverseLimits.lean` (4.1, 4.2 done)                                                                    |
 
 
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **31 Pass · 0 Stuck · 4 Not Yet**.
+full deliverable. Score: **32 Pass · 0 Stuck · 3 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -203,7 +203,7 @@ full deliverable. Score: **31 Pass · 0 Stuck · 4 Not Yet**.
 | 3   | Prop 3.13 | `proposition_3_13`, `Proposition313.projection` (`con`/`min`)                                                                    | `FunctionSpaces.lean` | **Pass**    | `D` is a projection of `[D → D]`     |
 | 3   | Prop 3.14 | `proposition_3_14`, `Proposition314.fixMap`, `fix_eq`/`fix_le`/`fix_unique`                                                      | `FunctionSpaces.lean` | **Pass**    | continuous least-fixed-point op.     |
 | 4   | Prop 4.1  | `proposition_4_1`, `InverseLimit`, `inverseLimitRetraction`                                                                      | `InverseLimits.lean`  | **Pass**    | `D∞` is a continuous lattice         |
-| 4   | Prop 4.2  | —                                                                                                                                | —                     | **Not Yet** |                                      |
+| 4   | Prop 4.2  | `proposition_4_2`, `embInf`/`projInf`, `iComp`, `embInf_succ`, `inverseLimit_eq_iSup`                                            | `InverseLimits.lean`  | **Pass**    | `j_{∞n}` are projections; `i_{n∞}`, recursion, monotone lub |
 | 4   | Cor 4.3   | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 4   | Thm 4.4   | —                                                                                                                                | —                     | **Not Yet** | `D∞ ≅ [D∞ → D∞]`                     |
 | 4   | Lemma 4.5 | —                                                                                                                                | —                     | **Not Yet** |                                      |
@@ -381,7 +381,7 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-**4.1** is now **Pass** (via the retract route, see proof note); remaining §4 nodes **Not Yet**.
+**4.1** and **4.2** are now **Pass** (see proof notes); remaining §4 nodes **Not Yet**.
 
 ```mermaid
 flowchart TD
@@ -391,7 +391,7 @@ flowchart TD
   P29a["proposition_2_9_a (∏ CL)"]
   P210a["proposition_2_10_a (retract)"]
   P41["proposition_4_1 ✓"]
-  P42["proposition_4_2"]
+  P42["proposition_4_2 ✓"]
   C43["corollary_4_3"]
   L45["lemma_4_5"]
   T44["theorem_4_4"]
@@ -922,6 +922,41 @@ closed with `Set.image_image` + `Set.image_congr` (using compatibility pointwise
 (whose membership unfolds to `Function.eval` with the wrong orientation). The directed-sup-is-pointwise
 lemma is proved by exhibiting the pointwise sup as an explicit `IsLUB` and invoking
 `(isLUB_sSup S).unique`. Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Proposition 4.2 (the maps `j_{∞n}` are projections) — `proposition_4_2` (`InverseLimits.lean`)
+
+`j_{∞n} : D∞ → Dₙ` is evaluation `x ↦ xₙ`. Scott constructs the inverse embedding `i_{n∞} : Dₙ → D∞`
+componentwise: `i_{n∞}(x)_m = x` at `m = n`, climbs by `iₖ = (P k).incl` for `m > n`, and descends by
+`jₖ = (P k).retr` for `m < n`. We realize this with two `Nat.leRecOn` towers:
+
+- `embLE (h : n ≤ m) : Dₙ → D_m` (climb, `= i_{m-1}∘…∘iₙ`) and `projLE (h : m ≤ n) : D_n → Dₘ`
+  (descend, `= j_m∘…∘j_{n-1}`), with the computation lemmas `embLE_self/_succ/_succ_left`,
+  `projLE_self/_succ` reading off `Nat.leRecOn_self/_succ/_succ_left`;
+- `iComp n x m = if n ≤ m then embLE … else projLE …` is the component map; `iComp_compatible`
+  (case split on `n ≤ m`, `n = m+1`, `m+1 ≤ n`, the middle hinge being `projLE_retr`) shows the
+  sequence is a genuine point of `D∞`, and `iComp_self` gives `j_{∞n}∘i_{n∞} = id`.
+
+Both towers are Scott-continuous (`embLE/projLE_preservesDirectedSup`, by `Nat.le_induction` +
+`ScottMap.preservesDirectedSup_comp`), hence each component `iComp n · m` is (`iComp_preservesDirectedSup`);
+since directed sups in `D∞` are pointwise (`coe_sSup_of_directed`), the bundled `embInf n : ScottMap Dₙ D∞`
+and `projInf n : ScottMap D∞ Dₙ` are continuous. `proposition_4_2` packages `⟨embInf, projInf⟩` as an
+`IsContinuousLatticeProjection`: `retr_incl = iComp_self`, and `incl_retr_le` reduces coordinatewise
+(`Subtype.coe_le_coe`) to `iComp_incl_le` — for `m ≥ n` climbing `yₙ` stays below `yₘ` (`embLE_le`,
+using `incl∘retr ⊑ id` and compatibility), for `m < n` it equals `yₘ` (`projLE_compatible`).
+
+Also formalized: the recursion equation `i_{n∞} = i_{(n+1)∞}∘iₙ` (`embInf_succ`) and the monotone-lub
+identity `x = ⨆ₙ i_{n∞}(xₙ)` (`inverseLimit_eq_iSup`); the family is monotone via `embInf_succ` +
+`incl_retr_le` (`embInf_le_succ`), so its range is directed and the lub is computed pointwise, where
+`iComp_self` pins the `m`-th coordinate to `xₘ`.
+
+**Engineering notes / lessons from 4.2:** `Nat.leRecOn` (and `Nat.le_induction`) is the clean way to
+build/induct on the two dependently-typed towers without `Nat`-subtraction casts; the descend tower
+uses the *function* motive `C k := D k → Dₘ`. `Nat.leRecOn` is `@[elab_as_elim]`, so its computation
+lemmas must be applied after unfolding the wrapper (`simp only [embLE]` / `simp only [projLE]`) — a
+bare term-mode `:= Nat.leRecOn_self x` fails with "failed to elaborate eliminator". Lean 4's
+definitional proof irrelevance means the towers do not depend on *which* `≤` proof is supplied, so the
+`rw` chains match across `le_refl`/`Nat.le_succ_of_le`/`Nat.le_of_succ_le` freely. The eliminator is
+invoked as `induction n, h using Nat.le_induction`. Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 

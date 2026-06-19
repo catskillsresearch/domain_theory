@@ -179,6 +179,268 @@ theorem proposition_4_1 (hD : ∀ n, IsContinuousLattice (D n)) :
     IsContinuousLattice (InverseLimit D P) :=
   proposition_2_10_a (inverseLimitRetraction D P) (proposition_2_9_a D hD)
 
+/-! ### Proposition 4.2: the maps `j_{∞n}` are projections
+
+We construct Scott's embeddings `i_{n∞} : Dₙ → D_∞` and show that `⟨i_{n∞}, j_{∞n}⟩` is a
+projection, where `j_{∞n}(x) = xₙ`. The component `i_{n∞}(x)_m` climbs the tower of embeddings
+`iₖ = (P k).incl` for `m ≥ n` (`embLE`) and descends the tower of projections `jₖ = (P k).retr`
+for `m < n` (`projLE`). -/
+
+/-- Climb the tower of embeddings: for `n ≤ m`, `embLE h = i_{m-1} ∘ … ∘ iₙ : Dₙ → D_m`. -/
+def embLE {n m : ℕ} (h : n ≤ m) (x : D n) : D m :=
+  Nat.leRecOn h (fun {k} (y : D k) => (P k).incl y) x
+
+theorem embLE_self {n : ℕ} (h : n ≤ n) (x : D n) : embLE D P h x = x := by
+  simp only [embLE, Nat.leRecOn_self]
+
+theorem embLE_succ {n m : ℕ} (h1 : n ≤ m) (h2 : n ≤ m + 1) (x : D n) :
+    embLE D P h2 x = (P m).incl (embLE D P h1 x) := by
+  simp only [embLE]
+  rw [Nat.leRecOn_succ h1]
+
+theorem embLE_succ_left {n m : ℕ} (h1 : n ≤ m) (h2 : n + 1 ≤ m) (x : D n) :
+    embLE D P h2 ((P n).incl x) = embLE D P h1 x := by
+  simp only [embLE]
+  exact Nat.leRecOn_succ_left x h1 h2
+
+/-- Descend the tower of projections: for `m ≤ n`, `projLE h = j_m ∘ … ∘ j_{n-1} : D_n → Dₘ`. -/
+def projLE {m n : ℕ} (h : m ≤ n) (x : D n) : D m :=
+  Nat.leRecOn (C := fun k => D k → D m) h
+    (fun {k} (g : D k → D m) (w : D (k + 1)) => g ((P k).retr w)) id x
+
+theorem projLE_self {m : ℕ} (h : m ≤ m) (x : D m) : projLE D P h x = x := by
+  simp only [projLE, Nat.leRecOn_self, id_eq]
+
+theorem projLE_succ {m n : ℕ} (h1 : m ≤ n) (h2 : m ≤ n + 1) (z : D (n + 1)) :
+    projLE D P h2 z = projLE D P h1 ((P n).retr z) := by
+  simp only [projLE]
+  rw [Nat.leRecOn_succ (C := fun k => D k → D m) h1]
+
+/-- Peeling the last projection: `(P m).retr ∘ projLE (m+1 ≤ n) = projLE (m ≤ n)`. -/
+theorem projLE_retr {m : ℕ} : ∀ {n : ℕ} (h : m + 1 ≤ n) (x : D n),
+    (P m).retr (projLE D P h x) = projLE D P (Nat.le_of_succ_le h) x := by
+  intro n h
+  induction n, h using Nat.le_induction with
+  | base =>
+      intro x
+      rw [projLE_succ D P (le_refl m) (Nat.le_of_succ_le (le_refl (m + 1))) x]
+      simp only [projLE_self]
+  | succ k hk ih =>
+      intro x
+      rw [projLE_succ D P hk (Nat.le_succ_of_le hk) x, ih ((P k).retr x),
+        projLE_succ D P (Nat.le_of_succ_le hk) (Nat.le_of_succ_le (Nat.le_succ_of_le hk)) x]
+
+/-- Scott's embedding component `i_{n∞}(x)_m`: climb for `m ≥ n`, descend for `m < n`. -/
+def iComp (n : ℕ) (x : D n) (m : ℕ) : D m :=
+  if h : n ≤ m then embLE D P h x else projLE D P (le_of_lt (not_le.mp h)) x
+
+theorem iComp_of_le {n m : ℕ} (h : n ≤ m) (x : D n) : iComp D P n x m = embLE D P h x :=
+  dif_pos h
+
+theorem iComp_of_ge {n m : ℕ} (h : ¬ n ≤ m) (x : D n) :
+    iComp D P n x m = projLE D P (le_of_lt (not_le.mp h)) x :=
+  dif_neg h
+
+theorem iComp_self (n : ℕ) (x : D n) : iComp D P n x n = x := by
+  rw [iComp_of_le D P (le_refl n), embLE_self]
+
+/-- The sequence `i_{n∞}(x)` is compatible, hence a genuine point of `D_∞`. -/
+theorem iComp_compatible (n : ℕ) (x : D n) : Compatible D P (iComp D P n x) := by
+  intro m
+  by_cases h1 : n ≤ m
+  · rw [iComp_of_le D P h1, iComp_of_le D P (Nat.le_succ_of_le h1),
+      embLE_succ D P h1 (Nat.le_succ_of_le h1), (P m).retr_incl]
+  · by_cases h2 : n ≤ m + 1
+    · have hn : n = m + 1 := le_antisymm h2 (not_le.mp h1)
+      subst hn
+      rw [iComp_of_le D P (le_refl (m + 1)), embLE_self, iComp_of_ge D P h1,
+        projLE_succ D P (le_refl m) (le_of_lt (not_le.mp h1)) x, projLE_self]
+    · rw [iComp_of_ge D P h2, iComp_of_ge D P h1,
+        projLE_retr D P (le_of_lt (not_le.mp h2)) x]
+
+/-- For a compatible sequence `y`, descending from level `n` to `m ≤ n` recovers `yₘ`. -/
+theorem projLE_compatible {m : ℕ} (y : InverseLimit D P) :
+    ∀ {n : ℕ} (h : m ≤ n), projLE D P h (y.1 n) = y.1 m := by
+  intro n h
+  induction n, h using Nat.le_induction with
+  | base => rw [projLE_self]
+  | succ k hk ih => rw [projLE_succ D P hk (Nat.le_succ_of_le hk), y.2 k, ih]
+
+/-- For a compatible sequence `y`, climbing `yₙ` up to level `m ≥ n` stays below `yₘ`. -/
+theorem embLE_le {n : ℕ} (y : InverseLimit D P) {m : ℕ} (h : n ≤ m) :
+    embLE D P h (y.1 n) ≤ y.1 m := by
+  induction m, h using Nat.le_induction with
+  | base => exact le_of_eq (embLE_self D P _ _)
+  | succ k hk ih =>
+      rw [embLE_succ D P hk (Nat.le_succ_of_le hk)]
+      calc (P k).incl (embLE D P hk (y.1 n))
+          ≤ (P k).incl (y.1 k) := (P k).incl.monotone ih
+        _ = (P k).incl ((P k).retr (y.1 (k + 1))) := by rw [y.2 k]
+        _ ≤ y.1 (k + 1) := (P k).incl_retr_le _
+
+/-- `i_{n∞}(yₙ) ⊑ y` coordinatewise (the heart of `incl_retr_le` for `j_{∞n}`). -/
+theorem iComp_incl_le (n : ℕ) (y : InverseLimit D P) (m : ℕ) :
+    iComp D P n (y.1 n) m ≤ y.1 m := by
+  by_cases h : n ≤ m
+  · rw [iComp_of_le D P h]; exact embLE_le D P y h
+  · rw [iComp_of_ge D P h]
+    exact le_of_eq (projLE_compatible D P y (le_of_lt (not_le.mp h)))
+
+/-- The tower of embeddings is Scott-continuous (a composite of the `iₖ`). -/
+theorem embLE_preservesDirectedSup {n m : ℕ} (h : n ≤ m) :
+    PreservesDirectedSup (embLE D P h) := by
+  induction m, h using Nat.le_induction with
+  | base =>
+      have hid : embLE D P (le_refl n) = id := funext (fun x => embLE_self D P (le_refl n) x)
+      rw [hid]; intro S _ _; simp
+  | succ k hk ih =>
+      have hfun : embLE D P (Nat.le_succ_of_le hk)
+          = (fun y : D k => (P k).incl y) ∘ embLE D P hk :=
+        funext (fun x => embLE_succ D P hk (Nat.le_succ_of_le hk) x)
+      rw [hfun]
+      exact ScottMap.preservesDirectedSup_comp
+        (fun S hS hd => (P k).incl.preservesDirectedSup_coe S hS hd) ih
+
+/-- The tower of projections is Scott-continuous (a composite of the `jₖ`). -/
+theorem projLE_preservesDirectedSup {m n : ℕ} (h : m ≤ n) :
+    PreservesDirectedSup (projLE D P h) := by
+  induction n, h using Nat.le_induction with
+  | base =>
+      have hid : projLE D P (le_refl m) = id := funext (fun x => projLE_self D P (le_refl m) x)
+      rw [hid]; intro S _ _; simp
+  | succ k hk ih =>
+      have hfun : projLE D P (Nat.le_succ_of_le hk)
+          = projLE D P hk ∘ (fun z : D (k + 1) => (P k).retr z) :=
+        funext (fun x => projLE_succ D P hk (Nat.le_succ_of_le hk) x)
+      rw [hfun]
+      exact ScottMap.preservesDirectedSup_comp ih
+        (fun S hS hd => (P k).retr.preservesDirectedSup_coe S hS hd)
+
+theorem iComp_preservesDirectedSup (n m : ℕ) :
+    PreservesDirectedSup (fun x : D n => iComp D P n x m) := by
+  by_cases h : n ≤ m
+  · have hfun : (fun x : D n => iComp D P n x m) = embLE D P h :=
+      funext (fun x => iComp_of_le D P h x)
+    rw [hfun]; exact embLE_preservesDirectedSup D P h
+  · have hfun : (fun x : D n => iComp D P n x m) = projLE D P (le_of_lt (not_le.mp h)) :=
+      funext (fun x => iComp_of_ge D P h x)
+    rw [hfun]; exact projLE_preservesDirectedSup D P _
+
+theorem iComp_monotone (n m : ℕ) : Monotone (fun x : D n => iComp D P n x m) :=
+  preservesDirectedSup_monotone (iComp_preservesDirectedSup D P n m)
+
+/-- The embedding `i_{n∞} : Dₙ → D_∞` as a bare function into the inverse limit. -/
+def embInfFun (n : ℕ) (x : D n) : InverseLimit D P := ⟨iComp D P n x, iComp_compatible D P n x⟩
+
+@[simp] theorem embInfFun_coe (n : ℕ) (x : D n) : (embInfFun D P n x).1 = iComp D P n x := rfl
+
+theorem embInf_monotone (n : ℕ) : Monotone (embInfFun D P n) := by
+  intro x x' hxx
+  rw [← Subtype.coe_le_coe]
+  intro m
+  exact iComp_monotone D P n m hxx
+
+theorem embInf_preservesDirectedSup (n : ℕ) : PreservesDirectedSup (embInfFun D P n) := by
+  intro S hS hSdir
+  have hTne : (embInfFun D P n '' S).Nonempty := hS.image _
+  have hTdir : DirectedOn (· ≤ ·) (embInfFun D P n '' S) := by
+    rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+    obtain ⟨c, hc, hac, hbc⟩ := hSdir a ha b hb
+    exact ⟨embInfFun D P n c, Set.mem_image_of_mem _ hc,
+      embInf_monotone D P n hac, embInf_monotone D P n hbc⟩
+  apply Subtype.ext
+  rw [coe_sSup_of_directed D P (embInfFun D P n '' S) hTne hTdir]
+  funext m
+  have heq : Function.eval m '' (Subtype.val '' (embInfFun D P n '' S))
+      = (fun x => iComp D P n x m) '' S := by
+    simp only [Set.image_image, embInfFun_coe, Function.eval]
+  rw [sSup_apply_eq_sSup_image, heq]
+  exact iComp_preservesDirectedSup D P n m hS hSdir
+
+/-- The projection `j_{∞n} : D_∞ → Dₙ` as a bare function. -/
+def projInfFun (n : ℕ) (y : InverseLimit D P) : D n := y.1 n
+
+theorem eval_preservesDirectedSup (n : ℕ) : PreservesDirectedSup (projInfFun D P n) := by
+  intro S hS hSdir
+  have hL : (sSup S : InverseLimit D P).1 n = sSup ((fun y : InverseLimit D P => y.1 n) '' S) := by
+    rw [coe_sSup_of_directed D P S hS hSdir, sSup_apply_eq_sSup_image]
+    congr 1
+    rw [Set.image_image]
+  exact hL
+
+/-- The embedding `i_{n∞} : Dₙ → D_∞`, Scott-continuous. -/
+noncomputable def embInf (n : ℕ) : ScottMap (D n) (InverseLimit D P) :=
+  ⟨embInfFun D P n, continuous_of_preservesDirectedSup (embInf_preservesDirectedSup D P n)⟩
+
+/-- The projection `j_{∞n} : D_∞ → Dₙ`, Scott-continuous. -/
+noncomputable def projInf (n : ℕ) : ScottMap (InverseLimit D P) (D n) :=
+  ⟨projInfFun D P n, continuous_of_preservesDirectedSup (eval_preservesDirectedSup D P n)⟩
+
+/-- **Scott 1972, Proposition 4.2.** Each `j_{∞n} : D_∞ → Dₙ` is a projection of continuous
+lattices, with embedding `i_{n∞} = embInf n`. -/
+noncomputable def proposition_4_2 (n : ℕ) :
+    IsContinuousLatticeProjection (D n) (InverseLimit D P) where
+  incl := embInf D P n
+  retr := projInf D P n
+  retr_incl x := iComp_self D P n x
+  incl_retr_le y := by
+    rw [← Subtype.coe_le_coe]
+    intro m
+    exact iComp_incl_le D P n y m
+
+/-- **Scott 1972, §4 (recursion equation).** `i_{n∞} = i_{(n+1)∞} ∘ iₙ`. -/
+theorem embInf_succ (n : ℕ) (x : D n) :
+    embInf D P (n + 1) ((P n).incl x) = embInf D P n x := by
+  apply Subtype.ext
+  funext m
+  show iComp D P (n + 1) ((P n).incl x) m = iComp D P n x m
+  by_cases h1 : n ≤ m
+  · by_cases h2 : n + 1 ≤ m
+    · rw [iComp_of_le D P h2, iComp_of_le D P h1, embLE_succ_left D P h1 h2]
+    · have hmn : m = n := le_antisymm (Nat.lt_succ_iff.mp (not_le.mp h2)) h1
+      subst hmn
+      rw [iComp_self, iComp_of_ge D P h2,
+        projLE_succ D P (le_refl m) (le_of_lt (not_le.mp h2)) ((P m).incl x),
+        projLE_self, (P m).retr_incl]
+  · have h2 : ¬ n + 1 ≤ m := fun h => h1 (le_trans (Nat.le_succ n) h)
+    rw [iComp_of_ge D P h2, iComp_of_ge D P h1,
+      projLE_succ D P (le_of_lt (not_le.mp h1)) (le_of_lt (not_le.mp h2)) ((P n).incl x),
+      (P n).retr_incl]
+
+/-- The family `n ↦ i_{n∞}(xₙ)` is monotone (the lub defining `x` is monotone). -/
+theorem embInf_le_succ (x : InverseLimit D P) (n : ℕ) :
+    embInf D P n (x.1 n) ≤ embInf D P (n + 1) (x.1 (n + 1)) := by
+  rw [← embInf_succ D P n (x.1 n)]
+  exact embInf_monotone D P (n + 1)
+    (by calc (P n).incl (x.1 n) = (P n).incl ((P n).retr (x.1 (n + 1))) := by rw [x.2 n]
+          _ ≤ x.1 (n + 1) := (P n).incl_retr_le _)
+
+theorem embInf_family_directed (x : InverseLimit D P) :
+    DirectedOn (· ≤ ·) (Set.range (fun n => embInf D P n (x.1 n))) :=
+  directedOn_range.2 (monotone_nat_of_le_succ (embInf_le_succ D P x)).directed_le
+
+/-- **Scott 1972, §4.** Each `x ∈ D_∞` is the (monotone) lub of its projections:
+`x = ⨆ₙ i_{n∞}(xₙ)`. -/
+theorem inverseLimit_eq_iSup (x : InverseLimit D P) :
+    x = ⨆ n, embInf D P n (x.1 n) := by
+  have hdir := embInf_family_directed D P x
+  have hne : (Set.range (fun n => embInf D P n (x.1 n))).Nonempty := Set.range_nonempty _
+  refine le_antisymm ?_ ?_
+  · rw [← Subtype.coe_le_coe]
+    have hcoe : ((⨆ n, embInf D P n (x.1 n) : InverseLimit D P)).1
+        = sSup (Subtype.val '' Set.range (fun n => embInf D P n (x.1 n))) := by
+      rw [← sSup_range]
+      exact coe_sSup_of_directed D P _ hne hdir
+    rw [hcoe]
+    intro m
+    have hmem : (embInf D P m (x.1 m)).1
+        ∈ Subtype.val '' Set.range (fun n => embInf D P n (x.1 n)) :=
+      ⟨embInf D P m (x.1 m), ⟨m, rfl⟩, rfl⟩
+    have hle := (le_sSup hmem) m
+    rwa [show (embInf D P m (x.1 m)).1 m = x.1 m from iComp_self D P m (x.1 m)] at hle
+  · exact iSup_le fun n => by
+      rw [← Subtype.coe_le_coe]; intro m; exact iComp_incl_le D P n x m
+
 end InverseLimit
 
 end Domain.ContinuousLattice

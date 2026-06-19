@@ -6,21 +6,20 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 
 ## Status
 
-- Report card: **31 Pass · 0 Stuck · 4 Not Yet** (zero `sorry`s).
+- Report card: **32 Pass · 0 Stuck · 3 Not Yet** (zero `sorry`s).
 - HEAD `e344fc0`, working tree clean, `lake build` green.
 - Every proven result has axiom footprint `[propext, Classical.choice, Quot.sound]`.
-- Done through **§3 complete** and **§4.1**.
+- Done through **§3 complete** and **§4.1–4.2**.
 
 ## Remaining (Scott §4)
 
-- **Prop 4.2** — the maps `j_{∞n} : D∞ → Dₙ` are projections; construct `i_{n∞} : Dₙ → D∞`
-  (recursion `i_{n∞} = i_{(n+1)∞} ∘ iₙ`) and the identity `x = ⊔ₙ i_{n∞}(xₙ)` (monotone lub).
 - **Cor 4.3** — `D∞` is also the *direct* limit: for continuous `fₙ : Dₙ → D'` with
   `fₙ = f_{n+1} ∘ iₙ`, define `f∞(x) = ⊔ₙ fₙ(xₙ)` with `fₙ = f∞ ∘ i_{n∞}`.
 - **Lemma 4.5** — (see source ~line 1260+).
 - **Thm 4.4** — capstone `D∞ ≅ [D∞ → D∞]` (solution of the domain equation), uses 3.7 + 4.x.
 
-`i_{n∞} / j_{∞n}` are needed by both 4.2 and 4.4, so build them first (in `InverseLimits.lean`).
+`i_{n∞} / j_{∞n}` (now `embInf` / `projInf` in `InverseLimits.lean`, with towers `embLE` / `projLE`
+and component map `iComp`) are reused by 4.3 and 4.4.
 
 ## Key reusable infrastructure
 
@@ -33,7 +32,10 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 - `Theorem212.lean`: `lemma_3_9`, `theorem_2_12` (injective ⟺ continuous lattice).
 - `InverseLimits.lean`: `InverseLimit D P`, `Compatible`, `projection_galoisConnection` (`iₙ ⊣ jₙ`),
   `retr_sInf`, `invLimRetr` (left adjoint of inclusion), `invLimRetr_galoisConnection`,
-  `coe_sSup_of_directed`, `inverseLimitRetraction`, `proposition_4_1`.
+  `coe_sSup_of_directed`, `inverseLimitRetraction`, `proposition_4_1`; **(4.2)** `embLE`/`projLE`
+  towers (+ `_self`/`_succ`/`_succ_left`/`projLE_retr`/`projLE_compatible`/`embLE_le`), `iComp`
+  (+ `iComp_self`/`iComp_compatible`/`iComp_incl_le`/`iComp_preservesDirectedSup`), `embInf`/`projInf`
+  ScottMaps, `proposition_4_2`, `embInf_succ` (recursion), `inverseLimit_eq_iSup` (monotone lub).
 
 ## Conventions / lessons that matter
 
@@ -52,6 +54,12 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
   membership unfolds to `Function.eval` with the wrong orientation).
 - Unannotated binders + coercion ascription is a trap: `∀ f, (f : D → D) …` *fixes* the binder type
   to `D → D`. Write `∀ f : ScottMap D D, …`.
+- Dependently-typed towers over `Dₙ` (§4): use `Nat.leRecOn` to define `Dₙ → D_m` directly (no
+  `Nat`-subtraction casts; descend uses motive `C k := D k → Dₘ`) and `induction n, h using
+  Nat.le_induction` to reason. `Nat.leRecOn` is `@[elab_as_elim]`: unfold the wrapper def with
+  `simp only [embLE]` *before* `rw`/`exact`-ing `Nat.leRecOn_self/_succ/_succ_left`; term-mode
+  `:= Nat.leRecOn_self x` fails ("failed to elaborate eliminator"). Definitional proof irrelevance
+  makes the towers independent of which `≤` proof is passed, so `rw` chains match freely.
 
 ## Per-theorem workflow
 
