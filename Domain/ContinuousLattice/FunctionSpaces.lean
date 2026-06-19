@@ -280,6 +280,8 @@ theorem bot_apply (x : D) : ((⊥ : ScottMap D D') : D → D') x = ⊥ := by
   have h : (⊥ : ScottMap D D') = sSup (∅ : Set (ScottMap D D')) := rfl
   rw [h, sSup_apply, Set.image_empty, sSup_empty]
 
+@[simp] theorem const_apply (c : D') (x : D) : (ScottMap.const c : D → D') x = c := rfl
+
 end ScottMap
 
 /-! ### Theorem 3.3 (core) -/
@@ -1482,5 +1484,52 @@ theorem proposition_3_12 :
   ⟨fun _ h => isProjection_sSup h, ⟨Projections.instCompleteLattice⟩⟩
 
 end Projections
+
+/-! ### Proposition 3.13: `D` is a projection of `[D → D]` -/
+
+namespace Proposition313
+
+/-- **Scott 1972, Proposition 3.13.** `con : D → [D → D]` sends `x` to the constant function `x`. -/
+noncomputable def con : ScottMap D (ScottMap D D) :=
+  ⟨fun x => ScottMap.const x, continuous_of_preservesDirectedSup (by
+    intro S _ _
+    apply ScottMap.ext
+    intro y
+    rw [ScottMap.sSup_apply, Set.image_image]
+    simp only [ScottMap.const_apply, Set.image_id'])⟩
+
+/-- **Scott 1972, Proposition 3.13.** `min : [D → D] → D` sends `f` to its least value `f(⊥)`. -/
+noncomputable def min : ScottMap (ScottMap D D) D :=
+  ⟨fun f => (f : D → D) ⊥, continuous_of_preservesDirectedSup (by
+    intro F _ _
+    show ((sSup F : ScottMap D D) : D → D) ⊥
+      = sSup (Set.image (fun f : ScottMap D D => (f : D → D) ⊥) F)
+    rw [ScottMap.sSup_apply])⟩
+
+@[simp] theorem con_apply (x y : D) : ((con x : ScottMap D D) : D → D) y = x := rfl
+
+@[simp] theorem min_apply (f : ScottMap D D) : (min f : D) = (f : D → D) ⊥ := rfl
+
+/-- **Scott 1972, Proposition 3.13.** `(con, min)` makes `D` a projection of `[D → D]`:
+`min ∘ con = id` (a constant's least value is its value) and `con ∘ min ⊑ id` (the constant `f(⊥)`
+is `≤ f` pointwise, since `f(⊥) ⊑ f(y)` by monotonicity). -/
+noncomputable def projection : IsContinuousLatticeProjection D (ScottMap D D) where
+  incl := con
+  retr := min
+  retr_incl := fun _ => rfl
+  incl_retr_le := fun f => by
+    rw [ScottMap.le_def]
+    intro y
+    show ((ScottMap.const ((f : D → D) ⊥) : ScottMap D D) : D → D) y ≤ (f : D → D) y
+    rw [ScottMap.const_apply]
+    exact f.monotone bot_le
+
+end Proposition313
+
+/-- **Scott 1972, Proposition 3.13.** Every continuous lattice `D` is a projection of its function
+space `[D → D]`, via `con`/`min` (`Proposition313.projection`). -/
+theorem proposition_3_13 (_hD : IsContinuousLattice D) :
+    Nonempty (IsContinuousLatticeProjection D (ScottMap D D)) :=
+  ⟨Proposition313.projection⟩
 
 end Domain.ContinuousLattice
