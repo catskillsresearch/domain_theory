@@ -48,8 +48,10 @@ theorem proposition_2_8 [Finite D] : IsContinuousLattice D := by
   have hyy : y ≪ y := wayBelow_self_iff_scottOpen_Ici.mpr hopen
   exact ⟨fun x hx => hx.le, fun b hb => hb hyy⟩
 
-/-- **Scott 1972, Proposition 2.9 (order-theoretic content).** The Cartesian product of any
-family of continuous lattices is a continuous lattice.
+/-- **Scott 1972, Proposition 2.9(a) (order-theoretic content).** The Cartesian product of any
+family of continuous lattices is a continuous lattice. (Part (b), that the induced topology of
+the product agrees with the product topology, is `proposition_2_9_b` below; `proposition_2_9`
+bundles the two.)
 
 The key step is that if `a ≪ yᵢ` in the factor `Dᵢ`, then the cylinder element `[a]ⁱ`
 (equal to `a` in coordinate `i` and `⊥` elsewhere) is way below `y` in the product: the
@@ -57,7 +59,7 @@ preimage `{z | zᵢ ∈ U}` of a Scott-open witness `U ⊆ Dᵢ` is Scott-open i
 (suprema are computed coordinatewise). Any upper bound `b` of `{x | x ≪ y}` therefore
 dominates every `[a]ⁱ`, so `a = ([a]ⁱ)ᵢ ≤ bᵢ`; ranging over `a ≪ yᵢ` and using continuity of
 `Dᵢ` gives `yᵢ ≤ bᵢ` for all `i`, i.e. `y ≤ b`. -/
-theorem proposition_2_9 {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice (E i)]
+theorem proposition_2_9_a {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice (E i)]
     (hE : ∀ i, IsContinuousLattice (E i)) : IsContinuousLattice (∀ i, E i) := by
   classical
   intro y
@@ -90,6 +92,155 @@ theorem proposition_2_9 {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice 
   have hle : e i ≤ b i := (hb hcyl) i
   rw [hei] at hle
   exact hle
+
+/-! ### Proposition 2.9(b): the induced topology of a product is the product topology
+
+Scott 1972, Proposition 2.9 also asserts that the Scott topology of the product `∏ᵢ Dᵢ` of
+continuous lattices coincides with the topological product of the Scott topologies of the factors.
+We prove the two inclusions:
+
+* **Product ⊆ Scott** (`scottTopologicalSpace ≤ Pi.topologicalSpace`): every projection
+  `eval i` preserves directed suprema (they are computed coordinatewise), hence is Scott-continuous,
+  hence the Scott topology of the product is finer than each induced topology, i.e. finer than their
+  infimum (the product topology).
+* **Scott ⊆ Product** (`Pi.topologicalSpace ≤ scottTopologicalSpace`): given a Scott-open `U` and a
+  point `z ∈ U`, the `↟a` basis (`exists_wayBelow_Ici_subset`) yields `a ≪ z` with `↑a ⊆ U`. A
+  way-below element of a product has **finite support** (`wayBelow_finite_support`) and is
+  way-below in each coordinate (`wayBelow_proj`); the resulting finite box
+  `⋂_{i ∈ F} eval i ⁻¹' (↟aᵢ-neighbourhood of zᵢ)` is a product-open neighbourhood of `z` inside
+  `↑a ⊆ U`. -/
+
+/-- Plugging a value into a fixed coordinate, `v ↦ Function.update z i v`, preserves directed
+suprema: away from `i` the result is the constant `z j`, and at `i` it is the identity. -/
+theorem update_preservesDirectedSup {ι : Type*} [DecidableEq ι] {E : ι → Type*}
+    [∀ i, CompleteLattice (E i)] (z : ∀ i, E i) (i : ι) :
+    PreservesDirectedSup (fun v : E i => Function.update z i v) := by
+  intro T hTne _
+  show Function.update z i (sSup T) = sSup ((fun v : E i => Function.update z i v) '' T)
+  funext j
+  rw [sSup_apply_eq_sSup_image, Set.image_image]
+  rcases eq_or_ne j i with hji | hji
+  · rw [hji, Function.update_self]
+    have h : (fun v : E i => Function.eval i (Function.update z i v)) = id := by
+      funext v; simp [Function.eval, Function.update_self]
+    rw [h, Set.image_id]
+  · rw [Function.update_of_ne hji]
+    have h : (fun v : E i => Function.eval j (Function.update z i v)) = fun _ => z j := by
+      funext v; simp [Function.eval, Function.update_of_ne hji]
+    rw [h, hTne.image_const, sSup_singleton]
+
+/-- A way-below relation in a product projects to each coordinate: if `a ≪ z` in `∏ᵢ Eᵢ` then
+`aᵢ ≪ zᵢ`. The witnessing Scott-open neighbourhood of `zᵢ` is the preimage of a product Scott-open
+witness under `v ↦ Function.update z i v`, which is Scott-open by `update_preservesDirectedSup`. -/
+theorem wayBelow_proj {ι : Type*} {E : ι → Type*} [∀ i, CompleteLattice (E i)]
+    {a z : ∀ i, E i} (h : a ≪ z) (i : ι) : a i ≪ z i := by
+  classical
+  obtain ⟨W, hW, hzW, hWsub⟩ := h
+  refine ⟨(fun v : E i => Function.update z i v) ⁻¹' W, ?_, ?_, ?_⟩
+  · exact scottOpen_preimage (update_preservesDirectedSup z i) hW
+  · show Function.update z i (z i) ∈ W
+    rw [Function.update_eq_self]; exact hzW
+  · intro v hv
+    have hav : a ≤ Function.update z i v := Set.mem_Ici.1 (hWsub hv)
+    have := hav i
+    rwa [Function.update_self] at this
+
+/-- A way-below element of a product has finite support: if `a ≪ z` in `∏ᵢ Eᵢ` then `aⱼ = ⊥` for
+all but finitely many `j`. The finite truncations `Z F = (fun j => if j ∈ F then z j else ⊥)` form a
+directed family with supremum `z`; since `a ≪ z = ⊔_F Z F`, already `a ≤ Z F` for some finite `F`,
+forcing `aⱼ = ⊥` off `F`. -/
+theorem wayBelow_finite_support {ι : Type*} {E : ι → Type*} [∀ i, CompleteLattice (E i)]
+    {a z : ∀ i, E i} (h : a ≪ z) : ∃ F : Finset ι, ∀ j ∉ F, a j = ⊥ := by
+  classical
+  set Z : Finset ι → (∀ j, E j) := fun F j => if j ∈ F then z j else ⊥ with hZ
+  set 𝒵 : Set (∀ j, E j) := Set.range Z with h𝒵
+  have hmono : Monotone Z := by
+    intro F G hFG
+    rw [Pi.le_def]; intro j
+    simp only [hZ]
+    by_cases hjF : j ∈ F
+    · rw [if_pos hjF, if_pos (hFG hjF)]
+    · rw [if_neg hjF]; exact bot_le
+  have h𝒵ne : 𝒵.Nonempty := ⟨Z ∅, ∅, rfl⟩
+  have h𝒵dir : DirectedOn (· ≤ ·) 𝒵 := by
+    rintro _ ⟨F, rfl⟩ _ ⟨G, rfl⟩
+    exact ⟨Z (F ∪ G), ⟨F ∪ G, rfl⟩, hmono Finset.subset_union_left,
+      hmono Finset.subset_union_right⟩
+  have hsup : sSup 𝒵 = z := by
+    apply le_antisymm
+    · apply sSup_le
+      rintro _ ⟨F, rfl⟩
+      rw [Pi.le_def]; intro j
+      simp only [hZ]
+      by_cases hjF : j ∈ F
+      · rw [if_pos hjF]
+      · rw [if_neg hjF]; exact bot_le
+    · rw [Pi.le_def]; intro j
+      rw [sSup_apply_eq_sSup_image]
+      refine le_sSup ⟨Z {j}, ⟨{j}, rfl⟩, ?_⟩
+      simp [hZ, Function.eval]
+  rw [← hsup] at h
+  obtain ⟨d, hd𝒵, had⟩ := (wayBelow_sSup_iff h𝒵ne h𝒵dir).1 h
+  obtain ⟨F, rfl⟩ := hd𝒵
+  refine ⟨F, fun j hjF => ?_⟩
+  have hj := had.le j
+  simp only [hZ, if_neg hjF] at hj
+  exact le_bot_iff.1 hj
+
+/-- **Scott 1972, Proposition 2.9(b).** For a family of continuous lattices, the Scott topology of
+the product coincides with the product of the Scott topologies of the factors. -/
+theorem proposition_2_9_b {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice (E i)]
+    (hE : ∀ i, IsContinuousLattice (E i)) :
+    (scottTopologicalSpace : TopologicalSpace (∀ i, E i)) =
+      @Pi.topologicalSpace ι E (fun _ => scottTopologicalSpace) := by
+  classical
+  have hprod : IsContinuousLattice (∀ i, E i) := proposition_2_9_a E hE
+  apply le_antisymm
+  · -- Product ⊆ Scott: projections preserve directed suprema, hence are Scott-continuous.
+    refine le_iInf fun i => ?_
+    rw [← continuous_iff_le_induced]
+    exact continuous_of_preservesDirectedSup (fun _ _ _ => sSup_apply_eq_sSup_image)
+  · -- Scott ⊆ Product: every Scott-open set is a union of finite product-open boxes.
+    intro U hU
+    rw [isOpen_iff_scottOpen] at hU
+    rw [@isOpen_iff_forall_mem_open _ (@Pi.topologicalSpace ι E (fun _ => scottTopologicalSpace))]
+    intro z hz
+    obtain ⟨a, haz, haIci⟩ := exists_wayBelow_Ici_subset hprod hU hz
+    obtain ⟨F, hF⟩ := wayBelow_finite_support haz
+    have hproj : ∀ i, a i ≪ z i := fun i => wayBelow_proj haz i
+    choose V hVopen hzV hVsub using hproj
+    refine ⟨⋂ i ∈ F, (fun w : ∀ j, E j => w i) ⁻¹' V i, ?_, ?_, ?_⟩
+    · -- the box lies inside `↑a ⊆ U`
+      intro w hw
+      rw [Set.mem_iInter₂] at hw
+      refine haIci (Set.mem_Ici.2 fun j => ?_)
+      by_cases hjF : j ∈ F
+      · exact Set.mem_Ici.1 (hVsub j (hw j hjF))
+      · rw [hF j hjF]; exact bot_le
+    · -- the box is product-open: a finite intersection of cylinders over Scott-open factors
+      refine @isOpen_biInter_finset (∀ j, E j) ι
+        (@Pi.topologicalSpace ι E (fun _ => scottTopologicalSpace)) F
+        (fun i => (fun w : ∀ j, E j => w i) ⁻¹' V i) (fun i _ => ?_)
+      have hVi : @IsOpen (E i) scottTopologicalSpace (V i) := isOpen_iff_scottOpen.mpr (hVopen i)
+      have hind : @IsOpen _
+          (TopologicalSpace.induced (fun w : ∀ j, E j => w i) scottTopologicalSpace)
+          ((fun w : ∀ j, E j => w i) ⁻¹' V i) :=
+        (isOpen_induced_iff (t := scottTopologicalSpace)).mpr ⟨V i, hVi, rfl⟩
+      exact iInf_le
+        (fun i => TopologicalSpace.induced (fun w : ∀ j, E j => w i) scottTopologicalSpace) i _ hind
+    · -- the box contains `z`
+      rw [Set.mem_iInter₂]
+      exact fun i _ => hzV i
+
+/-- **Scott 1972, Proposition 2.9 (full statement).** The product of a family of continuous lattices
+is again a continuous lattice (`proposition_2_9_a`) whose Scott topology agrees with the product
+topology (`proposition_2_9_b`). -/
+theorem proposition_2_9 {ι : Type*} (E : ι → Type*) [∀ i, CompleteLattice (E i)]
+    (hE : ∀ i, IsContinuousLattice (E i)) :
+    IsContinuousLattice (∀ i, E i) ∧
+      (scottTopologicalSpace : TopologicalSpace (∀ i, E i)) =
+        @Pi.topologicalSpace ι E (fun _ => scottTopologicalSpace) :=
+  ⟨proposition_2_9_a E hE, proposition_2_9_b E hE⟩
 
 /-! ### Proposition 2.11: continuous lattices are injective
 

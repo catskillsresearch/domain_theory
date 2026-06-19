@@ -26,7 +26,7 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **15 / 32** tracked numbered results are **Pass**, **9 Stuck**,
+correction is complete; **17 / 33** tracked numbered results are **Pass**, **8 Stuck**,
 **8 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (32 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **15 Pass · 9 Stuck · 8 Not Yet**.
+full deliverable. Score: **17 Pass · 8 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -184,7 +184,8 @@ full deliverable. Score: **15 Pass · 9 Stuck · 8 Not Yet**.
 | 2   | Prop 2.5  | `proposition_2_5`                                                                                                                | `ScottMaps.lean`      | **Pass**    |                                      |
 | 2   | Prop 2.6  | `proposition_2_6`                                                                                                                | `ScottMaps.lean`      | **Pass**    | joint ↔ separate continuity          |
 | 2   | Prop 2.8  | `proposition_2_8`                                                                                                                 | `Constructions.lean`  | **Pass**    | finite lattices                      |
-| 2   | Prop 2.9  | `proposition_2_9`                                                                                                                 | `Constructions.lean`  | **Stuck**   | products: order part done; topology agreement (Milner) open |
+| 2   | Prop 2.9(a) | `proposition_2_9_a`                                                                                                              | `Constructions.lean`  | **Pass**    | product of CLs is a CL (order content) |
+| 2   | Prop 2.9(b) | `proposition_2_9_b` (and bundled `proposition_2_9`)                                                                            | `Constructions.lean`  | **Pass**    | Scott top. of product = product of Scott tops. |
 | 2   | Prop 2.10 | `retr_ambientSSup_eq_sSup`                                                                                                       | `FunctionSpaces.lean` | **Stuck**   | Milner identity; full prop open      |
 | 2   | Prop 2.11 | `proposition_2_11`                                                                                                                | `Constructions.lean`  | **Pass**    | CL injective (`scottExtend`)         |
 | 2   | Thm 2.12  | `theorem_2_12_forward`, `isContinuousLattice_prop`, `sierpinski_isInjective_and_isContinuousLattice`                             | `Constructions.lean`  | **Stuck**   | forward (CL⟹injective) done; backward (injective⟹CL) needs 2.10 |
@@ -225,7 +226,7 @@ flowchart LR
   S1 -->|"2.11, 2.12"| S2
   S2 --> S3
   S3 -->|"3.8, 3.9"| S4
-  MIL -.->|"2.9, 2.10, 3.3"| S2
+  MIL -.->|"2.10, 3.3"| S2
   MIL -.-> S3
   S3 -.->|"retr_ambientSSup_eq_sSup"| S2
 ```
@@ -272,7 +273,8 @@ flowchart TD
   P27s["proposition_2_7_sup"]
   P27i["proposition_2_7_inf_left · inf_right"]
   P28["proposition_2_8"]
-  P29["proposition_2_9"]
+  P29a["proposition_2_9_a (product is CL)"]
+  P29b["proposition_2_9_b (Scott = product top.)"]
   P210["proposition_2_10"]
   P210L["retr_ambientSSup_eq_sSup"]
   P211["proposition_2_11"]
@@ -287,10 +289,10 @@ flowchart TD
   P26 --> P27i
   P25 --> P27s
   D23 --> P28
-  D23 --> P29
+  D23 --> P29a
+  P29a --> P29b
   D23 --> P210
   P25 --> P210
-  MIL --> P29
   MIL --> P210
   P210L --> P210
   P210 --> P211
@@ -427,20 +429,78 @@ principal up-set `Set.Ici y` is Scott-open (a directed `S` with `y ≤ ⊔S` has
 `y ≪ y` via `wayBelow_self_iff_scottOpen_Ici`, and `y` is trivially the supremum of
 `{x | x ≪ y}`. `[Finite D]` suffices (subsets are finite via `Set.toFinite`).
 
-#### Proposition 2.9 (products of continuous lattices) — `proposition_2_9`
+#### Proposition 2.9 (products of continuous lattices) — `proposition_2_9_a`, `proposition_2_9_b`
 
-We prove the **order-theoretic content**: a product `∀ i, Eᵢ` of continuous lattices is a
-continuous lattice. (The accompanying topological claim — the induced topology agrees with the
-product topology — is the Milner-correction part and stays **Stuck**.) The construction is the
-cylinder element: for `a ≪ yᵢ` in factor `Eᵢ`, let `[a]ⁱ := Function.update ⊥ i a`. Then
-`[a]ⁱ ≪ y` in the product, witnessed by the preimage `{z | zᵢ ∈ U}` of a Scott-open `U ⊆ Eᵢ`
-with `yᵢ ∈ U ⊆ Ici a`: this set is an upper set, and inaccessible because suprema are
-coordinatewise (`sSup_apply_eq_sSup_image`), so a directed `S` with `(⊔S)ᵢ ∈ U` already has some
-`f ∈ S` with `fᵢ ∈ U`. Given any upper bound `b` of `{x | x ≪ y}`, each `[a]ⁱ ≤ b` gives
-`a = ([a]ⁱ)ᵢ ≤ bᵢ`; ranging over `a ≪ yᵢ` and using continuity of `Eᵢ`
-(`(hE i).sSup_wayBelow`) yields `yᵢ ≤ bᵢ` for all `i`, i.e. `y ≤ b`. This is a cleaner route
-than Scott's exposition (no finite-support bookkeeping). `classical` supplies the `DecidableEq`
-for `Function.update`; footprint `[propext, Classical.choice, Quot.sound]`.
+Scott's Proposition 2.9 is a **conjunction** of an order-theoretic and a topological claim, so we
+split it: `proposition_2_9_a` (the product is a continuous lattice), `proposition_2_9_b` (the Scott
+topology of the product equals the product of the Scott topologies), and the bundled
+`proposition_2_9 := ⟨a, b⟩`.
+
+**2.9(a) — order content (`proposition_2_9_a`).** A product `∀ i, Eᵢ` of continuous lattices is a
+continuous lattice. The construction is the cylinder element: for `a ≪ yᵢ` in factor `Eᵢ`, let
+`[a]ⁱ := Function.update ⊥ i a`. Then `[a]ⁱ ≪ y` in the product, witnessed by the preimage
+`{z | zᵢ ∈ U}` of a Scott-open `U ⊆ Eᵢ` with `yᵢ ∈ U ⊆ Ici a`: this set is an upper set, and
+inaccessible because suprema are coordinatewise (`sSup_apply_eq_sSup_image`), so a directed `S`
+with `(⊔S)ᵢ ∈ U` already has some `f ∈ S` with `fᵢ ∈ U`. Given any upper bound `b` of
+`{x | x ≪ y}`, each `[a]ⁱ ≤ b` gives `a = ([a]ⁱ)ᵢ ≤ bᵢ`; ranging over `a ≪ yᵢ` and using
+continuity of `Eᵢ` (`(hE i).sSup_wayBelow`) yields `yᵢ ≤ bᵢ` for all `i`, i.e. `y ≤ b`.
+
+**2.9(b) — topology agreement (`proposition_2_9_b`).** We prove the *full equality* of topologies
+`scottTopologicalSpace = Pi.topologicalSpace (fun _ => scottTopologicalSpace)` by `le_antisymm`;
+no Milner-style coarseness hypothesis is needed. Working with explicit topology terms (`Eᵢ` carries
+no `TopologicalSpace` instance) keeps us clear of the `specializationPreorder` diamond, and the
+mathlib order `t₁ ≤ t₂` unfolds *definitionally* to `∀ U, IsOpen[t₂] U → IsOpen[t₁] U`.
+  - **Product ⊆ Scott** (`scott ≤ ⨅ᵢ induced (eval i)`): each projection preserves directed
+    suprema (`sSup_apply_eq_sSup_image`), hence is Scott-continuous
+    (`continuous_of_preservesDirectedSup`); `le_iInf` + `continuous_iff_le_induced` finish.
+  - **Scott ⊆ Product**: for a Scott-open `U ∋ z` the `↟a` basis (`exists_wayBelow_Ici_subset`,
+    the `Ici`-strengthening of `exists_wayBelow_subset`) gives `a ≪ z` with `↑a ⊆ U`. Three new
+    structural lemmas about way-below in a product do the rest: `wayBelow_proj`
+    (`a ≪ z ⟹ aᵢ ≪ zᵢ`, via the preimage under `v ↦ Function.update z i v`, Scott-open by
+    `update_preservesDirectedSup`) and `wayBelow_finite_support` (`a ≪ z` has finite support: the
+    truncations `Z F = (if · ∈ F then z· else ⊥)` are directed with sup `z`, so `a ≤ Z F` for some
+    finite `F`). The finite box `⋂_{i∈F} eval i ⁻¹' Vᵢ` (with `Vᵢ ∋ zᵢ` Scott-open inside `Ici aᵢ`)
+    is product-open (`isOpen_biInter_finset` of induced-opens, each `≥` the product topology by
+    `iInf_le`) and lies in `↑a ⊆ U` (off `F`, `aⱼ = ⊥ ≤ wⱼ`; on `F`, `aᵢ ≤ wᵢ`).
+
+`classical` supplies the `DecidableEq` for `Function.update`; footprint
+`[propext, Classical.choice, Quot.sound]` for all of 2.9(a)/(b).
+
+**Engineering notes / lessons from 2.9(b)** (this was the hardest single proof in Part I so far;
+recording the dead-ends so the next session does not re-pay the cost):
+
+- *Avoid `letI` for the factor/product topologies.* The tempting move is
+  `letI : ∀ i, TopologicalSpace (Eᵢ) := fun _ => scottTopologicalSpace` so that mathlib's
+  `Pi.topologicalSpace`, `continuous_apply`, `isOpen_biInter_finset`, … resolve by instance. But our
+  imports make `specializationPreorder` an active instance, so a `TopologicalSpace (Eᵢ)` in scope
+  introduces a **second `Preorder (Eᵢ)`** that fights the `CompleteLattice` one — the same diamond
+  that broke `scottExtend_eq_of_continuous` earlier. Keeping every topology an **explicit term**
+  (`@Pi.topologicalSpace …`, `@IsOpen _ scottTopologicalSpace …`) and never registering an instance
+  is what makes the proof go through. The order reasoning (way-below, `sSup`, finite support) lives
+  in *instance-free* lemmas (`wayBelow_proj`, `wayBelow_finite_support`) precisely so they never see
+  a competing topology.
+- *Use the definitional unfolding of the topology order.* `TopologicalSpace.le_def` shows
+  `t₁ ≤ t₂` **is** `∀ U, IsOpen[t₂] U → IsOpen[t₁] U` (the partial order's `le` field), so `intro U hU`
+  works directly on a `P ≤ S` goal and `iInf_le _ i _ hopen` turns an induced-open into a
+  product-open with no `le_def` rewrite or `IsOpen.mono` lemma. This is the single most useful fact
+  for product/Scott topology bridges.
+- *Prefer `Set.Ici a ⊆ U` over `↟a ⊆ U`.* `exists_wayBelow_subset` actually proves the stronger
+  `Set.Ici a ⊆ U` (the witness `a` lies in the upper-set `U`), so the new `exists_wayBelow_Ici_subset`
+  lets the box-containment step ask only for `a ≤ w` instead of `a ≪ w`. This **eliminates the
+  way-below `⟸` characterization** (componentwise-`≪` + finite-support ⟹ product-`≪`) entirely —
+  a large, fiddly `Finset.sup`-of-cylinders argument we would otherwise have needed.
+- *Finite support falls out of the truncations, not a separate axiom.* `a ≪ z` plus the directed
+  family `Z F = (if · ∈ F then z· else ⊥)` (sup `z`) gives `a ≤ Z F` for some finite `F` via
+  `wayBelow_sSup_iff`; then `aⱼ ≤ (Z F)ⱼ = ⊥` off `F`. No independent "way-below ⟹ finite support"
+  theorem is required.
+- *`@`-argument order is worth checking empirically.* `isOpen_biInter_finset` autobinds as
+  `@isOpen_biInter_finset X α [inst] s f h` (space first, index second); `isOpen_induced_iff` needs
+  the codomain topology, supplied painlessly by the named argument `(t := scottTopologicalSpace)`
+  rather than a positional `@`. When in doubt, feed one wrong argument and read the "expected type"
+  in the error to recover the true order.
+- *Beta-reduce before `rw`.* `PreservesDirectedSup f` unfolds to `f (sSup T) = …` with `f` a literal
+  lambda, so the goal is `(fun v => update z i v) (sSup T) j`; a `Function.update_self` rewrite only
+  matches after a `show` (or `dsimp only`) forces the beta reduction to `Function.update z i (sSup T)`.
 
 #### Keystones for 2.11: interpolation and the `↟a` basis — `WayBelow.lean`
 
@@ -492,7 +552,7 @@ is a CL) plus transporting the lattice structure along a topological retract.
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
 | Medium   | **3.5** left curry                                                          | Composer 2.5                       |
-| Hard     | **2.9** topology agreement, **2.10** full (retract-of-CL-is-CL), **2.12** backward, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
+| Hard     | **2.10** full (retract-of-CL-is-CL), **2.12** backward, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 
 ---

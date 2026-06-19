@@ -186,6 +186,16 @@ theorem exists_wayBelow_subset (hD : IsContinuousLattice D) {U : Set D} (hU : Sc
   obtain ⟨a, haz, haU⟩ := hU.2 hne (directedOn_wayBelow z) hsup
   exact ⟨a, haz, fun w hw => hU.1 hw.le haU⟩
 
+/-- A strengthening of `exists_wayBelow_subset`: the witness `a ≪ z` can be taken with the whole
+principal up-set `Set.Ici a` (not merely `↟a`) inside `U`. The element `a` produced lies in the
+open `U`, which is upper, so `↑a ⊆ U`. -/
+theorem exists_wayBelow_Ici_subset (hD : IsContinuousLattice D) {U : Set D} (hU : ScottOpen U)
+    {z : D} (hz : z ∈ U) : ∃ a, a ≪ z ∧ Set.Ici a ⊆ U := by
+  have hne : {a | a ≪ z}.Nonempty := ⟨⊥, bot_wayBelow z⟩
+  have hsup : sSup {a | a ≪ z} ∈ U := by rw [hD.sSup_wayBelow z]; exact hz
+  obtain ⟨a, haz, haU⟩ := hU.2 hne (directedOn_wayBelow z) hsup
+  exact ⟨a, haz, fun w hw => hU.1 (Set.mem_Ici.1 hw) haU⟩
+
 /-- The infimum of a Scott-open neighbourhood of `y` is way below `y`: the open set is itself
 the required witness. Scott uses this in moving between Definition 2.3 and Proposition 2.4. -/
 theorem sInf_wayBelow {U : Set D} (hU : ScottOpen U) {y : D} (hy : y ∈ U) :
