@@ -1558,3 +1558,175 @@ Show this directly by writing down the neighbourhood relation and by building th
 5. $(D_1 \to D_2) \times (D_0 \to D_1) \to (D_0 \to D_2)$.
 
 The maps are of course not uniquely determined, but the shifting of brackets ought to suggest the right choice.)
+
+<!-- page 53 -->
+
+**EXERCISE 3.23.** (For category theorists.) Show that the results of 3.11 and 3.12 prove that the category of domains and approximable mappings is a *cartesian closed category*. (Mac Lane [1971] pp. 95–96 may be consulted for a very brief introduction.) What is the *terminal domain* in this category? What sort of functor is $(D_0 \to D_1)$?
+
+**EXERCISE 3.24.** Establish some more isomorphisms :
+
+(i) $(D_0 \to (D_1 \times D_2)) \cong (D_0 \to D_1) \times (D_0 \to D_2)$
+
+(ii) $(D_0 \to D_1^\infty) \cong (D_0 \to D_1)^\infty$
+
+(iii) $D_0 \times (D_1 + D_2) \cong (D_0 \times D_1) + (D_0 \times D_2)$
+
+(iv) $(D_0 + D_1) \to D_2 \cong (D_0 \to D_2) \times (D_1 \to D_2)$ . . .
+
+If some of the above are not true, perhaps at least some mapping relationships can be established.
+
+**EXERCISE 3.25.** (For topologists.) Recall from Exercises 1.21 and 2.13 on how to regard a domain $|D|$ as a topological space. Using 3.10 show that the family of open subsets of $|D|$ is isomorphic to a domain.
+
+**EXERCISE 3.26.** Show that for every domain $D$ there is an approximable mapping
+
+$$\mathrm{cond} : T \times D \times D \to D,$$
+
+called the *conditional operator*, satisfying
+
+(i) $\mathrm{cond}(\mathrm{true}, x, y) = x$
+
+(ii) $\mathrm{cond}(\mathrm{false}, x, y) = y$
+
+(iii) $\mathrm{cond}(\bot, x, y) = \bot$ .
+
+(Hint: Recalling that $T = \{\{0\}, \{1\}, \{0, 1\}\}$, define cond as a relation by
+
+$$
+\begin{aligned}
+0C \cup 10X \cup 110Y\ \mathrm{cond}\ Z \quad\text{iff}\quad & 0 \in C \text{ and } X \subseteq Z \text{ or} \\
+& 1 \in C \text{ and } Y \subseteq Z \text{ or} \\
+& 0, 1 \in C \text{ and } \Delta \subseteq Z ,
+\end{aligned}
+$$
+
+<!-- page 54 -->
+
+where $C \in T$ and $X \in D$ and $Y \in D$ and where we are using the construction of Exercise 3.14.) Find a similar operator in the domain
+
+$$
+T \times D_0 \times D_1 \to D_0 + D_1 .
+$$
+
+Show also there is an approximable mapping
+
+$$
+\mathrm{which} : D_0 + D_1 \to T
+$$
+
+such that for all $x \in |D_0 + D_1|$
+
+$$
+\mathrm{cond}(\mathrm{which}(x), \mathrm{in}_0(\mathrm{out}_0(x)), \mathrm{in}_1(\mathrm{out}_1(x))) = x .
+$$
+
+**EXERCISE 3.27.** (For set theorists.) Give another proof that the family of approximable mappings $f : D_0 \to D_1$ is isomorphic to a domain by employing the general argument of Exercise 2.22. How does this compare with the proof method of 3.9 and 3.10? Can the general remarks also be employed to show that
+
+$$
+\mathrm{eval} : (D_1 \to D_2) \times D_1 \to D_2
+$$
+
+is approximable without bringing in the neighbourhoods in such an explicit way? (Hint: Use 3.5 and the idea of Exercise 2.12.)
+
+**EXERCISE 3.28.** In the function space $(D_0 \to D_1)$ let
+
+$$
+\bigcap \{ [X_i, Y_i] \mid i < n \}
+$$
+
+be a (non-empty) neighbourhood. In 3.9 the minimal element of this neighbourhood is characterized as a relation $f_0$. Show that as an elementwise mapping it can be defined by the formula
+
+$$
+f_0(x) = \bigsqcup \{ \uparrow Y_i \mid x \in [X_i] \} ,
+$$
+
+for $x \in |D_0|$. Try to draw a picture of $|D_0|$ with neighbourhoods $[X_i]$ and the corresponding values of the function $f_0$.
+
+<!-- page 55 -->
+
+# LECTURE IV
+
+<u>FIXED POINTS AND RECURSION</u>
+
+Having at this point a large supply of examples of domains (and further constructs of new domains), we now have to consider some other ways of defining functions — other than by explicit compositions of the very basic functions already mentioned. One of the most fruitful techniques is an infinitely iterated composition that is at the back of the idea of recursion. We will use the process over and over again in these lectures, not only to define new functions but also to define new domains. The heart of the matter lies in the so-called "Fixed-point Theorem":
+
+**THEOREM 4.1.** For any approximable mapping $f : D \to D$ on any domain, there exists a least element $x \in |D|$ where
+
+$$
+f(x) = x.
+$$
+
+**Proof:** Let $f^n$ for $n \in \mathbf{N}$ stand for the $n$-fold composition of $f$ with itself. That is,
+
+$$
+f^0 = I_D, \text{ and}
+$$
+
+$$
+f^{n+1} = f \circ f^n.
+$$
+
+Define
+
+$$
+x = \{ X \in D \mid \Delta\ f^n\ X, \text{ for some } n \in \mathbf{N} \}.
+$$
+
+We see $X \in x$ iff there is a finite sequence $\Delta = X_0, X_1, \ldots, X_n = X$ where $X_i\ f\ X_{i+1}$ holds for all $i < n$. Now since $\Delta\ f\ \Delta$ automatically holds, a sequence for an $X \in x$ can always be extended to a longer sequence just by adding more $\Delta$'s on the front.
+
+We want to prove $x \in |D|$. Clearly $\Delta \in x$; and if $X \subseteq Y$ and $X \in x$, then $Y \in x$. All that remains to be shown is the closure of $x$ under intersection. Note that if
+
+$$
+U\ f\ V \quad \text{and} \quad U'\ f\ V'
+$$
+
+hold and $U, U'$ are consistent in $D$, then $V$ and $V'$ are consistent and
+
+<!-- page 56 -->
+
+$(U \cap U')\ f\ (V \cap V')$
+
+must hold. Generalizing this to sequences, if
+
+$$
+\Delta = X_0\ f\ X_1\ f\ \cdots\ f\ X_n = X, \text{ and}
+$$
+
+$$
+\Delta = Y_0\ f\ Y_1\ f\ \cdots\ f\ Y_n = Y
+$$
+
+both hold (and note we have arranged the lengths of the two sequences to be equal), then each pair $X_i, Y_i$ is consistent and we have
+
+$$
+\Delta = (X_0 \cap Y_0)\ f\ (X_1 \cap Y_1)\ f\ \cdots\ f\ (X_n \cap Y_n) = X \cap Y.
+$$
+
+This establishes the desired closure.
+
+We also note that if $X \in x$ and $X\ f\ Y$ then $Y \in x$. Therefore, $f(x) \subseteq x$ and indeed by its very construction $x$ is the *least* element of $|D|$ with this property. (Why?) But $f$ is monotone, so $f(f(x)) \subseteq f(x)$; hence, $x = f(x)$. By what we have already said it must be the least such element. $\square$
+
+Because the element we have shown to exist in 4.1 is a least element, it is unique. That is, we have associated with each $f : D \to D$ a special element $x_f \in |D|$ determined by the choice of $f$. A function has therefore been defined mapping the set $|D \to D|$ into $|D|$. The next result shows that this function, or operator on functions, is in fact approximable.
+
+**THEOREM 4.2.** For any domain $D$, there is an approximable mapping
+
+$$
+\mathrm{fix} : (D \to D) \to D
+$$
+
+such that if $f : D \to D$ is any approximable mapping, then
+
+(i) $\mathrm{fix}(f) = f(\mathrm{fix}(f)).$
+
+Furthermore, if $x \in |D|$, then
+
+(ii) $f(x) \subseteq x$ implies $\mathrm{fix}(f) \subseteq x.$
+
+And this last property implies that $\mathrm{fix}$ is unique. Explicitly we can characterize $\mathrm{fix}$ by the equation:
+
+(iii)
+
+$$
+\mathrm{fix}(f) = \bigcup_{n=0}^{\infty} f^n(\bot),
+$$
+
+for all $f : D \to D.$
