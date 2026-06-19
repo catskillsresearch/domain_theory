@@ -257,6 +257,29 @@ theorem isLUB_sSup (F : Set (ScottMap D D')) : IsLUB F (sSup F) := by
 noncomputable instance instCompleteLattice : CompleteLattice (ScottMap D D') :=
   completeLatticeOfSup (ScottMap D D') isLUB_sSup
 
+/-- The identity Scott map. -/
+def idMap : ScottMap D D :=
+  ⟨fun x => x, continuous_of_preservesDirectedSup fun S _ _ => by
+    show sSup S = sSup (Set.image (fun x => x) S)
+    rw [Set.image_id']⟩
+
+@[simp] theorem idMap_apply (x : D) : (idMap : ScottMap D D) x = x := rfl
+
+@[simp] theorem comp_apply (f : ScottMap D' D'') (g : ScottMap D D') (x : D) :
+    (f.comp g : D → D'') x = f (g x) := rfl
+
+/-- The (completeLatticeOfSup-derived) binary join of Scott maps is computed pointwise. -/
+theorem sup_apply (f g : ScottMap D D') (x : D) :
+    ((f ⊔ g : ScottMap D D') : D → D') x = f x ⊔ g x := by
+  have h : (f ⊔ g : ScottMap D D') = sSup ({f, g} : Set (ScottMap D D')) := rfl
+  rw [h, sSup_apply, Set.image_pair]
+  exact sSup_pair
+
+/-- The bottom Scott map is the constant `⊥`. -/
+theorem bot_apply (x : D) : ((⊥ : ScottMap D D') : D → D') x = ⊥ := by
+  have h : (⊥ : ScottMap D D') = sSup (∅ : Set (ScottMap D D')) := rfl
+  rw [h, sSup_apply, Set.image_empty, sSup_empty]
+
 end ScottMap
 
 /-! ### Theorem 3.3 (core) -/
@@ -1314,5 +1337,150 @@ theorem lemma_3_9_retr_inf {e : X → Y} (P : IsContinuousLatticeProjection D D'
   scottSubspaceExtendInf_mono_retr (e := e) (g := g) P U
 
 end SubspaceExtension
+
+/-! ### Definition 3.11 / Proposition 3.12: the lattice of projections `J_D` -/
+
+section Projections
+
+/-- **Scott 1972, Definition 3.11.** `J_D = { j ∈ [D → D] : j = j ∘ j ⊑ id }`: the Scott-continuous
+projections of `D` (idempotent self-maps below the identity), as a predicate on `[D → D]`. -/
+def IsProjection (j : ScottMap D D) : Prop :=
+  j.comp j = j ∧ j ≤ ScottMap.idMap
+
+/-- Pointwise characterization of projections: idempotent and deflationary. -/
+theorem isProjection_iff {j : ScottMap D D} :
+    IsProjection j ↔ (∀ x, (j : D → D) (j x) = j x) ∧ (∀ x, (j : D → D) x ≤ x) := by
+  constructor
+  · rintro ⟨hidem, hle⟩
+    refine ⟨fun x => ?_, fun x => ?_⟩
+    · have h : ((j.comp j : ScottMap D D) : D → D) x = (j : D → D) x := by rw [hidem]
+      rwa [ScottMap.comp_apply] at h
+    · have h := (ScottMap.le_def.mp hle) x
+      rwa [ScottMap.idMap_apply] at h
+  · rintro ⟨hidem, hle⟩
+    exact ⟨ScottMap.ext fun x => by rw [ScottMap.comp_apply]; exact hidem x,
+      ScottMap.le_def.mpr fun x => by rw [ScottMap.idMap_apply]; exact hle x⟩
+
+/-- `⊥` (the constant `⊥` map) is a projection — Scott's `⊔∅ ∈ J_D`. -/
+theorem isProjection_bot : IsProjection (⊥ : ScottMap D D) := by
+  rw [isProjection_iff]
+  refine ⟨fun x => ?_, fun x => ?_⟩
+  · simp only [ScottMap.bot_apply]
+  · rw [ScottMap.bot_apply]; exact bot_le
+
+/-- `J_D` is closed under binary joins (Scott 1972, 3.12). The key step: since `j x ⊔ k x ⊑ x`,
+monotonicity and idempotency force `j (j x ⊔ k x) = j x` and `k (j x ⊔ k x) = k x`. -/
+theorem isProjection_sup {j k : ScottMap D D} (hj : IsProjection j) (hk : IsProjection k) :
+    IsProjection (j ⊔ k) := by
+  rw [isProjection_iff] at hj hk ⊢
+  obtain ⟨hjidem, hjle⟩ := hj
+  obtain ⟨hkidem, hkle⟩ := hk
+  refine ⟨fun x => ?_, fun x => ?_⟩
+  · have hjkle : (j : D → D) x ⊔ k x ≤ x := sup_le (hjle x) (hkle x)
+    have hj_eq : (j : D → D) (j x ⊔ k x) = j x :=
+      le_antisymm (j.monotone hjkle) (le_of_eq_of_le (hjidem x).symm (j.monotone le_sup_left))
+    have hk_eq : (k : D → D) (j x ⊔ k x) = k x :=
+      le_antisymm (k.monotone hjkle) (le_of_eq_of_le (hkidem x).symm (k.monotone le_sup_right))
+    rw [ScottMap.sup_apply, ScottMap.sup_apply, hj_eq, hk_eq]
+  · rw [ScottMap.sup_apply]; exact sup_le (hjle x) (hkle x)
+
+/-- `J_D` is closed under finite joins. -/
+theorem isProjection_finsetSup {T : Finset (ScottMap D D)} (hT : ∀ j ∈ T, IsProjection j) :
+    IsProjection (T.sup id) :=
+  Finset.sup_induction isProjection_bot (fun _ ha _ hb => isProjection_sup ha hb) hT
+
+/-- `J_D` is closed under *directed* joins (Scott 1972, 3.12). Continuity of each member lets the
+inner `(⊔S)`-application distribute over the directed family `{ j x : j ∈ S }`, and directedness
+plus idempotency collapse the double family `{ k (j x) }` to `(⊔S) x`. -/
+theorem isProjection_directedSup {S : Set (ScottMap D D)} (hSne : S.Nonempty)
+    (hSdir : DirectedOn (· ≤ ·) S) (hS : ∀ j ∈ S, IsProjection j) :
+    IsProjection (sSup S) := by
+  have hidem : ∀ j ∈ S, ∀ x, (j : D → D) (j x) = j x :=
+    fun j hj => (isProjection_iff.mp (hS j hj)).1
+  have hle : ∀ j ∈ S, ∀ x, (j : D → D) x ≤ x := fun j hj => (isProjection_iff.mp (hS j hj)).2
+  rw [isProjection_iff]
+  refine ⟨fun x => ?_, fun x => ?_⟩
+  · set A := Set.image (fun j : ScottMap D D => (j : D → D) x) S with hA
+    have hAne : A.Nonempty := hSne.image _
+    have hAdir : DirectedOn (· ≤ ·) A := by
+      rintro _ ⟨j, hj, rfl⟩ _ ⟨k, hk, rfl⟩
+      obtain ⟨m, hm, hjm, hkm⟩ := hSdir j hj k hk
+      exact ⟨(m : D → D) x, Set.mem_image_of_mem _ hm, hjm x, hkm x⟩
+    have hsSx : ((sSup S : ScottMap D D) : D → D) x = sSup A := ScottMap.sSup_apply S x
+    apply le_antisymm
+    · rw [hsSx, ScottMap.sSup_apply]
+      refine sSup_le ?_
+      rintro _ ⟨k, hk, rfl⟩
+      show (k : D → D) (sSup A) ≤ sSup A
+      rw [k.preservesDirectedSup_coe A hAne hAdir]
+      refine sSup_le ?_
+      rintro _ ⟨_, ⟨j, hj, rfl⟩, rfl⟩
+      obtain ⟨m, hm, hjm, hkm⟩ := hSdir j hj k hk
+      calc (k : D → D) (j x) ≤ (m : D → D) (j x) := hkm (j x)
+        _ ≤ (m : D → D) (m x) := m.monotone (hjm x)
+        _ = (m : D → D) x := hidem m hm x
+        _ ≤ sSup A := le_sSup (Set.mem_image_of_mem _ hm)
+    · rw [hsSx, ScottMap.sSup_apply]
+      refine sSup_le ?_
+      rintro _ ⟨j, hj, rfl⟩
+      have hjxA : (j : D → D) x ≤ sSup A := le_sSup (Set.mem_image_of_mem _ hj)
+      calc (j : D → D) x = (j : D → D) (j x) := (hidem j hj x).symm
+        _ ≤ (j : D → D) (sSup A) := j.monotone hjxA
+        _ ≤ sSup (Set.image (fun f : ScottMap D D => (f : D → D) (sSup A)) S) :=
+              le_sSup (Set.mem_image_of_mem _ hj)
+  · rw [ScottMap.sSup_apply]
+    refine sSup_le ?_
+    rintro _ ⟨j, hj, rfl⟩
+    exact hle j hj x
+
+/-- **Scott 1972, Proposition 3.12 (`⊔`-closure).** `J_D` is closed under arbitrary suprema in
+`[D → D]`: every supremum is the directed supremum of finite sub-joins (`finsetSupOf`), each a
+projection by `isProjection_finsetSup`. -/
+theorem isProjection_sSup {T : Set (ScottMap D D)} (hT : ∀ j ∈ T, IsProjection j) :
+    IsProjection (sSup T) := by
+  rw [IsContinuousLatticeProjection.sSup_finsetSupOf T]
+  refine isProjection_directedSup ⟨⊥, ∅, by simp, by simp⟩
+    (IsContinuousLatticeProjection.directedOn_finsetSupOf T) ?_
+  rintro z ⟨F, hF, rfl⟩
+  exact isProjection_finsetSup fun j hj => hT j (hF j hj)
+
+/-- **Scott 1972, Definition 3.11.** The space `J_D` of projections of `D`, as a subtype of
+`[D → D]`. -/
+abbrev Projections (D : Type*) [CompleteLattice D] : Type _ := {j : ScottMap D D // IsProjection j}
+
+namespace Projections
+
+noncomputable instance instSupSet : SupSet (Projections D) :=
+  ⟨fun T => ⟨sSup (Set.image Subtype.val T), isProjection_sSup (by rintro j ⟨p, _, rfl⟩; exact p.2)⟩⟩
+
+theorem isLUB_sSup (T : Set (Projections D)) : IsLUB T (sSup T) := by
+  constructor
+  · intro p hp
+    apply Subtype.coe_le_coe.mp
+    show (p : ScottMap D D) ≤ ((sSup T : Projections D) : ScottMap D D)
+    exact le_sSup (Set.mem_image_of_mem _ hp)
+  · intro q hq
+    apply Subtype.coe_le_coe.mp
+    show ((sSup T : Projections D) : ScottMap D D) ≤ (q : ScottMap D D)
+    refine sSup_le ?_
+    rintro _ ⟨p, hp, rfl⟩
+    exact Subtype.coe_le_coe.mpr (hq hp)
+
+/-- **Scott 1972, Proposition 3.12.** `J_D` is a complete lattice (a `⊔`-closed subspace of
+`[D → D]`). Suprema are inherited from `[D → D]`; infima are derived by `completeLatticeOfSup`. -/
+noncomputable instance instCompleteLattice : CompleteLattice (Projections D) :=
+  completeLatticeOfSup (Projections D) isLUB_sSup
+
+end Projections
+
+/-- **Scott 1972, Proposition 3.12.** For a (complete, in particular continuous) lattice `D`, the
+projections `J_D` form a complete lattice as a `⊔`-closed subspace of `[D → D]`: the `⊔`-closure is
+`isProjection_sSup`, and the complete-lattice structure is `Projections.instCompleteLattice`. -/
+theorem proposition_3_12 :
+    (∀ T : Set (ScottMap D D), (∀ j ∈ T, IsProjection j) → IsProjection (sSup T))
+      ∧ Nonempty (CompleteLattice (Projections D)) :=
+  ⟨fun _ h => isProjection_sSup h, ⟨Projections.instCompleteLattice⟩⟩
+
+end Projections
 
 end Domain.ContinuousLattice

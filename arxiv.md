@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **27 Pass · 0 Stuck · 8 Not Yet**.
+full deliverable. Score: **28 Pass · 0 Stuck · 7 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -199,7 +199,7 @@ full deliverable. Score: **27 Pass · 0 Stuck · 8 Not Yet**.
 | 3   | Prop 3.8  | `proposition_3_8`, `scottExtend_maximal`, `continuous_eq_sSup_openInfs`                                                          | `Constructions.lean`  | **Pass**    | continuous + extends + maximal       |
 | 3   | Lemma 3.9 | `lemma_3_9` (global eq `f̄ = j ∘ ḡ`), `scottExtend_maximal_le`                                                                    | `Theorem212.lean`     | **Pass**    | global eq via 3.8 maximality (both)  |
 | 3   | Prop 3.10 | `incl_sSup`/`incl_injective`/`incl_wayBelow` (fwd), `proposition_3_10_converse`, `retr_eq_sSup` (uniq)                           | `FunctionSpaces.lean` | **Pass**    | (i)–(iii) + converse (iv) + uniq     |
-| 3   | Prop 3.12 | —                                                                                                                                | —                     | **Not Yet** |                                      |
+| 3   | Prop 3.12 | `proposition_3_12`, `IsProjection`, `isProjection_sSup`, `Projections.instCompleteLattice`                                       | `FunctionSpaces.lean` | **Pass**    | `J_D` is a `⊔`-closed complete latt. |
 | 3   | Prop 3.13 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 3   | Prop 3.14 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 4   | Prop 4.1  | —                                                                                                                                | —                     | **Not Yet** | uses 3.8                             |
@@ -819,6 +819,32 @@ the top of the proof makes the lattice `≤` ambiguous (it gets re-resolved thro
 `specializationPreorder`), which silently breaks every later `le_antisymm`/`calc`. The older
 inf-level partials `lemma_3_9_incl_inf`/`lemma_3_9_retr_inf` are now superseded auxiliaries.
 Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Proposition 3.12 (the lattice of projections `J_D`) — `proposition_3_12` (`FunctionSpaces.lean`)
+
+`J_D = { j ∈ [D → D] : j = j ∘ j ⊑ id }` (`IsProjection`) is a complete lattice realized as a
+`⊔`-closed subspace of `[D → D]`. The whole proof reduces, via the pointwise characterization
+`isProjection_iff` (idempotent **and** deflationary), to closure of `J_D` under arbitrary `sSup`
+(`isProjection_sSup`); a `⊔`-closed subset of a complete lattice is a complete lattice
+(`completeLatticeOfSup` on the subtype `Projections D`).
+
+- *binary* (`isProjection_sup`): since `j x ⊔ k x ⊑ x`, monotonicity + idempotency pin
+  `j (j x ⊔ k x) = j x` (and symmetrically for `k`), so `(j ⊔ k) ∘ (j ⊔ k) = j ⊔ k`. This is the one
+  spot needing `sup_apply` — the new lemma that the `completeLatticeOfSup`-derived binary join of
+  Scott maps is computed *pointwise* (`(f ⊔ g) x = f x ⊔ g x`, since `⊔ = sSup {·,·}` and `sSup` is
+  pointwise).
+- *directed* (`isProjection_directedSup`): continuity of each `k ∈ S` distributes
+  `k ((⊔S) x) = ⊔ⱼ k (j x)` over the directed family `{ j x }`, and directedness + idempotency
+  collapse the double sup `{ k (j x) }` back to `(⊔S) x`. (Continuity of `D` itself is *not* used —
+  this works for any complete lattice `D`.)
+- *arbitrary* (`isProjection_sSup`): reuse `finsetSupOf` (every `sSup` is the directed sup of finite
+  sub-joins), with `isProjection_finsetSup` via `Finset.sup_induction` on `⊥`/binary.
+
+**Engineering notes / lessons from 3.12:** the identity map is named `ScottMap.idMap`, **not** `id`,
+to avoid shadowing `_root_.id` (which `finsetSupOf`'s `Finset.sup id` relies on). The `Projections D`
+subtype must be an `abbrev` (not `def`) so the ambient `Subtype.partialOrder`/`SupSet` instances are
+found by typeclass resolution — the same reducibility lesson as `IdemFix` in 2.12. Footprint
+`[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 
