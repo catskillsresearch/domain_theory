@@ -1,4 +1,5 @@
 import Domain.ContinuousLattice.InverseLimits
+import Mathlib.Order.Hom.Basic
 
 /-!
 # The function-space tower and Scott's `D_∞ ≅ [D_∞ → D_∞]` (Scott 1972, §4, Theorem 4.4)
@@ -579,6 +580,52 @@ theorem embInfInf_comp_projInfInf :
     _ = f z := hfz.symm
 
 end Thm44b
+
+/-! ### Theorem 4.4(d): capstone `D_∞ ≅ [D_∞ → D_∞]`
+
+Package the mutually-inverse Scott maps from (b) and (c). Scott's homeomorphism follows because
+`i_∞` and `j_∞` are Scott-continuous (`embInfInf` / `projInfInf` are bundled `ScottMap`s). -/
+
+section Thm44d
+
+variable (D₀ : CLat.{u})
+  (j₀ : IsContinuousLatticeProjection D₀.carrier (ScottMap D₀.carrier D₀.carrier))
+
+theorem projInfInf_embInfInf (x : DInf D₀ j₀) :
+    projInfInf D₀ j₀ (embInfInf D₀ j₀ x) = x := by
+  have h := congrArg (fun g => g x) (projInfInf_comp_embInfInf D₀ j₀)
+  simpa [ScottMap.comp_apply, ScottMap.idMap_apply] using h
+
+theorem embInfInf_projInfInf (f : DInfFn D₀ j₀) :
+    embInfInf D₀ j₀ (projInfInf D₀ j₀ f) = f := by
+  have h := congrArg (fun g => g f) (embInfInf_comp_projInfInf D₀ j₀)
+  simpa [ScottMap.comp_apply, ScottMap.idMap_apply] using h
+
+theorem embInfInf_le_iff (x y : DInf D₀ j₀) :
+    embInfInf D₀ j₀ x ≤ embInfInf D₀ j₀ y ↔ x ≤ y := by
+  constructor
+  · intro h
+    have := (projInfInf D₀ j₀).monotone h
+    rwa [projInfInf_embInfInf, projInfInf_embInfInf] at this
+  · intro h; exact (embInfInf D₀ j₀).monotone h
+
+/-- **Scott 1972, §4 (Theorem 4.4).** The inverse limit `D_∞` of the function-space tower is
+order-isomorphic to its own function space `[D_∞ → D_∞]` via the mutually-inverse Scott maps
+`i_∞ = embInfInf` and `j_∞ = projInfInf`. -/
+theorem theorem_4_4 :
+    (projInfInf D₀ j₀).comp (embInfInf D₀ j₀) = ScottMap.idMap ∧
+    (embInfInf D₀ j₀).comp (projInfInf D₀ j₀) = ScottMap.idMap :=
+  ⟨projInfInf_comp_embInfInf D₀ j₀, embInfInf_comp_projInfInf D₀ j₀⟩
+
+/-- The order isomorphism `D_∞ ≃o [D_∞ → D_∞]` witnessing Theorem 4.4. Both directions are
+Scott-continuous (they are bundled `ScottMap`s), so this is the order-theoretic half of Scott's
+homeomorphism. -/
+noncomputable def theorem_4_4_orderIso : OrderIso (DInf D₀ j₀) (DInfFn D₀ j₀) :=
+  (Equiv.mk (embInfInf D₀ j₀) (projInfInf D₀ j₀)
+      (projInfInf_embInfInf D₀ j₀) (embInfInf_projInfInf D₀ j₀)).toOrderIso
+    (embInfInf D₀ j₀).monotone (projInfInf D₀ j₀).monotone
+
+end Thm44d
 
 end LimitMaps
 

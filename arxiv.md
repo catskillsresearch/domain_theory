@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (38 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **37 Pass · 0 Stuck · 1 Not Yet**.
+full deliverable. Score: **38 Pass · 0 Stuck · 0 Not Yet**.
 
 Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
 Session prompt: `HANDOFF-Theorem-4.4.md`.
@@ -212,7 +212,7 @@ Session prompt: `HANDOFF-Theorem-4.4.md`.
 | 4   | Thm 4.4(a) | `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`)                                       | `FunctionSpaceTower.lean` | **Pass**    | `i∞`/`j∞` as `ScottMap`s (sups of Scott maps) |
 | 4   | Thm 4.4(b) | `projInfInf_comp_embInfInf`                                                                                                     | `FunctionSpaceTower.lean` | **Pass**    | `j∞ ∘ i∞ = id` on `D∞`                    |
 | 4   | Thm 4.4(c) | `embInfInf_comp_projInfInf`                                                                                                     | `FunctionSpaceTower.lean` | **Pass**    | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5`) |
-| 4   | Thm 4.4(d) | `theorem_4_4`                                                                                                                   | `FunctionSpaceTower.lean` | **Not Yet** | capstone `D∞ ≅ [D∞ → D∞]`                 |
+| 4   | Thm 4.4(d) | `theorem_4_4`, `theorem_4_4_orderIso`                                                                                           | `FunctionSpaceTower.lean` | **Pass**    | capstone `D∞ ≅ [D∞ → D∞]`                 |
 
 
 **Milner infrastructure:** `CoarserThanScottTopology`, `scottOpen_of_coarserThanScott`,
@@ -387,8 +387,8 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-**4.1**, **4.2**, **4.3**, **4.5**, **4.4(a)**, **4.4(b)**, and **4.4(c)** are now **Pass** (see proof
-notes); the remaining §4 node (4.4(d)) is **Not Yet**.
+**4.1**, **4.2**, **4.3**, **4.5**, and **4.4(a)–(d)** are now **Pass** (see proof notes); Scott §4
+is complete.
 
 ```mermaid
 flowchart TD
@@ -404,7 +404,7 @@ flowchart TD
   T44a["Thm 4.4(a) i∞/j∞ ✓"]
   T44b["Thm 4.4(b) j∞∘i∞=id ✓"]
   T44c["Thm 4.4(c) i∞∘j∞=id ✓"]
-  T44d["Thm 4.4(d) theorem_4_4"]
+  T44d["Thm 4.4(d) theorem_4_4 ✓"]
 
   P29a --> P41
   P210a --> P41
@@ -1049,14 +1049,14 @@ from `ScottMap.sSup_apply` + `Set.range_comp`, and the `*_apply` reductions of t
 `rfl` (riding on `towerType_succ` defeq). `*_preservesDirectedSup` is then immediate from
 `.continuous` via Proposition 2.5. Footprint `[propext, Classical.choice, Quot.sound]`.
 
-**Remaining for 4.4** — report-card subgoals (session prompt: `HANDOFF-Theorem-4.4.md`):
+**Remaining for 4.4** — all subgoals **Pass** (session prompts: `HANDOFF.md`):
 
 | Subgoal | Task |
 | ------- | ---- |
 | **(a)** | Define `i∞`/`j∞` as `ScottMap`s; prove continuity — **Pass** (`embInfInf`/`projInfInf`) |
 | **(b)** | `j∞ ∘ i∞ = id` on `D∞` — **Pass** (`projInfInf_comp_embInfInf`) |
 | **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` — **Pass** (`embInfInf_comp_projInfInf`) |
-| **(d)** | Package `theorem_4_4` |
+| **(d)** | Package `theorem_4_4` — **Pass** (`theorem_4_4`, `theorem_4_4_orderIso`) |
 
 **Thm 4.4(b) — `projInfInf_comp_embInfInf` (Pass).** Goal: `j∞ ∘ i∞ = id` on `D∞`. Following Scott's
 calculation, expand `j∞(i∞(x)) = ⨆ₙ jInfTerm n (i∞ x)`. Pushing the two conjugations through the
@@ -1086,6 +1086,13 @@ equation `id = ⨆ₙ rₙ` (here just `inverseLimit_eq_iSup`, since `rₙ z = i
 collapses to the diagonal `⨆ₙ rₙ (f (rₙ z))` (`iSup₂_monotone_eq_diagonal`), which is exactly the
 evaluated `i∞(j∞ f) z`. Footprint `[propext, Classical.choice, Quot.sound]`.
 
+**Thm 4.4(d) — `theorem_4_4` (Pass).** Capstone packaging of (b)+(c): `theorem_4_4` bundles the two
+composition identities (`projInfInf_comp_embInfInf`, `embInfInf_comp_projInfInf`); helper lemmas
+`projInfInf_embInfInf` / `embInfInf_projInfInf` apply the `ScottMap` equalities pointwise.
+`theorem_4_4_orderIso : D∞ ≃o [D∞ → D∞]` is built via `Equiv.toOrderIso` from the same inverse pair
+(both directions monotone Scott maps, hence Scott-continuous). Footprint
+`[propext, Classical.choice, Quot.sound]`. **Scott §4 is complete.**
+
 Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
@@ -1093,7 +1100,7 @@ Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Hard     | Scott §4 Thm 4.4 subgoal (d) (package `theorem_4_4`); see `HANDOFF-Theorem-4.4.md` | Opus 4.8 (one subgoal per session) |
+| Hard     | — (Scott §4 Thm 4.4 complete)                                                   | —                                  |
 
 
 ---
