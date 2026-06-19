@@ -52,6 +52,34 @@ structure NeighborhoodSystem (α : Type*) where
   witness `Z ⊆ X ∩ Y`, then `X ∩ Y ∈ 𝒟`. -/
   inter_mem : ∀ {X Y Z : Set α}, mem X → mem Y → mem Z → Z ⊆ X ∩ Y → mem (X ∩ Y)
 
+/-- Scott's *"very special circumstance"* (the prose after Examples 1.2–1.4): a family `𝒟`
+is **nested-or-disjoint** when any two of its members are either nested (one included in the
+other) or disjoint. -/
+def NestedOrDisjoint {α : Type*} (mem : Set α → Prop) : Prop :=
+  ∀ ⦃X Y : Set α⦄, mem X → mem Y → X ⊆ Y ∨ Y ⊆ X ∨ X ∩ Y = ∅
+
+/-- **Factoid 1.4a (Scott 1981, PRG-19).** "In these systems two neighbourhoods are either
+disjoint or one is included in the other": a family containing `Δ` whose members are pairwise
+nested-or-disjoint **is** a neighbourhood system. This uniformly explains why Examples 1.2,
+1.3 and 1.4 satisfy Definition 1.1.
+
+The verification of condition (ii) needs no choice: if `X, Y` are nested then `X ∩ Y` is the
+smaller (already in `𝒟`); if they are disjoint then the consistency witness `Z ⊆ X ∩ Y = ∅`
+forces `Z = ∅`, whence `X ∩ Y = ∅ = Z ∈ 𝒟`. -/
+def NeighborhoodSystem.ofNestedOrDisjoint {α : Type*} (mem : Set α → Prop) (master : Set α)
+    (master_mem : mem master) (hnd : NestedOrDisjoint mem) : NeighborhoodSystem α where
+  mem := mem
+  master := master
+  master_mem := master_mem
+  inter_mem := by
+    intro X Y Z hX hY hZ hZsub
+    rcases hnd hX hY with h | h | h
+    · rwa [Set.inter_eq_left.mpr h]
+    · rwa [Set.inter_eq_right.mpr h]
+    · rw [h]
+      rw [h] at hZsub
+      rwa [← Set.subset_empty_iff.mp hZsub]
+
 namespace NeighborhoodSystem
 
 variable {α : Type*} (V : NeighborhoodSystem α)
@@ -166,6 +194,44 @@ instance : PartialOrder V.Element where
   le_trans x y z h1 h2 X h := h2 X (h1 X h)
   le_antisymm x y h1 h2 :=
     @Element.ext α V x y fun X => ⟨h1 X, h2 X⟩
+
+/-- The **limit family** of a sequence of neighbourhoods (Scott, the prose before Definition
+1.6): `x = {Z ∈ 𝒟 ∣ Xₙ ⊆ Z for some n}` — the family of all neighbourhoods eventually reached
+by `⟨Xₙ⟩`. This is the construction Scott uses to motivate the (ideal) elements of `|𝒟|`. -/
+def limitFamily (X : ℕ → Set α) : Set (Set α) := {Z | V.mem Z ∧ ∃ n, X n ⊆ Z}
+
+/-- Two sequences of neighbourhoods are **equivalent** ("each goes equally deep as the other"):
+for every `Yₘ` some `Xₙ ⊆ Yₘ`, and for every `Xₙ` some `Yₘ ⊆ Xₙ`. -/
+def SeqEquiv (X Y : ℕ → Set α) : Prop :=
+  (∀ m, ∃ n, X n ⊆ Y m) ∧ (∀ n, ∃ m, Y m ⊆ X n)
+
+/-- **Factoid 1.5b (Scott 1981, PRG-19).** "It is easy to prove that … the two families are
+*equal* if and only if the sequences are *equivalent*." Given that every term of each sequence
+is a neighbourhood, the limit families coincide exactly when the sequences are equivalent. -/
+theorem limitFamily_eq_iff (X Y : ℕ → Set α)
+    (hX : ∀ n, V.mem (X n)) (hY : ∀ m, V.mem (Y m)) :
+    V.limitFamily X = V.limitFamily Y ↔ SeqEquiv X Y := by
+  constructor
+  · intro hEq
+    refine ⟨fun m => ?_, fun n => ?_⟩
+    · have hmem : Y m ∈ V.limitFamily Y := ⟨hY m, m, subset_rfl⟩
+      rw [← hEq] at hmem
+      obtain ⟨_, n, hn⟩ := hmem
+      exact ⟨n, hn⟩
+    · have hmem : X n ∈ V.limitFamily X := ⟨hX n, n, subset_rfl⟩
+      rw [hEq] at hmem
+      obtain ⟨_, m, hm⟩ := hmem
+      exact ⟨m, hm⟩
+  · rintro ⟨h1, h2⟩
+    apply Set.ext
+    intro Z
+    constructor
+    · rintro ⟨hZ, n, hn⟩
+      obtain ⟨m, hm⟩ := h2 n
+      exact ⟨hZ, m, hm.trans hn⟩
+    · rintro ⟨hZ, m, hm⟩
+      obtain ⟨n, hn⟩ := h1 m
+      exact ⟨hZ, n, hn.trans hm⟩
 
 end NeighborhoodSystem
 

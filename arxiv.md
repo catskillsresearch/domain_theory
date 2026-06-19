@@ -1146,11 +1146,11 @@ pages.
 | **Theorem 1.1c** | Theorem | 133–137 | `interUpTo_mem` (extend (ii) to finite seqs) + `consistent_iff_interUpTo_mem` (consistency ⟺ `⋂ ∈ 𝒟`); aux `Consistent`, `interUpTo_subset` | **Pass** |
 | **Example 1.2** | Example | 141–153 | `Δ={0,1}`, `𝒟={{0,1},{0},{1}}`; `neighborhoodSystem`, `element_classification` (exactly 3 filters), `bot_is_unique_partial` (one partial element) | **Pass** |
 | **Example 1.3** | Example | 155–170 | `Δ={0,1,2}`, `𝒟={{0,1,2},{1,2},{2}}` (linear); `neighborhoodSystem`, `element_classification` (exactly 3 filters), `bot_lt_elemTwelve`, `elemTwelve_lt_elemTwo`, `elemTwo_maximal` (linear chain; token `2` total) | **Pass** |
-| **Example 1.4** | Example | 172–193 | depth-2 binary tree; subtrees as neighbourhoods | **Not Yet** |
-| **Factoid 1.4a** | Factoid | 195–201 | "*nested-or-disjoint*" ⟹ neighbourhood system (the "very special circumstance" of 1.2–1.4) | **Not Yet** |
-| **Example 1.5** | Example | 203–205 | `Δ={0,1,2,3}`, `𝒟 =` all non-empty subsets | **Not Yet** |
-| **Factoid 1.5a** | Factoid | 203–205 | in 1.5: consistent ⟺ non-empty intersection; `𝒟` is a system | **Not Yet** |
-| **Factoid 1.5b** | Factoid | 227–233 | limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}`: equal families ⟺ equivalent convergent sequences | **Not Yet** |
+| **Example 1.4** | Example | 172–193 | depth-2 binary tree `Δ={Λ,0,1,00,01,10,11}`; subtrees as neighbourhoods; `neighborhoodSystem`, `element_classification` (exactly 7 filters), branch `bot_lt_elemZero/elemOne`, `elemZero_lt_elem00/01`, `elemOne_lt_elem10/11`, four leaf `elemXY_maximal` (first branching; 4 total elements) | **Pass** |
+| **Factoid 1.4a** | Factoid | 195–201 | `NestedOrDisjoint` + `NeighborhoodSystem.ofNestedOrDisjoint`: "*nested-or-disjoint*" ⟹ neighbourhood system (the "very special circumstance" of 1.2–1.4); choice-free | **Pass** |
+| **Example 1.5** | Example | 203–205 | `Δ={0,1,2,3}`, `𝒟 =` all non-empty subsets; `Example15.neighborhoodSystem` (`mem X := X.Nonempty`), `mem_iff_nonempty` | **Pass** |
+| **Factoid 1.5a** | Factoid | 203–205 | in 1.5: `consistent_iff_inter_nonempty` (consistent ⟺ non-empty intersection); `𝒟` is a system | **Pass** |
+| **Factoid 1.5b** | Factoid | 227–233 | `limitFamily`, `SeqEquiv`, `limitFamily_eq_iff`: limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}` equal ⟺ sequences equivalent; choice-free | **Pass** |
 | **Def 1.6** | Definition | 235–243 | `Element` (filter: `sub`, `master_mem`, `inter_mem`, `up_mem`) + `Element.ext`; domain `\|𝒟\|` | **Pass** |
 | **Exercise 1.22** | Exercise | 247 (ref) | a filter need not be sequence-generated | **Ref** |
 | **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}`; the finite elements | **Not Yet** |
@@ -1185,6 +1185,11 @@ flowchart TD
   T11c["Theorem 1.1c interUpTo_mem · consistent_iff_interUpTo_mem ✓"]
   E12["Example 1.2 element_classification ✓"]
   E13["Example 1.3 element_classification ✓"]
+  E14["Example 1.4 element_classification ✓"]
+  F14a["Factoid 1.4a ofNestedOrDisjoint ✓"]
+  E15["Example 1.5 𝒟 = nonempty subsets ✓"]
+  F15a["Factoid 1.5a consistent ⟺ nonempty ✓"]
+  F15b["Factoid 1.5b limitFamily_eq_iff ✓"]
   D16["Def 1.6 Element · Element.ext ✓"]
   D18o["Def 1.8 PartialOrder ✓"]
   D17["Def 1.7 principal ↑X"]
@@ -1197,11 +1202,21 @@ flowchart TD
   F11a --> T11c
   F11b --> T11c
   D11 --> D16
+  D11 --> F14a
+  F14a --> E12
+  F14a --> E13
+  F14a --> E14
   D16 --> D18o
   D16 --> E12
   D18o --> E12
   D16 --> E13
   D18o --> E13
+  D16 --> E14
+  D18o --> E14
+  D11 --> E15
+  E15 --> F15a
+  T11c --> F15a
+  D16 --> F15b
   D16 --> D17
   D17 --> F17a
   D17 --> F17b
@@ -1214,8 +1229,8 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Domain/Neighborhood/Example12.lean`, `Domain/Neighborhood/Example13.lean`) |
-| Report card  | **8 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Example 1.2, Example 1.3) · rest queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`) |
+| Report card  | **13 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b) · rest queued |
 
 
 ### 4.5 Selected proof notes
@@ -1289,6 +1304,64 @@ approximation proceeds in **two steps** to the total element (token `2`); tokens
 not total (they appear in larger neighbourhoods but do not determine filters); the direction of
 approximation is **unique** (no branching). Unlike 1.2 (one partial, two total), 1.3 has **two
 partial** elements and **one total**. Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Example 1.4 — `Domain/Neighborhood/Example14.lean`
+
+Scott's third worked example and the first with **branching**: the depth-2 binary tree
+`Δ = {Λ,0,1,00,01,10,11}` (`Token := Fin 7`, with `Λ=0,…,11=6`), neighbourhoods the subtrees
+`𝒟 = {Δ, left={0,00,01}, right={1,10,11}, {00},{01},{10},{11}}` — encoded as `left={1,3,4}`,
+`right={2,5,6}`, and the four leaf singletons. Condition (ii) reduces to the "nested-or-disjoint"
+table: of the 49 pairwise intersections, each is again a neighbourhood or `∅`. Rather than search,
+`inter_eq` rewrites `X ∩ Y` to its canonical value via a complete `simp only` set of the 24
+distinct intersection lemmas (both orders) plus `master_inter`/`inter_master`/`Set.inter_self`,
+so the matching disjunct closes by `rfl` — deterministic and fast (the naive 49×8 `first` ladder
+times out). The `∅` outcomes are inadmissible in `inter_mem` because a witness `Z ⊆ ∅` would force
+`∅ ∈ 𝒟` (`not_mem_empty`).
+
+The payoff is the **seven-filter classification** (`element_classification`): the bottom `⊥={Δ}`,
+two branch partials `elemZero={Δ,left}` / `elemOne={Δ,right}`, and four total leaf filters
+`elem00,…,elem11`. The proof cases on the minimal non-master neighbourhood: a leaf in `x` pins the
+total filter (`mem_leafXY_imp`, using that distinct leaves and cross-branch neighbourhoods
+intersect to `∅`); otherwise `left`/`right` membership gives a branch partial, else `⊥`. The order
+lemmas realize the **tree with choice**: `bot_lt_elemZero/elemOne` (two incomparable partials above
+`⊥`), `elemZero_lt_elem00/01`, `elemOne_lt_elem10/11` (each partial below its two leaves), and
+`elemXY_maximal` for the four leaves (each leaf filter is maximal — a total element). Contrast the
+prior examples: 1.2 is a fork at the bottom (one partial, two total), 1.3 a linear chain (two
+partial, one total), and 1.4 a genuine tree (three partial, four total) where branching encodes
+the choice in extending a partial sequence. Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Factoid 1.4a (nested-or-disjoint ⟹ system) — `NestedOrDisjoint`, `ofNestedOrDisjoint` (`Basic.lean`)
+
+Scott's "very special circumstance" after Examples 1.2–1.4 is the predicate `NestedOrDisjoint mem
+:= ∀ X Y, mem X → mem Y → X ⊆ Y ∨ Y ⊆ X ∨ X ∩ Y = ∅`. The constructor
+`NeighborhoodSystem.ofNestedOrDisjoint mem master master_mem hnd` then discharges condition (ii)
+without choice by casing on `hnd`: if `X ⊆ Y` then `X ∩ Y = X` (`Set.inter_eq_left.mpr`) so the
+intersection is `mem` by `hX`; symmetrically for `Y ⊆ X`; and if `X ∩ Y = ∅` the consistency
+witness `Z ⊆ X ∩ Y = ∅` gives `Z = ∅` (`Set.subset_empty_iff`), so `X ∩ Y = ∅ = Z ∈ 𝒟`. This is
+the uniform reason Examples 1.2 (fork), 1.3 (chain) and 1.4 (tree) are neighbourhood systems.
+Footprint `[propext, Quot.sound]`.
+
+#### Example 1.5 / Factoid 1.5a — `Domain/Neighborhood/Example15.lean`
+
+`Δ = {0,1,2,3}` (`Token := Fin 4`) with `𝒟` = all **non-empty** subsets (`mem X := X.Nonempty`,
+`master := Set.univ`). Condition (ii) is immediate and choice-free: a non-empty witness `Z ⊆ X ∩ Y`
+makes `X ∩ Y` non-empty (`obtain ⟨z, hz⟩ := hZ; exact ⟨z, hZsub hz⟩`). **Factoid 1.5a**
+(`consistent_iff_inter_nonempty`) is Scott's remark that "sets are consistent iff they have a
+non-empty intersection": reusing the `Basic` `Consistent`/`interUpTo` infrastructure, a prefix is
+consistent (`∃ Z, Z.Nonempty ∧ Z ⊆ ⋂`) iff `⋂_{i<n} Xᵢ` is non-empty (`→` shrinks the witness, `←`
+takes the intersection as its own witness). Notably this example needs **no** `fin_cases`/`decide`
+and audits to `[propext]` (system) / `[propext, Quot.sound]` (Factoid 1.5a) — a fully constructive
+contrast to the finite Examples 1.2–1.4.
+
+#### Factoid 1.5b (the limit family) — `limitFamily`, `SeqEquiv`, `limitFamily_eq_iff` (`Basic.lean`)
+
+The prose motivating Definition 1.6: a descending sequence `⟨Xₙ⟩` of neighbourhoods determines the
+limit family `limitFamily X = {Z ∈ 𝒟 ∣ ∃ n, Xₙ ⊆ Z}`, and two sequences are `SeqEquiv` ("equally
+deep") when `∀ m, ∃ n, Xₙ ⊆ Yₘ` and `∀ n, ∃ m, Yₘ ⊆ Xₙ`. `limitFamily_eq_iff` proves
+`limitFamily X = limitFamily Y ↔ SeqEquiv X Y` (assuming each term is a neighbourhood): `→` feeds
+each `Yₘ ∈ limitFamily Y` through the family equality to extract `Xₙ ⊆ Yₘ` (and symmetrically);
+`←` chains `Yₘ ⊆ Xₙ ⊆ Z` (and symmetrically) via transitivity. Antitonicity of the sequences is not
+needed for the criterion itself. Footprint `[propext, Quot.sound]`.
 
 ---
 

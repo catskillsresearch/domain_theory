@@ -12,4 +12,6 @@ import Domain.ContinuousLattice.FunctionSpaceTower
 import Domain.Neighborhood.Basic
 import Domain.Neighborhood.Example12
 import Domain.Neighborhood.Example13
+import Domain.Neighborhood.Example14
+import Domain.Neighborhood.Example15
 import Domain.InfoSys
