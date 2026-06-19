@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (38 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **36 Pass · 0 Stuck · 2 Not Yet**.
+full deliverable. Score: **37 Pass · 0 Stuck · 1 Not Yet**.
 
 Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
 Session prompt: `HANDOFF-Theorem-4.4.md`.
@@ -211,7 +211,7 @@ Session prompt: `HANDOFF-Theorem-4.4.md`.
 | 4   | Lemma 4.5 | `lemma_4_5`, `idInf_eq_iSup` (remark after 4.2)                                                                                  | `InverseLimits.lean`  | **Pass**    | recognize projections from limits    |
 | 4   | Thm 4.4(a) | `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`)                                       | `FunctionSpaceTower.lean` | **Pass**    | `i∞`/`j∞` as `ScottMap`s (sups of Scott maps) |
 | 4   | Thm 4.4(b) | `projInfInf_comp_embInfInf`                                                                                                     | `FunctionSpaceTower.lean` | **Pass**    | `j∞ ∘ i∞ = id` on `D∞`                    |
-| 4   | Thm 4.4(c) | `embInfInf_comp_projInfInf` (or similar)                                                                                        | `FunctionSpaceTower.lean` | **Not Yet** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5`) |
+| 4   | Thm 4.4(c) | `embInfInf_comp_projInfInf`                                                                                                     | `FunctionSpaceTower.lean` | **Pass**    | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5`) |
 | 4   | Thm 4.4(d) | `theorem_4_4`                                                                                                                   | `FunctionSpaceTower.lean` | **Not Yet** | capstone `D∞ ≅ [D∞ → D∞]`                 |
 
 
@@ -387,8 +387,8 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-**4.1**, **4.2**, **4.3**, **4.5**, **4.4(a)**, and **4.4(b)** are now **Pass** (see proof notes);
-remaining §4 nodes (4.4(c)–(d)) **Not Yet**.
+**4.1**, **4.2**, **4.3**, **4.5**, **4.4(a)**, **4.4(b)**, and **4.4(c)** are now **Pass** (see proof
+notes); the remaining §4 node (4.4(d)) is **Not Yet**.
 
 ```mermaid
 flowchart TD
@@ -403,7 +403,7 @@ flowchart TD
   L45["lemma_4_5 ✓"]
   T44a["Thm 4.4(a) i∞/j∞ ✓"]
   T44b["Thm 4.4(b) j∞∘i∞=id ✓"]
-  T44c["Thm 4.4(c) i∞∘j∞=id"]
+  T44c["Thm 4.4(c) i∞∘j∞=id ✓"]
   T44d["Thm 4.4(d) theorem_4_4"]
 
   P29a --> P41
@@ -1055,7 +1055,7 @@ from `ScottMap.sSup_apply` + `Set.range_comp`, and the `*_apply` reductions of t
 | ------- | ---- |
 | **(a)** | Define `i∞`/`j∞` as `ScottMap`s; prove continuity — **Pass** (`embInfInf`/`projInfInf`) |
 | **(b)** | `j∞ ∘ i∞ = id` on `D∞` — **Pass** (`projInfInf_comp_embInfInf`) |
-| **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5` + `idInf_eq_iSup`) |
+| **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` — **Pass** (`embInfInf_comp_projInfInf`) |
 | **(d)** | Package `theorem_4_4` |
 
 **Thm 4.4(b) — `projInfInf_comp_embInfInf` (Pass).** Goal: `j∞ ∘ i∞ = id` on `D∞`. Following Scott's
@@ -1072,6 +1072,20 @@ of the Prop 4.2 projection pair, giving `g n n = i_{(n+1)∞}(x_{n+1})`; an inde
 (`Monotone.iSup_nat_add`) plus `inverseLimit_eq_iSup` recognizes the result as `x`.
 Footprint `[propext, Classical.choice, Quot.sound]`.
 
+**Thm 4.4(c) — `embInfInf_comp_projInfInf` (Pass).** Goal: `i∞ ∘ j∞ = id` on `[D∞ → D∞]`. The
+restrictions `uₙ = j_{∞n} ∘ f ∘ i_{n∞} = conjMap (j_{∞n}, i_{n∞}) f ∈ D_{n+1}` satisfy the
+Lemma-4.5 recursion `jₙ₊₁(u_{n+2}) = u_{n+1}` — proved as `towerProj_retr_conjMap_succ`, the equality
+sibling of (b)'s `conjMap_incl_le_conjMap_succ` (unfold `(towerProj (n+1)).retr` as the
+function-space `conjMap`, then `embInf_succ` and the compatibility equation `x.2 n`). Hence
+`lemma_4_5` gives the components `(j∞ f).(n+1) = uₙ` (`hcoord`). Evaluating `i∞(j∞ f)` pointwise
+(`embInfInf_apply`, then `ScottMap.sSup_apply` for the pointwise lub) and rewriting each summand with
+`hcoord` + `conjMap_apply` reduces the `n`-th term to `rₙ (f (rₙ z))` with `rₙ = i_{n∞} ∘ j_{∞n}`.
+The analytic step (Scott ~1326–1334) confines the lub via continuity of `f` and the functional
+equation `id = ⨆ₙ rₙ` (here just `inverseLimit_eq_iSup`, since `rₙ z = i_{n∞}(zₙ)`):
+`f z = ⨆ₖ rₖ (f z) = ⨆ₖ rₖ (f (⨆ₘ rₘ z)) = ⨆ₖ ⨆ₘ rₖ (f (rₘ z))`, and the monotone double sup
+collapses to the diagonal `⨆ₙ rₙ (f (rₙ z))` (`iSup₂_monotone_eq_diagonal`), which is exactly the
+evaluated `i∞(j∞ f) z`. Footprint `[propext, Classical.choice, Quot.sound]`.
+
 Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
@@ -1079,7 +1093,7 @@ Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Hard     | Scott §4 Thm 4.4 subgoals (a)–(d); see `HANDOFF-Theorem-4.4.md`             | Opus 4.8 (one subgoal per session) |
+| Hard     | Scott §4 Thm 4.4 subgoal (d) (package `theorem_4_4`); see `HANDOFF-Theorem-4.4.md` | Opus 4.8 (one subgoal per session) |
 
 
 ---
