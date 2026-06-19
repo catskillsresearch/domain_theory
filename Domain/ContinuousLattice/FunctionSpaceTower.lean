@@ -87,6 +87,17 @@ theorem conjMap_preservesDirectedSup (post : ScottMap Y Z) (pre : ScottMap W Y) 
     ScottMap.sSup_apply, Set.image_image, Set.image_image]
   rfl
 
+theorem conjMap_preservesDirectedSup_apply (post : ScottMap Y Z) (pre : ScottMap W Y)
+    (F : Set (ScottMap Y Y)) (hF : F.Nonempty) (hFdir : DirectedOn (· ≤ ·) F) (y : W) :
+    post ((sSup F : ScottMap Y Y) (pre y)) = (sSup (conjMapFun post pre '' F) : ScottMap W Z) y := by
+  have hdir : DirectedOn (· ≤ ·) ((fun f : ScottMap Y Y => f (pre y)) '' F) := by
+    rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+    obtain ⟨c, hc, hac, hbc⟩ := hFdir a ha b hb
+    exact ⟨c (pre y), ⟨c, hc, rfl⟩, hac (pre y), hbc (pre y)⟩
+  rw [ScottMap.sSup_apply F (pre y), post.preservesDirectedSup_coe _ (hF.image _) hdir,
+    ScottMap.sSup_apply, Set.image_image, Set.image_image]
+  rfl
+
 /-- Conjugation `f ↦ post ∘ f ∘ pre` as a Scott map `[Y → Y] → [W → Z]`. -/
 noncomputable def conjMap (post : ScottMap Y Z) (pre : ScottMap W Y) :
     ScottMap (ScottMap Y Y) (ScottMap W Z) :=
@@ -237,6 +248,207 @@ theorem embInfInf_preservesDirectedSup :
 theorem projInfInf_preservesDirectedSup :
     PreservesDirectedSup (projInfInf D₀ j₀ : DInfFn D₀ j₀ → DInf D₀ j₀) :=
   (proposition_2_5 _).mp (projInfInf D₀ j₀).continuous
+
+/-! ### Theorem 4.4(b): `j_∞ ∘ i_∞ = id` on `D_∞`
+
+Scott's calculation (~lines 1290–1294): expand `j_∞(i_∞(x))` as a double sup, collapse the monotone
+double limit to the diagonal using `projInf ∘ embInf = id` on each summand, then recognize `x` via
+`inverseLimit_eq_iSup` (with a one-step index shift). -/
+
+section Thm44b
+
+variable (D₀ : CLat.{u})
+  (j₀ : IsContinuousLatticeProjection D₀.carrier (ScottMap D₀.carrier D₀.carrier))
+
+/-- Conjugation commutes with a supremum indexed by `ℕ` (the range is directed when `f` is monotone).
+Since `conjMap post pre` is itself a Scott map, this is just preservation of directed suprema. -/
+theorem conjMap_iSup (n : ℕ) (post : ScottMap (DInf D₀ j₀) (towerType D₀ n))
+    (pre : ScottMap (towerType D₀ n) (DInf D₀ j₀))
+    (f : ℕ → ScottMap (DInf D₀ j₀) (DInf D₀ j₀)) (hf : Monotone f) :
+    conjMap post pre (⨆ m, f m) = ⨆ m, conjMap post pre (f m) := by
+  have hdir : DirectedOn (· ≤ ·) (Set.range f) :=
+    directedOn_range.2 fun a b => ⟨max a b, hf (le_max_left a b), hf (le_max_right a b)⟩
+  have hne := Set.range_nonempty f
+  rw [show (⨆ m, f m) = sSup (Set.range f) from sSup_range.symm,
+    (conjMap post pre).preservesDirectedSup_coe (Set.range f) hne hdir, ← Set.range_comp]
+  rfl
+
+/-- The inverse-limit embedding commutes with a supremum in `D_{n+1}` (monotone ⇒ directed). -/
+theorem embInf_succ_iSup (n : ℕ) (f : ℕ → towerType D₀ (n + 1)) (hf : Monotone f) :
+    embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) (⨆ m, f m) =
+      ⨆ m, embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) (f m) := by
+  have hdir : DirectedOn (· ≤ ·) (Set.range f) :=
+    directedOn_range.2 fun a b => ⟨max a b, hf (le_max_left a b), hf (le_max_right a b)⟩
+  have hne := Set.range_nonempty f
+  rw [show (⨆ m, f m) = sSup (Set.range f) from sSup_range.symm,
+    (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)).preservesDirectedSup_coe
+      (Set.range f) hne hdir, ← Set.range_comp]
+  rfl
+
+/-- **Diagonal simplification.** `conjMap (j_{∞n}, i_{n∞})` applied to the `n`-th summand of `i_∞`
+recovers the component `x_{n+1}`. This is exactly `j_{[·]} ∘ i_{[·]} = id` for the function-space
+projection built from `proposition_4_2`. -/
+theorem conj_iInfTerm_eq (n : ℕ) (x : DInf D₀ j₀) :
+    conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+            (embInf (towerType D₀) (towerProj D₀ j₀) n)
+            (iInfTerm D₀ j₀ n x) = x.1 (n + 1) :=
+  (proposition_4_2 (towerType D₀) (towerProj D₀ j₀) n).functionSpace.retr_incl
+    (projInf (towerType D₀) (towerProj D₀ j₀) (n + 1) x)
+
+/-- `i_{n∞}(yₙ) ⊑ y_{n+1}`: climbing one level and embedding stays below the next component. -/
+theorem incl_projInf_le_projInf_succ (n : ℕ) (w : DInf D₀ j₀) :
+    (towerProj D₀ j₀ n).incl (projInf (towerType D₀) (towerProj D₀ j₀) n w)
+      ≤ projInf (towerType D₀) (towerProj D₀ j₀) (n + 1) w := by
+  have h := (towerProj D₀ j₀ n).incl_retr_le
+    (projInf (towerType D₀) (towerProj D₀ j₀) (n + 1) w)
+  rwa [show (towerProj D₀ j₀ n).retr (projInf (towerType D₀) (towerProj D₀ j₀) (n + 1) w)
+      = projInf (towerType D₀) (towerProj D₀ j₀) n w from w.2 n] at h
+
+/-- `i_∞` is monotone in its summand index. -/
+theorem iInfTerm_le_succ (x : DInf D₀ j₀) (m : ℕ) :
+    iInfTerm D₀ j₀ m x ≤ iInfTerm D₀ j₀ (m + 1) x := by
+  rw [ScottMap.le_def]
+  intro z
+  rw [iInfTerm_apply, iInfTerm_apply,
+    ← embInf_succ (towerType D₀) (towerProj D₀ j₀) m
+      (x.1 (m + 1) (projInf (towerType D₀) (towerProj D₀ j₀) m z))]
+  refine embInf_monotone (towerType D₀) (towerProj D₀ j₀) (m + 1) ?_
+  have hab : (towerProj D₀ j₀ m).incl (projInf (towerType D₀) (towerProj D₀ j₀) m z)
+      ≤ projInf (towerType D₀) (towerProj D₀ j₀) (m + 1) z :=
+    incl_projInf_le_projInf_succ D₀ j₀ m z
+  calc (towerProj D₀ j₀ m).incl
+          (x.1 (m + 1) (projInf (towerType D₀) (towerProj D₀ j₀) m z))
+      = (towerProj D₀ j₀ m).incl
+          (((towerProj D₀ j₀ (m + 1)).retr (x.1 (m + 2)))
+            (projInf (towerType D₀) (towerProj D₀ j₀) m z)) := by
+        rw [show ((towerProj D₀ j₀ (m + 1)).retr (x.1 (m + 2))) = x.1 (m + 1) from x.2 (m + 1)]
+    _ = (towerProj D₀ j₀ m).incl
+          ((towerProj D₀ j₀ m).retr
+            (x.1 (m + 2) ((towerProj D₀ j₀ m).incl
+              (projInf (towerType D₀) (towerProj D₀ j₀) m z)))) := by
+        rw [towerProj_succ_retr_apply]
+    _ ≤ x.1 (m + 2) ((towerProj D₀ j₀ m).incl
+          (projInf (towerType D₀) (towerProj D₀ j₀) m z)) :=
+        (towerProj D₀ j₀ m).incl_retr_le _
+    _ ≤ x.1 (m + 2) (projInf (towerType D₀) (towerProj D₀ j₀) (m + 1) z) :=
+        ScottMap.monotone (x.1 (m + 2)) hab
+
+theorem iInfTerm_monotone (x : DInf D₀ j₀) : Monotone (fun m => iInfTerm D₀ j₀ m x) :=
+  monotone_nat_of_le_succ (iInfTerm_le_succ D₀ j₀ x)
+
+/-- A monotone double `iSup` over `ℕ × ℕ` equals the diagonal `iSup`. -/
+theorem iSup₂_monotone_eq_diagonal {α : Type*} [CompleteLattice α] (f : ℕ → ℕ → α)
+    (hfm : ∀ n, Monotone (f n)) (hfn : ∀ m, Monotone (fun n => f n m)) :
+    ⨆ n, ⨆ m, f n m = ⨆ n, f n n := by
+  apply le_antisymm
+  · refine iSup_le fun n => iSup_le fun m => ?_
+    have hk : n ≤ n ⊔ m := le_sup_left
+    have hk' : m ≤ n ⊔ m := le_sup_right
+    calc f n m ≤ f (n ⊔ m) m := hfn m hk
+      _ ≤ f (n ⊔ m) (n ⊔ m) := hfm (n ⊔ m) hk'
+      _ ≤ ⨆ n', f n' n' := le_iSup (fun n' => f n' n') (n ⊔ m)
+  · refine iSup_le fun n => le_trans (le_iSup (f n) n) (le_iSup (fun n' => ⨆ m, f n' m) n)
+
+/-- **Conjugation climbs the tower (one step).** Lifting `conjMap (j_{∞n}, i_{n∞}) f` along `i_{n+1}`
+stays below `conjMap (j_{∞(n+1)}, i_{(n+1)∞}) f`. Both sides live in `D_{n+2}`; the inequality is the
+algebraic content that makes the double sup defining `j_∞ ∘ i_∞` monotone in the level index `n`. -/
+theorem conjMap_incl_le_conjMap_succ (n : ℕ) (f : DInfFn D₀ j₀) :
+    (towerProj D₀ j₀ (n + 1)).incl
+        (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                 (embInf (towerType D₀) (towerProj D₀ j₀) n) f)
+      ≤ conjMap (projInf (towerType D₀) (towerProj D₀ j₀) (n + 1))
+                (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)) f := by
+  refine ScottMap.le_def.mpr fun y => ?_
+  calc (towerProj D₀ j₀ n).incl
+          (projInf (towerType D₀) (towerProj D₀ j₀) n
+            (f (embInf (towerType D₀) (towerProj D₀ j₀) n ((towerProj D₀ j₀ n).retr y))))
+      ≤ (towerProj D₀ j₀ n).incl
+          (projInf (towerType D₀) (towerProj D₀ j₀) n
+            (f (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) y))) := by
+        refine (towerProj D₀ j₀ n).incl.monotone
+          ((projInf (towerType D₀) (towerProj D₀ j₀) n).monotone (f.monotone ?_))
+        rw [← embInf_succ (towerType D₀) (towerProj D₀ j₀) n ((towerProj D₀ j₀ n).retr y)]
+        exact embInf_monotone (towerType D₀) (towerProj D₀ j₀) (n + 1)
+          ((towerProj D₀ j₀ n).incl_retr_le y)
+    _ ≤ projInf (towerType D₀) (towerProj D₀ j₀) (n + 1)
+          (f (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) y)) :=
+        incl_projInf_le_projInf_succ D₀ j₀ n
+          (f (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) y))
+
+/-- `j_∞(i_∞(x)) = ⨆ₙ i_{(n+1)∞}(x_{n+1})`. -/
+theorem projInfInf_embInfInf_eq (x : DInf D₀ j₀) :
+    projInfInf D₀ j₀ (embInfInf D₀ j₀ x) = ⨆ n, embInf (towerType D₀) (towerProj D₀ j₀) (n + 1) (x.1 (n + 1)) := by
+  rw [projInfInf_apply]
+  set g := fun n m =>
+    embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)
+      (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+               (embInf (towerType D₀) (towerProj D₀ j₀) n)
+               (iInfTerm D₀ j₀ m x)) with hg
+  have hmono (n : ℕ) : Monotone (fun m =>
+      conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+              (embInf (towerType D₀) (towerProj D₀ j₀) n)
+              (iInfTerm D₀ j₀ m x)) := fun a b hab =>
+    (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+             (embInf (towerType D₀) (towerProj D₀ j₀) n)).monotone
+      (ScottMap.le_def.mpr (iInfTerm_monotone D₀ j₀ x hab))
+  have hinner (n : ℕ) : jInfTerm D₀ j₀ n (embInfInf D₀ j₀ x) = ⨆ m, g n m :=
+    calc jInfTerm D₀ j₀ n (embInfInf D₀ j₀ x)
+        = embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)
+            (⨆ m, conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                          (embInf (towerType D₀) (towerProj D₀ j₀) n)
+                          (iInfTerm D₀ j₀ m x)) := by
+          rw [jInfTerm_apply, embInfInf_apply,
+            conjMap_iSup D₀ j₀ n (projInf (towerType D₀) (towerProj D₀ j₀) n)
+              (embInf (towerType D₀) (towerProj D₀ j₀) n)
+              (fun m => iInfTerm D₀ j₀ m x) (iInfTerm_monotone D₀ j₀ x)]
+          rfl
+      _ = ⨆ m, embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)
+              (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                       (embInf (towerType D₀) (towerProj D₀ j₀) n)
+                       (iInfTerm D₀ j₀ m x)) :=
+          embInf_succ_iSup D₀ j₀ n _ (hmono n)
+      _ = ⨆ m, g n m := by simp only [hg]
+  have g_mono_m (n : ℕ) : Monotone (g n) := by
+    intro a b hab
+    rw [hg]
+    exact (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)).monotone
+      ((conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                 (embInf (towerType D₀) (towerProj D₀ j₀) n)).monotone
+        (ScottMap.le_def.mpr (iInfTerm_monotone D₀ j₀ x hab)))
+  have g_mono_n_succ (m n : ℕ) : g n m ≤ g (n + 1) m := by
+    rw [hg]
+    dsimp only
+    rw [← embInf_succ (towerType D₀) (towerProj D₀ j₀) (n + 1)
+        (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                 (embInf (towerType D₀) (towerProj D₀ j₀) n)
+                 (iInfTerm D₀ j₀ m x))]
+    exact embInf_monotone (towerType D₀) (towerProj D₀ j₀) (n + 2)
+      (conjMap_incl_le_conjMap_succ D₀ j₀ n (iInfTerm D₀ j₀ m x))
+  have g_mono_n (m : ℕ) : Monotone (fun n => g n m) :=
+    monotone_nat_of_le_succ (g_mono_n_succ m)
+  have hin : (⨆ n, jInfTerm D₀ j₀ n (embInfInf D₀ j₀ x)) = ⨆ n, ⨆ m, g n m := by
+    congr 1
+    funext n
+    exact hinner n
+  rw [hin, iSup₂_monotone_eq_diagonal g g_mono_m g_mono_n]
+  congr 1
+  funext n
+  rw [hg]
+  dsimp only
+  rw [conj_iInfTerm_eq D₀ j₀ n x]
+
+/-- **Scott 1972, §4 (Theorem 4.4, first half).** `j_∞ ∘ i_∞ = id` on `D_∞`. -/
+theorem projInfInf_comp_embInfInf :
+    (projInfInf D₀ j₀).comp (embInfInf D₀ j₀) = ScottMap.idMap := by
+  apply ScottMap.ext
+  intro x
+  have hmono : Monotone (fun k => embInf (towerType D₀) (towerProj D₀ j₀) k (x.1 k)) :=
+    monotone_nat_of_le_succ (embInf_le_succ (towerType D₀) (towerProj D₀ j₀) x)
+  rw [ScottMap.comp_apply, ScottMap.idMap_apply, projInfInf_embInfInf_eq D₀ j₀ x,
+    Monotone.iSup_nat_add hmono 1]
+  exact (inverseLimit_eq_iSup (towerType D₀) (towerProj D₀ j₀) x).symm
+
+end Thm44b
 
 end LimitMaps
 

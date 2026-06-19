@@ -203,6 +203,16 @@ theorem embLE_succ_left {n m : ℕ} (h1 : n ≤ m) (h2 : n + 1 ≤ m) (x : D n) 
   simp only [embLE]
   exact Nat.leRecOn_succ_left x h1 h2
 
+theorem embLE_mono {n m : ℕ} (h : n ≤ m) {x y : D n} (hxy : x ≤ y) :
+    embLE D P h x ≤ embLE D P h y := by
+  induction m, h using Nat.le_induction with
+  | base =>
+      rw [embLE_self, embLE_self]
+      exact hxy
+  | succ k hk ih =>
+      rw [embLE_succ D P hk (Nat.le_succ_of_le hk), embLE_succ D P hk (Nat.le_succ_of_le hk)]
+      exact (P k).incl.monotone ih
+
 /-- Descend the tower of projections: for `m ≤ n`, `projLE h = j_m ∘ … ∘ j_{n-1} : D_n → Dₘ`. -/
 def projLE {m n : ℕ} (h : m ≤ n) (x : D n) : D m :=
   Nat.leRecOn (C := fun k => D k → D m) h
@@ -215,6 +225,16 @@ theorem projLE_succ {m n : ℕ} (h1 : m ≤ n) (h2 : m ≤ n + 1) (z : D (n + 1)
     projLE D P h2 z = projLE D P h1 ((P n).retr z) := by
   simp only [projLE]
   rw [Nat.leRecOn_succ (C := fun k => D k → D m) h1]
+
+theorem projLE_mono {m n : ℕ} (h : m ≤ n) {x y : D n} (hxy : x ≤ y) :
+    projLE D P h x ≤ projLE D P h y := by
+  induction n, h using Nat.le_induction with
+  | base =>
+      rw [projLE_self, projLE_self]
+      exact hxy
+  | succ k hk ih =>
+      rw [projLE_succ D P hk (Nat.le_succ_of_le hk), projLE_succ D P hk (Nat.le_succ_of_le hk)]
+      exact ih ((P k).retr.monotone hxy)
 
 /-- Peeling the last projection: `(P m).retr ∘ projLE (m+1 ≤ n) = projLE (m ≤ n)`. -/
 theorem projLE_retr {m : ℕ} : ∀ {n : ℕ} (h : m + 1 ≤ n) (x : D n),

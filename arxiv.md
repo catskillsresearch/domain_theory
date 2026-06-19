@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (38 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **35 Pass · 0 Stuck · 3 Not Yet**.
+full deliverable. Score: **36 Pass · 0 Stuck · 2 Not Yet**.
 
 Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
 Session prompt: `HANDOFF-Theorem-4.4.md`.
@@ -210,7 +210,7 @@ Session prompt: `HANDOFF-Theorem-4.4.md`.
 | 4   | Cor 4.3   | `corollary_4_3` (∃! mediating map), `coconeInf` (`f∞`), `coconeInf_comp_embInf`                                                  | `InverseLimits.lean`  | **Pass**    | `D∞` is also the *direct* limit      |
 | 4   | Lemma 4.5 | `lemma_4_5`, `idInf_eq_iSup` (remark after 4.2)                                                                                  | `InverseLimits.lean`  | **Pass**    | recognize projections from limits    |
 | 4   | Thm 4.4(a) | `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`)                                       | `FunctionSpaceTower.lean` | **Pass**    | `i∞`/`j∞` as `ScottMap`s (sups of Scott maps) |
-| 4   | Thm 4.4(b) | `projInfInf_comp_embInfInf` (or similar)                                                                                        | `FunctionSpaceTower.lean` | **Not Yet** | `j∞ ∘ i∞ = id` on `D∞`                    |
+| 4   | Thm 4.4(b) | `projInfInf_comp_embInfInf`                                                                                                     | `FunctionSpaceTower.lean` | **Pass**    | `j∞ ∘ i∞ = id` on `D∞`                    |
 | 4   | Thm 4.4(c) | `embInfInf_comp_projInfInf` (or similar)                                                                                        | `FunctionSpaceTower.lean` | **Not Yet** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5`) |
 | 4   | Thm 4.4(d) | `theorem_4_4`                                                                                                                   | `FunctionSpaceTower.lean` | **Not Yet** | capstone `D∞ ≅ [D∞ → D∞]`                 |
 
@@ -387,8 +387,8 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-**4.1**, **4.2**, **4.3**, **4.5**, and **4.4(a)** are now **Pass** (see proof notes); remaining
-§4 nodes (4.4(b)–(d)) **Not Yet**.
+**4.1**, **4.2**, **4.3**, **4.5**, **4.4(a)**, and **4.4(b)** are now **Pass** (see proof notes);
+remaining §4 nodes (4.4(c)–(d)) **Not Yet**.
 
 ```mermaid
 flowchart TD
@@ -402,7 +402,7 @@ flowchart TD
   C43["corollary_4_3 ✓"]
   L45["lemma_4_5 ✓"]
   T44a["Thm 4.4(a) i∞/j∞ ✓"]
-  T44b["Thm 4.4(b) j∞∘i∞=id"]
+  T44b["Thm 4.4(b) j∞∘i∞=id ✓"]
   T44c["Thm 4.4(c) i∞∘j∞=id"]
   T44d["Thm 4.4(d) theorem_4_4"]
 
@@ -1054,9 +1054,23 @@ from `ScottMap.sSup_apply` + `Set.range_comp`, and the `*_apply` reductions of t
 | Subgoal | Task |
 | ------- | ---- |
 | **(a)** | Define `i∞`/`j∞` as `ScottMap`s; prove continuity — **Pass** (`embInfInf`/`projInfInf`) |
-| **(b)** | `j∞ ∘ i∞ = id` on `D∞` (double-limit collapse + `inverseLimit_eq_iSup`) |
+| **(b)** | `j∞ ∘ i∞ = id` on `D∞` — **Pass** (`projInfInf_comp_embInfInf`) |
 | **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` (`lemma_4_5` + `idInf_eq_iSup`) |
 | **(d)** | Package `theorem_4_4` |
+
+**Thm 4.4(b) — `projInfInf_comp_embInfInf` (Pass).** Goal: `j∞ ∘ i∞ = id` on `D∞`. Following Scott's
+calculation, expand `j∞(i∞(x)) = ⨆ₙ jInfTerm n (i∞ x)`. Pushing the two conjugations through the
+inner/outer suprema (`conjMap_iSup`, `embInf_succ_iSup` — each just *preservation of directed sups*
+by the relevant `ScottMap`, since the summand families are monotone in `m`) rewrites the `n`-th term
+as `⨆ₘ g n m` with `g n m = i_{(n+1)∞}(conjMap (j_{∞n}, i_{n∞})(iInfTerm m x))`. The double sup
+`⨆ₙ ⨆ₘ g n m` collapses to the diagonal `⨆ₙ g n n` (`iSup₂_monotone_eq_diagonal`); monotonicity in
+`m` is routine, and monotonicity in `n` is the one piece of real content — `conjMap_incl_le_conjMap_succ`,
+the inequality `i_{n+1}(conjMap (j_{∞n}, i_{n∞}) f) ⊑ conjMap (j_{∞(n+1)}, i_{(n+1)∞}) f` in `D_{n+2}`,
+built from `embInf_succ`, `incl_retr_le`, and `i_{n∞}(yₙ) ⊑ y_{n+1}` (`incl_projInf_le_projInf_succ`).
+On the diagonal, `conj_iInfTerm_eq` is exactly the function-space retraction `j_{[·]} ∘ i_{[·]} = id`
+of the Prop 4.2 projection pair, giving `g n n = i_{(n+1)∞}(x_{n+1})`; an index shift
+(`Monotone.iSup_nat_add`) plus `inverseLimit_eq_iSup` recognizes the result as `x`.
+Footprint `[propext, Classical.choice, Quot.sound]`.
 
 Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 

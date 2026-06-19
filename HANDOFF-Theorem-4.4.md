@@ -19,9 +19,9 @@ You are a Lean 4 proof engineer formalizing Dana Scott's 1972 paper *Continuous 
 
 ---
 
-## Current status (35 Pass · 0 Stuck · 3 Not Yet)
+## Current status (36 Pass · 0 Stuck · 2 Not Yet)
 
-- §3 complete; §4.1–4.3 + **Lemma 4.5** done; **Thm 4.4(a) done** (`embInfInf`/`projInfInf`).
+- §3 complete; §4.1–4.3 + **Lemma 4.5** done; **Thm 4.4(a) and (b) done** (`embInfInf`/`projInfInf`, `projInfInf_comp_embInfInf`).
 - **Thm 4.4 scaffolding built** in `Domain/ContinuousLattice/FunctionSpaceTower.lean`.
 - `lake build` green; no sorries in the codebase.
 - mathlib `v4.30.0`; module root `Domain.lean` already imports `FunctionSpaceTower`.
@@ -31,7 +31,7 @@ You are a Lean 4 proof engineer formalizing Dana Scott's 1972 paper *Continuous 
 | Subgoal | Lean target(s) | Status |
 | ------- | -------------- | ------ |
 | **(a)** | Define `i∞` / `j∞` as `ScottMap`s; prove Scott continuity | **Pass** (`embInfInf`/`projInfInf`, `iInfTerm`/`jInfTerm`, `*_apply`) |
-| **(b)** | Prove `j∞ ∘ i∞ = id` on `D∞` | **Not Yet** |
+| **(b)** | Prove `j∞ ∘ i∞ = id` on `D∞` | **Pass** (`projInfInf_comp_embInfInf`) |
 | **(c)** | Prove `i∞ ∘ j∞ = id` on `[D∞ → D∞]` | **Not Yet** |
 | **(d)** | Package `theorem_4_4` (`OrderIso` or mutually-inverse `ScottMap`s) | **Not Yet** |
 

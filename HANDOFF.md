@@ -6,7 +6,7 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 
 ## Status
 
-- Report card: **35 Pass · 0 Stuck · 3 Not Yet** (zero `sorry`s). Thm 4.4 split into subgoals (a)–(d); **(a) Pass**.
+- Report card: **36 Pass · 0 Stuck · 2 Not Yet** (zero `sorry`s). Thm 4.4 split into subgoals (a)–(d); **(a) and (b) Pass**.
 - HEAD `e344fc0`, working tree clean, `lake build` green.
 - Every proven result has axiom footprint `[propext, Classical.choice, Quot.sound]`.
 - Done through **§3 complete** and **§4.1–4.3 + Lemma 4.5**; **Thm 4.4 infrastructure built + (a) done**
@@ -21,7 +21,7 @@ Capstone `D∞ ≅ [D∞ → D∞]`. Scaffolding is in `FunctionSpaceTower.lean`
 | Subgoal | Task | Lean target(s) |
 | ------- | ---- | -------------- |
 | **(a)** ✅ | Define `i∞`/`j∞` as `ScottMap`s; prove continuity | **DONE**: `embInfInf` / `projInfInf` (+ `iInfTerm`/`jInfTerm`, `*_apply`, `*_preservesDirectedSup`) in `FunctionSpaceTower.lean` |
-| **(b)** | `j∞ ∘ i∞ = id` on `D∞` | `projInfInf_comp_embInfInf` (double-sup collapse + `inverseLimit_eq_iSup`) |
+| **(b)** ✅ | `j∞ ∘ i∞ = id` on `D∞` | **DONE**: `projInfInf_comp_embInfInf` (double-sup collapse + `inverseLimit_eq_iSup`) |
 | **(c)** | `i∞ ∘ j∞ = id` on `[D∞→D∞]` | `embInfInf_comp_projInfInf` (`lemma_4_5` + `idInf_eq_iSup`) |
 | **(d)** | Package the theorem | `theorem_4_4` (`OrderIso` or mutually-inverse `ScottMap`s) |
 
