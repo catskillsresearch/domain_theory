@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **26 Pass · 1 Stuck · 8 Not Yet**.
+full deliverable. Score: **27 Pass · 0 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -197,7 +197,7 @@ full deliverable. Score: **26 Pass · 1 Stuck · 8 Not Yet**.
 | 3   | Prop 3.5  | `proposition_3_5`, `scottLambda` (+ `curry_left/right_preservesDirectedSup`, `lambda_outer_preservesDirectedSup`)                | `FunctionSpaces.lean` | **Pass**    | `lambda : [[D×D']→D''] → [D→[D'→D'']]` continuous |
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Prop 3.8  | `proposition_3_8`, `scottExtend_maximal`, `continuous_eq_sSup_openInfs`                                                          | `Constructions.lean`  | **Pass**    | continuous + extends + maximal       |
-| 3   | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | inf-level; global eq open            |
+| 3   | Lemma 3.9 | `lemma_3_9` (global eq `f̄ = j ∘ ḡ`), `scottExtend_maximal_le`                                                                    | `Theorem212.lean`     | **Pass**    | global eq via 3.8 maximality (both)  |
 | 3   | Prop 3.10 | `incl_sSup`/`incl_injective`/`incl_wayBelow` (fwd), `proposition_3_10_converse`, `retr_eq_sSup` (uniq)                           | `FunctionSpaces.lean` | **Pass**    | (i)–(iii) + converse (iv) + uniq     |
 | 3   | Prop 3.12 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 3   | Prop 3.13 | —                                                                                                                                | —                     | **Not Yet** |                                      |
@@ -342,9 +342,9 @@ flowchart TD
   P310c["proposition_3_10_converse · retr_eq_sSup (uniqueness)"]
   P38p["scottExtend · scottExtend_continuous · scottExtend_eq_of_continuous"]
   P38["proposition_3_8 (continuous + extends + maximal)"]
-  L39i["lemma_3_9_incl_inf"]
-  L39r["lemma_3_9_retr_inf"]
-  L39["lemma_3_9 global"]
+  L39i["lemma_3_9_incl_inf (aux)"]
+  L39r["lemma_3_9_retr_inf (aux)"]
+  L39["lemma_3_9 (f̄ = j ∘ ḡ)"]
   P312["proposition_3_12"]
   P313["proposition_3_13"]
   P314["proposition_3_14"]
@@ -368,11 +368,9 @@ flowchart TD
   T33 --> P37r
   T33 --> P312
   P310f --> P310c
-  P310f --> L39
   P38p --> P38
   P38 --> L39
-  L39i --> L39
-  L39r --> L39
+  D36 --> L39
   T33 --> P313
   P313 --> P314
   P312 --> P313
@@ -383,7 +381,7 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-All nodes **Not Yet**; **3.8** is now **Pass**, so §4 is blocked only on **3.9** global eq.
+All nodes **Not Yet**; **3.8** and **3.9** are now **Pass**, so §4's prerequisites are in place.
 
 ```mermaid
 flowchart TD
@@ -798,13 +796,36 @@ trivially supplies `PreservesDirectedSup i` (whence `i` is a legitimate `ScottMa
 bare `.le` coercions and `show` re-statements rather than `Set.mem_setOf` rewrites. Footprint
 `[propext, Classical.choice, Quot.sound]`.
 
+#### Lemma 3.9 (extensions commute with a range projection) — `lemma_3_9` (`Theorem212.lean`)
+
+With `e : X → Y` a subspace embedding and `i, j : D ⇄ D'` a projection on the *range*, if continuous
+`f : X → D` and `g : X → D'` satisfy `f = j ∘ g`, then their maximal extensions (3.8) satisfy
+`f̄ = j ∘ ḡ`. This is the key compatibility used to build inverse limits (§4: `f̄ₙ = jₙ ∘ f̄ₙ₊₁`).
+The proof is a clean two-inequality sandwich, exactly Scott's:
+
+- `j ∘ ḡ ⊑ f̄`: `j ∘ ḡ` is continuous and `(j ∘ ḡ) ∘ e = j ∘ g = f`, so the *equality* maximality of
+  `f̄` (`scottExtend_maximal`) applies.
+- `i ∘ f̄ ⊑ ḡ`: `(i ∘ f̄) ∘ e = i ∘ f = i ∘ j ∘ g ⊑ g` (using `i ∘ j ⊑ id`), so the *sub-solution*
+  maximality `scottExtend_maximal_le` (the remark after 3.8, added here as the `≤`-analogue of
+  `scottExtend_maximal` — identical proof, final `=` weakened to `≤`) applies.
+- combine: `f̄ = j ∘ i ∘ f̄ ⊑ j ∘ ḡ ⊑ f̄` (apply monotone `j` to the second bound, and `j ∘ i = id`).
+
+**Engineering notes / lessons from 3.9:** the lemma lives in `Theorem212.lean` because it is the
+only module importing *both* `scottExtend` (Constructions) and `IsContinuousLatticeProjection`
+(FunctionSpaces). The one real friction was composition continuity: the Scott topology is a bare
+`def`, not an `instance`, so `Continuous.comp` cannot synthesize `TopologicalSpace D`. Registering it
+with `letI` works, but **only if scoped inside the `have` for the composite** — registering it at
+the top of the proof makes the lattice `≤` ambiguous (it gets re-resolved through the topology's
+`specializationPreorder`), which silently breaks every later `le_antisymm`/`calc`. The older
+inf-level partials `lemma_3_9_incl_inf`/`lemma_3_9_retr_inf` are now superseded auxiliaries.
+Footprint `[propext, Classical.choice, Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Medium   | **Lemma 3.9** global eq                                                     | Composer 2.5                       |
-| Hard     | Scott §4                                                                    | Opus 4.8 (one theorem per session) |
+| Hard     | Scott §4 (inverse limits: 4.1–4.4)                                          | Opus 4.8 (one theorem per session) |
 
 
 ---
