@@ -134,6 +134,39 @@ theorem consistent_iff_interUpTo_mem (X : ℕ → Set α) {n : ℕ}
   · exact V.interUpTo_mem X hX
   · intro h; exact ⟨V.interUpTo X n, h, Set.Subset.refl _⟩
 
+/-- **Definition 1.6 (Scott 1981, PRG-19).** An (ideal) *element* of a neighbourhood system:
+a subfamily `x ⊆ 𝒟` that is a *filter* — (i) `Δ ∈ x`, (ii) closed under intersection, (iii)
+upward closed within `𝒟`. The domain is the type `Element` of all such filters, ordered by
+inclusion. -/
+structure Element where
+  /-- `mem X` holds iff the neighbourhood `X` belongs to the filter `x`. -/
+  mem : Set α → Prop
+  /-- `x` is a subfamily of `𝒟`. -/
+  sub : ∀ {X}, mem X → V.mem X
+  /-- (i) `Δ ∈ x`. -/
+  master_mem : mem V.master
+  /-- (ii) `X, Y ∈ x ⟹ X ∩ Y ∈ x`. -/
+  inter_mem : ∀ {X Y}, mem X → mem Y → mem (X ∩ Y)
+  /-- (iii) `X ∈ x` and `X ⊆ Y ∈ 𝒟 ⟹ Y ∈ x`. -/
+  up_mem : ∀ {X Y}, mem X → V.mem Y → X ⊆ Y → mem Y
+
+/-- Two elements with the same membership predicate are equal (the remaining fields are `Prop`s). -/
+theorem Element.ext {x y : V.Element} (h : ∀ X, x.mem X ↔ y.mem X) : x = y := by
+  rcases x with ⟨xmem, _, _, _, _⟩
+  rcases y with ⟨ymem, _, _, _, _⟩
+  have hmem : xmem = ymem := funext fun X => propext (h X)
+  subst hmem
+  rfl
+
+/-- Elements are ordered by inclusion of their membership predicates (Scott's approximation
+order, Definition 1.8). -/
+instance : PartialOrder V.Element where
+  le x y := ∀ X, x.mem X → y.mem X
+  le_refl x X h := h
+  le_trans x y z h1 h2 X h := h2 X (h1 X h)
+  le_antisymm x y h1 h2 :=
+    @Element.ext α V x y fun X => ⟨h1 X, h2 X⟩
+
 end NeighborhoodSystem
 
 end Domain.Neighborhood

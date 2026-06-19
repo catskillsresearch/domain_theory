@@ -1144,20 +1144,21 @@ pages.
 | **Factoid 1.1a** | Factoid | 125–127 | `interUpTo`, `interUpTo_zero` (`⋂_{i<0} Xᵢ = Δ`) | **Pass** |
 | **Factoid 1.1b** | Factoid | 129–131 | `interUpTo_succ` (`⋂_{i<n+1} Xᵢ = (⋂_{i<n} Xᵢ) ∩ Xₙ`) | **Pass** |
 | **Theorem 1.1c** | Theorem | 133–137 | `interUpTo_mem` (extend (ii) to finite seqs) + `consistent_iff_interUpTo_mem` (consistency ⟺ `⋂ ∈ 𝒟`); aux `Consistent`, `interUpTo_subset` | **Pass** |
-| **Example 1.2** | Example | 141–153 | `Δ={0,1}`, `𝒟={{0,1},{0},{1}}`; one partial element | **Not Yet** |
+| **Example 1.2** | Example | 141–153 | `Δ={0,1}`, `𝒟={{0,1},{0},{1}}`; `neighborhoodSystem`, `element_classification` (exactly 3 filters), `bot_is_unique_partial` (one partial element) | **Pass** |
 | **Example 1.3** | Example | 155–170 | `Δ={0,1,2}`, `𝒟={{0,1,2},{1,2},{2}}` (linear) | **Not Yet** |
 | **Example 1.4** | Example | 172–193 | depth-2 binary tree; subtrees as neighbourhoods | **Not Yet** |
 | **Factoid 1.4a** | Factoid | 195–201 | "*nested-or-disjoint*" ⟹ neighbourhood system (the "very special circumstance" of 1.2–1.4) | **Not Yet** |
 | **Example 1.5** | Example | 203–205 | `Δ={0,1,2,3}`, `𝒟 =` all non-empty subsets | **Not Yet** |
 | **Factoid 1.5a** | Factoid | 203–205 | in 1.5: consistent ⟺ non-empty intersection; `𝒟` is a system | **Not Yet** |
 | **Factoid 1.5b** | Factoid | 227–233 | limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}`: equal families ⟺ equivalent convergent sequences | **Not Yet** |
-| **Def 1.6** | Definition | 235–243 | `Element` (filter: `master_mem`, `inter_mem`, `up_mem`); domain `\|𝒟\|` | **Not Yet** |
+| **Def 1.6** | Definition | 235–243 | `Element` (filter: `sub`, `master_mem`, `inter_mem`, `up_mem`) + `Element.ext`; domain `\|𝒟\|` | **Pass** |
 | **Exercise 1.22** | Exercise | 247 (ref) | a filter need not be sequence-generated | **Ref** |
 | **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}`; the finite elements | **Not Yet** |
 | **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** (`X⊆Y ⟺ ↑Y⊆↑X`) | **Not Yet** |
 | **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` | **Not Yet** |
 | **Exercise 1.21** | Exercise | 271 (ref) | makes "every element is a limit of finite elements" precise | **Ref** |
-| **Def 1.8** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` (`PartialOrder`); `⊥={Δ}`; total elements | **Not Yet** |
+| **Def 1.8 (order)** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` — `instance : PartialOrder Element` (choice-free `le_antisymm` via `Element.ext`) | **Pass** |
+| **Def 1.8 (⊥, total)** | Definition | 277 | abstract `⊥={Δ}=↑Δ`; total elements (classical frontier) | **Not Yet** |
 | **Factoid 1.8a** | Factoid | 277 | `⊥={Δ}=↑Δ` is the least element of `\|𝒟\|` | **Not Yet** |
 | **Factoid 1.8b** | Factoid | 279 | finite systems: every explicit filter is principal / every element finite | **Not Yet** |
 | **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 | **Not Yet** |
@@ -1178,26 +1179,30 @@ transcribed.
 
 ```mermaid
 flowchart TD
-  D11["Def 1.1 NeighborhoodSystem"]
-  F11a["Factoid 1.1a interUpTo_zero"]
-  F11b["Factoid 1.1b interUpTo_succ"]
-  T11c["Theorem 1.1c interUpTo_mem · consistent_iff_interUpTo_mem"]
-  D16["Def 1.6 Element of the domain"]
+  D11["Def 1.1 NeighborhoodSystem ✓"]
+  F11a["Factoid 1.1a interUpTo_zero ✓"]
+  F11b["Factoid 1.1b interUpTo_succ ✓"]
+  T11c["Theorem 1.1c interUpTo_mem · consistent_iff_interUpTo_mem ✓"]
+  E12["Example 1.2 element_classification ✓"]
+  D16["Def 1.6 Element · Element.ext ✓"]
+  D18o["Def 1.8 PartialOrder ✓"]
   D17["Def 1.7 principal ↑X"]
   F17a["Factoid 1.7a ↑ one-one, reversing"]
   F17b["Factoid 1.7b x = ⋃ ↑X"]
-  D18["Def 1.8 ⊑ order · ⊥"]
+  D18b["Def 1.8 ⊥ · total"]
 
   D11 --> F11a
   D11 --> F11b
   F11a --> T11c
   F11b --> T11c
   D11 --> D16
+  D16 --> D18o
+  D16 --> E12
+  D18o --> E12
   D16 --> D17
   D17 --> F17a
   D17 --> F17b
-  D16 --> D18
-  D17 --> F17b
+  D16 --> D18b
 ```
 
 ### 4.4 Status
@@ -1206,8 +1211,8 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`)                       |
-| Report card  | **4 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c) · rest queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Domain/Neighborhood/Example12.lean`) |
+| Report card  | **7 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Example 1.2) · rest queued |
 
 
 ### 4.5 Selected proof notes
@@ -1235,6 +1240,33 @@ own lower bound). Auditing `interUpTo_subset` (the intersection is contained in 
 required a `Nat`-specific case split (`Nat.eq_or_lt_of_le`) rather than the order-generic
 `lt_or_eq_of_le`, which silently drags in `Classical.choice`; with that change all four §1
 deliverables are `[propext, Quot.sound]`.
+
+#### Definition 1.6 / Definition 1.8 order — `Element`, `Element.ext`, `PartialOrder` (`Basic.lean`)
+
+`Element V` is Scott's filter (Def 1.6): a membership predicate `mem : Set α → Prop` with `sub`
+(`x ⊆ 𝒟`), `master_mem` (`Δ ∈ x`), `inter_mem` (closed under `∩`), and `up_mem` (upward closed in
+`𝒟`). Mirroring `InfoSys.Element`, the early helper `Element.ext` (membership-equality ⟹ equality,
+proved by `rcases` on both structures + `funext`/`propext`, *not* `congr`) keeps the
+`PartialOrder` instance (Def 1.8's approximation order `x ⊑ y ⟺ x ⊆ y`) choice-free: `le_antisymm`
+is just `Element.ext fun X => ⟨h1 X, h2 X⟩`. Footprint `[propext, Quot.sound]`.
+
+#### Example 1.2 — `Domain/Neighborhood/Example12.lean`
+
+Scott's first worked example: `Δ = {0,1}` (`Token := Fin 2`, `master := Set.univ`),
+`𝒟 = {Δ, {0}, {1}}`. We build `neighborhoodSystem : NeighborhoodSystem Token` — the only real
+obligation is condition (ii), discharged by `inter_eq` (the nine pairwise intersections each reduce
+to `Δ`, `{0}`, `{1}`, or `∅` via `master_inter`/`inter_master`/`Set.inter_self`/`zero_inter_one`),
+the `∅` case being impossible since a witness `Z ⊆ ∅` would force `∅ ∈ 𝒟` (`not_mem_empty`).
+
+The mathematical payoff is the **element classification** (`element_classification`): every filter
+is one of exactly three — `bot = {Δ}`, `elemZero = {Δ,{0}}`, `elemOne = {Δ,{1}}`. The argument: a
+filter `x` either contains `{0}` (then `up_mem`+`inter_mem` force `x = elemZero`; it cannot also
+contain `{1}` since `{0} ∩ {1} = ∅ ∉ 𝒟`), or `{1}` (symmetric), or neither (then `x = bot`).
+Hence `bot_is_unique_partial`: `⊥` is the sole *partial* element, with `bot_lt_elemZero`,
+`bot_lt_elemOne` placing the two total elements strictly above it — exactly Scott's "there is only
+one partial element". Being a concrete finite computation it leans on `Mathlib.Tactic`
+(`fin_cases`/`simp`), so its footprint is the classical `[propext, Classical.choice, Quot.sound]`;
+the constructive guarantee is reserved for the §1 *core* in `Basic.lean`.
 
 ---
 
