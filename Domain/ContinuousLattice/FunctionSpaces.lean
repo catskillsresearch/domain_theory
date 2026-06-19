@@ -603,6 +603,87 @@ theorem curry_right_preservesDirectedSup (f : ScottMap (D × D') D'') (x : D) :
 noncomputable def scottLambdaAt (f : ScottMap (D × D') D'') (x : D) : ScottMap D' D'' :=
   ⟨fun y => f (x, y), continuous_of_preservesDirectedSup (curry_right_preservesDirectedSup f x)⟩
 
+theorem sSup_image_prod_mk_right (y : D') (S : Set D) (hS : S.Nonempty) :
+    sSup (Set.image (fun x => (x, y)) S) = (sSup S, y) := by
+  have himage : Set.image (fun x => (x, y)) S = S ×ˢ ({y} : Set D') := by
+    ext ⟨a, b⟩
+    simp only [Set.mem_image, Set.mem_prod, Set.mem_singleton_iff]
+    constructor
+    · rintro ⟨x, hx, h⟩
+      obtain ⟨ha, hb⟩ := Prod.ext_iff.mp h
+      subst ha
+      exact ⟨hx, hb.symm⟩
+    · rintro ⟨ha, hb⟩
+      exact ⟨a, ha, Prod.ext_iff.mpr ⟨rfl, hb.symm⟩⟩
+  have hy : sSup ({y} : Set D') = y := by
+    apply le_antisymm
+    · exact sSup_le fun z hz => by rw [Set.mem_singleton_iff] at hz; rw [hz]
+    · exact le_sSup (Set.mem_singleton y)
+  rw [himage, sSup_prod (hs := hS) (ht := ⟨y, Set.mem_singleton y⟩), hy]
+
+/-- Currying in the `x`-variable: `x ↦ f (x, y)` is Scott-continuous (used for continuity of
+`lambda f` as a map `D → [D' → D'']`). -/
+theorem curry_left_preservesDirectedSup (f : ScottMap (D × D') D'') (y : D') :
+    PreservesDirectedSup (fun x => f (x, y)) := by
+  intro S hS hSdir
+  have hS' : DirectedOn (· ≤ ·) (Set.image (fun x => (x, y)) S) := by
+    intro p hp q hq
+    obtain ⟨a, ha, rfl⟩ := hp
+    obtain ⟨b, hb, rfl⟩ := hq
+    obtain ⟨c, hc, hac, hbc⟩ := hSdir a ha b hb
+    exact ⟨(c, y), Set.mem_image_of_mem _ hc, And.intro (And.intro hac le_rfl) (And.intro hbc le_rfl)⟩
+  have hS'ne : (Set.image (fun x => (x, y)) S).Nonempty := by
+    obtain ⟨s, hs⟩ := hS
+    exact ⟨(s, y), s, hs, rfl⟩
+  rw [show (fun x => f (x, y)) (sSup S) = f (sSup S, y) from rfl,
+    ← sSup_image_prod_mk_right y S hS,
+    f.preservesDirectedSup_coe (Set.image (fun x => (x, y)) S) hS'ne hS']
+  congr 1
+  simp [Set.image_image]
+
+/-- The outer half of currying: `x ↦ (y ↦ f (x, y))` preserves directed suprema (so `lambda f` is a
+Scott map `D → [D' → D'']`). Equality in `[D' → D'']` is pointwise, reducing to `curry_left`. -/
+theorem lambda_outer_preservesDirectedSup (f : ScottMap (D × D') D'') :
+    PreservesDirectedSup (fun x => scottLambdaAt f x) := by
+  intro S hS hSdir
+  apply ScottMap.ext
+  intro y
+  show f (sSup S, y)
+      = ((sSup (Set.image (fun x => scottLambdaAt f x) S) : ScottMap D' D'') : D' → D'') y
+  rw [ScottMap.sSup_apply, Set.image_image]
+  exact curry_left_preservesDirectedSup f y hS hSdir
+
+/-- **Scott 1972, Proposition 3.5.** Functional abstraction
+`lambda : [[D × D'] → D''] → [D → [D' → D'']]`, `lambda f x y = f (x, y)`. By Theorem 3.3,
+`[D → [D' → D'']]` is itself a continuous lattice, and `lambda f` is a Scott map. -/
+noncomputable def scottLambda (f : ScottMap (D × D') D'') : ScottMap D (ScottMap D' D'') :=
+  ⟨fun x => scottLambdaAt f x,
+    continuous_of_preservesDirectedSup (lambda_outer_preservesDirectedSup f)⟩
+
+@[simp] theorem scottLambda_apply (f : ScottMap (D × D') D'') (x : D) (y : D') :
+    ((scottLambda f x : ScottMap D' D'') : D' → D'') y = (f : (D × D') → D'') (x, y) :=
+  rfl
+
+/-- `lambda` preserves directed suprema: both sides evaluate, pointwise at `(x, y)`, to
+`⊔ {f (x, y) | f ∈ 𝓕}`, since suprema in every function lattice involved are pointwise. -/
+theorem proposition_3_5_preservesDirectedSup :
+    PreservesDirectedSup
+      (scottLambda : ScottMap (D × D') D'' → ScottMap D (ScottMap D' D'')) := by
+  intro 𝓕 h𝓕 h𝓕dir
+  apply ScottMap.ext
+  intro x
+  apply ScottMap.ext
+  intro y
+  rw [scottLambda_apply, ScottMap.sSup_apply, ScottMap.sSup_apply, ScottMap.sSup_apply,
+    Set.image_image, Set.image_image]
+  congr 1
+
+/-- **Scott 1972, Proposition 3.5.** Functional abstraction `lambda` is Scott-continuous. -/
+theorem proposition_3_5 :
+    @Continuous (ScottMap (D × D') D'') (ScottMap D (ScottMap D' D''))
+      scottTopologicalSpace scottTopologicalSpace scottLambda :=
+  continuous_of_preservesDirectedSup proposition_3_5_preservesDirectedSup
+
 /-! ### Definition 3.6 -/
 
 /-- **Scott 1972, Definition 3.6.** A *retraction* of continuous lattices. -/

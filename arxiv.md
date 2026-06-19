@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **23 Pass · 4 Stuck · 8 Not Yet**.
+full deliverable. Score: **24 Pass · 3 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -194,7 +194,7 @@ full deliverable. Score: **23 Pass · 4 Stuck · 8 Not Yet**.
 | 3   | Thm 3.3(a) | `theorem_3_3_isContinuousLattice` (+ `ScottMap.instCompleteLattice`, `stepMap`, `stepMap_wayBelow`, `stepMap_pointwise_sSup`) | `FunctionSpaces.lean` | **Pass**    | `[D→D']` is a CL (order content) via step functions |
 | 3   | Thm 3.3(b) | `theorem_3_3_topology` (+ `theorem_3_3`, `wayBelow_le_finset_sup_step`, `pointwiseSubbasic_scottOpen`)                          | `FunctionSpaces.lean` | **Pass**    | lattice top. = pointwise-convergence top. (topology content) |
 | 3   | Cor 3.4   | `corollary_3_4_jointly_continuous`, `corollary_3_4_preservesDirectedSup` (+ `corollary_3_4` fixed-`x`)                            | `FunctionSpaces.lean` | **Pass**    | joint continuity of `eval` via Prop 2.6 |
-| 3   | Prop 3.5  | `scottLambdaAt`, `curry_right_preservesDirectedSup`                                                                              | `FunctionSpaces.lean` | **Stuck**   | right curry only                     |
+| 3   | Prop 3.5  | `proposition_3_5`, `scottLambda` (+ `curry_left/right_preservesDirectedSup`, `lambda_outer_preservesDirectedSup`)                | `FunctionSpaces.lean` | **Pass**    | `lambda : [[D×D']→D''] → [D→[D'→D'']]` continuous |
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Prop 3.8  | `scottSubspaceExtend`, `proposition_3_8`                                                                                         | `FunctionSpaces.lean` | **Stuck**   | one-sided bound                      |
 | 3   | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | inf-level; global eq open            |
@@ -333,8 +333,8 @@ flowchart TD
   T33["theorem_3_3 full (3.3a+3.3b)"]
   C34x["corollary_3_4 (fixed x)"]
   C34j["corollary_3_4_jointly_continuous"]
-  P35r["scottLambdaAt"]
-  P35["proposition_3_5 full"]
+  P35r["scottLambdaAt · curry_left/right"]
+  P35["proposition_3_5 (lambda continuous)"]
   P37r["proposition_3_7_retraction"]
   P37p["proposition_3_7_projection"]
   D36["IsContinuousLatticeRetraction · Projection"]
@@ -726,12 +726,31 @@ formula for suprema in `[D → D']` (`ScottMap.sSup_apply`: `(⊔F) x = ⊔ {g x
 `[D → D']` and the Scott topology on `D`, so this is joint continuity for Scott's product topology.
 Footprint `[propext, Classical.choice, Quot.sound]`.
 
+#### Proposition 3.5 (functional abstraction) — `proposition_3_5` (`FunctionSpaces.lean`)
+
+`lambda : [[D × D'] → D''] → [D → [D' → D'']]`, `lambda f x y = f (x, y)`, is Scott-continuous —
+note this *uses 3.3* twice, since the codomain `[D → [D' → D'']]` must itself be a continuous
+lattice (hence a legitimate target). Two layers:
+
+- *`lambda f` is a Scott map* (`lambda_outer_preservesDirectedSup`): equality in `[D' → D'']` is
+  pointwise, so it reduces to **left**-currying `x ↦ f (x, y)` being Scott-continuous
+  (`curry_left_preservesDirectedSup`, mirror of the existing right-currying), itself a one-line
+  consequence of `f`'s joint continuity and `sSup {(x, y) | x ∈ S} = (⊔S, y)`.
+- *`lambda` is a Scott map* (`proposition_3_5_preservesDirectedSup`): evaluating both sides
+  pointwise at `(x, y)` and unfolding the (three nested!) pointwise `ScottMap.sSup_apply`, both
+  collapse to `⊔ {f (x, y) | f ∈ 𝓕}`; `@[simp] scottLambda_apply` (definitional) closes the
+  resulting image-set equality with a bare `congr 1`.
+
+The pleasant outcome: once `[D → D']` is a genuine `CompleteLattice` instance with *pointwise*
+`sSup` (`ScottMap.sSup_apply` is `rfl`), all of §3's continuity facts (3.4, 3.5) are short pointwise
+computations. Footprint `[propext, Classical.choice, Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Medium   | **3.5** left curry                                                          | Composer 2.5                       |
+| Medium   | **3.8** full, **Lemma 3.9** global eq                                       | Composer 2.5                       |
 | Hard     | **3.10** converse, Scott §4                                                 | Opus 4.8 (one theorem per session) |
 
 
