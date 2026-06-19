@@ -50,6 +50,18 @@ bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --png-only
 
 # Re-stitch after manual edits to sources/pages/<pdf>/page-NN/merged.md
 bash scripts/ocr_pdf_pipeline.sh ScottContinLatt1972.pdf --merge-only
+
+# Resume after interrupt (skips pages with merged.md; re-stitches vision.md on restart)
+bash scripts/ocr_pdf_pipeline.sh PRG19.pdf --skip-render
+
+# Check progress without API calls or writing vision.md
+bash scripts/ocr_pdf_pipeline.sh PRG19.pdf --status
+
+# Rebuild vision.md from all per-page merged.md (no API)
+bash scripts/ocr_pdf_pipeline.sh PRG19.pdf --merge-only
+
+# True redo of a page: remove its work dir or use --force --pages N
+# Deleting sources/<stem>_vision.md alone does not clear per-page OCR cache.
 ```
 
 Transient API errors are retried automatically (5 attempts, exponential backoff from
@@ -64,7 +76,9 @@ Transient API errors are retried automatically (5 attempts, exponential backoff 
    multiple OCR seeds.
 3. **Merge:** A 4th vision call compares the 3 transcripts against the PNG and writes
    `sources/pages/<PDF-stem>/page-NN/merged.md`.
-4. **Stitch:** All completed `merged.md` files → `sources/<PDF-stem>_vision.md`.
+4. **Stitch:** Completed pages are stitched in strict order from page 1 (or `--pages` start);
+   a later page is withheld until every page before it in the run is complete (so a stray
+   `page-08/merged.md` from a smoke test does not appear before pages 3–7).
 
 Intermediate files (`pass1.md`, `pass2.md`, `pass3.md`) are kept for audit. Page PNGs
 and the venv are gitignored (large/regenerable).

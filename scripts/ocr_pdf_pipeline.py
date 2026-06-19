@@ -132,6 +132,24 @@ def render_pdf_to_png(pdf: Path, out_dir: Path, dpi: int = 200, skip_if_exists: 
     return pngs
 
 
+def page_work_dir(png_dir: Path, page_num: int) -> Path:
+    return png_dir / f"page-{page_num:02d}"
+
+
+def page_png_path(png_dir: Path, page_num: int) -> Path | None:
+    """Resolve PNG from pdftoppm (padding width varies with total page count)."""
+    for name in (
+        f"page-{page_num}.png",
+        f"page-{page_num:02d}.png",
+        f"page-{page_num:03d}.png",
+        f"page-{page_num:04d}.png",
+    ):
+        p = png_dir / name
+        if p.exists():
+            return p
+    return None
+
+
 def parse_page_range(spec: str | None, total: int) -> list[int]:
     if not spec:
         return list(range(1, total + 1))
@@ -266,23 +284,112 @@ def strip_book_page_numbers(text: str) -> str:
     ).strip() + "\n"
 
 
-def stitch_document(pdf_stem: str, page_nums: list[int] | None, out_md: Path) -> None:
+def collect_page_status(png_dir: Path, total: int) -> tuple[list[int], list[int], list[int]]:
+    """Return (completed, partial, pending) page numbers in 1..total."""
+    completed: list[int] = []
+    partial: list[int] = []
+    pending: list[int] = []
+    for n in range(1, total + 1):
+        work_dir = page_work_dir(png_dir, n)
+        merged = work_dir / "merged.md"
+        if merged.exists():
+            completed.append(n)
+            continue
+        passes = [work_dir / f"pass{i}.md" for i in range(1, len(PASS_PROMPTS) + 1)]
+        if any(p.exists() for p in passes):
+            partial.append(n)
+        else:
+            pending.append(n)
+    return completed, partial, pending
+
+
+def log_resume_summary(
+    pdf_stem: str,
+    total: int,
+    page_nums: list[int],
+    png_dir: Path,
+    out_md: Path,
+    log_path: Path | None,
+) -> tuple[list[int], list[int], list[int]]:
+    completed, partial, pending = collect_page_status(png_dir, total)
+    in_range = set(page_nums)
+    completed_run = [n for n in completed if n in in_range]
+    partial_run = [n for n in partial if n in in_range]
+    pending_run = [n for n in pending if n in in_range]
+    log(
+        f"resume {pdf_stem}: {len(completed)} complete, {len(partial)} partial, "
+        f"{len(pending)} not started (of {total} pages)",
+        log_path,
+    )
+    if completed:
+        log(f"  complete (skip OCR): {completed}", log_path)
+    if partial:
+        log(f"  partial (reuse cached passes): {partial}", log_path)
+    if completed_run:
+        log(f"  this run will skip OCR: {completed_run}", log_path)
+    if partial_run:
+        log(f"  this run will finish partial: {partial_run}", log_path)
+    if pending_run:
+        preview = pending_run[:20]
+        suffix = "..." if len(pending_run) > 20 else ""
+        log(f"  this run still needs OCR: {preview}{suffix}", log_path)
+    if out_md.exists():
+        log(f"  output exists: {out_md}", log_path)
+    else:
+        log(f"  output will be rebuilt: {out_md}", log_path)
+    return completed, partial, pending
+
+
+def list_completed_pages(pdf_stem: str) -> list[int]:
     png_dir = PAGES_ROOT / pdf_stem
-    available: list[int] = []
+    completed: list[int] = []
     for d in sorted(png_dir.glob("page-*")):
         if not d.is_dir():
             continue
         m = re.match(r"page-(\d+)$", d.name)
         if m and (d / "merged.md").exists():
-            available.append(int(m.group(1)))
-    if page_nums:
-        # After OCR, stitch everything completed so far (incremental builds).
-        stitch_pages = sorted(set(available))
+            completed.append(int(m.group(1)))
+    return sorted(completed)
+
+
+def contiguous_prefix_from(completed: set[int], start: int) -> list[int]:
+    """`start, start+1, …` while each page is completed — no gaps, no later pages."""
+    pages: list[int] = []
+    n = start
+    while n in completed:
+        pages.append(n)
+        n += 1
+    return pages
+
+
+def stitch_document(
+    pdf_stem: str,
+    page_nums: list[int] | None,
+    out_md: Path,
+    *,
+    log_path: Path | None = None,
+    reason: str = "",
+) -> int:
+    """Full rewrite of `out_md` from per-page `merged.md` (never append).
+
+    Only includes a **contiguous run** from the run's first page: if pages 1 and 2 are
+    done but 3–7 are not, page 8 (e.g. from an old smoke test) is withheld until the gap
+    is filled. `--merge-only` without `--pages` starts from page 1.
+    """
+    available = set(list_completed_pages(pdf_stem))
+    if page_nums is not None:
+        start = min(page_nums)
+        in_scope = available & set(page_nums)
     else:
-        stitch_pages = available
-    if not stitch_pages:
-        print("WARN: no merged.md files to stitch", file=sys.stderr)
-        return
+        start = 1
+        in_scope = available
+    stitch_pages = contiguous_prefix_from(in_scope, start)
+    withheld = sorted(in_scope - set(stitch_pages))
+    if withheld:
+        log(
+            f"stitch withheld {len(withheld)} completed page(s) out of order: {withheld}",
+            log_path,
+        )
     meta = f"""---
 source_pdf: {pdf_stem}.pdf
 ocr_method: cursor-vision-triple-merge
@@ -303,7 +410,15 @@ verification_status: draft
         if not parts[-1].endswith("\n"):
             parts.append("\n")
     out_md.write_text("".join(parts), encoding="utf-8")
-    print(f"Stitched {out_md} ({len(stitch_pages)} pages)", file=sys.stderr)
+    label = f" ({reason})" if reason else ""
+    if stitch_pages:
+        msg = f"re-stitched {out_md}: {len(stitch_pages)} page(s){label}"
+        print(msg.replace("re-stitched", "Stitched"), file=sys.stderr)
+    else:
+        msg = f"re-stitched {out_md}: header only (no merged.md in range){label}"
+        print("WARN: no merged.md to stitch; wrote header only", file=sys.stderr)
+    log(msg, log_path)
+    return len(stitch_pages)
 
 
 def main() -> None:
@@ -313,6 +428,11 @@ def main() -> None:
     ap.add_argument("--dpi", type=int, default=200)
     ap.add_argument("--png-only", action="store_true")
     ap.add_argument("--merge-only", action="store_true", help="Skip OCR; stitch existing merged.md")
+    ap.add_argument(
+        "--status",
+        action="store_true",
+        help="Show resume state (completed / partial / pending) and exit",
+    )
     ap.add_argument("--force", action="store_true", help="Re-OCR even if pass*.md exist")
     ap.add_argument(
         "--skip-render",
@@ -346,42 +466,58 @@ def main() -> None:
     total = pdf_page_count(pdf)
     page_nums = parse_page_range(args.pages, total)
 
-    if not args.merge_only:
-        log(f"start {pdf.name} pages={page_nums} model={args.model}", log_path)
-        pngs = render_pdf_to_png(pdf, png_dir, dpi=args.dpi, skip_if_exists=args.skip_render)
-        if len(pngs) != total:
-            log(f"WARN: expected {total} PNGs, got {len(pngs)}", log_path)
+    if args.status:
+        log_resume_summary(stem, total, page_nums, png_dir, out_md, None)
+        completed = list_completed_pages(stem)
+        if completed:
+            print(
+                f"To rebuild {out_md} from {len(completed)} completed page(s), run:\n"
+                f"  bash scripts/ocr_pdf_pipeline.sh {pdf.name} --merge-only",
+                file=sys.stderr,
+            )
+        return
 
-        if args.png_only:
-            log(f"PNG-only: {len(pngs)} files in {png_dir}", log_path)
-            return
+    if args.merge_only:
+        n = stitch_document(stem, None, out_md, log_path=log_path, reason="merge-only")
+        return
 
-        api_key = load_api_key()
-        for n in page_nums:
-            png = png_dir / f"page-{n:02d}.png"
-            if not png.exists():
-                log(f"SKIP missing {png}", log_path)
-                continue
-            log(f"Page {n}/{total}...", log_path)
-            job = PageJob(stem, n, png, png_dir / f"page-{n:02d}")
-            try:
-                ocr_page_triple(
-                    api_key,
-                    job,
-                    force=args.force,
-                    model=args.model,
-                    retries=args.retries,
-                    retry_base_sec=args.retry_base_sec,
-                    log_path=log_path,
-                )
-            except Exception as err:
-                log(f"FATAL page {n}: {err}", log_path)
-                stitch_document(stem, page_nums, out_md)
-                raise
-            stitch_document(stem, page_nums, out_md)
+    log_resume_summary(stem, total, page_nums, png_dir, out_md, log_path)
+    stitch_document(stem, page_nums, out_md, log_path=log_path, reason="restart")
 
-    stitch_document(stem, page_nums if not args.merge_only else None, out_md)
-    log(f"finished -> {out_md}", log_path)
+    log(f"start {pdf.name} pages={page_nums} model={args.model}", log_path)
+    pngs = render_pdf_to_png(pdf, png_dir, dpi=args.dpi, skip_if_exists=args.skip_render)
+    if len(pngs) != total:
+        log(f"WARN: expected {total} PNGs, got {len(pngs)}", log_path)
+
+    if args.png_only:
+        log(f"PNG-only: {len(pngs)} files in {png_dir}", log_path)
+        return
+
+    api_key = load_api_key()
+    for n in page_nums:
+        png = page_png_path(png_dir, n)
+        if png is None:
+            log(f"SKIP missing PNG for page {n} in {png_dir}", log_path)
+            continue
+        log(f"Page {n}/{total} ({png.name})...", log_path)
+        job = PageJob(stem, n, png, page_work_dir(png_dir, n))
+        try:
+            ocr_page_triple(
+                api_key,
+                job,
+                force=args.force,
+                model=args.model,
+                retries=args.retries,
+                retry_base_sec=args.retry_base_sec,
+                log_path=log_path,
+            )
+        except Exception as err:
+            log(f"FATAL page {n}: {err}", log_path)
+            stitch_document(stem, page_nums, out_md, log_path=log_path, reason=f"after error on page {n}")
+            raise
+        stitch_document(stem, page_nums, out_md, log_path=log_path, reason=f"after page {n}")
+
+    stitch_document(stem, page_nums, out_md, log_path=log_path, reason="finished")
 
 
 if __name__ == "__main__":

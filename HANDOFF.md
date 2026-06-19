@@ -1,197 +1,203 @@
-# Handoff — Scott 1972 Theorem 4.4(c): `i∞ ∘ j∞ = id` on `[D∞ → D∞]`
+# Handoff — Part II, Scott 1981 (PRG-19): neighborhood systems, §1 foundations
 
-You are a Lean 4 proof engineer formalizing Dana Scott's 1972 *Continuous Lattices* (LNM 274) in:
+You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
+Computation* (Technical Monograph PRG-19, "the blue pamphlet") in:
 
 `/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`.
 
-**Your sole task this session:** prove **subgoal (c)** of Theorem 4.4 — the *converse* identity
-`i∞ ∘ j∞ = id` on `[D∞ → D∞]`. Subgoals (a) and (b) are already **Pass**; (d) packages the two
-halves and is left for next session.
+**Part I (Scott 1972, *Continuous Lattices*) is complete: 38 Pass · 0 Stuck · 0 Not Yet.** Theorem
+4.4 (`D∞ ≅ [D∞ → D∞]`) landed last session. This session opens **Part II**, which is currently a
+*stub* — there is no Lean module yet.
+
+**Your task this session:** bootstrap `Domain/Neighborhood/` and formalize the **§1 foundations** of
+PRG-19 — the definition of a neighborhood system, its domain of (ideal) elements, the inclusion
+order, principal filters (finite elements), the bottom element, and the closure Theorem 1.11. This
+is the Part II analogue of what `Domain/InfoSys.lean` already does for the 1982 presentation
+(structure + `Element` + `PartialOrder`), and it is the prerequisite for everything downstream
+(approximable maps §2, constructions §3, the Part IV bridge `continuousLattice_to_neighborhoodSystem`).
 
 ---
 
 ## Hard constraints
 
 - **Zero `sorry`s.** Everything must compile under `lake build`.
-- **Axiom footprint:** every new theorem must depend only on `[propext, Classical.choice, Quot.sound]`
-  (verify with `#print axioms <thm>`).
+- **Axiom footprint:** the §1 core is **constructive** — Scott deliberately uses *partial* filters so
+  that the basic theory does **not** need maximal-filter existence (Zorn/choice). Aim for every new
+  theorem to depend only on `[propext, Quot.sound]` (verify with `#print axioms <thm>`); if a result
+  genuinely needs `Classical.choice`, isolate it and say so in its docstring. (Contrast Part I, which
+  is unapologetically classical. Total/maximal elements — Def 1.8 — are the classical frontier; you
+  are **not** asked to develop them this session.)
 - **Do not commit or push** unless explicitly asked.
-- **Minimize scope:** only touch `Domain/ContinuousLattice/FunctionSpaceTower.lean` (and, if a genuinely
-  reusable abstract fact is missing, `InverseLimits.lean`). Match existing naming/style.
-- **Update docs on completion:** `arxiv.md` (score line, §4 results table row, blueprint node, proof note).
-- Read the source first: `sources/ScottContinLatt1972_vision.md` (Lemma 4.5 ~1304–1320; the converse
-  calculation ~1322–1335).
+- **Minimize scope:** create exactly one new file `Domain/Neighborhood/Basic.lean` and add one import
+  line to `Domain.lean`. Match the existing naming/style (see `Domain/InfoSys.lean` as the closest
+  template).
+- **Read the source first:** `sources/PRG19.md` — Definitions 1.1, 1.6, 1.7, 1.8, 1.9, Theorems 1.10,
+  1.11 (transcription roughly lines 373–810; pages 8–17 of the pamphlet). The OCR is a *draft* with
+  artifacts — sanity-check each statement against the surrounding prose before formalizing.
+- **Update docs on completion:** `arxiv.md` (§4 Part II "stub" → live: status table, a new report-card
+  row block, and proof notes), and refresh this `HANDOFF.md` with a next-session prompt for §2.
 
 ---
 
 ## Current status
 
-Report card is currently **36 Pass · 0 Stuck · 2 Not Yet**. Landing (c) → **37 Pass · 0 Stuck · 1 Not
-Yet** (only (d) remains). `lake build` is green; no sorries.
-
-| Subgoal | Statement | Lean target | Status |
-| ------- | --------- | ----------- | ------ |
-| (a) | `i∞`/`j∞` as `ScottMap`s + continuity | `embInfInf` / `projInfInf` | **Pass** |
-| (b) | `j∞ ∘ i∞ = id` on `D∞` | `projInfInf_comp_embInfInf` | **Pass** |
-| **(c)** | **`i∞ ∘ j∞ = id` on `[D∞ → D∞]`** | **`embInfInf_comp_projInfInf`** | **← THIS SESSION** |
-| (d) | package `theorem_4_4` | `theorem_4_4` (mutually-inverse `ScottMap`s / `OrderIso`) | Not Yet |
+Part II report card: **0 Pass** (no module). After this session, target a small **Part II §1 report
+card** with the deliverables below all **Pass**, and the §4 "Part II (stub)" section of `arxiv.md`
+upgraded from stub to a live (if still partial) section. `lake build` is green today.
 
 ---
 
-## The objects (all in `FunctionSpaceTower.lean`, section `Thm44b`, `variable (D₀ j₀)`)
+## The mathematics (PRG-19 §1, with OCR cleaned up)
 
-- `DInf D₀ j₀ := InverseLimit (towerType D₀) (towerProj D₀ j₀)` — `D∞` (a continuous lattice by `proposition_4_1`).
-- `DInfFn D₀ j₀ := ScottMap (DInf D₀ j₀) (DInf D₀ j₀)` — `[D∞ → D∞]`.
-- `embInfInf : ScottMap DInf DInfFn` = `i∞`; `projInfInf : ScottMap DInfFn DInf` = `j∞`.
-- **`conjMap post pre f = post ∘ f ∘ pre`** (a `ScottMap`). Two abbreviations to internalize:
-  - `iInfTerm_apply n x z : (iInfTerm n x) z = embInf n ((x.1 (n+1)) (projInf n z))`
-  - `jInfTerm_apply n f : jInfTerm n f = embInf (towerType D₀) (towerProj D₀ j₀) (n+1) (conjMap (projInf .. n) (embInf .. n) f)`
-- `projInfInf_apply f : projInfInf f = ⨆ n, jInfTerm n f`; `embInfInf_apply x : embInfInf x = ⨆ n, iInfTerm n x`.
+Fix a *master set* (token set) `A`. Write `Δ` for `A` itself (the least informative neighborhood:
+"ask me no questions"). Neighborhoods are subsets of `A`; **smaller neighborhood = more information**
+(the order is *reversed* relative to information). A *consistent* finite family of neighborhoods is
+one with a common lower bound (a `Z ∈ V` contained in all of them).
 
-Throughout, write `embInf (towerType D₀) (towerProj D₀ j₀) n` and `projInf (towerType D₀) (towerProj D₀ j₀) n`
-(these take `D` and `P` explicitly); `(towerProj D₀ j₀ n).incl/.retr` are `iₙ`/`jₙ`.
+- **Definition 1.1 (neighborhood system).** A nonempty family `V` of subsets of `A`, closed under
+  intersections of finite consistent sequences. Equivalent two-condition form:
+  - (i) `Δ ∈ V` (i.e. `A ∈ V`);
+  - (ii) whenever `X, Y, Z ∈ V` and `Z ⊆ X ∩ Y`, then `X ∩ Y ∈ V`.
+- **Definition 1.6 (ideal elements `|V|`).** A subfamily `x ⊆ V` that is a *filter*:
+  - (i) `Δ ∈ x`;
+  - (ii) `X, Y ∈ x ⟹ X ∩ Y ∈ x`;
+  - (iii) `X ∈ x` and `X ⊆ Y ∈ V ⟹ Y ∈ x` (upward closure within `V`).
+  The **domain** is `|V|`, ordered by inclusion (Def 1.8: `x` approximates `y` iff `x ⊆ y`).
+- **Definition 1.7 (principal filters / finite elements).** For `X ∈ V`,
+  `↑X := { Y ∈ V | X ⊆ Y }`. The map `X ↦ ↑X` is one-one and **inclusion-reversing**
+  (`X ⊆ Y ↔ ↑Y ⊆ ↑X`); these are the *finite* elements, and every `x ∈ |V|` is the union of the
+  principal filters of its members: `x = ⋃ { ↑X | X ∈ x }`.
+- **Bottom (Def 1.8).** `⊥ = {Δ} = ↑Δ` is the least element of `|V|`.
+- **Theorem 1.10.** `[X] := { x ∈ |V| | X ∈ x }` gives a neighborhood system over `|V|` isomorphic to
+  `|V|` (tokens can be replaced by elements). *(Lower priority — see Step 5.)*
+- **Theorem 1.11 (closure).** If `Xₙ ∈ |V|` for all `n`, then
+  - (i) `⋂ₙ Xₙ ∈ |V|`; and
+  - (ii) `⋃ₙ Xₙ ∈ |V|` **provided** the sequence is ascending (`Xₙ ⊆ Xₙ₊₁`).
+  The proof just checks Def 1.6 (i)–(iii); only the union's clause (ii) uses the directedness proviso
+  (`max n m` argument).
 
 ---
 
-## Goal
+## Goal (recommended Lean shape)
+
+In `Domain/Neighborhood/Basic.lean`, namespace `Domain.Neighborhood`:
 
 ```lean
-theorem embInfInf_comp_projInfInf :
-    (embInfInf D₀ j₀).comp (projInfInf D₀ j₀) = ScottMap.idMap := by
-  apply ScottMap.ext
-  intro f
-  -- goal: embInfInf (projInfInf f) = f
-  ...
+/-- Scott 1981 (PRG-19), Definition 1.1. A neighborhood system over a token set `α`. -/
+structure NeighborhoodSystem (α : Type*) where
+  mem      : Set α → Prop                 -- `X ∈ V`
+  master   : Set α                        -- `Δ` (intended: `Set.univ`, but keep abstract)
+  master_mem : mem master
+  inter_mem : ∀ {X Y Z}, mem X → mem Y → mem Z → Z ⊆ X ∩ Y → mem (X ∩ Y)
+  -- (optionally bundle `master = univ`; see "Design choices")
+
+namespace NeighborhoodSystem
+variable {α : Type*} (V : NeighborhoodSystem α)
+
+/-- Definition 1.6: the (ideal) elements of `V` — filters of neighborhoods. -/
+structure Element where
+  mem        : Set α → Prop
+  sub        : ∀ {X}, mem X → V.mem X      -- `x ⊆ V`
+  master_mem : mem V.master                -- (i)
+  inter_mem  : ∀ {X Y}, mem X → mem Y → mem (X ∩ Y)         -- (ii)
+  up_mem     : ∀ {X Y}, mem X → V.mem Y → X ⊆ Y → mem Y     -- (iii)
+
+instance : PartialOrder V.Element := ...   -- inclusion of `mem` (see InfoSys.lean for the antisymm trick)
+
+def principal (X : Set α) (hX : V.mem X) : V.Element := ...   -- Def 1.7  ↑X
+def bot : V.Element := ...                                    -- ⊥ = ↑master
 ```
 
-(`f : DInfFn D₀ j₀`, i.e. a Scott map `D∞ → D∞`.)
+Then prove the `Pass` deliverables (see report-card target). Mirror `Domain/InfoSys.lean`'s
+`Element` + `PartialOrder` pattern closely — including its **choice-free `le_antisymm`** (it avoids
+`congr`, which pulls in `Classical.choice`; reuse that trick so the footprint stays `{propext,
+Quot.sound}`).
 
 ---
 
-## Proof plan (Scott ~1322–1335)
+## Report-card target for this session (all `Pass`, sorry-free)
 
-Let `u n := conjMap (projInf .. n) (embInf .. n) f : towerType D₀ (n+1)` (the restriction
-`j_{∞n} ∘ f ∘ i_{n∞} ∈ D_{n+1}`; it typechecks since `towerType (n+1) ≡ ScottMap (towerType n) (towerType n)`).
-Note `projInfInf f = ⨆ n, embInf .. (n+1) (u n)` by `projInfInf_apply` + `jInfTerm_apply` (definitionally `u n`).
+| # | Scott (PRG-19) | Lean target | Notes |
+| - | -------------- | ----------- | ----- |
+| 1 | Def 1.1 | `NeighborhoodSystem` | structure + the two closure conditions |
+| 2 | Def 1.6 | `NeighborhoodSystem.Element` | filter structure |
+| 3 | Def 1.8 | `instance : PartialOrder Element` | inclusion order; choice-free `le_antisymm` |
+| 4 | Def 1.7 | `principal`, `principal_mem_iff`, `principal_le_principal_iff` (`X ⊆ Y ↔ ↑Y ≤ ↑X`), `principal_injective` | finite elements; inclusion-reversing |
+| 5 | Def 1.8 | `bot`, `OrderBot Element` (or `bot_le`) | `⊥ = ↑master = {Δ}` |
+| 6 | Thm 1.11(i) | `iInter_mem` (countable / arbitrary `⋂`) | filter closed under intersections of elements |
+| 7 | Thm 1.11(ii) | `iUnion_mem_of_monotone` | ascending `⋃` is an element (needs the proviso) |
+| 8 | Def 1.6 remark | `eq_iUnion_principal` (`x = ⋃ {↑X | X ∈ x}`) | every element is the lub of its finite approximations |
 
-### Step 1 — recursion equation for `u` (NEW small lemma)
-
-Prove the Lemma-4.5 hypothesis `j_{n+1}(u_{n+2}) = u_{n+1}`:
-
-```lean
-theorem towerProj_retr_conjMap_succ (n : ℕ) (f : DInfFn D₀ j₀) :
-    (towerProj D₀ j₀ (n + 1)).retr
-        (conjMap (projInf .. (n + 1)) (embInf .. (n + 1)) f)
-      = conjMap (projInf .. n) (embInf .. n) f
-```
-
-*Proof:* `ScottMap.ext`, `intro y` (`y : towerType n`). `(towerProj (n+1)).retr = (towerProj n).functionSpace.retr
-= conjMap (P n).retr (P n).incl`; unfold with `towerProj_succ_retr_apply` (or `dsimp [IsContinuousLatticeProjection.functionSpace]`)
-and `conjMap_apply`. The goal becomes
-`(P n).retr (projInf (n+1) (f (embInf (n+1) ((P n).incl y)))) = projInf n (f (embInf n y))`.
-Close with two facts:
-- `embInf_succ .. n y : embInf (n+1) ((P n).incl y) = embInf n y`, and
-- `(P n).retr (projInf (n+1) W) = projInf n W` (compatibility `W.2 n`, exactly the rewrite used in the
-  already-proven `incl_projInf_le_projInf_succ`).
-
-This is the **equality** counterpart of the inequality `conjMap_incl_le_conjMap_succ` proved for (b);
-the proof structure there is your template (same `functionSpace.retr` unfolding, but now an `=`, not `≤`).
-
-### Step 2 — coordinates of `j∞ f` via Lemma 4.5
-
-```lean
-have hcoord (n : ℕ) : (projInfInf D₀ j₀ f).1 (n + 1) = conjMap (projInf .. n) (embInf .. n) f
-```
-
-`projInfInf f = ⨆ k, embInf .. (k+1) (u k)` (rewrite with `projInfInf_apply`, then `jInfTerm_apply` under
-the binder — beware the beta-redex pitfall below; prefer a `calc`/`Eq` term over `rw` for the `⨆`-shape
-match). Then apply `lemma_4_5 (towerType D₀) (towerProj D₀ j₀) u (towerProj_retr_conjMap_succ … ) n`.
-`lemma_4_5` gives exactly `(⨆ k, embInf (k+1) (u k)).1 (n+1) = u n`.
-
-### Step 3 — unfold `i∞(j∞ f)` to `⨆ₙ rₙ ∘ f ∘ rₙ`
-
-Abbreviate `rₙ z := embInf .. n (projInf .. n z)` (= `((embInf .. n).comp (projInf .. n)) z`, the Prop-4.2
-approximation `i_{n∞} ∘ j_{∞n}`). Then `embInfInf (projInfInf f) = ⨆ n, iInfTerm n (projInfInf f)`
-(`embInfInf_apply`); evaluate at `z` (`ScottMap.sSup_apply`):
-
-```
-(iInfTerm n (projInfInf f)) z
-  = embInf n ((projInfInf f).1 (n+1) (projInf n z))         -- iInfTerm_apply
-  = embInf n ((conjMap (projInf n)(embInf n) f) (projInf n z))  -- hcoord
-  = embInf n (projInf n (f (embInf n (projInf n z))))       -- conjMap_apply
-  = rₙ (f (rₙ z)).
-```
-
-So the goal reduces to: `⨆ n, rₙ (f (rₙ z)) = f z`.
-
-### Step 4 — confine the lub and apply `idInf_eq_iSup`
-
-This is the one analytic step. Use:
-- `idInf_eq_iSup : ScottMap.idMap = ⨆ n, (embInf n).comp (projInf n)`, i.e. `z = ⨆ m, rₘ z` and
-  `f z = ⨆ k, rₖ (f z)` (apply the map equation pointwise; `ScottMap.sSup_apply`).
-- `f` continuous: `f (⨆ m, rₘ z) = ⨆ m, f (rₘ z)`; each `rₖ` continuous likewise.
-- The family `n ↦ rₙ z` is **monotone** (`rₙ z = embInf n (z.1 n)`, and `embInf_le_succ` gives
-  `embInf n (z.1 n) ≤ embInf (n+1) (z.1 (n+1))`). Hence `(k,m) ↦ rₖ (f (rₘ z))` is monotone in each index.
-
-Compute `f z = ⨆ k, rₖ (f z) = ⨆ k, rₖ (f (⨆ m, rₘ z)) = ⨆ k, rₖ (⨆ m, f (rₘ z)) = ⨆ k ⨆ m, rₖ (f (rₘ z))`,
-then collapse the double sup to the diagonal with the **already-proven**
-`iSup₂_monotone_eq_diagonal` → `⨆ n, rₙ (f (rₙ z))`. Done.
-
-(Equivalently, prove `embInfInf (projInfInf f) = (⨆ rₙ).comp (f.comp (⨆ rₙ))` at the `ScottMap` level
-and rewrite both `⨆ rₙ = idMap`; but the pointwise route via `iSup₂_monotone_eq_diagonal` reuses existing
-machinery and avoids new continuity-of-composition lemmas.)
+**Stretch (only if 1–8 are solid):** Theorem 1.10 (`[X]`, the element-token system) and a
+`NeighborhoodSystem`-isomorphism scaffold for Definition 1.9 (`V₀ ≅ V₁`). If short on budget, leave
+1.10/1.9 as the documented next session and stop at 8.
 
 ---
 
-## Reusable lemmas (already proven — do not reinvent)
+## Design choices (pick reasonable defaults; note them in `arxiv.md`)
 
-In `FunctionSpaceTower.lean`:
-- `conjMap_apply`, `conjMap_iSup`, `iInfTerm_apply`, `jInfTerm_apply`, `embInfInf_apply`, `projInfInf_apply`
-- `towerProj_succ_incl_apply` (`i_{n+1}=iₙ∘·∘jₙ`), `towerProj_succ_retr_apply` (`j_{n+1}=jₙ∘·∘iₙ`), `towerProj_incl_apply`
-- `incl_projInf_le_projInf_succ` (`iₙ(yₙ) ⊑ y_{n+1}` — the compatibility-rewrite template for Step 1)
-- `conjMap_incl_le_conjMap_succ` (the `≤` sibling of Step 1's equality — copy its `functionSpace.retr/incl` unfolding)
-- `iSup₂_monotone_eq_diagonal` (`⨆ₙ⨆ₘ aₙₘ = ⨆ₙ aₙₙ` for separately-monotone `a`) — **used directly in Step 4**
-- `iInfTerm_monotone`, `embInf_succ_iSup`
-
-In `InverseLimits.lean`:
-- **`lemma_4_5`** `(u : ∀ n, D (n+1)) (hu : ∀ n, (P (n+1)).retr (u (n+1)) = u n) (n) : (⨆ k, embInf (k+1) (u k)).1 (n+1) = u n`
-- **`idInf_eq_iSup`** `: ScottMap.idMap = ⨆ n, (embInf n).comp (projInf n)`
-- `embInf_succ` `: embInf (n+1) ((P n).incl x) = embInf n x`; `embInf_le_succ` `: embInf n (x.1 n) ≤ embInf (n+1) (x.1 (n+1))`
-- `inverseLimit_eq_iSup`, `proposition_4_2` (`.retr_incl` = `projInf n ∘ embInf n = id`), `coe_sSup_of_directed`
-- `ScottMap.sSup_apply`, `ScottMap.preservesDirectedSup_coe`, `ScottMap.monotone`, `ScottMap.comp_apply`, `ScottMap.idMap_apply`
+1. **`Set α → Prop` vs `Set (Set α)`.** A bundled predicate (`mem : Set α → Prop`) tends to elaborate
+   more smoothly than `Set (Set α)` membership and matches `InfoSys.Con`'s spirit. Either is fine;
+   prefer the predicate.
+2. **`master` abstract vs `Set.univ`.** Scott's `Δ` is literally `A` (the whole set), so `master =
+   Set.univ` is faithful and simplifies (iii)/bottom. Keeping `master` as a field (with no `= univ`
+   constraint) is also defensible and slightly more general. **Recommendation:** keep a `master`
+   field for fidelity to the text's `Δ` notation, but you may add `master_eq_univ` later if a proof
+   wants it. Whatever you choose, be consistent.
+3. **Order direction.** Elements are ordered by `x ⊆ y` (Def 1.8, "approximates"). Neighborhoods are
+   ordered by reverse inclusion (smaller = better). Keep these straight — `principal` is
+   inclusion-*reversing* from neighborhoods to elements.
+4. **Constructivity.** Do not reach for `Classical` in §1. The `Element` antisymmetry, `principal`,
+   and Theorem 1.11 are all constructive. Run `#print axioms` on each deliverable and keep `{propext,
+   Quot.sound}`.
 
 ---
 
-## Pitfalls (learned the hard way in (b) — read before starting)
+## Pitfalls (from Part I / InfoSys experience)
 
-1. **`towerType (n+1)` is defeq to `ScottMap (Dₙ) (Dₙ)` but NOT syntactically.** Apply elements via
-   `towerCoeFun`/`towerToMap`. When a coercion confuses elaboration, a `show … (… : ScottMap _ _) …`
-   or `change` fixes it.
-2. **`≤`/`SupSet` instance-path mismatch on `towerType (n+k)`.** Its lattice instance reduces to
-   `ScottMap.instCompleteLattice`, but `rw [ScottMap.le_def]` matches *syntactically* and fails (it sees
-   `ChainCompletePartialOrder.instOfCompleteLattice.toLE`). Use **`refine ScottMap.le_def.mpr fun y => ?_`**
-   (defeq-based) instead of `rw [ScottMap.le_def]`.
-3. **Beta-redex after `rw` with a `⨆`/lemma whose RHS is `⨆ m, g (f m)`.** `rw`'s closing `rfl` is
-   *reducible*-transparency and won't beta-reduce `(fun m => …) m`. Either append an explicit `rfl`
-   (default transparency does beta), or — better — apply the iSup lemma as a **term inside a `calc`**
-   (defeq-checked) rather than via `rw` (syntactic `kabstract` match). This bit hard in `hinner`/`conjMap_iSup`.
-4. **`set g := … with hg`** makes `g` an opaque fvar; fold/unfold only via `simp only [hg]` / `rw [hg]`
-   (plus `dsimp only` to beta-reduce), never rely on defeq.
-5. **`conjMap` argument order is `post pre`**: `conjMap post pre f = post ∘ f ∘ pre`. For `j_{∞n}∘f∘i_{n∞}`
-   use `conjMap (projInf n) (embInf n)`; for `i_{n∞}∘g∘j_{∞n}` use `conjMap (embInf n) (projInf n)`.
-6. `ScottMap.idMap`, never `id` (shadows `Finset.sup id`). Scott topology is a `def`, not an instance.
+1. **`le_antisymm` and `Classical.choice`.** `InfoSys.lean` deliberately avoids `congr`/`Subtype.ext`
+   machinery that drags in choice; it proves carrier-equality then reconstructs by proof irrelevance.
+   Copy that pattern (`Domain/InfoSys.lean` ~lines 83–98) so the footprint stays choice-free.
+2. **Structure eta / field access.** When two `Element`s share a `mem`, the `Prop`-valued fields are
+   equal by proof irrelevance — but Lean won't always see it definitionally. Prove a
+   `Element.ext`-style lemma (`mem`-equality ⟹ equality) early and reuse it.
+3. **OCR noise.** `sources/PRG19.md` is a `pdftotext` draft: `Δ` shows up as `lJ.`/`fJ`/`"`, `⊆` as
+   `S`/`s.`/`£`, `∩` as `n`, `↑X` as `+X`/`tX`, `∈` as `E`. Read the prose to disambiguate; do **not**
+   transcribe symbols literally.
+4. **`⋂`/`⋃` over `ℕ`.** Theorem 1.11(ii)'s proviso is exactly the `k = max n m` directedness move
+   (cf. Part I's `iSup₂_monotone_eq_diagonal` and `Monotone.iSup_nat_add`). Intersection (i) needs no
+   proviso.
+5. **Don't formalize total/maximal elements (Def 1.8 "total").** That is the classical/Zorn frontier
+   and is explicitly out of scope this session.
 
 ---
 
 ## Workflow
 
-1. Reread `sources/ScottContinLatt1972_vision.md` Lemma 4.5 + converse calc (~1304–1335).
-2. Prove `towerProj_retr_conjMap_succ`, then `embInfInf_comp_projInfInf`, sorry-free.
-3. `lake build Domain.ContinuousLattice.FunctionSpaceTower` (green).
-4. `#print axioms Domain.ContinuousLattice.embInfInf_comp_projInfInf` → `[propext, Classical.choice, Quot.sound]`
-   (temp scratch file pattern: a one-line `import … #print axioms …`, build with `lake env lean`, delete).
-5. Update `arxiv.md`: score → **37 Pass · 0 Stuck · 1 Not Yet**; §4 table row (c) → **Pass**; blueprint
-   node `T44c` → ✓; add a proof note next to the 4.4(a)/(b) notes.
+1. Reread `sources/PRG19.md` §1 (Def 1.1–1.8, Thm 1.10–1.11), cleaning OCR as you go.
+2. Skim `Domain/InfoSys.lean` (the 1982 analogue) for the `structure` + `Element` + `PartialOrder`
+   template and the choice-free `le_antisymm`.
+3. Create `Domain/Neighborhood/Basic.lean`; add `import Domain.Neighborhood.Basic` to `Domain.lean`
+   (after `Domain.InfoSys`, or grouped as you see fit).
+4. Implement deliverables 1–8 above, sorry-free.
+5. `lake build` (green), then `#print axioms` on each deliverable (temp scratch file pattern: a
+   one-line `import … #print axioms …`, build with `lake env lean Scratch.lean`, then delete it).
+   Confirm `{propext, Quot.sound}` (flag any `Classical.choice` you couldn't avoid).
+6. Update `arxiv.md`: turn §4 "Part II (stub)" into a live section with a §1 report card (rows for
+   deliverables 1–8), update the §2.1/§2.3 gate notes ("Part I → Part II" gate is **open**, Part II
+   started), and add short proof notes. Rewrite `HANDOFF.md` as the §2 (approximable mappings) prompt.
+
+---
+
+## What comes after this session (for context, not this session's work)
+
+- **§2 — approximable mappings (Def 2.1).** Relations `f ⊆ V₀ × V₁` with (i) `Δ₀ f Δ₁`, (ii) `X f Y ∧
+  X f Y' ⟹ X f (Y∩Y')`, (iii) `X f Y ∧ X' ⊆ X ∧ Y ⊆ Y' ⟹ X' f Y'`. Proposition 2.2: `f` induces an
+  elementwise map `|V₀| → |V₁|`. Theorem 2.5: domains + approximable maps form a category. Theorem
+  2.7: every domain isomorphism comes from an approximable map (Def 1.9).
+- **§3 — constructions:** product `V₀ × V₁`, function space `[V₀ → V₁]`, with universal properties.
+- **Part IV bridge:** `continuousLattice_to_neighborhoodSystem` (1972 → 1981), using Part I's 2.11/2.12
+  (Δ as master set). `neighborhoodSystem_to_infoSys` (1981 → 1982) lines this up with `Domain/InfoSys.lean`.
 
 ---
 
@@ -199,13 +205,11 @@ In `InverseLimits.lean`:
 
 | File | Role |
 | ---- | ---- |
-| `Domain/ContinuousLattice/FunctionSpaceTower.lean` | tower, `i∞`/`j∞`, (a)+(b) done; add (c) in section `Thm44b` |
-| `Domain/ContinuousLattice/InverseLimits.lean` | `D∞`, `embInf`/`projInf`, 4.2/4.3/4.5, `idInf_eq_iSup` |
-| `Domain/ContinuousLattice/FunctionSpaces.lean` | `ScottMap`, `conjMap` pattern, Prop 3.7/3.13 |
-| `sources/ScottContinLatt1972_vision.md` | primary source |
-| `arxiv.md` | tracker + proof notes (update on completion) |
-| `Domain.lean` | module imports (already includes `FunctionSpaceTower`) |
+| `sources/PRG19.md` | primary source (OCR draft — verify against prose) |
+| `Domain/InfoSys.lean` | **closest template**: 1982 `InfoSys` + `Element` + choice-free `PartialOrder` |
+| `Domain/Neighborhood/Basic.lean` | **new this session** — §1 foundations |
+| `Domain.lean` | module index — add the new import |
+| `arxiv.md` | tracker + report cards + proof notes (update on completion); §4 = Part II |
+| `Domain/Constructive.lean` | choice-free helpers, if any `Finset` work creeps in |
 
-After (c) lands, the only remaining work in the whole §4 program is (d): bundle
-`projInfInf_comp_embInfInf` and `embInfInf_comp_projInfInf` into `theorem_4_4` (mutually-inverse Scott
-maps, or an `OrderIso`).
+The Part I → Part II gate (Pass on Scott 2.8–2.11 and 3.3) is **open** — all prerequisites are green.
