@@ -1145,7 +1145,7 @@ pages.
 | **Factoid 1.1b** | Factoid | 129–131 | `interUpTo_succ` (`⋂_{i<n+1} Xᵢ = (⋂_{i<n} Xᵢ) ∩ Xₙ`) | **Pass** |
 | **Theorem 1.1c** | Theorem | 133–137 | `interUpTo_mem` (extend (ii) to finite seqs) + `consistent_iff_interUpTo_mem` (consistency ⟺ `⋂ ∈ 𝒟`); aux `Consistent`, `interUpTo_subset` | **Pass** |
 | **Example 1.2** | Example | 141–153 | `Δ={0,1}`, `𝒟={{0,1},{0},{1}}`; `neighborhoodSystem`, `element_classification` (exactly 3 filters), `bot_is_unique_partial` (one partial element) | **Pass** |
-| **Example 1.3** | Example | 155–170 | `Δ={0,1,2}`, `𝒟={{0,1,2},{1,2},{2}}` (linear) | **Not Yet** |
+| **Example 1.3** | Example | 155–170 | `Δ={0,1,2}`, `𝒟={{0,1,2},{1,2},{2}}` (linear); `neighborhoodSystem`, `element_classification` (exactly 3 filters), `bot_lt_elemTwelve`, `elemTwelve_lt_elemTwo`, `elemTwo_maximal` (linear chain; token `2` total) | **Pass** |
 | **Example 1.4** | Example | 172–193 | depth-2 binary tree; subtrees as neighbourhoods | **Not Yet** |
 | **Factoid 1.4a** | Factoid | 195–201 | "*nested-or-disjoint*" ⟹ neighbourhood system (the "very special circumstance" of 1.2–1.4) | **Not Yet** |
 | **Example 1.5** | Example | 203–205 | `Δ={0,1,2,3}`, `𝒟 =` all non-empty subsets | **Not Yet** |
@@ -1184,6 +1184,7 @@ flowchart TD
   F11b["Factoid 1.1b interUpTo_succ ✓"]
   T11c["Theorem 1.1c interUpTo_mem · consistent_iff_interUpTo_mem ✓"]
   E12["Example 1.2 element_classification ✓"]
+  E13["Example 1.3 element_classification ✓"]
   D16["Def 1.6 Element · Element.ext ✓"]
   D18o["Def 1.8 PartialOrder ✓"]
   D17["Def 1.7 principal ↑X"]
@@ -1199,6 +1200,8 @@ flowchart TD
   D16 --> D18o
   D16 --> E12
   D18o --> E12
+  D16 --> E13
+  D18o --> E13
   D16 --> D17
   D17 --> F17a
   D17 --> F17b
@@ -1211,8 +1214,8 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Domain/Neighborhood/Example12.lean`) |
-| Report card  | **7 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Example 1.2) · rest queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Domain/Neighborhood/Example12.lean`, `Domain/Neighborhood/Example13.lean`) |
+| Report card  | **8 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Example 1.2, Example 1.3) · rest queued |
 
 
 ### 4.5 Selected proof notes
@@ -1267,6 +1270,25 @@ Hence `bot_is_unique_partial`: `⊥` is the sole *partial* element, with `bot_lt
 one partial element". Being a concrete finite computation it leans on `Mathlib.Tactic`
 (`fin_cases`/`simp`), so its footprint is the classical `[propext, Classical.choice, Quot.sound]`;
 the constructive guarantee is reserved for the §1 *core* in `Basic.lean`.
+
+#### Example 1.3 — `Domain/Neighborhood/Example13.lean`
+
+Scott's second worked example: `Δ = {0,1,2}` (`Token := Fin 3`, `master := Set.univ`),
+`𝒟 = {Δ, {1,2}, {2}}` — a **linear chain** under reverse inclusion (more information =
+smaller set). We build `neighborhoodSystem : NeighborhoodSystem Token`; condition (ii) is
+discharged by `inter_eq` with only **three** outcomes (`Δ`, `{1,2}`, `{2}`) — every pairwise
+intersection is nested, so there is no empty-intersection case (contrast Example 1.2's nine-case
+analysis).
+
+The element classification (`element_classification`) yields exactly three filters in a linear
+chain: `bot = {Δ}`, `elemTwelve = {Δ,{1,2}}`, `elemTwo = {Δ,{1,2},{2}}`. The argument follows
+the same "case on minimal non-master neighbourhood" pattern as 1.2: if `{2} ∈ x` then `x =
+elemTwo`; else if `{1,2} ∈ x` then `x = elemTwelve`; else `x = bot`. Order lemmas
+`bot_lt_elemTwelve`, `elemTwelve_lt_elemTwo`, and `elemTwo_maximal` capture Scott's narrative:
+approximation proceeds in **two steps** to the total element (token `2`); tokens `0` and `1` are
+not total (they appear in larger neighbourhoods but do not determine filters); the direction of
+approximation is **unique** (no branching). Unlike 1.2 (one partial, two total), 1.3 has **two
+partial** elements and **one total**. Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ---
 

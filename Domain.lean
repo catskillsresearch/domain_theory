@@ -11,4 +11,5 @@ import Domain.ContinuousLattice.InverseLimits
 import Domain.ContinuousLattice.FunctionSpaceTower
 import Domain.Neighborhood.Basic
 import Domain.Neighborhood.Example12
+import Domain.Neighborhood.Example13
 import Domain.InfoSys
