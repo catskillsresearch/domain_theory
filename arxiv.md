@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **24 Pass · 3 Stuck · 8 Not Yet**.
+full deliverable. Score: **25 Pass · 2 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -196,7 +196,7 @@ full deliverable. Score: **24 Pass · 3 Stuck · 8 Not Yet**.
 | 3   | Cor 3.4   | `corollary_3_4_jointly_continuous`, `corollary_3_4_preservesDirectedSup` (+ `corollary_3_4` fixed-`x`)                            | `FunctionSpaces.lean` | **Pass**    | joint continuity of `eval` via Prop 2.6 |
 | 3   | Prop 3.5  | `proposition_3_5`, `scottLambda` (+ `curry_left/right_preservesDirectedSup`, `lambda_outer_preservesDirectedSup`)                | `FunctionSpaces.lean` | **Pass**    | `lambda : [[D×D']→D''] → [D→[D'→D'']]` continuous |
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
-| 3   | Prop 3.8  | `scottSubspaceExtend`, `proposition_3_8`                                                                                         | `FunctionSpaces.lean` | **Stuck**   | one-sided bound                      |
+| 3   | Prop 3.8  | `proposition_3_8`, `scottExtend_maximal`, `continuous_eq_sSup_openInfs`                                                          | `Constructions.lean`  | **Pass**    | continuous + extends + maximal       |
 | 3   | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | inf-level; global eq open            |
 | 3   | Prop 3.10 | `incl_bot`, `incl_sup`, `incl_sSup`, `incl_injective`, `incl_wayBelow`                                                           | `FunctionSpaces.lean` | **Stuck**   | forward (i)–(iii)                    |
 | 3   | Prop 3.12 | —                                                                                                                                | —                     | **Not Yet** |                                      |
@@ -340,8 +340,8 @@ flowchart TD
   D36["IsContinuousLatticeRetraction · Projection"]
   P310f["incl_bot · incl_sup · incl_sSup · incl_injective · incl_wayBelow"]
   P310c["proposition_3_10 converse"]
-  P38p["scottSubspaceExtend · proposition_3_8"]
-  P38["proposition_3_8 full"]
+  P38p["scottExtend · scottExtend_continuous · scottExtend_eq_of_continuous"]
+  P38["proposition_3_8 (continuous + extends + maximal)"]
   L39i["lemma_3_9_incl_inf"]
   L39r["lemma_3_9_retr_inf"]
   L39["lemma_3_9 global"]
@@ -383,7 +383,7 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-All nodes **Not Yet**; blocked on full **3.8** and **3.9**.
+All nodes **Not Yet**; **3.8** is now **Pass**, so §4 is blocked only on **3.9** global eq.
 
 ```mermaid
 flowchart TD
@@ -745,12 +745,36 @@ The pleasant outcome: once `[D → D']` is a genuine `CompleteLattice` instance 
 `sSup` (`ScottMap.sSup_apply` is `rfl`), all of §3's continuity facts (3.4, 3.5) are short pointwise
 computations. Footprint `[propext, Classical.choice, Quot.sound]`.
 
+#### Proposition 3.8 (maximal extension along a subspace embedding) — `proposition_3_8` (`Constructions.lean`)
+
+For `E` a continuous lattice and `e : X → Y` a subspace embedding, Scott's explicit formula
+`scottExtend e f y = ⊔ { ⊓ f''(e⁻¹V) : V an open nbhd of y }` is *the maximal extension* of a
+continuous `f : X → E` to `[Y → E]`. The full statement bundles three clauses:
+
+- **Continuous** and **extends `f`**: reused verbatim from the 2.11 injectivity machinery
+  (`scottExtend_continuous`, `scottExtend_eq_of_continuous`) — the *same* operator `scottExtend`
+  serves both 2.11 and 3.8, so 3.8 is essentially 2.11 plus a maximality clause.
+- **Maximal** (`scottExtend_maximal`): for any continuous solution `f'` of `f' ∘ e = f`, expand
+  `f'` itself via `continuous_eq_sSup_openInfs` (the order-theoretic identity
+  `f' y = ⊔ { ⊓ f''(U) : U open nbhd of y }`, proved by interpolating from below with
+  `f' y = ⊔ {a ≪ f' y}` and openness of each `f'⁻¹(↟a)`). Restricting each meet from the open `U`
+  to the embedded subspace `e(X) ∩ U` only *enlarges* the meet and lands it on a defining term of
+  `scottExtend`, giving `f' y ≤ scottExtend e f y` — exactly Scott's two-line chain on p.116.
+
+**Engineering notes / lessons from 3.8:** the partial `FunctionSpaces.scottSubspaceExtend` (renamed
+`scottSubspaceExtend_maximal`) had ranged `U` over the *Scott* topology of `Y` (forcing a spurious
+`CompleteLattice Y`), which is unfaithful to Scott (where `Y` is an arbitrary `T₀` space). The
+faithful route was to retarget the whole proposition onto the already-continuous `scottExtend` from
+2.11, which ranges `U` over `Y`'s *given* topology — turning "Stuck (one-sided bound)" into a
+clean **Pass** that simply repackages existing lemmas. Footprint `[propext, Classical.choice,
+Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Medium   | **3.8** full, **Lemma 3.9** global eq                                       | Composer 2.5                       |
+| Medium   | **Lemma 3.9** global eq                                                     | Composer 2.5                       |
 | Hard     | **3.10** converse, Scott §4                                                 | Opus 4.8 (one theorem per session) |
 
 

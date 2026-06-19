@@ -320,6 +320,60 @@ theorem scottExtend_continuous (hE : IsContinuousLattice E) (e : X → Y) (f : X
   show a ≪ scottExtend e f y'
   exact had.trans_le (le_sSup ⟨V, hVo, hy'V, rfl⟩)
 
+/-- For a continuous `f' : Y → E` into a continuous lattice `E` (with its Scott topology), the
+value `f' y` is reconstructed as the supremum over open neighbourhoods `U ∋ y` of the meets
+`⊓ f''(U)`. This is the order-theoretic content behind the maximality clause of Proposition 3.8:
+the `≤` direction interpolates from below using `f' y = ⊔ {a | a ≪ f' y}` and the openness of each
+`f'⁻¹(↟a)`; the `≥` direction is immediate since `f' y ∈ f''(U)` whenever `y ∈ U`. -/
+theorem continuous_eq_sSup_openInfs (hE : IsContinuousLattice E) {f' : Y → E}
+    (hf' : @Continuous Y E _ scottTopologicalSpace f') (y : Y) :
+    f' y = sSup {d | ∃ U : Set Y, IsOpen U ∧ y ∈ U ∧ d = sInf (f' '' U)} := by
+  apply le_antisymm
+  · rw [← hE.sSup_wayBelow (f' y)]
+    refine sSup_le fun a ha => ?_
+    have hWopen : @IsOpen E scottTopologicalSpace {z : E | a ≪ z} :=
+      isOpen_iff_scottOpen.mpr (scottOpen_wayBelow a)
+    have hpre : IsOpen (f' ⁻¹' {z : E | a ≪ z}) := continuous_def.mp hf' _ hWopen
+    have hyU : y ∈ f' ⁻¹' {z : E | a ≪ z} := ha
+    refine le_trans ?_ (le_sSup ⟨f' ⁻¹' {z : E | a ≪ z}, hpre, hyU, rfl⟩)
+    refine le_sInf ?_
+    rintro w ⟨z, hzU, rfl⟩
+    exact (hzU : a ≪ f' z).le
+  · refine sSup_le ?_
+    rintro d ⟨U, _hUo, hyU, rfl⟩
+    exact sInf_le ⟨y, hyU, rfl⟩
+
+/-- **Maximality clause of Scott 1972, Proposition 3.8.** Any continuous solution `f'` of
+`f' ∘ e = f` lies below `scottExtend e f`. Following Scott: expand `f'` via
+`continuous_eq_sSup_openInfs`, restrict each meet from `U` to the embedded subspace `e(X) ∩ U`
+(only enlarging the meet), and recognize the result as a defining term of `scottExtend`. -/
+theorem scottExtend_maximal (hE : IsContinuousLattice E) (e : X → Y) {f : X → E} {f' : Y → E}
+    (hf' : @Continuous Y E _ scottTopologicalSpace f') (h_ext : ∀ x, f' (e x) = f x) (y : Y) :
+    f' y ≤ scottExtend e f y := by
+  rw [continuous_eq_sSup_openInfs hE hf' y]
+  refine sSup_le ?_
+  rintro d ⟨U, hUo, hyU, rfl⟩
+  refine le_trans ?_ (le_sSup ⟨U, hUo, hyU, rfl⟩)
+  refine le_sInf ?_
+  rintro w ⟨x, hxU, rfl⟩
+  rw [← h_ext x]
+  exact sInf_le ⟨e x, hxU, rfl⟩
+
+/-- **Scott 1972, Proposition 3.8.** If `E` is a continuous lattice and `e : X → Y` a subspace
+embedding, then for each continuous `f : X → E` the explicit formula `scottExtend e f` is the
+*maximal extension* of `f` to `[Y → E]`: it is Scott-continuous (`scottExtend_continuous`), it
+restricts to `f` along `e` (`scottExtend_eq_of_continuous`), and it dominates every continuous
+solution of `f' ∘ e = f` (`scottExtend_maximal`). -/
+theorem proposition_3_8 (hE : IsContinuousLattice E) (e : X → Y) (he : IsEmbedding e)
+    (f : X → E) (hf : @Continuous X E _ scottTopologicalSpace f) :
+    @Continuous Y E _ scottTopologicalSpace (scottExtend e f)
+      ∧ (∀ x, scottExtend e f (e x) = f x)
+      ∧ (∀ f' : Y → E, @Continuous Y E _ scottTopologicalSpace f' → (∀ x, f' (e x) = f x) →
+          ∀ y, f' y ≤ scottExtend e f y) :=
+  ⟨scottExtend_continuous hE e f,
+   fun x => scottExtend_eq_of_continuous hE e he f hf x,
+   fun f' hf' h_ext y => scottExtend_maximal hE e hf' h_ext y⟩
+
 end InjectiveExtension
 
 /-- **Scott 1972, Proposition 2.11.** Every continuous lattice is an injective space under its
