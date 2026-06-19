@@ -32,7 +32,8 @@ FILES = [
 ]
 
 PAPER_TITLE = (
-    "Four Presentations of Scott Domains in Lean 4: A Chronological Formalization"
+    "Scott's 3 Successively Less Topological, Simpler, and More Constructive "
+    "Presentations of Domain Theory and Their Equivalence"
 )
 
 

@@ -5,16 +5,22 @@ Computation* (Technical Monograph PRG-19, "the blue pamphlet") in:
 
 `/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`.
 
+The monograph (`arxiv.md`) is titled **"Scott's 3 Successively Less Topological, Simpler, and More
+Constructive Presentations of Domain Theory and Their Equivalence"**: Part I = 1972 continuous
+lattices, **Part II = 1981 neighborhood systems (this work)**, Part III = 1982 information systems,
+Part IV = the equivalence finale.
+
 **Part I (Scott 1972, *Continuous Lattices*) is complete: 38 Pass · 0 Stuck · 0 Not Yet.**
 
-**Part II is live.** The §1 Goal List in `arxiv.md §4` tracks a *biblical*, line-by-line parse of
-PRG-19 Lecture I: Definitions, Theorems, **Factoids** (unnamed prose assertions), **Examples**, and
+**Part II is live.** The §1 Goal List in `arxiv.md §4.2` tracks a *biblical*, line-by-line parse of
+PRG-19: Definitions, Theorems, **Factoids** (unnamed prose assertions), **Examples**, and
 **Exercises** are all first-class deliverables. **Proof notes** in `arxiv.md §4.5` are part of the
 monograph deliverable — update them as each result lands.
 
-**Just landed (last sessions):**
+**Just landed (recent sessions):**
 - **Exercise 1.22** — topology on `|𝒟|` (`Exercise122.lean`): `basicOpen [X]`,
   `instTopologicalSpaceElement`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le`.
+  (Independent deliverable — no other Pass row depends on it.)
 - **Def 1.7 + Factoids 1.7a/1.7b** — principal filters (`Basic.lean`): `principal` (`↑X`),
   `mem_principal`, `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`, inclusion-reversing), `principal_injective`,
   `eq_iUnion_principal` (`x = ⋃{↑X∣X∈x}`). **All constructive `[propext, Quot.sound]`.**
@@ -47,8 +53,8 @@ approximation order itself (Def 1.8's `x ⊑ y ⟺ x ⊆ y`) is **already done**
 - **Read the source first:** `sources/PRG19_vision.md` line 277 (Def 1.8) and 279 (Examples revisited
   = Factoid 1.8b). `⊥ = {Δ}`; total = maximal under `⊑`.
 - **Update docs on completion:** mark Def 1.8 (⊥/total) / Factoids 1.8a/1.8b **Pass** in
-  `arxiv.md §4.2`, refresh §4.3 graph and §4.4 tally, add §4.5 proof notes. Rewrite this
-  `HANDOFF.md` for the next item (Example 1.B, or Def 1.9 isomorphism).
+  `arxiv.md §4.2`, refresh §4.3 graph and §4.4 tally (**→ 20 Pass**), add §4.5 proof notes. Rewrite
+  this `HANDOFF.md` for the next item (Example 1.B, or Def 1.9 isomorphism).
 
 ---
 
@@ -85,7 +91,7 @@ Examples revisited (line 279, **Factoid 1.8b**):
    `x = principal`. If this balloons, scope it narrowly or defer with a note — it is a "revisited"
    remark, not a numbered result.
 
-### Report-card target
+### Report-card target (this session: **→ 20 Pass**)
 
 | # | Scott | Lean target | Notes |
 | - | ----- | ----------- | ----- |
@@ -93,6 +99,9 @@ Examples revisited (line 279, **Factoid 1.8b**):
 | 2 | Factoid 1.8a | `bot_le` (+ optional `OrderBot Element`) | `⊥` least |
 | 3 | Def 1.8 total | `IsTotal x := ∀ y, x ≤ y → y ≤ x` | predicate only; no existence |
 | 4 | Factoid 1.8b | finite ⟹ principal (scoped/optional) | classical frontier OK if needed |
+
+(Goal-List rows in `arxiv.md §4.2`: **Def 1.8 (⊥, total)**, **Factoid 1.8a**, **Factoid 1.8b** — all
+currently **Not Yet**. Marking the three of them Pass takes the Lecture I tally 17 → 20.)
 
 ---
 
@@ -117,21 +126,22 @@ Examples revisited (line 279, **Factoid 1.8b**):
 3. Attempt Factoid 1.8b; scope or defer if it needs heavy finiteness machinery.
 4. `lake build Domain` (green); `#print axioms` audit via scratch file → core `[propext, Quot.sound]`;
    delete scratch.
-5. Update `arxiv.md` (§4.2 Pass rows, §4.3 graph, §4.4 tally, §4.5 notes) and rewrite this
-   `HANDOFF.md` for the next item (**Example 1.B** binary sequences, lines 281–315; or **Def 1.9**
+5. Update `arxiv.md` (§4.2 Pass rows, §4.3 graph, §4.4 tally **→ 20 Pass**, §4.5 notes) and rewrite
+   this `HANDOFF.md` for the next item (**Example 1.B** binary sequences, lines 281–315; or **Def 1.9**
    isomorphism, lines 321–322).
 
 ---
 
-## Current status (Part II §1)
+## Current status (Part II)
 
 | Block | Status |
 | ----- | ------ |
-| Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`) |
+| Vision / OCR | **Lectures I–III fully transcribed** (`sources/PRG19_vision.md`, ≈2200 lines); Lecture IV partial |
+| Goal List | **§4.2 (Lecture I, 40 rows, 17 Pass)** complete; **§4.2.II (Lecture II, 22 rows)** + **§4.2.III (Lecture III, 28 rows)** inventoried, all Not Yet |
 | Lean modules | `Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean` |
 | Report card | **17 Pass** · rest queued (see `arxiv.md §4.2`) |
 
-**Already Pass:**
+**Already Pass (Lecture I):**
 
 | Scott | Lean |
 | ----- | ---- |
@@ -157,11 +167,12 @@ Examples revisited (line 279, **Factoid 1.8b**):
 
 | Next item | Notes |
 | --------- | ----- |
-| **Example 1.B** | binary sequences `B = {σΣ* ∣ σ∈Σ*}`, generalizing 1.4 (lines 281–315); incl. `B`-is-a-system exercise, `σx∈|B|` exercise, `σ₀⊥⊆σ₁⊥ ⟺ initial segment`, `x = ⋃ₙ σₙ⊥` |
+| **Example 1.B** | binary sequences `B = {σΣ* ∣ σ∈Σ*}`, generalizing 1.4 (lines 281–315); incl. `B`-is-a-system exercise, `σx∈\|B\|` exercise, `σ₀⊥⊆σ₁⊥ ⟺ initial segment`, `x = ⋃ₙ σₙ⊥` |
 | **Def 1.9** | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` (lines 321–322) |
-| **Theorem 1.10** | `[X]` element-token system (basic opens already in `Exercise122.lean`); `𝒟 ≅ {[X]}` |
-| **Theorem 1.11** | closure of `\|𝒟\|` under `⋂` and ascending `⋃` |
-| **Exercises 1.1, 1.21, 1.23–1.26** | statements as OCR exposes them |
+| **Theorem 1.10** | `[X]` element-token system (`[X]` already exists as `basicOpen` in `Exercise122.lean`); build the system `{[X]}` + `𝒟 ≅ {[X]}` |
+| **Theorem 1.11** | closure of `\|𝒟\|` under countable `⋂` and ascending `⋃` (lines 367–377) |
+| **Exercises 1.12–1.27** | full statements now OCR'd and inventoried in §4.2 (the old "Exercise 1.1" forward-ref was a garble for **1.12**) |
+| **Lectures II / III** | §4.2.II (approximable mappings, Def 2.1 → Ex 2.22) and §4.2.III (constructions, Def 3.1 → Ex 3.28) — planned roots `Approximable.lean`, `Constructions.lean` |
 
 ---
 
@@ -174,6 +185,6 @@ Examples revisited (line 279, **Factoid 1.8b**):
 | `Domain/Neighborhood/Example12–15.lean` | the four finite worked examples (each now supplies `sub_master`) |
 | `Domain/Neighborhood/Exercise122.lean` | topology on `|𝒟|` (Exercise 1.22) |
 | `Domain.lean` | module index |
-| `arxiv.md` | Goal List (§4.2), dependency graph (§4.3), status (§4.4), proof notes (§4.5) |
+| `arxiv.md` | Goal Lists (§4.2 / §4.2.II / §4.2.III), dependency graph (§4.3), status (§4.4), proof notes (§4.5) |
 
 The Part I → Part II gate is **open** — all prerequisites green.
