@@ -1095,43 +1095,146 @@ composition identities (`projInfInf_comp_embInfInf`, `embInfInf_comp_projInfInf`
 
 Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 
-### 3.8 Part I — next work (Composer vs Opus)
-
-
-| Priority | Items                                                                       | Suggested agent                    |
-| -------- | --------------------------------------------------------------------------- | ---------------------------------- |
-| Hard     | — (Scott §4 Thm 4.4 complete)                                                   | —                                  |
-
-
 ---
 
-## 4. Part II — Scott 1981 PRG-19 (stub)
+## 4. Part II — Scott 1981 PRG-19 (§1 foundations: live)
 
 **Source:** Scott, *Lectures on a Mathematical Theory of Computation*, Technical Monograph
-PRG-19, Oxford (May 1981). OCR draft: `[sources/PRG19.md](sources/PRG19.md)`.
+PRG-19, Oxford (May 1981), Lecture I *Domains given by neighbourhoods*. Vision OCR draft:
+`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (currently transcribed through **Definition
+1.9**, p. 16; OCR is ongoing and the Goal List below will grow as later pages land).
 
-**Constructivity:** **Classical expected** — filters, maximal/total elements, Zorn/choice
-(PRG-19 discusses choice explicitly).
+**Constructivity:** the **§1 core is constructive.** Scott deliberately works with *partial*
+filters so the basic theory needs no maximal-filter existence (Zorn/choice); the **classical
+frontier** is confined to *total/maximal* elements (Def 1.8). Every §1-foundations deliverable
+proved so far audits to `[propext, Quot.sound]` (no `Classical.choice`) — contrast the
+classical Part I.
 
-**Planned Lean root:** `Domain/Neighborhood/` (not yet created).
+**Lean root:** `Domain/Neighborhood/Basic.lean` (created; namespace `Domain.Neighborhood`).
 
-### 4.1 Planned content
+### 4.1 Methodology — a *biblical*, line-by-line Goal List
 
-- **Definition:** neighborhood system on master set Δ; domain elements as filters of neighborhoods.
-- **Core theorems (inventory TBD):** approximable maps, domain isomorphisms from neighborhood
-isomorphisms (PRG-19 Thm 2.7), function-space and product constructions.
-- **Bridge toward Part IV:** `continuousLattice_to_neighborhoodSystem` (§2.2).
-- **Bridge toward Part III:** `neighborhoodSystem_to_infoSys` (§2.2).
+PRG-19 is written **discursively**: much of the mathematical content is stated informally in
+the running prose *between* the numbered Definitions and Theorems, and Scott generates many
+**Exercises**. We therefore extract the *formal* obligations from the *informal* text and treat
+each as a first-class deliverable, of four kinds:
 
-### 4.2 Status
+- **Definition / Theorem** — Scott's own numbered items.
+- **Factoid** — an *unnamed* assertion in the narrative (e.g. anything of the form
+  "*it is obvious that …*", "*it is easy to prove that …*", "*the reason is …*"). Each must be
+  stated and **proved**; we name them `m.k`+letter after the preceding numbered item.
+- **Example** — each worked example is a separate deliverable: build the system in Lean and
+  discharge its proof obligation (that it *is* a neighbourhood system, plus any stated
+  properties of its elements).
+- **Exercise** — Scott's exercises (including the forward references `1.1`, `1.21`, `1.22`,
+  `2.22` and the "*should be done as an exercise*" remarks). Inventoried as goals; statements
+  to be pinned down as the OCR exposes them.
+
+This is not yet a Lean *blueprint*; it is the incremental Goal List that precedes one.
+
+### 4.2 §1 Goal List (parsed through Def 1.9)
+
+**Status key:** **Pass** = stated and proved sorry-free; **Not Yet** = inventoried, not yet
+formalized; **Ref** = forward-referenced exercise whose statement is not yet on the transcribed
+pages.
+
+| Scott (PRG-19 §1) | Kind | Text (vision) | Lean target | Status |
+| ----------------- | ---- | ------------- | ----------- | ------ |
+| **Def 1.1** | Definition | 115–119 | `NeighborhoodSystem` (`mem`, `master`, `master_mem`, `inter_mem`) | **Pass** |
+| **Factoid 1.1a** | Factoid | 125–127 | `interUpTo`, `interUpTo_zero` (`⋂_{i<0} Xᵢ = Δ`) | **Pass** |
+| **Factoid 1.1b** | Factoid | 129–131 | `interUpTo_succ` (`⋂_{i<n+1} Xᵢ = (⋂_{i<n} Xᵢ) ∩ Xₙ`) | **Pass** |
+| **Theorem 1.1c** | Theorem | 133–137 | `interUpTo_mem` (extend (ii) to finite seqs) + `consistent_iff_interUpTo_mem` (consistency ⟺ `⋂ ∈ 𝒟`); aux `Consistent`, `interUpTo_subset` | **Pass** |
+| **Example 1.2** | Example | 141–153 | `Δ={0,1}`, `𝒟={{0,1},{0},{1}}`; one partial element | **Not Yet** |
+| **Example 1.3** | Example | 155–170 | `Δ={0,1,2}`, `𝒟={{0,1,2},{1,2},{2}}` (linear) | **Not Yet** |
+| **Example 1.4** | Example | 172–193 | depth-2 binary tree; subtrees as neighbourhoods | **Not Yet** |
+| **Factoid 1.4a** | Factoid | 195–201 | "*nested-or-disjoint*" ⟹ neighbourhood system (the "very special circumstance" of 1.2–1.4) | **Not Yet** |
+| **Example 1.5** | Example | 203–205 | `Δ={0,1,2,3}`, `𝒟 =` all non-empty subsets | **Not Yet** |
+| **Factoid 1.5a** | Factoid | 203–205 | in 1.5: consistent ⟺ non-empty intersection; `𝒟` is a system | **Not Yet** |
+| **Factoid 1.5b** | Factoid | 227–233 | limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}`: equal families ⟺ equivalent convergent sequences | **Not Yet** |
+| **Def 1.6** | Definition | 235–243 | `Element` (filter: `master_mem`, `inter_mem`, `up_mem`); domain `\|𝒟\|` | **Not Yet** |
+| **Exercise 1.22** | Exercise | 247 (ref) | a filter need not be sequence-generated | **Ref** |
+| **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}`; the finite elements | **Not Yet** |
+| **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** (`X⊆Y ⟺ ↑Y⊆↑X`) | **Not Yet** |
+| **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` | **Not Yet** |
+| **Exercise 1.21** | Exercise | 271 (ref) | makes "every element is a limit of finite elements" precise | **Ref** |
+| **Def 1.8** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` (`PartialOrder`); `⊥={Δ}`; total elements | **Not Yet** |
+| **Factoid 1.8a** | Factoid | 277 | `⊥={Δ}=↑Δ` is the least element of `\|𝒟\|` | **Not Yet** |
+| **Factoid 1.8b** | Factoid | 279 | finite systems: every explicit filter is principal / every element finite | **Not Yet** |
+| **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 | **Not Yet** |
+| **Exercise 1.B-sys** | Exercise | 297 | "*should be done as an exercise*": `B` is a neighbourhood system | **Not Yet** |
+| **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` | **Not Yet** |
+| **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` | **Not Yet** |
+| **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` with `σₙ` initial segments (element = limit of finite approx.) | **Not Yet** |
+| **Exercise 1.1** | Exercise | 281 (ref) | generalize Example 1.3 | **Ref** |
+| **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` | **Not Yet** |
+
+**Awaiting OCR (beyond p. 16, named in the prior handoff and the intro):** Theorem 1.10 (`[X]`,
+the element-token system), Theorem 1.11 (closure of `|𝒟|` under `⋂` and ascending `⋃`), the §1
+exercises' actual statements, and Exercise 2.22 (flagged in the Introduction, line 82, as
+material Scott intends to fold into the main text). These rows will be appended as the pages are
+transcribed.
+
+### 4.3 §1 dependency (parsed so far)
+
+```mermaid
+flowchart TD
+  D11["Def 1.1 NeighborhoodSystem"]
+  F11a["Factoid 1.1a interUpTo_zero"]
+  F11b["Factoid 1.1b interUpTo_succ"]
+  T11c["Theorem 1.1c interUpTo_mem · consistent_iff_interUpTo_mem"]
+  D16["Def 1.6 Element of the domain"]
+  D17["Def 1.7 principal ↑X"]
+  F17a["Factoid 1.7a ↑ one-one, reversing"]
+  F17b["Factoid 1.7b x = ⋃ ↑X"]
+  D18["Def 1.8 ⊑ order · ⊥"]
+
+  D11 --> F11a
+  D11 --> F11b
+  F11a --> T11c
+  F11b --> T11c
+  D11 --> D16
+  D16 --> D17
+  D17 --> F17a
+  D17 --> F17b
+  D16 --> D18
+  D17 --> F17b
+```
+
+### 4.4 Status
 
 
-| Block        | Status                       |
-| ------------ | ---------------------------- |
-| Vision / OCR | Partial (`sources/PRG19.md`) |
-| Lean module  | **Not Yet**                  |
-| Report card  | **Not Yet**                  |
+| Block        | Status                                                            |
+| ------------ | ----------------------------------------------------------------- |
+| Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`)                       |
+| Report card  | **4 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c) · rest queued |
 
+
+### 4.5 Selected proof notes
+
+#### Definition 1.1 and the finite-intersection convention — `NeighborhoodSystem`, `interUpTo`
+
+`NeighborhoodSystem α` bundles a membership predicate `mem : Set α → Prop` (Scott's `X ∈ 𝒟`),
+the master neighbourhood `master` (Scott's `Δ`, kept as a field rather than hard-wired to
+`Set.univ`, for fidelity to the `Δ` notation), and Scott's two conditions: (i) `master_mem`
+(`Δ ∈ 𝒟`) and (ii) `inter_mem` (consistent binary intersections stay in `𝒟`, the witness
+`Z ⊆ X ∩ Y` passed explicitly). Scott's recursive **convention** for the finite intersection
+`⋂_{i<n} Xᵢ` is the `def interUpTo` (`0 ↦ Δ`, `n+1 ↦ interUpTo n ∩ Xₙ`); **Factoids 1.1a/1.1b**
+are its two defining equations, both `rfl`.
+
+#### Theorem 1.1c (the intersection property extends to finite sequences) — `interUpTo_mem`
+
+Scott: "*from (ii), we can extend the intersection property to any finite sequence. Consequently
+`X₀,…,Xₙ₋₁` is consistent iff `⋂_{i<n} Xᵢ ∈ 𝒟`*." We model consistency of a length-`n` prefix as
+`Consistent X n := ∃ Z, mem Z ∧ Z ⊆ interUpTo X n` (a common lower bound inside `𝒟`).
+`interUpTo_mem` is an induction on `n`: the base case is `master_mem`; the step uses the **same**
+witness `Z` to certify both that the length-`n` prefix is consistent (`Z ⊆ interUpTo n ∩ Xₙ ⊆
+interUpTo n`, feeding the IH) and the single application of condition (ii) that adjoins `Xₙ`. The
+iff `consistent_iff_interUpTo_mem` then has a one-line reverse direction (the intersection is its
+own lower bound). Auditing `interUpTo_subset` (the intersection is contained in each factor)
+required a `Nat`-specific case split (`Nat.eq_or_lt_of_le`) rather than the order-generic
+`lt_or_eq_of_le`, which silently drags in `Classical.choice`; with that change all four §1
+deliverables are `[propext, Quot.sound]`.
 
 ---
 
