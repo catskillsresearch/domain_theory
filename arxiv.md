@@ -157,13 +157,13 @@ Scott's four section titles within Part I:
 | §1  | **Injective spaces**    | `Injective.lean`                                                                                        |
 | §2  | **Continuous lattices** | `WayBelow.lean`, `Specialization.lean`, `ScottMaps.lean`, `Constructions.lean`, `MilnerCorrection.lean` |
 | §3  | **Function spaces**     | `FunctionSpaces.lean`                                                                                   |
-| §4  | **Inverse limits**      | — (not started)                                                                                         |
+| §4  | **Inverse limits**      | `InverseLimits.lean` (4.1 done)                                                                         |
 
 
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **30 Pass · 0 Stuck · 5 Not Yet**.
+full deliverable. Score: **31 Pass · 0 Stuck · 4 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -202,7 +202,7 @@ full deliverable. Score: **30 Pass · 0 Stuck · 5 Not Yet**.
 | 3   | Prop 3.12 | `proposition_3_12`, `IsProjection`, `isProjection_sSup`, `Projections.instCompleteLattice`                                       | `FunctionSpaces.lean` | **Pass**    | `J_D` is a `⊔`-closed complete latt. |
 | 3   | Prop 3.13 | `proposition_3_13`, `Proposition313.projection` (`con`/`min`)                                                                    | `FunctionSpaces.lean` | **Pass**    | `D` is a projection of `[D → D]`     |
 | 3   | Prop 3.14 | `proposition_3_14`, `Proposition314.fixMap`, `fix_eq`/`fix_le`/`fix_unique`                                                      | `FunctionSpaces.lean` | **Pass**    | continuous least-fixed-point op.     |
-| 4   | Prop 4.1  | —                                                                                                                                | —                     | **Not Yet** | uses 3.8                             |
+| 4   | Prop 4.1  | `proposition_4_1`, `InverseLimit`, `inverseLimitRetraction`                                                                      | `InverseLimits.lean`  | **Pass**    | `D∞` is a continuous lattice         |
 | 4   | Prop 4.2  | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 4   | Cor 4.3   | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 4   | Thm 4.4   | —                                                                                                                                | —                     | **Not Yet** | `D∞ ≅ [D∞ → D∞]`                     |
@@ -381,21 +381,23 @@ flowchart TD
 
 ### 3.6 §4 Inverse limits — inclusion hierarchy
 
-All nodes **Not Yet**; **3.8** and **3.9** are now **Pass**, so §4's prerequisites are in place.
+**4.1** is now **Pass** (via the retract route, see proof note); remaining §4 nodes **Not Yet**.
 
 ```mermaid
 flowchart TD
   P38["proposition_3_8 full"]
   L39["lemma_3_9 global"]
   P37["proposition_3_7_*"]
-  P41["proposition_4_1"]
+  P29a["proposition_2_9_a (∏ CL)"]
+  P210a["proposition_2_10_a (retract)"]
+  P41["proposition_4_1 ✓"]
   P42["proposition_4_2"]
   C43["corollary_4_3"]
   L45["lemma_4_5"]
   T44["theorem_4_4"]
 
-  P38 --> P41
-  L39 --> P41
+  P29a --> P41
+  P210a --> P41
   P41 --> P42
   P41 --> C43
   P42 --> C43
@@ -884,6 +886,42 @@ traps: (1) `sSup_le` leaves the bound element as an un-β-reduced `(fun f => ↑
 *unannotated* binder `∀ f, (f : D → D) …` makes the ascription **fix the binder type to `D → D`**
 rather than coerce — the binders must be written `∀ f : ScottMap D D`. Continuity of `D` is unused
 (works for any complete lattice). Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Proposition 4.1 (inverse limit of projections is a continuous lattice) — `proposition_4_1` (`InverseLimits.lean`)
+
+`D∞ = { x : ∀n, Dₙ // ∀n, jₙ(xₙ₊₁) = xₙ }` for an ω-system of continuous lattices with projection
+bonding maps `jₙ : D_{n+1} → Dₙ`. Scott proves continuity *topologically* (show `D∞` is an injective
+`T₀`-space, then Theorem 2.12), using the maximal extension 3.8 and the compatibility 3.9. We realize
+the **same retraction order-theoretically, with no topology**, which sidesteps a genuine soundness
+trap (the subspace Scott topology on `D∞` need not equal its own Scott topology, so the inclusion is
+not obviously a Scott embedding — the hypothesis 3.8/3.9 silently need).
+
+The key observation: each projection is an **adjunction**. From `jₙ∘iₙ = id` and `iₙ∘jₙ ⊑ id` we get
+`GaloisConnection iₙ jₙ` (`projection_galoisConnection`), so `jₙ` (the upper adjoint) preserves
+arbitrary infima (`retr_sInf`). Hence:
+
+- the compatibility predicate is closed under **pointwise `sInf`** (`compatible_sInf`), so `D∞` is a
+  complete lattice by `completeLatticeOfInf`;
+- the inclusion `D∞ ↪ ∏Dₙ` preserves infima, so it has a **left adjoint** `r : ∏Dₙ → D∞`,
+  `r y = ⊓{ x ∈ D∞ : y ⊑ x }` (`invLimRetr`, `invLimRetr_galoisConnection`); a left adjoint preserves
+  *all* suprema (`GaloisConnection.l_sSup`), in particular directed ones, so `r` is Scott-continuous,
+  and `r∘incl = id` (`invLimRetr_incl`);
+- the inclusion itself is Scott-continuous because directed sups of compatible sequences are
+  pointwise (each `jₙ` is Scott-continuous), so `D∞`'s directed sups agree with the ambient ones
+  (`coe_sSup_of_directed`).
+
+Thus `D∞` is a Scott-continuous **retract** of `∏Dₙ`, which is a continuous lattice (Prop 2.9a), so
+Prop 2.10a gives `IsContinuousLattice D∞`. This `r` is exactly the retraction Scott's injectivity
+argument constructs (extend `id_{D∞}` along the inclusion), here obtained directly as an adjoint.
+
+**Engineering notes / lessons from 4.1:** `IsContinuousLattice` is purely order-theoretic and 2.10a
+transfers it across a *Scott-continuous retraction* with no topology, which is what makes the adjoint
+route viable. Two friction points: coordinatewise `sInf`/`sSup` of a product are reached through
+`sInf_apply_eq_sInf_image`/`sSup_apply_eq_sSup_image`, and the resulting set equalities are best
+closed with `Set.image_image` + `Set.image_congr` (using compatibility pointwise) rather than `ext`
+(whose membership unfolds to `Function.eval` with the wrong orientation). The directed-sup-is-pointwise
+lemma is proved by exhibiting the pointwise sup as an explicit `IsLUB` and invoking
+`(isLUB_sSup S).unique`. Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 

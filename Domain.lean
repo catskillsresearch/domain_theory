@@ -7,4 +7,5 @@ import Domain.ContinuousLattice.MilnerCorrection
 import Domain.ContinuousLattice.Constructions
 import Domain.ContinuousLattice.FunctionSpaces
 import Domain.ContinuousLattice.Theorem212
+import Domain.ContinuousLattice.InverseLimits
 import Domain.InfoSys
