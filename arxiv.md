@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **25 Pass · 2 Stuck · 8 Not Yet**.
+full deliverable. Score: **26 Pass · 1 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -198,7 +198,7 @@ full deliverable. Score: **25 Pass · 2 Stuck · 8 Not Yet**.
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Prop 3.8  | `proposition_3_8`, `scottExtend_maximal`, `continuous_eq_sSup_openInfs`                                                          | `Constructions.lean`  | **Pass**    | continuous + extends + maximal       |
 | 3   | Lemma 3.9 | `lemma_3_9_incl_inf`, `lemma_3_9_retr_inf`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | inf-level; global eq open            |
-| 3   | Prop 3.10 | `incl_bot`, `incl_sup`, `incl_sSup`, `incl_injective`, `incl_wayBelow`                                                           | `FunctionSpaces.lean` | **Stuck**   | forward (i)–(iii)                    |
+| 3   | Prop 3.10 | `incl_sSup`/`incl_injective`/`incl_wayBelow` (fwd), `proposition_3_10_converse`, `retr_eq_sSup` (uniq)                           | `FunctionSpaces.lean` | **Pass**    | (i)–(iii) + converse (iv) + uniq     |
 | 3   | Prop 3.12 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 3   | Prop 3.13 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 3   | Prop 3.14 | —                                                                                                                                | —                     | **Not Yet** |                                      |
@@ -339,7 +339,7 @@ flowchart TD
   P37p["proposition_3_7_projection"]
   D36["IsContinuousLatticeRetraction · Projection"]
   P310f["incl_bot · incl_sup · incl_sSup · incl_injective · incl_wayBelow"]
-  P310c["proposition_3_10 converse"]
+  P310c["proposition_3_10_converse · retr_eq_sSup (uniqueness)"]
   P38p["scottExtend · scottExtend_continuous · scottExtend_eq_of_continuous"]
   P38["proposition_3_8 (continuous + extends + maximal)"]
   L39i["lemma_3_9_incl_inf"]
@@ -769,13 +769,42 @@ faithful route was to retarget the whole proposition onto the already-continuous
 clean **Pass** that simply repackages existing lemmas. Footprint `[propext, Classical.choice,
 Quot.sound]`.
 
+#### Proposition 3.10 (characterization of projection inclusions) — `proposition_3_10_converse`, `retr_eq_sSup` (`FunctionSpaces.lean`)
+
+A map `i : D → D'` between continuous lattices is the inclusion of a projection **iff** it
+(i) preserves arbitrary suprema, (ii) is injective, and (iii) preserves `≪`. The **forward**
+direction was already in place (`incl_sSup`, `incl_injective`, `incl_wayBelow`); this completes the
+**converse** and the **uniqueness** of Scott's formula (iv) `j(x') = ⊔ { x | i(x) ⊑ x' }`.
+
+- *Order-reflection from (i)+(ii)* (`le_of_incl_le`): condition (i) on the two-element set gives
+  `i(x ⊔ y) = i x ⊔ i y` (`incl_sup_of_preservesSSup`); then `i x ⊑ i y ⟹ i(x⊔y)=i y ⟹ x⊔y=y`
+  (injectivity) `⟹ x ⊑ y`. This is exactly Scott's "`x ⊑ y ⟺ x ⊔ y = y`" remark, and it makes `i`
+  an order-embedding.
+- *`j ∘ i = id`* (`converseRetr_incl`): order-reflection collapses `{x | i x ⊑ i y}` to `Iic y`,
+  whose join is `y`.
+- *`i ∘ j ⊑ id`* (`incl_converseRetr_le`): immediate from (i), since `i(⊔{x | i x ⊑ x'}) =
+  ⊔{i x | i x ⊑ x'} ⊑ x'`.
+- *`j` continuous* (`converseRetr_preservesDirectedSup`): the one place (iii) is needed. For a
+  directed `S'` and `i x ⊑ ⊔S'`, interpolate `x = ⊔{z ≪ x}` (continuity of `D`); each `z ≪ x` gives
+  `i z ≪ i x ⊑ ⊔S'`, so `i z ⊑ x'` for some `x' ∈ S'` (directed `wayBelow_sSup_iff`), whence
+  `z ⊑ j x' ⊑ ⊔ j''S'`.
+- *Uniqueness* (`retr_eq_sSup`): any projection's `j` satisfies `j x' = ⊔{x | i x ⊑ x'}` — `≤` since
+  `i(j x') ⊑ x'` makes `j x'` a member; `≥` since each member `x` has `x = j(i x) ⊑ j x'`.
+
+**Engineering notes / lessons from 3.10:** condition (i) is stated for *arbitrary* `S`, so it
+trivially supplies `PreservesDirectedSup i` (whence `i` is a legitimate `ScottMap`) with a one-line
+`fun _ _ _ => hi _` — no need to separately assume continuity of `i`. Set-membership in
+`{x | i x ⊑ x'}` is *definitionally* the predicate, so `le_sSup`/`sSup_le` chains go through with
+bare `.le` coercions and `show` re-statements rather than `Set.mem_setOf` rewrites. Footprint
+`[propext, Classical.choice, Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
 | Medium   | **Lemma 3.9** global eq                                                     | Composer 2.5                       |
-| Hard     | **3.10** converse, Scott §4                                                 | Opus 4.8 (one theorem per session) |
+| Hard     | Scott §4                                                                    | Opus 4.8 (one theorem per session) |
 
 
 ---
@@ -956,8 +985,9 @@ were not delegated to it alone.
 - **Anthropic Claude Opus 4.8, High reasoning** ([Ant26]): used selectively for the
 heaviest proof and design work — results that combine Scott topology, order theory,
 and mathlib friction (done: Propositions 2.9–2.11, Theorem 2.12, and the full
-function-space theorem 3.3; planned: Proposition 3.10 converse, and Part I §4 inverse
-limits). Per the model card, the system is a general-purpose reasoning model with no
+function-space theorem 3.3, the subspace-extension Proposition 3.8, and the projection
+characterization Proposition 3.10 (forward + converse + uniqueness); planned: Part I §4
+inverse limits). Per the model card, the system is a general-purpose reasoning model with no
 formal soundness guarantee; every emitted proof term was checked by the Lean kernel,
 and open obligations remain marked **Stuck** / **Not Yet** rather than papered over
 with `sorry`.

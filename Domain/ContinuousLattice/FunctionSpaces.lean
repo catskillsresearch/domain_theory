@@ -1011,7 +1011,132 @@ theorem incl_wayBelow (P : IsContinuousLatticeProjection D D') (hD' : IsContinuo
   exact @WayBelow.le_trans D' _ (P.incl x) z' (P.incl y)
     (le_trans (P.incl.monotone hxpr.le) (P.incl_retr_le z')) hz'
 
+/-- **Scott 1972, Proposition 3.10(i)–(iii), bundled.** The inclusion `i` of a projection preserves
+arbitrary suprema, is injective, and preserves the way-below relation. -/
+theorem proposition_3_10_forward (P : IsContinuousLatticeProjection D D')
+    (hD' : IsContinuousLattice D') :
+    (∀ S : Set D, (P.incl : D → D') (sSup S) = sSup (Set.image (P.incl : D → D') S))
+      ∧ Function.Injective (P.incl : D → D')
+      ∧ (∀ x y : D, x ≪ y → (P.incl : D → D') x ≪ (P.incl : D → D') y) :=
+  ⟨fun S => P.incl_sSup S, fun _ _ h => P.incl_injective h,
+    fun _ _ h => P.incl_wayBelow hD' h⟩
+
+/-- **Scott 1972, Proposition 3.10(iv), uniqueness.** The retraction of any projection is forced to
+be Scott's formula `j(x') = ⊔ { x | i(x) ⊑ x' }`. `≤`: `j(x')` itself satisfies `i(j x') ⊑ x'`
+(by `i ∘ j ⊑ id`), so it is a member of the set; `≥`: each member `x` (with `i x ⊑ x'`) satisfies
+`x = j(i x) ⊑ j(x')` by `j ∘ i = id` and monotonicity. -/
+theorem retr_eq_sSup (P : IsContinuousLatticeProjection D D') (x' : D') :
+    (P.retr : D' → D) x' = sSup {x | (P.incl : D → D') x ≤ x'} := by
+  apply le_antisymm
+  · exact le_sSup (show (P.incl : D → D') (P.retr x') ≤ x' from P.incl_retr_le x')
+  · refine sSup_le fun x hx => ?_
+    calc x = (P.retr : D' → D) (P.incl x) := (P.retr_incl x).symm
+      _ ≤ (P.retr : D' → D) x' := P.retr.monotone hx
+
 end IsContinuousLatticeProjection
+
+/-! #### Proposition 3.10, converse direction
+
+Given a map `i : D → D'` satisfying (i)–(iii), Scott's formula (iv)
+`j(x') = ⊔ { x | i(x) ⊑ x' }` is the unique continuous retraction making `D` a projection of `D'`. -/
+
+variable {i : D → D'}
+
+/-- **Scott 1972, Proposition 3.10(iv).** Scott's candidate retraction `j(x') = ⊔ { x | i(x) ⊑ x' }`. -/
+noncomputable def converseRetr (i : D → D') (x' : D') : D :=
+  sSup {x | i x ≤ x'}
+
+theorem converseRetr_mono (i : D → D') : Monotone (converseRetr i) := by
+  intro a b hab
+  exact sSup_le_sSup fun _ hx => le_trans hx hab
+
+/-- From (i): `i` preserves binary joins (Scott checks (i) on two-element sets). -/
+theorem incl_sup_of_preservesSSup (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S)) (x y : D) :
+    i (x ⊔ y) = i x ⊔ i y := by
+  calc i (x ⊔ y) = i (sSup {x, y}) := by rw [sSup_pair]
+    _ = sSup (i '' {x, y}) := hi _
+    _ = sSup {i x, i y} := by rw [Set.image_pair]
+    _ = i x ⊔ i y := sSup_pair
+
+/-- From (i): `i` is monotone. -/
+theorem incl_mono_of_preservesSSup (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S)) :
+    Monotone i := by
+  intro x y hxy
+  have h := incl_sup_of_preservesSSup hi x y
+  rw [sup_eq_right.mpr hxy] at h
+  rw [h]; exact le_sup_left
+
+/-- From (i)+(ii): `i` is order-reflecting (`x ⊑ y ↔ i x ⊑ i y`), since `x ⊑ y ↔ x ⊔ y = y`. -/
+theorem le_of_incl_le (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S))
+    (hinj : Function.Injective i) {x y : D} (h : i x ≤ i y) : x ≤ y := by
+  have h1 : i (x ⊔ y) = i y := by rw [incl_sup_of_preservesSSup hi, sup_eq_right.mpr h]
+  exact sup_eq_right.mp (hinj h1)
+
+/-- `i ∘ j ⊑ id` (uses only (i)). -/
+theorem incl_converseRetr_le (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S)) (x' : D') :
+    i (converseRetr i x') ≤ x' := by
+  show i (sSup {x | i x ≤ x'}) ≤ x'
+  rw [hi]
+  exact sSup_le (by rintro _ ⟨x, hx, rfl⟩; exact hx)
+
+/-- `j ∘ i = id` (uses (i)+(ii)): `{x | i x ⊑ i y} = Iic y`, whose join is `y`. -/
+theorem converseRetr_incl (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S))
+    (hinj : Function.Injective i) (y : D) : converseRetr i (i y) = y := by
+  have hset : {x | i x ≤ i y} = Set.Iic y := by
+    ext x
+    simp only [Set.mem_setOf_eq, Set.mem_Iic]
+    exact ⟨le_of_incl_le hi hinj, fun hx => incl_mono_of_preservesSSup hi hx⟩
+  show sSup {x | i x ≤ i y} = y
+  rw [hset]
+  exact le_antisymm (sSup_le fun _ hx => hx) (le_sSup le_rfl)
+
+/-- `j` is Scott-continuous (uses (i)+(iii) and continuity of `D`). For directed `S'`: monotonicity
+gives `⊔ j''S' ⊑ j(⊔S')`; conversely if `i x ⊑ ⊔S'` then for every `z ≪ x` we have `i z ≪ i x ⊑ ⊔S'`,
+so `i z ⊑ x'` for some `x' ∈ S'` (directedness), whence `z ⊑ j(x') ⊑ ⊔ j''S'`; continuity of `D`
+then gives `x ⊑ ⊔ j''S'`. -/
+theorem converseRetr_preservesDirectedSup
+    (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S))
+    (hwb : ∀ {x y : D}, x ≪ y → i x ≪ i y) (hD : IsContinuousLattice D) :
+    PreservesDirectedSup (converseRetr i) := by
+  intro S' hS'ne hS'dir
+  apply le_antisymm
+  · show sSup {x | i x ≤ sSup S'} ≤ sSup (converseRetr i '' S')
+    apply sSup_le
+    intro x hx
+    have hx' : i x ≤ sSup S' := hx
+    rw [← hD.sSup_wayBelow x]
+    apply sSup_le
+    intro z hz
+    have hiz : i z ≪ sSup S' := (hwb hz).trans_le hx'
+    obtain ⟨x', hx'S', hzx'⟩ := (wayBelow_sSup_iff hS'ne hS'dir).1 hiz
+    have hz_mem : z ∈ {x | i x ≤ x'} := hzx'.le
+    exact le_trans (le_sSup hz_mem) (le_sSup ⟨x', hx'S', rfl⟩)
+  · apply sSup_le
+    rintro _ ⟨x', hx'S', rfl⟩
+    exact converseRetr_mono i (le_sSup hx'S')
+
+/-- The projection assembled from a map `i` satisfying 3.10(i)–(iii). -/
+noncomputable def converseProjection
+    (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S)) (hinj : Function.Injective i)
+    (hwb : ∀ {x y : D}, x ≪ y → i x ≪ i y) (hD : IsContinuousLattice D) :
+    IsContinuousLatticeProjection D D' where
+  incl := ⟨i, continuous_of_preservesDirectedSup (fun _ _ _ => hi _)⟩
+  retr := ⟨converseRetr i, continuous_of_preservesDirectedSup
+    (converseRetr_preservesDirectedSup hi hwb hD)⟩
+  retr_incl := fun d => converseRetr_incl hi hinj d
+  incl_retr_le := fun x' => incl_converseRetr_le hi x'
+
+/-- **Scott 1972, Proposition 3.10 (converse).** If `i : D → D'` (between continuous lattices)
+satisfies (i) preservation of arbitrary suprema, (ii) injectivity, and (iii) preservation of `≪`,
+then there is a continuous `j` making `D` a projection of `D'` via `i`, with `j` given by Scott's
+formula (iv) `j(x') = ⊔ { x | i(x) ⊑ x' }`. -/
+theorem proposition_3_10_converse
+    (hi : ∀ S : Set D, i (sSup S) = sSup (i '' S)) (hinj : Function.Injective i)
+    (hwb : ∀ {x y : D}, x ≪ y → i x ≪ i y) (hD : IsContinuousLattice D) :
+    ∃ P : IsContinuousLatticeProjection D D',
+      (∀ d, (P.incl : D → D') d = i d)
+        ∧ (∀ x', (P.retr : D' → D) x' = sSup {x | i x ≤ x'}) :=
+  ⟨converseProjection hi hinj hwb hD, fun _ => rfl, fun _ => rfl⟩
 
 end Proposition310
 
