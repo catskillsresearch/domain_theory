@@ -2310,3 +2310,205 @@ x \cdot y = \{ t \cdot u \mid t \in x \text{ and } u \in y \}?
 $$
 
 Need the fixed point be unique?
+
+<!-- page 70 -->
+
+**EXERCISE 4.18.** In Example 4.3 there are many unproved assertions about $N$ and $F$. These should be checked. In particular, the isomorphism theorem of 4.6 could be proved by constructing a simple domain $M$ from $\mathbf{M}$ in the way $N$ is constructed from $\mathbf{N}$.
+
+**EXERCISE 4.19.** There are many unproved assertions in Example 4.4! In particular discuss "Peano's Axioms" for $\{0,1\}^*$. Show, moreover, that $\mathrm{one} : C \to T$ can be defined from the rest of the structure by a fixed-point equation.
+
+**EXERCISE 4.20.** For approximable $f, g : D \to D$ prove that
+
+$$
+\mathrm{fix}(f \circ g) = f(\mathrm{fix}(g \circ f)).
+$$
+
+**EXERCISE 4.21.** Show that the less-than-or-equal-to relation $\ell \subseteq \mathbf{N} \times \mathbf{N}$ is uniquely determined by the fixed point equation
+
+$$
+\ell = \{(n,n) \mid n \in \mathbf{N}\} \cup \{(n, m^+) \mid (n, m) \in \ell\}.
+$$
+
+Consider the structured set $\langle P\mathbf{N}, \mathbf{N}, {}^+ \rangle$ where, as before, $x^+ = \{n^+ \mid n \in x\}$.
+
+What is the unique function $[\cdot] : \mathbf{N} \to P\mathbf{N}$ given by 4.13(3)? Prove that the structures $\langle \mathbf{N}, 0, {}^+ \rangle$ and $\langle [m], m, {}^+ \rangle$ are uniquely isomorphic for each $m \in \mathbf{N}$, and connect the isomorphism with ordinary addition of integers. Can the same be done for multiplication? (Hint: Consider the fixed-point equation
+
+$$
+n \cdot \mathbf{N} = \{0\} \cup \{n + m \mid m \in n \cdot \mathbf{N}\},
+$$
+
+where $n \in \mathbf{N}$ is fixed.)
+
+**EXERCISE 4.22.** Suppose $\mathbf{N}^*$ is a structured set satisfying only axioms (i) and (ii) of 4.5. Must there be a subset $\mathbf{N} \subseteq \mathbf{N}^*$ that satisfies (i), (ii), and (iii)? (Hint: Use a least fixed point in $P\mathbf{N}^*$.) (For set theorists): How do we know from the axioms of set theory that there exists such a set $\mathbf{N}^*$?
+
+<!-- page 71 -->
+
+**EXERCISE 4.23.** (Suggested by S. Eilenberg). Suppose $f : \mathcal{D} \to \mathcal{D}$ is approximable on a given domain $\mathcal{D}$. Suppose $a_n : \mathcal{D} \to \mathcal{D}$ is a sequence of approximable maps where
+
+(i) $a_0(x) = \bot$, for all $x \in |\mathcal{D}|$;
+
+(ii) $a_n \sqsubseteq a_{n+1}$ in $\mathcal{D} \to \mathcal{D}$, for all $n \in \mathbf{N}$;
+
+(iii) $\bigsqcup_{n=0}^{\infty} a_n = I_{\mathcal{D}}$ in $\mathcal{D} \to \mathcal{D}$;
+
+(iv) $a_{n+1} \circ f = a_{n+1} \circ f \circ a_n$, for all $n \in \mathbf{N}$.
+
+Prove that $f$ has a unique fixed point. (Hint: Show that if $x = f(x)$, then $a_n(x) \sqsubseteq a_n(\mathrm{fix}(f))$ for all $n \in \mathbf{N}$ by induction on $n$.)
+
+**EXERCISE 4.24.** (For set theorists). Let $f : A \to B$ and $g : B \to A$ be one-one functions (into, not necessarily onto!) Prove the Schroeder - Bernstein theorem to the effect that there exists a one-one correspondence $h : A \leftrightarrow B$. (Hint: (Suggested by A. Tarski). By the fixed-point theorem find $X \subseteq A$ where
+
+$$
+X = (A - g(B)) \cup g(f(X)),
+$$
+
+where $f(X) =$ the image of the set $X$ under the function $f$. Define $h \subseteq A \times B$ as a union of two restrictions:
+
+$$
+h = f \upharpoonright X \cup g^{-1} \upharpoonright (A - X).
+$$
+
+A picture helps.)
+
+**EXERCISE 4.25.** Perhaps the domains $\mathbf{N}$ and $C$ are not exactly analogous? $C$ was based on $\{0,1\}$ as the underlying set of tokens. Construct a system $C_1$ based on $\{1\}^*$ (= finite strings of 1's) with neighbourhoods:
+
+$$
+C_1 = \{\, \{1^m \mid m > n\} \mid n \in \mathbf{N} \,\} \cup \{\, \{1^n\} \mid n \in \mathbf{N} \,\}.
+$$
+
+What structure should be put on $C_1$ strictly analogous to that on $C (= C_2)$? What kinds of approximable maps relate $\mathbf{N}$, $C_1$, and $C_2$? Draw some pictures.
+
+<!-- page 72 -->
+
+# LECTURE V
+
+<u>TYPED $\lambda$ - CALCULUS</u>
+
+In Examples 4.3 and 4.4, after suitable domains have been constructed, functions are characterized by recursion equations whose form of expression is — basically — a composition or substitution of known functions together with the function to be defined. This method can be made more precise and more easily usable by expanding our notation for functions — particularly by inventing a "temporary" notation for a function as a thing in itself without having to have special letters for functions. The device is called *$\lambda$-abstraction*. It is related to ordinary set abstraction (the $\{x \mid \ldots\}$ — notation already much used in these lectures), but we gear the approach to domains and their elements, and especially to function spaces.
+
+At this stage it would not be so helpful to produce a rigorously formal definition of the syntax of the typed $\lambda$-calculus; we shall try to suggest what is needed by example. There are so many examples at hand, the less formal discussion ought to be sufficient.
+
+In the first place we should set aside, in the notational store room as it were, a stock of variables
+
+$$
+x, y, z, w, \ldots
+$$
+
+These variables will be required in different "sizes" or "types". Roughly speaking there should be an infinite number of variables to range over the elements of <u>each domain $\mathcal{D}$</u>. We could perhaps write
+
+$$
+x_0^{\mathcal{D}}, x_1^{\mathcal{D}}, x_2^{\mathcal{D}}, \ldots,
+$$
+
+but the subscripts to insure an infinity of variables and the superscripts to record the typing of the variables lead to a notation as
+
+<!-- page 73 -->
+
+tiresome to write as it is to read. We simply agree that we can have as many variables as we need and that they come in all the types.
+
+Strictly speaking we should also introduce *type symbols* and not confuse types with domains. But if the reader will simply keep in mind that *form* in language has always to be kept distinct from *content*, the confusion at the type level will not matter so very much. A point at which the confusion might cause a real confusion concerns *compound types*. Given $\mathcal{D}_0$ and $\mathcal{D}_1$ we can form such compounds as
+
+$$
+\mathcal{D}_0 + \mathcal{D}_1, \quad \mathcal{D}_0 \times \mathcal{D}_1, \quad \mathcal{D}_0 \to \mathcal{D}_1
+$$
+
+What has to be remembered is that a compound domain (neighbourhood system), $\mathcal{D}_0 \times \mathcal{D}_1$ say, does not uniquely determine the "parts" $\mathcal{D}_0$ and $\mathcal{D}_1$. (We could make it do so, but it would cost some effort.) Of course, the symbol "$\mathcal{D}_0 \times \mathcal{D}_1$" has well defined parts. The point is that *different* ways of forming a compound domain could lead to the *same* result, meaning that a domain does not let us retrace its exact history of construction. Compound symbols, however, always carry their histories around with them, since otherwise they would not be readable. What we want, of course, are *both* domain symbols *and* domains, the latter being the *meanings* of the former. Most of the time we can happily pretend that it is only the domains themselves we have to think about.
+
+Besides variables, we will also need certain *constants*. For instance, the symbol $0$ (perhaps, better $0^{\mathbf{N}}$) denotes a certain element of $|\mathbf{N}|$. Similarly, in view of Theorem 4.2, for each domain $\mathcal{D}$ there is a well-determined element $\mathrm{fix}^{\mathcal{D}}$ of the compound type $((\mathcal{D} \to \mathcal{D}) \to \mathcal{D})$ denoting the least fixed-point operator. We have considered any number of similar constants of a great variety of types already (cf. 4.3 and 4.4; cond is an especially good one). We can say that the variables and constants are *atomic terms*, where "atomic" here means non-compound.
+
+To form compound terms, there are several means: for example, if $\tau, \ldots, \sigma$ is a list of already obtained terms (including variables or constants), then we can form an ordered *tuple*
+
+<!-- page 74 -->
+
+We have already done so in 3.1. If the types of $\tau, \dots, \sigma$ are $D, \dots, D'$, respectively, then the type of the tuple is the product domain
+
+$$D \times \dots \times D',$$
+
+because we intend that the tuple denote an element of this domain. (The tuple notation for *functions* as in 3.3 is being forgotten for the time being.)
+
+Next suppose that $\tau$ has type $(D_0 \to D_1)$ and $\sigma$ has type $D_0$, then the usual *function-value* notation
+
+$$\tau(\sigma)$$
+
+is a compound term of type $D_1$. We also use
+
+$$\tau(\sigma_0, \dots, \sigma_{n-1})$$
+
+as an abbreviation of
+
+$$\tau(\langle \sigma_0, \dots, \sigma_{n-1} \rangle),$$
+
+where, if the types of $\sigma_0, \dots, \sigma_{n-1}$ are $D_0, \dots, D_{n-1}$, then the type of $\tau$ has to be of the form
+
+$$((D_0 \times \dots \times D_{n-1}) \to D_n)$$
+
+where $D_n$ is the type of the compound. In this manner, with functions applied to tuples, we have the full facility of substitution into functions of many variables just by iterating the notation.
+
+Having taken into account *function value*, it remains to provide for *function definition*. Suppose that $x_0, \dots, x_{n-1}$ is a list of distinct variables of types $D_0, \dots, D_{n-1}$. Suppose further that $\tau$ is a term — no matter how complicated — of type $D_n$. Then we can regard $\tau$ as defining a function of $n$-variables of type
+
+$$((D_0 \times \dots \times D_{n-1}) \to D_n).$$
+
+What we have not done is to reward our regard by, as yet, providing a quick-to-write "name" for that function. This we now do; it is called
+
+$$\lambda x_0, \dots, x_{n-1} \cdot \tau,$$
+
+where we stress that the $x_i$ must be *distinct* variables and that this
+
+<!-- page 75 -->
+
+expression denotes the *whole function*. That is why we provide it with a special symbol.
+
+Here is an example of the $\lambda$ - notation
+
+$$
+\lambda x, y . x ,
+$$
+
+which is read "lambda ex wye ... (pause) ... ex". If the types of $x$ and $y$ are $D_0$ and $D_1$, then the type of the above is
+
+$$
+((D_0 \times D_1) \to D_0).
+$$
+
+Indeed, we know this function very well: it is the *first projection function* $p_0$ of 3.3 and the equation
+
+$$
+p_0 = \lambda x, y . x
+$$
+
+is true, as is the equation
+
+$$
+p_1 = \lambda x, y . y .
+$$
+
+In the notation of 3.3, we also find the true equation
+
+$$
+\langle f, g \rangle = \lambda w . \langle f(w), g(w) \rangle ,
+$$
+
+where on the right-hand side we are using "official" $\lambda$ - notation for a function of type
+
+$$
+(D_2 \to (D_0 \times D_1)).
+$$
+
+The notation on the left is just an *abbreviation* and it should not be confused with the pair (2-tuple) of type
+
+$$
+((D_2 \to D_0) \times (D_2 \to D_1)).
+$$
+
+(Since the two domains just mentioned are *isomorphic*, the possible confusion is not all that serious. On the other hand, one confusion we will completely overlook is that between 1-tuples $\langle x \rangle$ and elements $x$. Strictly speaking they are different, but we shall not bother to make the distinction.)
+
+Here are some other examples of true equations:
+
+$$
+\mathrm{eval} = \lambda f, x . f(x) \qquad \text{(cf.\ 3.11)}
+$$
+
+$$
+\mathrm{curry} = \lambda g \lambda x \lambda y . g(x, y) \qquad \text{(cf.\ 3.12)}
+$$
+
+The first should be immediately clear; while the second is particularly *instructive*. What is being illustrated is that the $\lambda$ - notation can
