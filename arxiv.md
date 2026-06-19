@@ -1161,14 +1161,14 @@ every numbered item and exercise below has its statement transcribed.)
 | **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** — `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`) + `principal_injective` | **Pass** |
 | **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` — `eq_iUnion_principal` | **Pass** |
 | **Def 1.8 (order)** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` — `instance : PartialOrder Element` (choice-free `le_antisymm` via `Element.ext`) | **Pass** |
-| **Def 1.8 (⊥, total)** | Definition | 277 | abstract `⊥={Δ}=↑Δ`; total elements (classical frontier) | **Not Yet** |
-| **Factoid 1.8a** | Factoid | 277 | `⊥={Δ}=↑Δ` is the least element of `\|𝒟\|` | **Not Yet** |
-| **Factoid 1.8b** | Factoid | 279 | finite systems: every explicit filter is principal / every element finite | **Not Yet** |
-| **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 | **Not Yet** |
-| **Exercise 1.B-sys** | Exercise | 297 | "*should be done as an exercise*": `B` is a neighbourhood system | **Not Yet** |
-| **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` | **Not Yet** |
-| **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` | **Not Yet** |
-| **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` with `σₙ` initial segments (element = limit of finite approx.) | **Not Yet** |
+| **Def 1.8 (⊥, total)** | Definition | 277 | `bot := principal master_mem` (`⊥={Δ}=↑Δ`), `mem_bot` (`Y∈⊥ ⟺ Y=Δ`); `IsTotal x := ∀ y, x⊑y→y⊑x` (predicate only, existence = Ex 1.24, out of scope) | **Pass** |
+| **Factoid 1.8a** | Factoid | 277 | `bot_le` (`⊥⊑x` for all `x`) + `instance OrderBot Element`; constructive | **Pass** |
+| **Factoid 1.8b** | Factoid | 279 | `eq_principal_of_isMin` (filter with `⊆`-minimum member `X` is `↑X`) — constructive core of "finite ⟹ principal"; the finiteness⟹min step left implicit | **Pass** |
+| **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 — `Str := List Bool`, `cone σ = σΣ*`, `B` via `ofNestedOrDisjoint` from prefix `cone_trichotomy` | **Pass** |
+| **Exercise 1.B-sys** | Exercise | 297 | "*should be done as an exercise*": `B` is a neighbourhood system — `nestedOrDisjoint` (cones pairwise nested-or-disjoint) | **Pass** |
+| **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` — `sigmaElt σ x` (witness `σ(X₁∩X₂)` is a cone); `sigmaElt σ ⊥ = σ⊥` (`sigmaElt_bot`) | **Pass** |
+| **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` — `sigmaBot_le_iff` (`σ₀⊥⊑σ₁⊥ ⟺ σ₀<+:σ₁`) | **Pass** |
+| **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` (element = limit of finite approx.) — `mem_iff_exists_sigmaBot` (union-of-`σ⊥` form; chain enumeration left to prose / choice) | **Pass** |
 | **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` | **Not Yet** |
 | **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}`; `{[X] ∣ X∈𝒟}` is a nbhd system over `\|𝒟\|` with `𝒟 ≅ {[X]}` (one-one, inclusion-preserving; `[Δ]=\|𝒟\|`, `[X]∩[Y]=[X∩Y]`, `↑X∈[X]`). `[X]` exists as `basicOpen` (Ex 1.22); system+iso not built | **Not Yet** |
 | **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` and under ascending `⋃` (`x₀⊆x₁⊆⋯`) — each is again a filter | **Not Yet** |
@@ -1283,7 +1283,8 @@ flowchart TD
   D17["Def 1.7 principal ↑X ✓"]
   F17a["Factoid 1.7a ↑ one-one, reversing ✓"]
   F17b["Factoid 1.7b x = ⋃ ↑X ✓"]
-  D18b["Def 1.8 ⊥ · total"]
+  D18b["Def 1.8 ⊥ · total · Factoids 1.8a/1.8b ✓"]
+  EB["Example 1.B B binary · σ⊥ · σx · x=⋃σₙ⊥ ✓"]
   E122["Exercise 1.22 topology on |𝒟| · ⊑ = specialization ✓"]
 
   D11 --> F11a
@@ -1311,6 +1312,10 @@ flowchart TD
   D17 --> F17b
   D16 --> D18b
   D17 --> D18b
+  F14a --> EB
+  D17 --> EB
+  D18b --> EB
+  F17b --> EB
   D16 --> E122
   D18o --> E122
 ```
@@ -1321,18 +1326,18 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean`) |
-| Report card  | **17 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Exercise122.lean`) |
+| Report card  | **25 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
 **complete inventories** of PRG-19 Lectures I–III:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
-| I (domains by neighbourhoods) | §4.2 | 40 | **17** |
+| I (domains by neighbourhoods) | §4.2 | 40 | **25** |
 | II (approximable mappings) | §4.2.II | 22 | 0 |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **90** | **17** |
+| **Total PRG-19 I–III** | | **90** | **25** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
@@ -1493,6 +1498,67 @@ since `X ⊆ X`) and reads `Y ⊆ X` off `X ∈ ↑Y`; `←` chains `Y ⊆ X ⊆
 membership (concrete, avoiding `⋃` over a `Set (Set α)`). `→` uses `X = Z` (`Z ∈ ↑Z`); `←` is one
 application of upward closure `x.up_mem` (`X ⊆ Z` with `Z ∈ 𝒟`). All five declarations audit to
 `[propext, Quot.sound]`.
+
+#### Definition 1.8 (`⊥`, total) / Factoids 1.8a, 1.8b — `bot`, `mem_bot`, `bot_le`, `OrderBot`, `IsTotal`, `eq_principal_of_isMin` (`Basic.lean`)
+
+Scott's bottom element `⊥ = {Δ}` is simply the principal filter of the master neighbourhood:
+`bot := principal master_mem`, i.e. `⊥ = ↑Δ`. `mem_bot` shows it really is the *singleton* `{Δ}`:
+`Y ∈ ⊥ ↔ Y = Δ`. The forward direction is where `sub_master` pays off — `Y ∈ ↑Δ` gives `Y ∈ 𝒟`
+*and* `Δ ⊆ Y`, while `V.sub_master` supplies the reverse `Y ⊆ Δ`, so `Set.Subset.antisymm` collapses
+`Y` to `Δ`. This is the *variance* curiosity (Pitfall 4): `⊥ = ↑Δ` is the *largest* principal filter
+(`Δ` is the largest neighbourhood) yet the *least* element.
+
+**Factoid 1.8a (`⊥` is least).** `bot_le : ∀ x, ⊥ ⊑ x`: a member `Y ∈ ⊥` is `Y = Δ` (`mem_bot`),
+and `Δ ∈ x` is filter axiom (i) `x.master_mem`. Packaged as `instance : OrderBot V.Element` so the
+`⊥` notation resolves to `{Δ}`; the instance stays `[propext, Quot.sound]`.
+
+**Definition 1.8 (total elements).** `IsTotal x := ∀ y, x ⊑ y → y ⊑ x` — maximality under the
+approximation order, kept as a *predicate*. Per Scott, the *existence* of total (maximal) elements
+above a given `x` is the classical frontier (Exercise 1.24, needs Zorn/choice) and is deliberately
+**not** proved here.
+
+**Factoid 1.8b ("Examples 1.2–1.5 revisited": finite ⟹ principal).** Scott's prose "any explicitly
+given filter `x` is principal … the minimal `X ∈ x` tells us all we need to know" is formalized as
+`eq_principal_of_isMin`: if `x` has a `⊆`-minimum member `X` (one with `X ⊆ Y` for every `Y ∈ x`),
+then `x = ↑X`. `⊆` is minimality, `⊇` is one `up_mem`. This is the constructive *core*; the step
+"finite system ⟹ such a minimum exists" (take the intersection of the finitely many members, itself
+in `x` by closure) is the only classical ingredient and is left implicit, so the stated lemma audits
+to `[propext, Quot.sound]`. All four new declarations are constructive.
+
+#### Example 1.B (binary sequences) — `cone`, `B`, `sigmaBot`, `sigmaElt`, `mem_iff_exists_sigmaBot` (`ExampleB.lean`)
+
+Scott's recurring **binary** example, the first *infinite* neighbourhood system in Part II. Tokens
+are `Str := List Bool` (`Σ* `, with `Λ = []`); the *initial-segment* relation `σ ⪯ τ` is mathlib's
+list-prefix `σ <+: τ`; the neighbourhood `σΣ*` is `cone σ := {w ∣ σ <+: w}`. The whole point is the
+**reversal** `cone_subset_cone : cone σ ⊆ cone τ ↔ τ <+: σ` (a longer prefix carves out a smaller
+cone), proved by testing `⊆` at `σ ∈ cone σ` and chaining `<+:` the other way.
+
+*The system (`B`, and the "`B` is a system" exercise).* `cone_trichotomy` shows any two cones are
+nested-or-disjoint: deciding `σ <+: τ` and `τ <+: σ` (list-prefix is **decidable**, so this is a
+`dite`, not `Classical.em`) gives the two nested cases via `cone_subset_cone`; in the remaining case
+a common extension `w` of `σ` and `τ` would make them comparable (`List.prefix_or_prefix_of_prefix`),
+contradiction, so `cone σ ∩ cone τ = ∅`. Then `B := ofNestedOrDisjoint memB Set.univ … nestedOrDisjoint`
+reuses Factoid 1.4a — no bespoke `inter_mem` proof. `B.master = Set.univ = cone []` (`cone_nil`).
+
+*Finite elements `σ⊥` and the initial-segment factoid.* `sigmaBot σ := ↑(cone σ)` (principal filter
+of `σΣ*`, minimal neighbourhood `σΔ = cone σ`). `sigmaBot_le_iff : σ₀⊥ ⊑ σ₁⊥ ↔ σ₀ <+: σ₁` falls out
+of `principal_le_iff` (reversal) composed with `cone_subset_cone` (reversal again) — the two
+variance flips **cancel**, so the order on finite elements is exactly the prefix order. This is
+Scott's "`σ₀⊥ ⊆ σ₁⊥` iff `σ₀` is an initial segment of `σ₁`".
+
+*The operator `σx` (`σx ∈ |B|` exercise).* `sigmaElt σ x` has `mem Y := B.mem Y ∧ ∃ X ∈ x, σX ⊆ Y`,
+where `σX = prepend σ X = {στ ∣ τ ∈ X}`. The crucial algebraic fact is `prepend_cone :
+σ(τΣ*) = (στ)Σ*` (so `prepend` of a cone is a cone, `memB_prepend`). In the filter's `inter_mem` the
+consistency witness for `B.inter_mem` is `σ(X₁∩X₂)`: `X₁∩X₂ ∈ x ⊆ B` is a cone, hence `σ(X₁∩X₂)` is a
+cone in `B` contained in `Y₁ ∩ Y₂`. `sigmaElt_bot : σ⊥ = sigmaElt σ ⊥` (via `prepend_univ :
+σΣ* = prepend σ Σ*`) confirms `sigmaBot` is genuinely "`σ` applied to `⊥`".
+
+*Element = limit of finite approximations.* `mem_iff_exists_sigmaBot : x.mem Z ↔ ∃ σ, x.mem (cone σ)
+∧ (σ⊥).mem Z` is Scott's `x = ⋃ₙ σₙ⊥` in concrete union-membership form — every member of `x` is a
+cone (so `Basic.eq_iUnion_principal` specializes), and `x` is the union of the finite elements `σ⊥`
+with `σΣ* ∈ x`. Arranging the `σ` into a single ascending chain `σ₀ ⪯ σ₁ ⪯ …` needs an
+enumeration/choice and is left to Scott's prose. **All declarations audit to `[propext, Quot.sound]`**
+— decidability of list-prefix keeps even the trichotomy choice-free.
 
 #### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
 

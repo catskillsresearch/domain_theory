@@ -299,6 +299,64 @@ theorem eq_iUnion_principal (x : V.Element) {Z : Set α} :
   · rintro ⟨X, hX, hVZ, hXZ⟩
     exact x.up_mem hX hVZ hXZ
 
+/-- **Definition 1.8 (Scott 1981, PRG-19) — `⊥`.** The least defined element `⊥ = {Δ}`,
+"read: *bottom*". It is the principal filter of the master neighbourhood `Δ`: `⊥ = ↑Δ`. -/
+def bot : V.Element := V.principal V.master_mem
+
+/-- **Definition 1.8 — `⊥ = {Δ}` literally.** Scott's `⊥` is the *singleton* `{Δ}`: a
+neighbourhood `Y` belongs to `⊥` iff `Y = Δ`.
+
+`→`: `Y ∈ ⊥ = ↑Δ` gives `Y ∈ 𝒟` and `Δ ⊆ Y`; `V.sub_master` gives the reverse `Y ⊆ Δ`, so
+`Y = Δ` by antisymmetry. `←`: `Δ ∈ 𝒟` and `Δ ⊆ Δ`. -/
+@[simp] theorem mem_bot {Y : Set α} : V.bot.mem Y ↔ Y = V.master := by
+  constructor
+  · rintro ⟨hY, hΔY⟩
+    exact Set.Subset.antisymm (V.sub_master hY) hΔY
+  · rintro rfl
+    exact ⟨V.master_mem, subset_rfl⟩
+
+/-- **Factoid 1.8a (Scott 1981, PRG-19).** "The element that approximates all others, `{Δ}`,
+is called `⊥`": `⊥` is the least element of `|𝒟|`, `⊥ ⊑ x` for every `x`.
+
+Given `Y ∈ ⊥`, i.e. `Y = Δ`, membership `Δ ∈ x` is filter condition (i) (`x.master_mem`). -/
+theorem bot_le (x : V.Element) : V.bot ≤ x := by
+  intro Y hY
+  rw [mem_bot] at hY
+  subst hY
+  exact x.master_mem
+
+/-- **Factoid 1.8a, packaged.** `⊥` is an `OrderBot` for the approximation order, so the `⊥`
+notation refers to `{Δ}`. Constructive (`bot_le` is `[propext, Quot.sound]`). -/
+instance : OrderBot V.Element where
+  bot := V.bot
+  bot_le := V.bot_le
+
+/-- **Definition 1.8 (Scott 1981, PRG-19) — *total* elements.** "Elements maximal with respect
+to the approximation relation are called *total elements*." `x` is total iff it is maximal: any
+`y` it approximates approximates it back. This is the *predicate* only; the *existence* of total
+elements above a given `x` (Exercise 1.24) is choice-dependent and out of scope here. -/
+def IsTotal (x : V.Element) : Prop := ∀ y, x ≤ y → y ≤ x
+
+/-- **Factoid 1.8b (Scott 1981, PRG-19) — "Examples 1.2–1.5 revisited".** "Any explicitly given
+filter `x` is principal … the minimal `X ∈ x` tells us all we need to know." Stated honestly: if
+the filter `x` has a `⊆`-minimum member `X` (one contained in every member of `x`), then `x` is
+exactly the principal filter `↑X`. In a *finite* system every filter has such a minimum (the
+intersection of its finitely many members, itself in `x` by closure), so every element is
+principal; that finiteness step is the only classical ingredient and is left implicit here — this
+constructive core captures the content.
+
+`⊆`: any `Z ∈ x` satisfies `X ⊆ Z` by minimality, so `Z ∈ ↑X`. `⊇`: `Z ∈ ↑X` means `Z ∈ 𝒟` and
+`X ⊆ Z`, so `Z ∈ x` by upward closure from `X ∈ x`. -/
+theorem eq_principal_of_isMin (x : V.Element) {X : Set α} (hX : x.mem X)
+    (hmin : ∀ Y, x.mem Y → X ⊆ Y) : x = V.principal (x.sub hX) := by
+  apply Element.ext
+  intro Z
+  constructor
+  · intro hZ
+    exact ⟨x.sub hZ, hmin Z hZ⟩
+  · rintro ⟨hZmem, hXZ⟩
+    exact x.up_mem hX hZmem hXZ
+
 end NeighborhoodSystem
 
 end Domain.Neighborhood
