@@ -391,6 +391,130 @@ theorem theorem_3_3_isContinuousLattice (hD : IsContinuousLattice D)
   have hx := (ScottMap.le_def.1 hle) x
   rwa [stepMap_apply_of_wayBelow hex] at hx
 
+/-! ### Theorem 3.3(b): the lattice topology = the topology of pointwise convergence
+
+The Scott topology of the continuous lattice `[D → D']` coincides with the product (pointwise
+convergence) topology, whose subbasis is `{f | f x ∈ U}` (`U` Scott-open in `D'`). One inclusion
+(pointwise ⊆ Scott) is immediate: each subbasic set is Scott-open in the lattice (joins are
+pointwise). The other (Scott ⊆ pointwise) is Scott's argument via the `↟φ` basis of a continuous
+lattice: `φ ≪ g` forces `φ ≤ ⊔ᵢ ē[eᵢ,eᵢ']` for finitely many pairs with `eᵢ' ≪ g eᵢ`, and the
+finite intersection `⋂ᵢ {h | eᵢ' ≪ h eᵢ}` is a pointwise-open neighbourhood of `g` inside `↟φ`. -/
+
+/-- A finite sup of elements way below `g` is way below `g`. -/
+theorem wayBelow_finset_sup {ι L : Type*} [CompleteLattice L] {s : Finset ι} {f : ι → L} {g : L}
+    (h : ∀ i ∈ s, f i ≪ g) : s.sup f ≪ g :=
+  Finset.sup_induction (p := fun a => a ≪ g) (bot_wayBelow g) (fun _ ha _ hb => ha.sup hb) h
+
+/-- Subbasic sets of the pointwise (product) topology on `[D → D']`: `{f | f x ∈ U}` for `U`
+Scott-open in `D'`. -/
+def scottMapPointwiseSubbasis (D D' : Type*) [CompleteLattice D] [CompleteLattice D'] :
+    Set (Set (ScottMap D D')) :=
+  { W | ∃ (x : D) (U : Set D'),
+      @IsOpen D' scottTopologicalSpace U ∧ W = {f : ScottMap D D' | (f : D → D') x ∈ U} }
+
+/-- **Scott 1972, Definition 3.1 (on lattices).** The topology of pointwise convergence on
+`[D → D']`. -/
+@[reducible] noncomputable def scottMapPointwiseTopology (D D' : Type*)
+    [CompleteLattice D] [CompleteLattice D'] : TopologicalSpace (ScottMap D D') :=
+  generateFrom (scottMapPointwiseSubbasis D D')
+
+theorem pointwiseSubbasic_isOpen (x : D) {U : Set D'} (hU : @IsOpen D' scottTopologicalSpace U) :
+    @IsOpen (ScottMap D D') (scottMapPointwiseTopology D D')
+      {f : ScottMap D D' | (f : D → D') x ∈ U} :=
+  isOpen_generateFrom_of_mem ⟨x, U, hU, rfl⟩
+
+/-- Each pointwise-subbasic set `{f | f x ∈ U}` (`U` Scott-open) is Scott-open in the lattice
+`[D → D']`, because suprema there are pointwise. This is the easy inclusion pointwise ⊆ Scott. -/
+theorem pointwiseSubbasic_scottOpen (x : D) {U : Set D'} (hU : ScottOpen U) :
+    ScottOpen {f : ScottMap D D' | (f : D → D') x ∈ U} := by
+  refine ⟨fun f f' hff' hf => hU.1 (hff' x) hf, fun F hFne hFdir hmem => ?_⟩
+  simp only [Set.mem_setOf_eq, ScottMap.sSup_apply] at hmem
+  have hne : (Set.image (fun g : ScottMap D D' => (g : D → D') x) F).Nonempty := hFne.image _
+  have hdir : DirectedOn (· ≤ ·) (Set.image (fun g : ScottMap D D' => (g : D → D') x) F) := by
+    rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+    obtain ⟨c, hc, hac, hbc⟩ := hFdir a ha b hb
+    exact ⟨(c : D → D') x, Set.mem_image_of_mem _ hc, hac x, hbc x⟩
+  obtain ⟨_, ⟨g, hgF, rfl⟩, hg⟩ := hU.2 hne hdir hmem
+  exact ⟨g, hgF, hg⟩
+
+/-- **Step-function decomposition of `≪`.** If `φ ≪ g` in `[D → D']`, then `φ` lies below a finite
+join of step functions `ē[eᵢ,eᵢ']` with `eᵢ' ≪ g eᵢ`. The finite joins of such step functions form
+a directed family with supremum `g`, so `wayBelow_sSup_iff` produces one above `φ`. -/
+theorem wayBelow_le_finset_sup_step (hD : IsContinuousLattice D) (hD' : IsContinuousLattice D')
+    {φ g : ScottMap D D'} (h : φ ≪ g) :
+    ∃ F : Finset (D × D'), (∀ p ∈ F, (p.2 : D') ≪ (g : D → D') p.1) ∧
+      φ ≤ F.sup (fun p => stepMap p.1 p.2) := by
+  classical
+  set Sg : Set (ScottMap D D') :=
+    (fun F : Finset (D × D') => F.sup (fun p => stepMap p.1 p.2)) ''
+      {F | ∀ p ∈ F, (p.2 : D') ≪ (g : D → D') p.1} with hSg
+  have hSgne : Sg.Nonempty := by
+    refine ⟨_, ∅, ?_, rfl⟩
+    intro p hp
+    exact absurd hp (Finset.notMem_empty p)
+  have hSgdir : DirectedOn (· ≤ ·) Sg := by
+    rintro _ ⟨F₁, hF₁, rfl⟩ _ ⟨F₂, hF₂, rfl⟩
+    refine ⟨(F₁ ∪ F₂).sup (fun p => stepMap p.1 p.2), ⟨F₁ ∪ F₂, fun p hp => ?_, rfl⟩,
+      Finset.sup_mono Finset.subset_union_left, Finset.sup_mono Finset.subset_union_right⟩
+    rcases Finset.mem_union.1 hp with hp | hp
+    · exact hF₁ p hp
+    · exact hF₂ p hp
+  have hSgsup : sSup Sg = g := by
+    apply le_antisymm
+    · refine sSup_le ?_
+      rintro _ ⟨F, hF, rfl⟩
+      exact Finset.sup_le fun p hp => stepMap_le_of_wayBelow (hF p hp)
+    · rw [ScottMap.le_def]
+      intro x
+      rw [← stepMap_pointwise_sSup hD hD' g x]
+      refine sSup_le ?_
+      rintro e' ⟨e, hex, he'⟩
+      have hmemSg : stepMap e e' ∈ Sg := by
+        refine ⟨{(e, e')}, fun p hp => ?_, ?_⟩
+        · rw [Finset.mem_singleton] at hp; subst hp; exact he'
+        · show ({(e, e')} : Finset (D × D')).sup (fun p => stepMap p.1 p.2) = stepMap e e'
+          rw [Finset.sup_singleton]
+      have hx : (stepMap e e' : D → D') x ≤ ((sSup Sg : ScottMap D D') : D → D') x := by
+        rw [ScottMap.sSup_apply]
+        exact le_sSup ⟨stepMap e e', hmemSg, rfl⟩
+      rwa [stepMap_apply_of_wayBelow hex] at hx
+  rw [← hSgsup] at h
+  obtain ⟨_, ⟨F, hF, rfl⟩, hφs⟩ := (wayBelow_sSup_iff hSgne hSgdir).1 h
+  exact ⟨F, hF, hφs.le⟩
+
+/-- **Scott 1972, Theorem 3.3(b).** The Scott (lattice) topology on `[D → D']` agrees with the
+topology of pointwise convergence. -/
+theorem theorem_3_3_topology (hD : IsContinuousLattice D) (hD' : IsContinuousLattice D') :
+    (scottTopologicalSpace : TopologicalSpace (ScottMap D D')) = scottMapPointwiseTopology D D' := by
+  have hL : IsContinuousLattice (ScottMap D D') := theorem_3_3_isContinuousLattice hD hD'
+  apply le_antisymm
+  · -- pointwise ⊆ Scott: each subbasic set is Scott-open in the lattice
+    apply le_generateFrom_iff_subset_isOpen.2
+    rintro W ⟨x, U, hUopen, rfl⟩
+    exact isOpen_iff_scottOpen.mpr (pointwiseSubbasic_scottOpen x (isOpen_iff_scottOpen.mp hUopen))
+  · -- Scott ⊆ pointwise: each Scott-open lattice set is pointwise-open, via the `↟φ` basis
+    intro U hU
+    rw [isOpen_iff_scottOpen] at hU
+    rw [@isOpen_iff_forall_mem_open (ScottMap D D') (scottMapPointwiseTopology D D')]
+    intro g hgU
+    obtain ⟨φ, hφg, hφsub⟩ := exists_wayBelow_subset hL hU hgU
+    obtain ⟨F, hF, hφF⟩ := wayBelow_le_finset_sup_step hD hD' hφg
+    refine ⟨⋂ p ∈ F, {h : ScottMap D D' | (p.2 : D') ≪ (h : D → D') p.1}, ?_, ?_, ?_⟩
+    · intro h hh
+      refine hφsub (WayBelow.le_trans hφF (wayBelow_finset_sup fun p hp => ?_))
+      exact stepMap_wayBelow (Set.mem_iInter₂.1 hh p hp)
+    · exact @isOpen_biInter_finset (ScottMap D D') (D × D') (scottMapPointwiseTopology D D') F _
+        (fun p _ => pointwiseSubbasic_isOpen p.1 (isOpen_iff_scottOpen.mpr (scottOpen_wayBelow p.2)))
+    · exact Set.mem_iInter₂.2 fun p hp => hF p hp
+
+/-- **Scott 1972, Theorem 3.3 (full statement).** For continuous lattices `D`, `D'`, the function
+space `[D → D']` is a continuous lattice (`theorem_3_3_isContinuousLattice`) whose Scott topology
+agrees with the topology of pointwise convergence (`theorem_3_3_topology`). -/
+theorem theorem_3_3 (hD : IsContinuousLattice D) (hD' : IsContinuousLattice D') :
+    IsContinuousLattice (ScottMap D D') ∧
+      (scottTopologicalSpace : TopologicalSpace (ScottMap D D')) = scottMapPointwiseTopology D D' :=
+  ⟨theorem_3_3_isContinuousLattice hD hD', theorem_3_3_topology hD hD'⟩
+
 /-! ### Corollary 3.4 -/
 
 theorem scottFunctionSubbasis_isOpen_scott {x : D} {U : Set D'} (hU : @IsOpen D' scottTopologicalSpace U) :
