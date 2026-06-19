@@ -2166,3 +2166,147 @@ $$
 $$
 r = \{(0, \square)\} \cup \{(n^+, m^\#) \mid (n, m) \in r\}.
 $$
+
+<!-- page 66 -->
+
+This $r \subseteq \mathbf{N} \times \mathbf{M}$ as a binary relation will turn out to be a one-one correspondence giving the required isomorphism.
+
+First of all we see by construction that
+
+(i) $0 \ r \ \square$;
+
+(ii) $n \ r \ m$ implies $n^+ \ r \ m^\#$.
+
+So, if $r$ proves to be a one-one correspondence, it will then be the desired isomorphism. Now, the two sets shown in the equation
+
+$$
+\{(0, \square)\} \cap \{(n^+, m^\#) \mid (n, m) \in r\} = \emptyset
+$$
+
+are disjoint by virtue of axiom 4.5(i). Therefore, $0$ in $\mathbf{N}$ corresponds by $r$ to one and only one element of $\mathbf{M}$, namely the element $\square$. Let $x \subseteq \mathbf{N}$ be the set of all elements of $\mathbf{N}$ corresponding by $r$ to a unique element of $\mathbf{M}$. We have just shown $0 \in x$. Suppose $n \in x$, and let $m \in \mathbf{M}$ be the unique element with $n \ r \ m$. Now $n^+ \ r \ m^\#$ holds, so $n^+$ corresponds to at least one element of $\mathbf{M}$. If $n^+ \ r \ k$ also holds, then since $(n^+, k) \neq (0, \square)$, the fixed-point equation implies
+
+$$
+n^+ = n_0^+ \quad \text{and} \quad k = m_0^\#
+$$
+
+for some $(n_0, m_0) \in r$. By axiom 4.5(ii), $n = n_0$, and, by uniqueness (remember $n \in x$), $m = m_0$; thus, $m^\#$ is the unique correspondent for $n^+$. We have proved $n^+ \in x$. Therefore, $x^+ \subseteq x$; so by axiom 4.5(iii), $x = \mathbf{N}$ holds. Otherwise said, every element in $\mathbf{N}$ corresponds to a unique element of $\mathbf{M}$.
+
+Note that the rôles of $\mathbf{N}$ and $\mathbf{M}$ are completely symmetric, *and* they satisfy the same axioms as structured sets. It follows, then, that every element of $\mathbf{M}$ corresponds to a unique element of $\mathbf{N}$. The proof that $r$ is a one-one correspondence is now complete. $\square$
+
+**EXERCISES**
+
+**EXERCISE 4.7.** Formula 4.2(iii) shows how to find the *least* fixed point of $f : D \to D$. Suppose on the other hand that $a \in |D|$ is such that $a \subseteq f(a)$. Will there be a fixed point $x = f(x)$ with $a \subseteq x$?
+
+<!-- page 67 -->
+
+(Hint: How do we know $\bigsqcup_{n=0}^{\infty} f^n(\bot) \in |D|$ ?)
+
+**EXERCISE 4.8.** Suppose $f : D \to D$ and $S \subseteq |D|$ are such that
+
+(i) $\bot \in S$;
+
+(ii) $x \in S$ always implies $f(x) \in S$;
+
+(iii) whenever $\{x_n\}_{n=0}^{\infty} \subseteq S$ and $x_n \sqsubseteq x_{n+1}$ for all $n$, then $\bigsqcup_{n=0}^{\infty} x_n \in S$.
+
+Conclude that $\mathrm{fix}(f) \in S$. (This could be called the principle of *fixed-point induction*.) Apply the method to a set of the form
+
+$$
+S = \{x \in |D| \mid a(x) = b(x)\},
+$$
+
+where $a, b : D \to D$ are approximable, and where we know $a(\bot) = b(\bot)$, and $f \circ a = a \circ f$ and $f \circ b = b \circ f$.
+
+**EXERCISE 4.9.** Show that there is an approximable operator
+
+$$
+\Psi : ((D \to D) \to D) \to ((D \to D) \to D)
+$$
+
+such that for $\theta : (D \to D) \to D$ and $f : D \to D$ we have
+
+$$
+\Psi(\theta)(f) = f(\theta(f)).
+$$
+
+Prove further that $\mathrm{fix} : (D \to D) \to D$ is the *least* fixed point of $\Psi$.
+
+**EXERCISE 4.10.** Given a domain $D$ and an element $a \in |D|$, construct a domain $D_a$ where
+
+$$
+|D_a| = \{x \in |D| \mid x \sqsubseteq a\}.
+$$
+
+Show that if $f : D \to D$ is approximable, then $f$ can be restricted to an approximable map $f' : D_{\mathrm{fix}(f)} \to D_{\mathrm{fix}(f)}$ where $f'(x) = f(x)$ for all $x \in |D_{\mathrm{fix}(f)}|$. How many fixed points does $f'$ have in $|D_{\mathrm{fix}(f)}|$?
+
+<!-- page 68 -->
+
+**EXERCISE 4.11.** (Suggested by G. Plotkin). We can regard $\mathrm{fix}$ as assigning a fixed-point operator to each domain $D$. Show that $\mathrm{fix}$ is uniquely determined by the following general conditions on an assignment $D \rightsquigarrow F_D$:
+
+(i) $F_D : (D \to D) \to D$;
+
+(ii) $F_D(f) = f(F_D(f))$ for all $f : D \to D$;
+
+(iii) whenever $f_0 : D_0 \to D_0$ and $f_1 : D_1 \to D_1$ are given and $h : D_0 \to D_1$ is such that $h(\perp) = \perp$ and $h \circ f_0 = f_1 \circ h$, then $h(F_{D_0}(f_0)) = F_{D_1}(f_1)$.
+
+(Hint: Apply 4.7 to prove $\mathrm{fix}$ satisfies (iii). In the other direction use 4.10.)
+
+**EXERCISE 4.12.** Need an approximable $f : D \to D$ have a maximum fixed point? Give an example where there are many fixed points.
+
+**EXERCISE 4.13.** The proof of 4.1 uses the integers, whereas the proof of 4.6 uses 4.1. There is a hint of circularity here! It can be eliminated by the following steps:
+
+(1) If a domain $D$ has an element $a$ where, for $f : D \to D$, the relation $f(a) \sqsubseteq a$ holds, then the least fixed point can be defined by
+
+$$
+\mathrm{fix}(f) = \bigcap \{ x \in |D| \mid f(x) \sqsubseteq x \}.
+$$
+
+Note that $\mathrm{fix}(f) \sqsubseteq a$. (Hint: Remark that by 1.17 the formula gives a well-defined element. Call the element $b$. Prove that $f(b) \sqsubseteq b$ by showing that $f(b) \sqsubseteq x$ whenever $f(x) \sqsubseteq x$. Then note that $f(f(b)) \sqsubseteq f(b)$ so that $b \sqsubseteq f(b)$ also. Conclude $b = \mathrm{fix}(f)$ as least fixed point.)
+
+(2) Remark that this proof uses only the monotonicity property of $f : |D| \to |D|$. Remark, too, that (1) can always be applied to power-set domains $PA$ for any set $A$.
+
+(3) Review the proof of 4.6 and establish by a fixed-point method that for any structured set $\langle Z, z, \cdot \rangle$ there is a unique function $s : \mathbf{N} \to Z$ such that
+
+(i) $s(0) = z$;
+
+(ii) $s(n^+) = s(n)^\cdot$, for $n \in \mathbf{N}$.
+
+(4) Employ (3) for the proof of 4.1 by identifying $\langle \mathbf{N}, 0, {}^+ \rangle$.
+
+<!-- page 69 -->
+
+**EXERCISE 4.14.** Need a monotone function $f : PA \to PA$ always have a *maximum* fixed point?
+
+**EXERCISE 4.15.** (For set theorists.) Let $f : |D| \to |D|$ be a monotone function on (the elements of) a domain. Show that $f$ has a *maximal* fixed point (i.e. a fixed point that cannot be extended to a larger fixed point). (Hint: By Zorn's Lemma consider a maximal chain
+
+$$
+C \subseteq \{ x \in |D| \mid x \sqsubseteq f(x) \},
+$$
+
+and use 2.11 to remark that $\bigsqcup C \in |D|$.) Now argue that $f$ has a <u>least</u> fixed point.
+
+**EXERCISE 4.16.** (For fixed-point nuts). Show that a monotone function as in 4.15 has an "optimal" fixed point in the sense that it is the greatest fixed point <u>below</u> all the maximal fixed points and at the same time it is the largest fixed point consistent with all other fixed points. *Consistency* for sets of elements means having a common upper bound. (Hint: Follow these steps:
+
+(1) Show that any non-empty set $S$ of fixed points has a largest fixed point <u>below</u> by using the formula
+
+$$
+f(\bigcap S) \sqsubseteq \bigcap S
+$$
+
+and finding the least fixed point over $\bigcap S$.
+
+(2) Letting $a$ be the fixed point of (1) constructed from the set of maximal fixed points, remark that $a$ is consistent with any other fixed point $x = f(x)$, since $x$ can be extended to a maximal one. Suppose $b$ is consistent with all fixed points, then $b \sqsubseteq y$ if $y$ is maximal. (Why?).)
+
+**EXERCISE 4.17.** (For algebraists). Suppose $\langle S, 1, \cdot \rangle$ is a semi-group with unit (sometimes called a monoid). Remark that $PS$ is a domain. For $a, b \in S$, what is the least $x \in PS$ such that
+
+$$
+x = \{1\} \cup \{a, b\} \cup x \cdot x,
+$$
+
+where in general for $x, y \subseteq S$
+
+$$
+x \cdot y = \{ t \cdot u \mid t \in x \text{ and } u \in y \}?
+$$
+
+Need the fixed point be unique?

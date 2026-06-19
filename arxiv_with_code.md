@@ -1,5 +1,5 @@
 <!-- AUTO-GENERATED: run scripts/generate_arxiv_with_code.sh to refresh -->
-# Four Presentations of Scott Domains in Lean 4: A Chronological Formalization — full narrative + complete Lean source
+# Scott's 3 Successively Less Topological, Simpler, and More Constructive Presentations of Domain Theory and Their Equivalence — full narrative + complete Lean source
 
 *Generated 2026-06-19 from `arxiv.md` and all library `.lean` files in dependency order (`Domain.lean`).*
 
@@ -45,9 +45,11 @@
 
 ## Abstract
 
-This is **one formalization monograph** in **Lean 4** with **mathlib**. It has **four
-sequential parts**, each formalizing a historical presentation of Scott domains in
-chronological order:
+This is **one formalization monograph** in **Lean 4** with **mathlib**. It formalizes Scott's **three
+presentations** of domain theory — each successively less topological, simpler, and more
+constructive (1972 continuous lattices → 1981 neighborhood systems → 1982 information systems) —
+**and proves their equivalence**. The work is organized in **four sequential parts** in this
+monograph:
 
 1. **Part I (Scott 1972)** — *Continuous Lattices* (LNM 274): injective `T₀`-spaces, Scott
   topology, way-below, function spaces, inverse limits.
@@ -1226,18 +1228,81 @@ every numbered item and exercise below has its statement transcribed.)
 | **Exercise 1.24** | Exercise | 527–529 | (set theorists) AC ⟹ every partial element extends to a total one; equivalent to AC? (union of a chain of filters is a filter) — **classical** | **Not Yet** |
 | **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` an ordinal, `𝒟 =` non-empty final segments; describe `\|𝒟\|`; are all elements finite? | **Not Yet** |
 | **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A`, `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}`; system; `\|𝒟\| ≅` ideals of `A` under `⊆` | **Not Yet** |
-| **Exercise 1.27** | Exercise | 541–561 | *bounded* `X⊆\|𝒟\|` (has an upper bound); further closure properties of domains on bounded sets | **Not Yet** |
+| **Exercise 1.27** | Exercise | 541–547 | *bounded* `X⊆\|𝒟\|` (`⊔X` = least upper bound); `{U,V}` consistent in `𝒟` ⟺ `{↑U,↑V}` bounded; `X` bounded ⟺ every finite subset bounded (uses 1.18) | **Not Yet** |
 
-**Lecture I is now fully inventoried above** (Def 1.1 → Exercise 1.27). Scott's "Exercise 1.1"
-forward-reference (line 281, "Example 1.3 will be generalized in…") is an OCR garble for
-**Exercise 1.12** (`Δ=ℕ` final segments), the only exercise that generalizes Example 1.3; it is
-listed under its real number.
+**Lecture I is fully inventoried above** (Def 1.1 → Exercise 1.27). Scott's "Exercise 1.1"
+forward-reference (line 281) is an OCR garble for **Exercise 1.12** (the only exercise
+generalizing Example 1.3).
 
-**Beyond Lecture I — OCR complete, Goal List pending:** the transcript now also covers **Lecture II
-(§2, approximable mappings)** — Def 2.1, Props 2.2/2.6, Thms 2.5/2.7, Examples 2.3/2.4, Exercises
-2.8–2.22 — and **Lecture III (§3, constructions)** — Defs 3.1/3.3/3.8, Props 3.2/3.4/3.7/3.9, Lemma
-3.6, Thms 3.5/3.10–3.13, Exercises 3.14–3.16+. These are *not yet* broken out into Goal Lists (they
-would form new subsections §4.2.II / §4.2.III); see the note in §4.4.
+### 4.2.II Lecture II (§2) Goal List — approximable mappings (complete inventory)
+
+**Lean target (planned):** `Domain/Neighborhood/Approximable.lean` (not yet created). All rows
+**Not Yet** unless noted.
+
+| Scott (PRG-19 §2) | Kind | Text (vision) | Lean target | Status |
+| ----------------- | ---- | ------------- | ----------- | ------ |
+| **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `f⊆𝒟₀×𝒟₁` with (i) `Δ₀ f Δ₁`, (ii) intersectivity on outputs, (iii) monotonicity | **Not Yet** |
+| **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`), `rel_of_map` (`X f Y ⟺ Y∈f(↑X)`), monotonicity, extensionality | **Not Yet** |
+| **Example 2.3** | Example | 615–654 | `f : B → T`: parity of 0's before first 1 (`B` binary tree, `T` two-token domain of Ex 1.2) | **Not Yet** |
+| **Example 2.4** | Example | 658–673 | `g : B → B`: eliminate first run of 1's; total → partial example | **Not Yet** |
+| **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `I_D` (`X I_D Y ⟺ X⊆Y`), composition `g∘f`, associativity | **Not Yet** |
+| **Prop 2.6** | Proposition | 726–732 | elementwise: `I_D(x)=x`, `(g∘f)(x)=g(f(x))` — concrete category of sets & functions | **Not Yet** |
+| **Theorem 2.7** | Theorem | 738–760 | every domain iso `|𝒟₀|≅|𝒟₁|` comes from an approximable map; finite elements → finite elements | **Not Yet** |
+| **Exercise 2.8** | Exercise | 764 | approximable map determined by action on finite elements; any monotone fn on finite elements extends to approximable map | **Not Yet** |
+| **Exercise 2.9** | Exercise | 768–774 | approximable `f` satisfies `f(x)=⋃{f(↑X)∣X∈x}` (Scott's formula for elementwise action) | **Not Yet** |
+| **Exercise 2.10** | Exercise | 776–782 | prove Prop 2.6; for `f,g : D₀→D₁` show `∃h` with `h(x)=f(x)⊔g(x)` pointwise (lub of maps) | **Not Yet** |
+| **Exercise 2.11** | Exercise | 784–804 | directed `I`, `a:I→\|D\|` approximable in each coordinate ⟹ `⋃ᵢ a(i)` is a filter; domains closed under directed `⋃` | **Not Yet** |
+| **Exercise 2.12** | Exercise | 806–818 | directed family `{fᵢ}` of approximable maps: `⋃ᵢ fᵢ` (pointwise lub) is approximable | **Not Yet** |
+| **Exercise 2.13** | Exercise | 820–838 | (topologists) approximable maps = continuous maps between the `|D|` spaces of Ex 1.22 (uses 2.9) | **Not Yet** |
+| **Exercise 2.14** | Exercise | 840–854 | domain iso `f` and nbhd correspondence `φ` from Thm 2.7; verify `φ` recovers `f` | **Not Yet** |
+| **Exercise 2.15** | Exercise | 856–864 | (topologists) one-token system; its topology | **Not Yet** |
+| **Exercise 2.16** | Exercise | 866–870 | `σx` on `\|B\|` approximable? `f:B→T` of Ex 2.3 uniquely determined by equations on finite sequences | **Not Yet** |
+| **Exercise 2.17** | Exercise | 872–881 | `g:B→B` of Ex 2.4 approximable in detail; unique? | **Not Yet** |
+| **Exercise 2.18** | Exercise | 883–892 | interpret approximable `h:B→B` (given by equations) in words | **Not Yet** |
+| **Exercise 2.19** | Exercise | 894–906 | generalize Def 2.1 to multivariate `f:D₀×D₁→D₂` as ternary relation `X,Y f Z` | **Not Yet** |
+| **Exercise 2.20** | Exercise | 908–913 | Ex 1.15 powerset domain `𝒫`; finite elements = finite subsets; `∪,∩` and other ops approximable | **Not Yet** |
+| **Exercise 2.21** | Exercise | 915 | modify `B` to system `C` with finite *and* infinite total sequences; approximable juxtaposition `xy` | **Not Yet** |
+| **Exercise 2.22** | Exercise | 917–927 | (set theorists) families closed under `⋂` + directed `⋃` are inclusion-iso to a domain (dual of Ex 1.18/2.11) | **Not Yet** |
+
+### 4.2.III Lecture III (§3) Goal List — domain constructs (complete inventory)
+
+**Lean target (planned):** `Domain/Neighborhood/Constructions.lean` (not yet created). All rows
+**Not Yet**.
+
+| Scott (PRG-19 §3) | Kind | Text (vision) | Lean target | Status |
+| ----------------- | ---- | ------------- | ----------- | ------ |
+| **Def 3.1** | Definition | 939–951 | product system `𝒟₀×𝒟₁={X∪Y}`; element pairing `⟨x,y⟩={X∪Y∣X∈x,Y∈y}` (disjoint `Δ₀,Δ₁`) | **Not Yet** |
+| **Prop 3.2** | Proposition | 953–999 | `𝒟₀×𝒟₁` is a nbhd system; `⟨x,y⟩⊑⟨x',y'⟩ ⟺ x⊑x'∧y⊑y'`; bijection `\|𝒟₀×𝒟₁\|≅\|𝒟₀\|×\|𝒟₁\|` | **Not Yet** |
+| **Def 3.3** | Definition | 1003–1027 | projections `p₀,p₁`; paired map `⟨f,g⟩`; multivariate `f:D₂→D₀×D₁` | **Not Yet** |
+| **Prop 3.4** | Proposition | 1031–1047 | `p₀,p₁,⟨f,g⟩` approximable; `pᵢ∘⟨f,g⟩=f/g`; `h=⟨p₀∘h,p₁∘h⟩`; `⟨f,g⟩(w)=⟨f(w),g(w)⟩` | **Not Yet** |
+| **Theorem 3.5** | Theorem | 1081–1112 | `f:\|D₀×D₁\|→\|D₂\|` approximable ⟺ approximable in each argument separately (uses Lemma 3.6) | **Not Yet** |
+| **Lemma 3.6** | Lemma | 1089–1093 | constant map `b:\|D₀\|→\|D₁\|` (`b(x)=b`) from approximable relation `X b Y ⟺ Y∈b` | **Not Yet** |
+| **Prop 3.7** | Proposition | 1124–1158 | approximable multivariate functions closed under substitution (composition + projections) | **Not Yet** |
+| **Def 3.8** | Definition | 1164–1170 | function space `(D₀→D₁)`: tokens = approximable maps; nbhds `⋂[Xᵢ,Yᵢ]` with `[X,Y]={f∣X f Y}` | **Not Yet** |
+| **Prop 3.9** | Proposition | 1176–1266 | `{[Xᵢ,Yᵢ]}` consistent in `(D₀→D₁)` ⟺ `{Xᵢ}` consistent ⟹ `{Yᵢ}` consistent; finite elements characterized | **Not Yet** |
+| **Theorem 3.10** | Theorem | 1268–1282 | `(D₀→D₁)` *complete*: filters ↔ approximable maps bijectively (inclusion-preserving) | **Not Yet** |
+| **Theorem 3.11** | Theorem | 1286–1318 | evaluation `eval:(D₁→D₂)×D₁→D₂` approximable; `eval(f,x)=f(x)` | **Not Yet** |
+| **Theorem 3.12** | Theorem | 1322–1381 | curry `curry(g):D₀→(D₁→D₂)`; `curry(g)(x)(y)=g(x,y)`; `eval∘⟨curry(g)∘p₀,p₁⟩=g`; adjunction with `eval` | **Not Yet** |
+| **Theorem 3.13** | Theorem | 1385–1399 | `f⊑g ⟺ ∀x, f(x)⊑g(x)`; boundedness & `⊔` on function space are pointwise | **Not Yet** |
+| **Exercise 3.14** | Exercise | 1405–1429 | tagged product `0Δ₀∪1Δ₁` (disjointness unnecessary); `diag:D→D×D`; `n`-fold products | **Not Yet** |
+| **Exercise 3.15** | Exercise | 1431–1439 | product isomorphisms: commutativity, associativity, empty product, functoriality | **Not Yet** |
+| **Exercise 3.16** | Exercise | 1443–1466 | `𝒟^∞` over `Δ^∞`; `𝒟^∞≅𝒟×𝒟^∞`; elements = infinite sequences of `\|𝒟\|` elements | **Not Yet** |
+| **Exercise 3.17** | Exercise | 1468–1486 | `B→T^∞` and `T^∞→B` approximable; section/retraction; iso questions | **Not Yet** |
+| **Exercise 3.18** | Exercise | 1490–1506 | *sum* system `𝒟₀+𝒟₁`; injections `inᵢ`, projections `outᵢ`; `outᵢ∘inᵢ=I`; `n`-term sums | **Not Yet** |
+| **Exercise 3.19** | Exercise | 1508–1532 | functorial `f×g` and `f+g` on products/sums; `f×g=⟨f∘p₀,g∘p₁⟩`; `outᵢ∘(f+g)∘inᵢ=f/g` | **Not Yet** |
+| **Exercise 3.20** | Exercise | 1536 | (category theorists) `+` and `×` are functors; `×` is the categorical product | **Not Yet** |
+| **Exercise 3.21** | Exercise | 1538 | `[Y,Z]` in `(D₁→D₂)` uniquely determines `Y,Z` when `Z≠Δ₂`; edge case `Z=Δ₂` | **Not Yet** |
+| **Exercise 3.22** | Exercise | 1540–1560 | composition `comp:(D₁→D₂)×(D₀→D₁)→(D₀→D₂)` approximable; `comp(g,f)=g∘f`; from `eval`+`curry` | **Not Yet** |
+| **Exercise 3.23** | Exercise | 1564 | (category theorists) domains + approximable maps form a cartesian closed category (3.11, 3.12) | **Not Yet** |
+| **Exercise 3.24** | Exercise | 1566–1576 | more function-space isomorphisms (currying, products of codomains, …) | **Not Yet** |
+| **Exercise 3.25** | Exercise | 1578 | (topologists) open subsets of `\|D\|` form a domain (uses 3.10, Exercises 1.21 & 2.13) | **Not Yet** |
+| **Exercise 3.26** | Exercise | 1580–1620 | for every domain `D`, approximable `fix:(D→D)→D` with `fix(f)` least fixed point of `f` | **Not Yet** |
+| **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Not Yet** |
+| **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Not Yet** |
+
+**Beyond Lecture III — OCR started, Goal List pending:** Lecture IV (*Fixed points and recursion*,
+from line 1646) is partially transcribed (Theorems 4.1–4.2, Examples 4.3–4.4, Def 4.5, Thm 4.6, …);
+rows will be added as the inventory pass continues.
 
 ### 4.3 §1 dependency (parsed so far)
 
@@ -1300,12 +1365,19 @@ flowchart TD
 | Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean`) |
 | Report card  | **17 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
 
-**Goal List coverage.** §4.2 is now the **complete Lecture I (§1)** inventory: Defs 1.1/1.6/1.7/1.8,
-Theorems 1.1c/1.10/1.11, Examples 1.2–1.5/1.B, all Factoids, and Exercises 1.12–1.27 (40 rows,
-17 Pass). **Lecture II (§2, approximable mappings)** and **Lecture III (§3, products / function
-spaces)** are fully OCR'd but not yet inventoried — they will become Goal Lists §4.2.II and §4.2.III
-(≈45 further items: Defs 2.1/3.1/3.3/3.8, Props 2.2/2.6/3.2/3.4/3.7/3.9, Lemma 3.6, Thms
-2.5/2.7/3.5/3.10–3.13, Examples 2.3/2.4, Exercises 2.8–2.22 and 3.14+).
+**Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
+**complete inventories** of PRG-19 Lectures I–III:
+
+| Lecture | § | Rows | Pass |
+| ------- | - | ---- | ---- |
+| I (domains by neighbourhoods) | §4.2 | 40 | **17** |
+| II (approximable mappings) | §4.2.II | 22 | 0 |
+| III (products, sums, function spaces) | §4.2.III | 28 | 0 |
+| **Total PRG-19 I–III** | | **90** | **17** |
+
+**Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
+inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
+`Domain/Neighborhood/Constructions.lean` (§3).
 
 
 ### 4.5 Selected proof notes
