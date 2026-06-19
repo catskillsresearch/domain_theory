@@ -3,6 +3,7 @@ import Mathlib.Data.Finset.Lattice.Fold
 import Mathlib.Topology.ContinuousMap.Basic
 import Mathlib.Topology.Order
 import Mathlib.Order.CompleteLattice.Basic
+import Mathlib.Order.FixedPoints
 
 /-!
 # Function spaces on continuous lattices (Scott 1972, §3)
@@ -1531,5 +1532,95 @@ space `[D → D]`, via `con`/`min` (`Proposition313.projection`). -/
 theorem proposition_3_13 (_hD : IsContinuousLattice D) :
     Nonempty (IsContinuousLatticeProjection D (ScottMap D D)) :=
   ⟨Proposition313.projection⟩
+
+/-! ### Proposition 3.14: the fixed-point operator `fix : [D → D] → D` -/
+
+namespace Proposition314
+
+/-- The monotone map underlying a Scott map, suitable for `OrderHom.lfp`. -/
+def toOrderHom (f : ScottMap D D) : D →o D := ⟨(f : D → D), f.monotone⟩
+
+/-- **Scott 1972, Proposition 3.14.** `fix f` is the least (pre-)fixed point of `f`, supplied by
+mathlib's `OrderHom.lfp`. -/
+noncomputable def fix (f : ScottMap D D) : D := (toOrderHom f).lfp
+
+/-- `fix f` is a fixed point of `f`. -/
+theorem fix_eq (f : ScottMap D D) : (f : D → D) (fix f) = fix f :=
+  (toOrderHom f).map_lfp
+
+/-- `fix f` is below every pre-fixed point: `f x ⊑ x ⟹ fix f ⊑ x`. -/
+theorem fix_le {f : ScottMap D D} {x : D} (h : (f : D → D) x ≤ x) : fix f ≤ x :=
+  (toOrderHom f).lfp_le h
+
+/-- `fix` is monotone in `f`: if `f ⊑ f'` then `fix f ⊑ fix f'`, since `f (fix f') ⊑ f' (fix f') =
+fix f'` makes `fix f'` a pre-fixed point of `f`. -/
+theorem fix_mono {f f' : ScottMap D D} (hff' : f ≤ f') : fix f ≤ fix f' :=
+  fix_le (le_trans (ScottMap.le_def.mp hff' (fix f')) (le_of_eq (fix_eq f')))
+
+/-- **Scott 1972, Proposition 3.14 (continuity).** `fix` preserves directed suprema. Direct
+lattice argument (no Kleene iteration): write `g = ⊔S` and `a = ⊔{fix f : f ∈ S}`. The reverse
+bound `a ⊑ fix g` is `fix`-monotonicity. For `fix g ⊑ a` it suffices (by `fix_le`) that `a` is a
+pre-fixed point of `g`. Now `g a = ⊔_{f∈S} f a` (pointwise sup), and each `f a = ⊔_{f'∈S} f (fix f')`
+(continuity of `f` on the directed family `{fix f'}`); for any `f, f' ∈ S` pick `h ∈ S` above both,
+so `f (fix f') ⊑ h (fix f') ⊑ h (fix h) = fix h ⊑ a`. Hence `g a ⊑ a`. -/
+theorem fix_preservesDirectedSup : PreservesDirectedSup (fix : ScottMap D D → D) := by
+  intro S hSne hSdir
+  set T : Set D := Set.image fix S with hTdef
+  have hTne : T.Nonempty := hSne.image fix
+  have hTdir : DirectedOn (· ≤ ·) T := by
+    rintro _ ⟨f, hf, rfl⟩ _ ⟨f', hf', rfl⟩
+    obtain ⟨h, hh, hfh, hf'h⟩ := hSdir f hf f' hf'
+    exact ⟨fix h, Set.mem_image_of_mem fix hh, fix_mono hfh, fix_mono hf'h⟩
+  show fix (sSup S) = sSup T
+  apply le_antisymm
+  · apply fix_le
+    show ((sSup S : ScottMap D D) : D → D) (sSup T) ≤ sSup T
+    rw [ScottMap.sSup_apply]
+    apply sSup_le
+    rintro _ ⟨f, hf, rfl⟩
+    show (f : D → D) (sSup T) ≤ sSup T
+    rw [f.preservesDirectedSup_coe T hTne hTdir]
+    apply sSup_le
+    rintro _ ⟨_, ⟨f', hf', rfl⟩, rfl⟩
+    obtain ⟨h, hh, hfh, hf'h⟩ := hSdir f hf f' hf'
+    calc (f : D → D) (fix f')
+        ≤ (h : D → D) (fix f') := ScottMap.le_def.mp hfh (fix f')
+      _ ≤ (h : D → D) (fix h) := h.monotone (fix_mono hf'h)
+      _ = fix h := fix_eq h
+      _ ≤ sSup T := le_sSup (Set.mem_image_of_mem fix hh)
+  · apply sSup_le
+    rintro _ ⟨f, hf, rfl⟩
+    exact fix_mono (le_sSup hf)
+
+/-- **Scott 1972, Proposition 3.14.** The fixed-point operator as a Scott-continuous map. -/
+noncomputable def fixMap : ScottMap (ScottMap D D) D :=
+  ⟨fix, continuous_of_preservesDirectedSup fix_preservesDirectedSup⟩
+
+@[simp] theorem fixMap_apply (f : ScottMap D D) : (fixMap f : D) = fix f := rfl
+
+/-- Uniqueness: any value that is a fixed point of `f` and below every pre-fixed point equals
+`fix f` (the least fixed point is unique). -/
+theorem fix_unique {f : ScottMap D D} {a : D} (hfix : (f : D → D) a = a)
+    (hleast : ∀ x, (f : D → D) x ≤ x → a ≤ x) : a = fix f :=
+  le_antisymm (hleast (fix f) (le_of_eq (fix_eq f))) (fix_le hfix.le)
+
+end Proposition314
+
+/-- **Scott 1972, Proposition 3.14.** For a continuous lattice `D` there is a uniquely determined
+continuous mapping `fix : [D → D] → D` such that `f (fix f) = fix f` for all `f`, and `fix f ⊑ x`
+whenever `f x ⊑ x`. Existence and continuity are `Proposition314.fixMap`; the defining equations are
+`fix_eq`/`fix_le`; uniqueness (any operator with these two properties agrees with `fix`) is
+`fix_unique`. -/
+theorem proposition_3_14 (_hD : IsContinuousLattice D) :
+    ∃ Fix : ScottMap (ScottMap D D) D,
+      (∀ f : ScottMap D D, (f : D → D) (Fix f) = Fix f)
+        ∧ (∀ (f : ScottMap D D) (x : D), (f : D → D) x ≤ x → (Fix f : D) ≤ x)
+        ∧ (∀ g : ScottMap D D → D,
+            (∀ f : ScottMap D D, (f : D → D) (g f) = g f) →
+            (∀ (f : ScottMap D D) (x : D), (f : D → D) x ≤ x → g f ≤ x) →
+            ∀ f : ScottMap D D, g f = Fix f) :=
+  ⟨Proposition314.fixMap, fun f => Proposition314.fix_eq f,
+    fun _ _ h => Proposition314.fix_le h,
+    fun _ hfix hleast f => Proposition314.fix_unique (hfix f) (fun x hx => hleast f x hx)⟩
 
 end Domain.ContinuousLattice

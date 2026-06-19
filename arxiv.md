@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **29 Pass · 0 Stuck · 6 Not Yet**.
+full deliverable. Score: **30 Pass · 0 Stuck · 5 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -201,7 +201,7 @@ full deliverable. Score: **29 Pass · 0 Stuck · 6 Not Yet**.
 | 3   | Prop 3.10 | `incl_sSup`/`incl_injective`/`incl_wayBelow` (fwd), `proposition_3_10_converse`, `retr_eq_sSup` (uniq)                           | `FunctionSpaces.lean` | **Pass**    | (i)–(iii) + converse (iv) + uniq     |
 | 3   | Prop 3.12 | `proposition_3_12`, `IsProjection`, `isProjection_sSup`, `Projections.instCompleteLattice`                                       | `FunctionSpaces.lean` | **Pass**    | `J_D` is a `⊔`-closed complete latt. |
 | 3   | Prop 3.13 | `proposition_3_13`, `Proposition313.projection` (`con`/`min`)                                                                    | `FunctionSpaces.lean` | **Pass**    | `D` is a projection of `[D → D]`     |
-| 3   | Prop 3.14 | —                                                                                                                                | —                     | **Not Yet** |                                      |
+| 3   | Prop 3.14 | `proposition_3_14`, `Proposition314.fixMap`, `fix_eq`/`fix_le`/`fix_unique`                                                      | `FunctionSpaces.lean` | **Pass**    | continuous least-fixed-point op.     |
 | 4   | Prop 4.1  | —                                                                                                                                | —                     | **Not Yet** | uses 3.8                             |
 | 4   | Prop 4.2  | —                                                                                                                                | —                     | **Not Yet** |                                      |
 | 4   | Cor 4.3   | —                                                                                                                                | —                     | **Not Yet** |                                      |
@@ -857,6 +857,33 @@ supremum (`ScottMap.sSup_apply`). The result packages as a term of the existing
 `IsContinuousLatticeProjection D [D → D]`, so it immediately feeds Proposition 3.10's machinery.
 (Continuity of `D` is again unused; included only to match Scott's hypothesis.) Footprint
 `[propext, Classical.choice, Quot.sound]`.
+
+#### Proposition 3.14 (the fixed-point operator) — `proposition_3_14` (`FunctionSpaces.lean`)
+
+`fix : [D → D] → D` is Scott's least-fixed-point combinator: `f (fix f) = fix f` and `f x ⊑ x ⟹
+fix f ⊑ x`, and it is the *unique* operator with these two properties. The **order content** is
+mathlib's `OrderHom.lfp` (`fix f := (⟨f, f.monotone⟩ : D →o D).lfp`), giving `fix_eq` (`map_lfp`),
+`fix_le` (`lfp_le`), and `fix_unique` (least element of the fixed-point set is unique) for free.
+
+The **continuity** of `fix` (Scott's actual claim) is the work. Scott argues via Kleene's
+`fix f = ⊔ₙ fⁿ(⊥)` ("pointwise lub of continuous functions"); we give a **direct lattice proof
+that avoids iteration entirely** (`fix_preservesDirectedSup`). For directed `S ⊆ [D → D]`, set
+`g = ⊔S` and `a = ⊔{fix f : f ∈ S}`:
+
+- `a ⊑ fix g` is just `fix`-monotonicity (`fix_mono`, itself a two-line `fix_le`).
+- `fix g ⊑ a`: by `fix_le` it suffices that `a` is a pre-fixed point, `g a ⊑ a`. Pointwise sups give
+  `g a = ⊔_{f∈S} f a`, and continuity of each `f` on the **directed** family `{fix f' : f' ∈ S}`
+  gives `f a = ⊔_{f'∈S} f (fix f')`. For any `f, f' ∈ S` choose (directedness) `h ∈ S` above both:
+  `f (fix f') ⊑ h (fix f') ⊑ h (fix h) = fix h ⊑ a`. Hence `g a ⊑ a`.
+
+**Engineering notes / lessons from 3.14:** the direct argument is far shorter than building Kleene's
+theorem and only needs three ingredients already in hand — `OrderHom.lfp` monotonicity facts,
+`ScottMap.sSup_apply` (pointwise sups in `[D → D]`), and `preservesDirectedSup_coe`. Two small Lean
+traps: (1) `sSup_le` leaves the bound element as an un-β-reduced `(fun f => ↑f (sSup T)) f`, so a
+`show (f : D → D) (sSup T) ≤ sSup T` is needed before the `rw`; (2) in the uniqueness clause an
+*unannotated* binder `∀ f, (f : D → D) …` makes the ascription **fix the binder type to `D → D`**
+rather than coerce — the binders must be written `∀ f : ScottMap D D`. Continuity of `D` is unused
+(works for any complete lattice). Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 
