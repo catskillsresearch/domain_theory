@@ -150,4 +150,94 @@ theorem towerProj_incl_apply (n : ℕ) (f : towerType D₀ (n + 1)) (x : towerTy
 
 end Tower
 
+/-! ### Theorem 4.4(a): the limit maps `i_∞` and `j_∞`
+
+We now wire the concrete inverse limit `D_∞` of the function-space tower and write down Scott's pair
+
+```
+i_∞(x) = ⨆ₙ (i_{n∞} ∘ x_{n+1} ∘ j_{∞n})      : D_∞ → [D_∞ → D_∞]
+j_∞(f) = ⨆ₙ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})  : [D_∞ → D_∞] → D_∞
+```
+
+Each summand is itself a Scott map (a composite of `conjMap`, `embInf`, `projInf`), so each of
+`i_∞`, `j_∞` is a *supremum of Scott maps* and is therefore Scott-continuous automatically: by
+Theorem 3.3 the function space `[A → B]` is a complete lattice in which suprema are computed
+pointwise. No bespoke continuity argument is needed. -/
+
+section LimitMaps
+
+variable (D₀ : CLat.{u})
+  (j₀ : IsContinuousLatticeProjection D₀.carrier (ScottMap D₀.carrier D₀.carrier))
+
+/-- The inverse limit `D_∞` of the function-space tower `⟨Dₙ, jₙ⟩`. -/
+abbrev DInf : Type u := InverseLimit (towerType D₀) (towerProj D₀ j₀)
+
+/-- The function space `[D_∞ → D_∞]`. -/
+abbrev DInfFn : Type u := ScottMap (DInf D₀ j₀) (DInf D₀ j₀)
+
+/-- The `n`-th summand of `i_∞`: the Scott map `x ↦ i_{n∞} ∘ x_{n+1} ∘ j_{∞n}`, where `x_{n+1}` is
+the `(n+1)`-st component of `x ∈ D_∞`. As a map `D_∞ → [D_∞ → D_∞]` it is the composite of the
+component projection `j_{∞(n+1)}` with conjugation by `(i_{n∞}, j_{∞n})`. -/
+noncomputable def iInfTerm (n : ℕ) : ScottMap (DInf D₀ j₀) (DInfFn D₀ j₀) :=
+  (conjMap (embInf (towerType D₀) (towerProj D₀ j₀) n)
+           (projInf (towerType D₀) (towerProj D₀ j₀) n)).comp
+    (projInf (towerType D₀) (towerProj D₀ j₀) (n + 1))
+
+@[simp] theorem iInfTerm_apply (n : ℕ) (x z : DInf D₀ j₀) :
+    (iInfTerm D₀ j₀ n x) z
+      = embInf (towerType D₀) (towerProj D₀ j₀) n
+          ((x.1 (n + 1)) ((projInf (towerType D₀) (towerProj D₀ j₀) n) z)) := rfl
+
+/-- **Scott 1972, §4 (Theorem 4.4).** The embedding `i_∞ : D_∞ → [D_∞ → D_∞]`,
+`i_∞(x) = ⨆ₙ i_{n∞} ∘ x_{n+1} ∘ j_{∞n}`. It is Scott-continuous because it is a supremum of the
+Scott maps `iInfTerm n` (suprema in `[D_∞ → [D_∞ → D_∞]]` are computed pointwise). -/
+noncomputable def embInfInf : ScottMap (DInf D₀ j₀) (DInfFn D₀ j₀) :=
+  ⨆ n, iInfTerm D₀ j₀ n
+
+/-- `i_∞` evaluated at `x` is the pointwise supremum of the summands `iInfTerm n x`. -/
+theorem embInfInf_apply (x : DInf D₀ j₀) :
+    embInfInf D₀ j₀ x = ⨆ n, iInfTerm D₀ j₀ n x := by
+  show (sSup (Set.range (iInfTerm D₀ j₀)) : ScottMap _ _) x = _
+  rw [ScottMap.sSup_apply, ← Set.range_comp, sSup_range]
+  rfl
+
+/-- The `n`-th summand of `j_∞`: the Scott map `f ↦ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})`. As a map
+`[D_∞ → D_∞] → D_∞` it is conjugation by `(j_{∞n}, i_{n∞})` (landing in `D_{n+1}`) followed by the
+embedding `i_{(n+1)∞}`. -/
+noncomputable def jInfTerm (n : ℕ) : ScottMap (DInfFn D₀ j₀) (DInf D₀ j₀) :=
+  (embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)).comp
+    (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+             (embInf (towerType D₀) (towerProj D₀ j₀) n))
+
+@[simp] theorem jInfTerm_apply (n : ℕ) (f : DInfFn D₀ j₀) :
+    jInfTerm D₀ j₀ n f
+      = embInf (towerType D₀) (towerProj D₀ j₀) (n + 1)
+          (conjMap (projInf (towerType D₀) (towerProj D₀ j₀) n)
+                   (embInf (towerType D₀) (towerProj D₀ j₀) n) f) := rfl
+
+/-- **Scott 1972, §4 (Theorem 4.4).** The projection `j_∞ : [D_∞ → D_∞] → D_∞`,
+`j_∞(f) = ⨆ₙ i_{(n+1)∞}(j_{∞n} ∘ f ∘ i_{n∞})`. Scott-continuous as a supremum of the Scott maps
+`jInfTerm n`. -/
+noncomputable def projInfInf : ScottMap (DInfFn D₀ j₀) (DInf D₀ j₀) :=
+  ⨆ n, jInfTerm D₀ j₀ n
+
+/-- `j_∞` evaluated at `f` is the supremum of the summands `jInfTerm n f`. -/
+theorem projInfInf_apply (f : DInfFn D₀ j₀) :
+    projInfInf D₀ j₀ f = ⨆ n, jInfTerm D₀ j₀ n f := by
+  show (sSup (Set.range (jInfTerm D₀ j₀)) : ScottMap _ _) f = _
+  rw [ScottMap.sSup_apply, ← Set.range_comp, sSup_range]
+  rfl
+
+/-- `i_∞` is Scott-continuous (it is a bundled `ScottMap`). -/
+theorem embInfInf_preservesDirectedSup :
+    PreservesDirectedSup (embInfInf D₀ j₀ : DInf D₀ j₀ → DInfFn D₀ j₀) :=
+  (proposition_2_5 _).mp (embInfInf D₀ j₀).continuous
+
+/-- `j_∞` is Scott-continuous (it is a bundled `ScottMap`). -/
+theorem projInfInf_preservesDirectedSup :
+    PreservesDirectedSup (projInfInf D₀ j₀ : DInfFn D₀ j₀ → DInf D₀ j₀) :=
+  (proposition_2_5 _).mp (projInfInf D₀ j₀).continuous
+
+end LimitMaps
+
 end Domain.ContinuousLattice
