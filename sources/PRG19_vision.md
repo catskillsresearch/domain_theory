@@ -1730,3 +1730,439 @@ $$
 $$
 
 for all $f : D \to D.$
+
+<!-- page 57 -->
+
+**Proof:** Formula (iii) can be put in a more elementary form:
+
+$$
+\mathrm{fix}(f) = \{ X \mid \Delta f^n X,\ \text{for some } n \in \mathbf{N} \}.
+$$
+
+To show an elementwise mapping approximable we can use the formula of Exercise 2.9, applied to the above as the definition of $\mathrm{fix}$:
+
+$$
+(*)\quad \mathrm{fix}(f) = \bigcup \{ \mathrm{fix}(\uparrow F) \mid f \in [F] \},
+$$
+
+where $F$ ranges over the neighbourhoods of $(D \to D)$, and where $\uparrow F$ can be considered to be the least element of $F$ as calculated in 3.9.
+
+Now from the definition of $\mathrm{fix}$, it is clear that whenever $f \subseteq g$, then $\mathrm{fix}(f) \subseteq \mathrm{fix}(g)$, because $f^n \subseteq g^n$. (That is, $\mathrm{fix}$ is obviously monotone.) Next, if $f \in F$, then $\uparrow F$ is a (finite) approximation to $f$; so $\uparrow F \subseteq f$ and $\mathrm{fix}(\uparrow F) \subseteq \mathrm{fix}(f)$. This means that half of equation (*) already holds by monotonicity. All that is left is to prove the other half.
+
+So suppose $X \in \mathrm{fix}(f)$. Then, as we have already remarked, there is a finite sequence of neighbourhoods where
+
+$$
+\Delta = X_0\ f\ X_1\ \dots\ X_{n-1}\ f\ X_n = X.
+$$
+
+Let the function-space neighbourhood be defined as
+
+$$
+F = \bigcap \{ [X_i, X_{i+1}] \mid i < n \},
+$$
+
+and note that since $f \in [F]$ we have at once consistency. But, by 3.9, $\uparrow F \in [F]$, so the *same* sequence of $X_i$ is sufficient to show that
+
+$$
+X \in \mathrm{fix}(\uparrow F).
+$$
+
+In other words, if $X$ belongs to the left-hand side of (*), it also belongs to the right-hand side. This completes the proof of (*).
+
+Formula (i) is just a restatement of what we proved in 4.1. And (ii) follows easily, because $f(x) \subseteq x$ implies that $\Delta \in x$ and whenever $X \in x$ and $X\ f\ Y$, then $Y \in x$. Thus, by induction, if $\Delta f^n X$, then $X \in x$. So $\mathrm{fix}(f) \subseteq x$.
+
+Finally, if $\mathrm{fax} : (D \to D) \to D$ were any other operator satisfying (i) and (ii), we would prove at once that
+
+$$
+\mathrm{fix}(f) \subseteq \mathrm{fax}(f) \quad \text{and}
+$$
+
+$$
+\mathrm{fax}(f) \subseteq \mathrm{fix}(f).
+$$
+
+That is to say, the two operators are identical. $\square$
+
+<!-- page 58 -->
+
+The reader may have noticed that we used recursion in the proof of 4.1 (we had to define $f^n$ for all $n \in \mathbf{N}$). But 4.1 and 4.2 can be used to justify definitions by recursion on a large number of domains — definitions where the process of iteration is far from being as straightforward. In discussing this point, let us start with some basic examples.
+
+**EXAMPLE 4.3.** The infinite generalization of our original example 1.2 is the system
+
+$$
+N = \{ \{n\} \mid n \in \mathbf{N} \} \cup \{ \mathbf{N} \}.
+$$
+
+The total elements are clearly in a one-one correspondence with the integers in $\mathbf{N}$. We can apply the construction of Exercise 3.16 to obtain a domain
+
+$$
+F = N^\infty.
+$$
+
+So we already know quite a bit about this domain — but it has a much more familiar presentation.
+
+Let $\Phi$ be the set of all *finite partial functions* $\varphi \subseteq \mathbf{N} \times \mathbf{N}$ (that is, finite sets of ordered pairs of integers where, if $(n,m) \in \varphi$ and $(n,m') \in \varphi$, then $m = m'$). Define
+
+$$
+\uparrow \varphi = \{ \psi \in \Phi \mid \varphi \subseteq \psi \}.
+$$
+
+Consider the neighbourhood system
+
+$$
+F' = \{ \uparrow \varphi \mid \varphi \in \Phi \}.
+$$
+
+It is an easy exercise to show that $F$ and $F'$ are isomorphic and that the elements of these domains correspond exactly to the (possibly infinite) *partial functions* $\pi \subseteq \mathbf{N} \times \mathbf{N}$. Moreover, the *total* elements just correspond to the *total* functions $\tau : \mathbf{N} \to \mathbf{N}$ ("function" in the ordinary, set-theoretical sense of the word).
+
+Another easy exercise is to show that the domains
+
+$$
+F \text{ and } (\mathbf{N} \to \mathbf{N})
+$$
+
+by our definitions are *NOT* isomorphic; though the two domains are closely related. We can define a mapping
+
+<!-- page 59 -->
+
+$$
+\mathrm{val} : F \times N \to N
+$$
+
+by the relationship
+
+$$
+\uparrow \phi \cup \{n\}\ \mathrm{val}\ \{m\} \quad \text{iff} \quad (n, m) \in \phi.
+$$
+
+(Of course $\mathrm{val}$ has to relate other neighbourhoods such as:
+
+$$
+\uparrow \phi \cup N\ \mathrm{val}\ N,
+$$
+
+but these are all.) It is then simple to prove that if $\pi \in |F|$ is regarded as a partial function $\pi : N \to N$ and if for $n \in N$ we define $\hat{n} \in |N|$ by
+
+$$
+\hat{n} = \{ \{n\}, N \},
+$$
+
+then we have
+
+$$
+\mathrm{val}(\pi, \hat{n}) = \widehat{\pi(n)}, \text{ if } \pi \text{ is defined at } n;
+$$
+
+$$
+\qquad\qquad\qquad\qquad = \{N\}, \text{ otherwise.}
+$$
+
+(Remember that $\{N\} \in |N|$ is the "undefined" element.) This means that
+
+$$
+\mathrm{curry}(\mathrm{val}) : F \to (N \to N)
+$$
+
+is a one-one function on elements. (The rather slight trouble with $(N \to N)$ is that it has *more* elements than $F$.)
+
+So much for the construction of $F$, we now wish to consider mappings
+
+$$
+f : F \to F
+$$
+
+and their uses. Consider the possibility
+
+$$
+f(\pi)(n) = 0, \qquad\qquad\qquad\qquad \text{if } n = 0;
+$$
+
+$$
+\qquad\qquad\qquad = \pi(n-1) + n-1, \text{ if } n > 0.
+$$
+
+If $\pi$ were a total function, then $f(\pi)$ would be total. But if $\pi$ is partial, and if it is, say, undefined at $k$, then $f(\pi)$ becomes undefined at $k + 1$. Note that $f(\pi)$ is always defined at $0$. Note, too, that $f$ is an approximable mapping because it is completely determined by what it does to finite (partial) functions. Indeed,
+
+$$
+f(\pi) = \bigcup \{ f(\phi) \mid \phi \subseteq \pi \},
+$$
+
+<!-- page 60 -->
+
+where $\phi$ ranges over $\Phi$.
+
+Well, we have proved that every approximable map of a domain into itself has a (*least*) fixed point. What is the least fixed point of this $f$? Suppose $\sigma = f(\sigma)$. Then $\sigma(0) = 0$, and
+
+$$
+\sigma(n + 1) = f(\sigma)(n + 1)
+$$
+
+$$
+= \sigma(n) + n.
+$$
+
+By induction, then
+
+$$
+\sigma(n) = \sum_{i < n} i
+$$
+
+and $\sigma$ is a total function. (Therefore, $f$ has a *unique* fixed point.)
+
+Actually, we can make the procedure more systematic by defining as fixed points elements of $(N \to N)$ rather than $F$. In the first place we have $\hat{0} \in |N|$, and from now on we will not distinguish between $n$ and $\hat{n}$. Next we have two mappings:
+
+$$
+\mathrm{succ}, \mathrm{pred} : N \to N
+$$
+
+where, as approximable mappings we have
+
+$$
+X\ \mathrm{succ}\ Y\ \mathrm{iff}\ \exists n \in N.\ n \in X\ \mathrm{and}\ n + 1 \in Y,
+$$
+
+$$
+X\ \mathrm{pred}\ Y\ \mathrm{iff}\ \exists n \in N.\ n + 1 \in X\ \mathrm{and}\ n \in Y,
+$$
+
+for all $X, Y \in N$. This is *correct*, but what we mean in more understandable terms is:
+
+$$
+\mathrm{succ}(n) = n + 1;
+$$
+
+$$
+\mathrm{pred}(n) = n - 1,\ \text{if}\ n > 0;
+$$
+
+$$
+\qquad\qquad = \bot,\ \text{if}\ n = 0.
+$$
+
+Here, $n$ has been identified with $\hat{n} \in |N|$ and $\bot = \{N\} \in |N|$. Moreover, we have a mapping
+
+$$
+\mathrm{zero} : N \to T
+$$
+
+which is such that
+
+$$
+\mathrm{zero}(n) = \text{true, if } n = 0;
+$$
+
+$$
+\qquad\qquad = \text{false, if } n > 0.
+$$
+
+The *structured domain*
+
+$$
+\langle N, 0, \mathrm{succ}, \mathrm{pred}, \mathrm{zero} \rangle
+$$
+
+<!-- page 61 -->
+
+can be called "THE domain of integers" for our present theory. We shall meet many other structured domains in the sequel.
+
+Now the iterated summation function $\sigma$ can be completely characterized — as a map $\sigma : N \to N$ rather than as an element $\sigma \in |F|$ — by the following equation:
+
+$$
+\sigma(n) = \mathrm{cond}(\mathrm{zero}(n),\ 0,\ \sigma(\mathrm{pred}(n)) + \mathrm{pred}(n)).
+$$
+
+The only problem is that we have not defined $+ : N \times N \to N$. (A direct definition is left to the reader; general remarks are given later.) But $+$ could be any function of two variables in order to make the point about the form of the definition of $\sigma$. Remember
+
+$$
+\mathrm{cond} : T \times N \times N \to N,
+$$
+
+as defined in Exercise 3.26. We do not put cond in as part of the structure of $N$ because (as should be clear from 3.26) it is part of the structure of $T$.
+
+The above equation for $\sigma$ is properly called a *functional equation*; it will be written as a fixed-point equation in Lecture V when we have the notation for the $\lambda$-calculus. $\square$
+
+**EXAMPLE 4.4.** The domain $C$ of finite or infinite binary sequences mentioned in Exercise 2.21 may be regarded as a generalization of $N$. This can be made plain by saying how we wish to regard $C$ as a structured domain. To do this we should recall what $C$ is as a neighbourhood system. In the first place
+
+$$
+B = \{ \sigma\Sigma^* \mid \sigma \in \Sigma^* \}
+$$
+
+where $\Sigma = \{0, 1\}$. To form the system $C$ we have
+
+$$
+C = B \cup \{ \{\sigma\} \mid \sigma \in \Sigma^* \}.
+$$
+
+The total elements of $B$ correspond to *infinite binary sequences*; while the total elements of $C$ to *finite or infinite sequences*. To simplify notation let us write for $\sigma \in \Sigma^*$
+
+$$
+\sigma = \uparrow \{\sigma\} \quad \text{(a total element);}
+$$
+
+$$
+\sigma\perp = \uparrow \sigma\Sigma^* \quad \text{(a partial element).}
+$$
+
+<!-- page 62 -->
+
+In other words we identify $\sigma$ with the corresponding total element in $|C|$.
+
+We wish now to think of $C$ as a structured domain seen as a kind of generalization of $N$. The empty sequence $\Lambda$ will play the rôle of $0 \in |N|$; the map succ has two different analogues for $C$, however. Just as for $B$ we define for $x \in |C|$ and $\sigma \in \Sigma^*$:
+
+$$
+\sigma x = \{ Y \mid \sigma X \subseteq Y \text{ some } X \in x \},
+$$
+
+where of course now $X$ and $Y$ range over $C$. It should be checked that $\sigma \tau$ has the right meaning whether we think of $\tau \in \Sigma^*$ or $\tau \in |C|$. The two "successor" mappings we are looking for are
+
+$$
+x \mapsto 0x \quad \text{and} \quad x \mapsto 1x.
+$$
+
+All the maps $x \mapsto \sigma x$ can be obtained as compositions of these iterated as many times as needed.
+
+Here are two questions which we now should ask:
+
+<u>What plays the rôle of pred?</u>
+
+The mapping will be called **tail**, and it is characterized by:
+
+$$
+\mathrm{tail}(0x) = x,
+$$
+
+$$
+\mathrm{tail}(1x) = x, \text{ and}
+$$
+
+$$
+\mathrm{tail}(\Lambda) = \perp.
+$$
+
+It is left to the reader to show that **tail** exists as an approximable mapping.
+
+<u>What plays the rôle of zero?</u>
+
+The answer is not unique, because in $C$ there are several distinctions that have to be made; in fact we will define three maps:
+
+$$
+\mathrm{empty}, \mathrm{zero}, \mathrm{one} : C \to T
+$$
+
+where the three maps take on truth-values to distinguish various kinds of elements in $|C|$ as follows:
+
+<!-- page 63 -->
+
+$$
+\begin{aligned}
+\mathrm{empty}\,(\Lambda) &= \mathrm{true}, \\
+\mathrm{empty}\,(0x) &= \mathrm{false}, \\
+\mathrm{empty}\,(1x) &= \mathrm{false}, \\
+\mathrm{zero}\,(\Lambda) &= \mathrm{false} \\
+\mathrm{zero}\,(0x) &= \mathrm{true} \\
+\mathrm{zero}\,(1x) &= \mathrm{false} \\
+\mathrm{one}\,(\Lambda) &= \mathrm{false} \\
+\mathrm{one}\,(0x) &= \mathrm{false} \\
+\mathrm{one}\,(1x) &= \mathrm{true}.
+\end{aligned}
+$$
+
+Again, it is an exercise to show these are approximable. The structured domain is therefore
+
+$$
+\langle C, \Lambda, 0, 1, \mathrm{tail}, \mathrm{empty}, \mathrm{zero}, \mathrm{one} \rangle.
+$$
+
+Note that we have changed the meaning of some of the symbols in passing from $N$ to $C$. Note too that there is a confusion between $0$ as an element and $0$ as the map $x \mapsto 0x$. There are just too few symbols! In any case this is only an example and not a philosophy of life, so the reader can be expected not to suffer too much.
+
+An example of a definition of an *element* of $|C|$ by a fixed-point equation is:
+
+$$
+a = 0\,1\,a.
+$$
+
+This equation has one and only one solution in $|C|$, the infinite sequence that alternates 0's and 1's. Note that $a$ is also characterized by:
+
+$$
+a = 0101a.
+$$
+
+Another element is
+
+$$
+b = 010\,b,
+$$
+
+which is quite different from $a$.
+
+An example of a *map* in $|C \to C|$ has the characterization
+
+$$
+\begin{aligned}
+d(\Lambda) &= \Lambda \\
+d(0x) &= 00d(x), \quad \text{and} \\
+d(1x) &= 11d(x).
+\end{aligned}
+$$
+
+We can write:
+
+<!-- page 64 -->
+
+$$
+\begin{aligned}
+d(x) &= \mathrm{cond}(\mathrm{empty}(x),\, \Lambda, \\
+&\qquad\qquad \mathrm{cond}(\mathrm{zero}(x),\, 00d(\mathrm{tail}(x)),\, 11d(\mathrm{tail}(x)))).
+\end{aligned}
+$$
+
+As we shall see in due course, this can be regarded as a fixed-point definition of $d$.
+
+An example of a map in $|C \times C \to C|$ was suggested in 2.21. We can write:
+
+$$
+\begin{aligned}
+xy &= \mathrm{cond}(\mathrm{empty}(x),\, y, \\
+&\qquad\qquad \mathrm{cond}(\mathrm{zero}(x),\, 0(\mathrm{tail}(x)\,y),\, 1(\mathrm{tail}(x)\,y))).
+\end{aligned}
+$$
+
+It should be checked that this equation exactly characterizes the intended mapping. $\square$
+
+The examples we have given with $N$ and $C$ are examples of definitions of functions by *recursion*. The literal meaning of “recursion” is “running backwards”, and a look at the equations for our examples will show that the functions are characterized by giving their values either *outright* (e.g. at $0$ or at $\Lambda$) or at *earlier* arguments (e.g. at $\mathrm{pred}(x)$ or at $\mathrm{tail}(x)$). The reader should keep in mind that a recursive “definition” is not really a definition in the sense of *explicit definition* but rather is a characterization; a theorem has to be proved to show that such functions exist. Now we have a general definition of domain and a general theorem on fixed points and a general construction of function-space domain; THEREFORE, we know that there are solutions to our equations PROVIDED THAT the variables range over elements of a domain and that the other, given functions that appear in the equations are already known to be approximable (continuous). This proviso is very important, and we shall remark on it time after time.
+
+But, as is well known, recursion also can be done over sets like $\mathbf{N}$, and we should examine now the connection between the familiar kind of recursion and what we are doing over domains. Of course, one simple connection is already provided by the way we regard $\mathbf{N}$ as a subset of $N$. But there are other useful connections that can be employed in a way that may seem more direct.
+
+<!-- page 65 -->
+
+**DEFINITION 4.5.** A structured set $\langle \mathbf{N}, 0, {}^+ \rangle$, where $0 \in \mathbf{N}$ and ${}^+ : \mathbf{N} \to \mathbf{N}$ is a unary function, is said to be a *model for Peano's Axioms* if the following conditions are satisfied:
+
+(i) $0 \neq n^+$, for all $n \in \mathbf{N}$;
+
+(ii) $n^+ = m^+$ implies $n = m$, for all $n, m \in \mathbf{N}$;
+
+(iii) whenever $x \subseteq \mathbf{N}$ and $0 \in x$ and $x^+ \subseteq x$, then $x = \mathbf{N}$.
+
+Here $x^+ = \{n^+ \mid n \in x\}$. $\square$
+
+Clause (iii) is recognized as the principle of <u>mathematical induction</u> stated in terms of sets. We usually think of $\mathbf{N}$ as being "God given", and (i)–(iii) as known without question. Suppose God, however, decides to withdraw His set of integers and substitute another. We can ask: "Oh! Why did You take from us our beloved numbers? Why must we now live with these strange new beasts?" God will probably reply "Trust Me!" Perhaps we should in view of the theorem:
+
+**THEOREM 4.6.** All models of Peano's Axioms are isomorphic.
+
+*Proof:* There are several ways to give the proof, but, for the sake of illustration, an application of the fixed-point theorem is appropriate here. Let $\langle \mathbf{N}, 0, {}^+ \rangle$ be one model, and let $\langle \mathbf{M}, \square, {}^\# \rangle$ be another. Let $\mathbf{N} \times \mathbf{M}$ be the ordinary cartesian product of the two sets and let
+
+$$
+P(\mathbf{N} \times \mathbf{M})
+$$
+
+be the powerset (set of all subsets) of $\mathbf{N} \times \mathbf{N}$. As in Exercises 1.15 and 2.20, we regard this set of elements as a domain, whose finite elements are just the finite subsets of the given set $\mathbf{N} \times \mathbf{M}$. The following mapping on $u \subseteq \mathbf{N} \times \mathbf{M}$ is easily proved approximable:
+
+$$
+u \mapsto \{(0, \square)\} \cup \{(n^+, m^\#) \mid (n, m) \in u\}.
+$$
+
+(This assertion should be checked as an exercise.) We thus let $r$ be the (least) fixed point:
+
+$$
+r = \{(0, \square)\} \cup \{(n^+, m^\#) \mid (n, m) \in r\}.
+$$
