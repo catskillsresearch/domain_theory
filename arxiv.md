@@ -26,7 +26,7 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **17 / 33** tracked numbered results are **Pass**, **8 Stuck**,
+correction is complete; **19 / 34** tracked numbered results are **Pass**, **7 Stuck**,
 **8 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -160,10 +160,10 @@ Scott's four section titles within Part I:
 | §4  | **Inverse limits**      | — (not started)                                                                                         |
 
 
-### 3.1 Report card (32 tracked results)
+### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **17 Pass · 8 Stuck · 8 Not Yet**.
+full deliverable. Score: **19 Pass · 7 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -186,9 +186,10 @@ full deliverable. Score: **17 Pass · 8 Stuck · 8 Not Yet**.
 | 2   | Prop 2.8  | `proposition_2_8`                                                                                                                 | `Constructions.lean`  | **Pass**    | finite lattices                      |
 | 2   | Prop 2.9(a) | `proposition_2_9_a`                                                                                                              | `Constructions.lean`  | **Pass**    | product of CLs is a CL (order content) |
 | 2   | Prop 2.9(b) | `proposition_2_9_b` (and bundled `proposition_2_9`)                                                                            | `Constructions.lean`  | **Pass**    | Scott top. of product = product of Scott tops. |
-| 2   | Prop 2.10 | `retr_ambientSSup_eq_sSup`                                                                                                       | `FunctionSpaces.lean` | **Stuck**   | Milner identity; full prop open      |
+| 2   | Prop 2.10(a) | `proposition_2_10_a`                                                                                                          | `FunctionSpaces.lean` | **Pass**    | retract of CL is a CL (order content) |
+| 2   | Prop 2.10(b) | `proposition_2_10_b` (and bundled `proposition_2_10`)                                                                        | `FunctionSpaces.lean` | **Pass**    | Scott top. of retract = subspace top. (Milner) |
 | 2   | Prop 2.11 | `proposition_2_11`                                                                                                                | `Constructions.lean`  | **Pass**    | CL injective (`scottExtend`)         |
-| 2   | Thm 2.12  | `theorem_2_12_forward`, `isContinuousLattice_prop`, `sierpinski_isInjective_and_isContinuousLattice`                             | `Constructions.lean`  | **Stuck**   | forward (CL⟹injective) done; backward (injective⟹CL) needs 2.10 |
+| 2   | Thm 2.12  | `theorem_2_12_forward`, `isContinuousLattice_prop`, `sierpinski_isInjective_and_isContinuousLattice`                             | `Constructions.lean`  | **Stuck**   | forward (CL⟹injective) done; backward (injective⟹CL) now needs only 1.6 (embed into power of 𝕆); retract step is 2.10 ✓ |
 | 3   | Prop 3.2  | `proposition_3_2`                                                                                                                | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Thm 3.3   | `theorem_3_3_sSup`, `theorem_3_3_sup`                                                                                            | `FunctionSpaces.lean` | **Stuck**   | pointwise sups only                  |
 | 3   | Cor 3.4   | `corollary_3_4`, `corollary_3_4_eval_on_C`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | fixed-`x` eval                       |
@@ -226,7 +227,7 @@ flowchart LR
   S1 -->|"2.11, 2.12"| S2
   S2 --> S3
   S3 -->|"3.8, 3.9"| S4
-  MIL -.->|"2.10, 3.3"| S2
+  MIL -.->|"3.3"| S2
   MIL -.-> S3
   S3 -.->|"retr_ambientSSup_eq_sSup"| S2
 ```
@@ -275,7 +276,8 @@ flowchart TD
   P28["proposition_2_8"]
   P29a["proposition_2_9_a (product is CL)"]
   P29b["proposition_2_9_b (Scott = product top.)"]
-  P210["proposition_2_10"]
+  P210a["proposition_2_10_a (retract is CL)"]
+  P210b["proposition_2_10_b (Scott = subspace top.)"]
   P210L["retr_ambientSSup_eq_sSup"]
   P211["proposition_2_11"]
   T212["theorem_2_12"]
@@ -291,11 +293,9 @@ flowchart TD
   D23 --> P28
   D23 --> P29a
   P29a --> P29b
-  D23 --> P210
-  P25 --> P210
-  MIL --> P210
-  P210L --> P210
-  P210 --> P211
+  D23 --> P210a
+  P210L --> P210a
+  P210a --> P210b
   P211 --> T212
   P12["proposition_1_2"] --> T212h
   T212h --> T212
@@ -502,6 +502,51 @@ recording the dead-ends so the next session does not re-pay the cost):
   lambda, so the goal is `(fun v => update z i v) (sSup T) j`; a `Function.update_self` rewrite only
   matches after a `show` (or `dsimp only`) forces the beta reduction to `Function.update z i (sSup T)`.
 
+#### Proposition 2.10 (a retract of a CL is a CL) — `proposition_2_10_a`, `proposition_2_10_b`
+
+Like 2.9, Scott's 2.10 bundles an order claim and a topology claim; we split it as
+`proposition_2_10_a` / `proposition_2_10_b` with the bundled `proposition_2_10`. A *retract* is the
+existing `IsContinuousLatticeRetraction D D'`: Scott maps `i : D → D'`, `j : D' → D` with
+`j ∘ i = id`. We take `D'` continuous and conclude both halves for `D`.
+
+The single engine is `retr_wayBelow_of_wayBelow_incl`: **`x' ≪ i(d)` in `D'` ⟹ `j(x') ≪ d` in
+`D`**. Witness the `D`-way-below by `i⁻¹V'` for an ambient Scott-open witness `V'` of `x' ≪ i(d)`
+(`i⁻¹V'` is Scott-open since `i` preserves directed sups, `scottOpen_preimage`); for `z ∈ i⁻¹V'`,
+`x' ⊑ i(z)` gives `j(x') ⊑ j(i(z)) = z`. With `sSup_image_retr_wayBelow`
+(`d = ⊔_D {j(x') : x' ≪ i(d)}`, from `j(⊔'S′) = ⊔S` + continuity of `D'`):
+  - **2.10(a).** Any upper bound `b` of `{x | x ≪ d}` dominates every `j(x')`, hence the supremum
+    `d`. (`IsLUB` is immediate.)
+  - **2.10(b).** `scott = induced i scott'`. The easy `scott ≤ induced` is `scottOpen_preimage`
+    again. The hard `induced ≤ scott` (Milner) shows the family `{i⁻¹(↟x') : x' ∈ D'}` is a
+    **basis** of `D`'s Scott topology: given Scott-open `U ∋ d`, the directed family
+    `{j(x') : x' ≪ i(d)}` (sup `d`) meets `U` at some `j(x')`, and `i⁻¹(↟x') ⊆ U` because
+    `x' ≪ i(z) ⟹ j(x') ⊑ z` and `U` is upper. Each `i⁻¹(↟x')` is induced-open by construction, so
+    every Scott-open is a union of induced-opens, i.e. induced-open.
+
+**Engineering notes / lessons from 2.10:**
+
+- *No projection, no Milner hypothesis needed.* Scott proves 2.10 for general retractions and only
+  needs *projections* later (for the function-space 3.7/3.9). The whole proof goes through with the
+  bare `IsContinuousLatticeRetraction` (Scott maps + `j ∘ i = id`); `incl_retr_le` is never used.
+  And, as with 2.9(b), the topology agreement is a genuine equality — `CoarserThanScottTopology`
+  does not appear. The Milner subtlety ("lubs in the subspace are *larger*, so a relativised open
+  need not be lattice-open") is dissolved by the retraction: `j(⊔S′) = ⊔S` realigns the inequality.
+- *Reuse the abstract structure instead of building a `CompleteLattice` on a subtype.* The tempting
+  faithful reading — fixed points `{x // j x = x}` of an idempotent Scott map, with transported
+  joins `sSup_K S = j(⊔' i''S)` — forces a hand-built `CompleteLattice` instance (every axiom, then
+  continuity, then topology) and is several hundred lines. Phrasing the retract as *its own* lattice
+  `D` with Scott maps to/from `D'` captures exactly the same content (`i` preserving directed sups
+  **is** the statement that `D`-joins are `j` of ambient joins) at a fraction of the cost.
+- *`isOpen_induced_iff` needs the codomain topology pinned.* `Eᵢ`/`D'` carry no `TopologicalSpace`
+  instance, so `rw [isOpen_induced_iff]` fails instance synthesis; supply `(t := scottTopologicalSpace)`
+  (same trick as 2.9(b)).
+- *`scottOpen_preimage` is the workhorse.* "Preimage of a Scott-open under a Scott map is Scott-open"
+  appears three times here (the way-below witness, and both topology inclusions). Packaging
+  `incl_preservesDirectedSup : PreservesDirectedSup ⇑i` once keeps the call sites clean.
+
+This unblocks the **backward half of Theorem 2.12** (injective ⟹ CL) at the *retract* level; what
+still remains for 2.12 backward is the embedding of an injective space into a power of `𝕆` (1.6).
+
 #### Keystones for 2.11: interpolation and the `↟a` basis — `WayBelow.lean`
 
 Two standard facts about `≪` that mathlib does not provide and that the capstone needs:
@@ -552,7 +597,7 @@ is a CL) plus transporting the lattice structure along a topological retract.
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
 | Medium   | **3.5** left curry                                                          | Composer 2.5                       |
-| Hard     | **2.10** full (retract-of-CL-is-CL), **2.12** backward, **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
+| Hard     | **2.12** backward (embed injective into power of 𝕆, then 2.10), **3.3** full, **3.10** converse, Scott §4 | Opus 4.8 (one theorem per session) |
 
 
 ---

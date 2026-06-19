@@ -334,7 +334,106 @@ theorem retr_ambientSSup_eq_sSup (R : IsContinuousLatticeRetraction D D') (S : S
   rw [Set.image_image, Set.image_congr fun a _ => R.retr_incl a]
   simp [Set.image_id]
 
+/-- The inclusion of a retraction preserves directed suprema (it is a Scott map). -/
+theorem incl_preservesDirectedSup (R : IsContinuousLatticeRetraction D D') :
+    PreservesDirectedSup (R.incl : D → D') :=
+  fun _ hS hSdir => R.incl.preservesDirectedSup_coe _ hS hSdir
+
+/-- **Heart of Scott's proof of 2.10.** If `x' ≪ i(d)` in the ambient continuous lattice `D'`,
+then its image `j(x')` is way below `d` in the retract `D`. The Scott-open witness in `D` is the
+preimage `i⁻¹V'` of an ambient Scott-open witness `V'` (Scott-open because `i` preserves directed
+suprema); for `z ∈ i⁻¹V'` we have `x' ⊑ i(z)`, hence `j(x') ⊑ j(i(z)) = z`. No projection
+hypothesis is needed — `j ∘ i = id` and monotonicity suffice. -/
+theorem retr_wayBelow_of_wayBelow_incl (R : IsContinuousLatticeRetraction D D')
+    {d : D} {x' : D'} (hx' : x' ≪ R.incl d) : R.retr x' ≪ d := by
+  obtain ⟨U', hU'open, hd_in, hU'sub⟩ := hx'
+  refine ⟨(R.incl : D → D') ⁻¹' U', scottOpen_preimage R.incl_preservesDirectedSup hU'open,
+    hd_in, fun z hz => ?_⟩
+  have hle : x' ≤ R.incl z := Set.mem_Ici.1 (hU'sub hz)
+  have hjle := R.retr.monotone hle
+  rw [R.retr_incl z] at hjle
+  exact Set.mem_Ici.2 hjle
+
+/-- For `d` in the retract, the ambient way-below set of `i(d)` pushed back by `j` is a directed
+family whose supremum (computed in `D`) is `d`. This is the identity `j(⊔S′) = ⊔S` applied to
+`S = {j(x') : x' ≪ i(d)}`, combined with continuity of `D'`. -/
+theorem sSup_image_retr_wayBelow (R : IsContinuousLatticeRetraction D D')
+    (hD' : IsContinuousLattice D') (d : D) :
+    sSup (Set.image (R.retr : D' → D) {x' | x' ≪ R.incl d}) = d := by
+  have hne : ({x' : D' | x' ≪ R.incl d}).Nonempty := ⟨⊥, bot_wayBelow _⟩
+  have hdir : DirectedOn (· ≤ ·) {x' : D' | x' ≪ R.incl d} := directedOn_wayBelow _
+  rw [← R.retr.preservesDirectedSup_coe _ hne hdir, hD'.sSup_wayBelow (R.incl d), R.retr_incl d]
+
+theorem image_retr_wayBelow_nonempty (R : IsContinuousLatticeRetraction D D') (d : D) :
+    (Set.image (R.retr : D' → D) {x' | x' ≪ R.incl d}).Nonempty :=
+  ⟨R.retr ⊥, ⊥, bot_wayBelow _, rfl⟩
+
+theorem image_retr_wayBelow_directed (R : IsContinuousLatticeRetraction D D') (d : D) :
+    DirectedOn (· ≤ ·) (Set.image (R.retr : D' → D) {x' | x' ≪ R.incl d}) := by
+  rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+  exact ⟨R.retr (a ⊔ b), ⟨a ⊔ b, WayBelow.sup ha hb, rfl⟩,
+    R.retr.monotone le_sup_left, R.retr.monotone le_sup_right⟩
+
 end IsContinuousLatticeRetraction
+
+/-! ### Proposition 2.10: a retract of a continuous lattice is a continuous lattice -/
+
+/-- **Scott 1972, Proposition 2.10(a).** A (Scott-continuous) retract of a continuous lattice is a
+continuous lattice. For `d ∈ D` we have, in the ambient `D'`, `i(d) = ⊔{x' | x' ≪ i(d)}`; applying
+the retraction `j` (which preserves this directed supremum) gives `d = ⊔{j(x') | x' ≪ i(d)}` in
+`D`, and each `j(x') ≪ d` by `retr_wayBelow_of_wayBelow_incl`. Hence any upper bound of
+`{x | x ≪ d}` dominates `d`, so `d = ⊔{x | x ≪ d}`. -/
+theorem proposition_2_10_a (R : IsContinuousLatticeRetraction D D')
+    (hD' : IsContinuousLattice D') : IsContinuousLattice D := by
+  intro d
+  refine ⟨fun x hx => hx.le, fun b hb => ?_⟩
+  rw [← R.sSup_image_retr_wayBelow hD' d]
+  exact sSup_le fun _ ⟨x', hx', hxeq⟩ => hxeq ▸ hb (R.retr_wayBelow_of_wayBelow_incl hx')
+
+/-- **Scott 1972, Proposition 2.10(b) (March 1972 / Milner correction).** The Scott topology of the
+retract `D` coincides with the subspace topology induced from the ambient `D'` along `i`.
+
+* `scott ≤ induced`: each induced-open `i⁻¹V'` is Scott-open in `D` because `i` is a Scott map.
+* `induced ≤ scott`: the sets `i⁻¹(↟x') = {z | x' ≪ i(z)}` (`x' ∈ D'`) are a basis of `D`'s Scott
+  topology — given a Scott-open `U ∋ d`, the directed family `{j(x') | x' ≪ i(d)}` (sup `d`) meets
+  `U` at some `j(x')`, and `i⁻¹(↟x') ⊆ U` since `x' ≪ i(z) ⟹ j(x') ⊑ z` with `U` upper. Each such
+  basic set is induced-open by construction, so every Scott-open of `D` is induced-open. -/
+theorem proposition_2_10_b (R : IsContinuousLatticeRetraction D D')
+    (hD' : IsContinuousLattice D') :
+    (scottTopologicalSpace : TopologicalSpace D) =
+      TopologicalSpace.induced (R.incl : D → D') scottTopologicalSpace := by
+  apply le_antisymm
+  · intro U hU
+    rw [isOpen_induced_iff (t := scottTopologicalSpace)] at hU
+    obtain ⟨V', hV'open, rfl⟩ := hU
+    rw [isOpen_iff_scottOpen] at hV'open ⊢
+    exact scottOpen_preimage R.incl_preservesDirectedSup hV'open
+  · intro U hU
+    rw [isOpen_iff_scottOpen] at hU
+    rw [@isOpen_iff_forall_mem_open _
+      (TopologicalSpace.induced (R.incl : D → D') scottTopologicalSpace)]
+    intro d hd
+    have hmem : sSup (Set.image (R.retr : D' → D) {x' | x' ≪ R.incl d}) ∈ U := by
+      rw [R.sSup_image_retr_wayBelow hD' d]; exact hd
+    obtain ⟨p, hp, hpU⟩ :=
+      hU.2 (R.image_retr_wayBelow_nonempty d) (R.image_retr_wayBelow_directed d) hmem
+    obtain ⟨x', hx', rfl⟩ := hp
+    refine ⟨(R.incl : D → D') ⁻¹' {z' | x' ≪ z'}, fun z hz => ?_, ?_, hx'⟩
+    · have hjle := R.retr.monotone (show x' ≤ R.incl z from (hz : x' ≪ R.incl z).le)
+      rw [R.retr_incl z] at hjle
+      exact hU.1 hjle hpU
+    · rw [isOpen_induced_iff (t := scottTopologicalSpace)]
+      exact ⟨{z' | x' ≪ z'}, isOpen_iff_scottOpen.mpr (scottOpen_wayBelow x'), rfl⟩
+
+/-- **Scott 1972, Proposition 2.10 (full statement).** A retract of a continuous lattice is a
+continuous lattice (`proposition_2_10_a`) whose Scott topology agrees with the subspace topology
+(`proposition_2_10_b`). -/
+theorem proposition_2_10 (R : IsContinuousLatticeRetraction D D')
+    (hD' : IsContinuousLattice D') :
+    IsContinuousLattice D ∧
+      (scottTopologicalSpace : TopologicalSpace D) =
+        TopologicalSpace.induced (R.incl : D → D') scottTopologicalSpace :=
+  ⟨proposition_2_10_a R hD', proposition_2_10_b R hD'⟩
 
 /-! ### Proposition 3.7 -/
 
