@@ -19,6 +19,15 @@ FILES = [
     "Domain/ContinuousLattice/MilnerCorrection.lean",
     "Domain/ContinuousLattice/Constructions.lean",
     "Domain/ContinuousLattice/FunctionSpaces.lean",
+    "Domain/ContinuousLattice/Theorem212.lean",
+    "Domain/ContinuousLattice/InverseLimits.lean",
+    "Domain/ContinuousLattice/FunctionSpaceTower.lean",
+    "Domain/Neighborhood/Basic.lean",
+    "Domain/Neighborhood/Example12.lean",
+    "Domain/Neighborhood/Example13.lean",
+    "Domain/Neighborhood/Example14.lean",
+    "Domain/Neighborhood/Example15.lean",
+    "Domain/Neighborhood/Exercise122.lean",
     "Domain/InfoSys.lean",
 ]
 

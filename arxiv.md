@@ -56,7 +56,9 @@ limits) is spelled out in §3.
 
 1. **Part I:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
   and partial §3–§4 spine in `Domain/ContinuousLattice/`.
-2. **Part II (planned):** PRG-19 neighborhood systems — stub module `Domain/Neighborhood/` (TBD).
+2. **Part II (live, §1 foundations):** PRG-19 neighborhood systems in `Domain/Neighborhood/` —
+  Defs 1.1/1.6/1.7/1.8-order, Theorem 1.1c, Examples 1.2–1.5, Factoids 1.1a–1.7b, Exercise 1.22
+  (topology on `|𝒟|`); **17 results**, §1 core audited choice-free (`[propext, Quot.sound]`).
 3. **Part III (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
   and `Domain/Constructive.lean`.
 4. **Part IV (planned):** functors and isomorphisms tying Parts I–III; constructive certification
@@ -68,7 +70,7 @@ limits) is spelled out in §3.
 | Part                             | Target fragment         | Typical axioms beyond `propext`, `Quot.sound`                                                                                                       |
 | -------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Part I (1972)**                | Classical / topological | `Classical.choice`; mathlib Scott topology, embeddings, Zorn where used                                                                             |
-| **Part II (1981)**               | Classical (expected)    | Choice for maximal/total elements; filter theory                                                                                                    |
+| **Part II (1981)**               | **§1 core constructive** | `[propext, Quot.sound]` for the §1 foundations (filters, principal filters, the `\|𝒟\|` topology); `Classical.choice` confined to total/maximal elements (Exercise 1.24) |
 | **Part III (1982)**              | **Fully constructive**  | **None** — audited choice-free `Finset` via `funion` (`Domain/Constructive.lean`)                                                                   |
 | **Part IV (equivalence finale)** | Mixed                   | Constructive on the 1981↔1982 and 1982↔ideal-completion legs; **classical frontier** on any 1972↔1982 bridge using compact-open / basis-of-compacts |
 
@@ -86,7 +88,7 @@ back to 1972.
 ```mermaid
 flowchart LR
   P1["Part I · 1972<br/>Continuous Lattices<br/><i>Domain/ContinuousLattice/</i>"]
-  P2["Part II · 1981<br/>Neighborhood Systems<br/><i>Domain/Neighborhood/ TBD</i>"]
+  P2["Part II · 1981<br/>Neighborhood Systems<br/><i>Domain/Neighborhood/ (§1 live)</i>"]
   P3["Part III · 1982<br/>Information Systems<br/><i>Domain/InfoSys.lean</i>"]
   P4["Part IV · Equivalence finale<br/><i>Domain/Equivalence/ TBD</i>"]
   C["Domain/Constructive.lean<br/>choice-free prelude"]
@@ -1100,9 +1102,10 @@ Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 ## 4. Part II — Scott 1981 PRG-19 (§1 foundations: live)
 
 **Source:** Scott, *Lectures on a Mathematical Theory of Computation*, Technical Monograph
-PRG-19, Oxford (May 1981), Lecture I *Domains given by neighbourhoods*. Vision OCR draft:
-`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (currently transcribed through **Definition
-1.9**, p. 16; OCR is ongoing and the Goal List below will grow as later pages land).
+PRG-19, Oxford (May 1981), Lectures I–III. Vision OCR draft:
+`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (now transcribed through **Lecture III**,
+≈1960 lines — all of Lecture I, II and III). The Goal List in §4.2 below is the **complete Lecture
+I (§1)** inventory; Lectures II (§2) and III (§3) are OCR'd and awaiting their own Goal Lists.
 
 **Constructivity:** the **§1 core is constructive.** Scott deliberately works with *partial*
 filters so the basic theory needs no maximal-filter existence (Zorn/choice); the **classical
@@ -1132,15 +1135,15 @@ each as a first-class deliverable, of four kinds:
 
 This is not yet a Lean *blueprint*; it is the incremental Goal List that precedes one.
 
-### 4.2 §1 Goal List (parsed through Def 1.9)
+### 4.2 Lecture I (§1) Goal List — complete inventory (all of Lecture I, through Exercise 1.27)
 
 **Status key:** **Pass** = stated and proved sorry-free; **Not Yet** = inventoried, not yet
-formalized; **Ref** = forward-referenced exercise whose statement is not yet on the transcribed
-pages.
+formalized. (The OCR now covers all of Lecture I, so there are no longer any **Ref** rows —
+every numbered item and exercise below has its statement transcribed.)
 
 | Scott (PRG-19 §1) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
-| **Def 1.1** | Definition | 115–119 | `NeighborhoodSystem` (`mem`, `master`, `master_mem`, `inter_mem`) | **Pass** |
+| **Def 1.1** | Definition | 115–119 | `NeighborhoodSystem` (`mem`, `master`, `master_mem`, `inter_mem`, `sub_master`) | **Pass** |
 | **Factoid 1.1a** | Factoid | 125–127 | `interUpTo`, `interUpTo_zero` (`⋂_{i<0} Xᵢ = Δ`) | **Pass** |
 | **Factoid 1.1b** | Factoid | 129–131 | `interUpTo_succ` (`⋂_{i<n+1} Xᵢ = (⋂_{i<n} Xᵢ) ∩ Xₙ`) | **Pass** |
 | **Theorem 1.1c** | Theorem | 133–137 | `interUpTo_mem` (extend (ii) to finite seqs) + `consistent_iff_interUpTo_mem` (consistency ⟺ `⋂ ∈ 𝒟`); aux `Consistent`, `interUpTo_subset` | **Pass** |
@@ -1152,11 +1155,9 @@ pages.
 | **Factoid 1.5a** | Factoid | 203–205 | in 1.5: `consistent_iff_inter_nonempty` (consistent ⟺ non-empty intersection); `𝒟` is a system | **Pass** |
 | **Factoid 1.5b** | Factoid | 227–233 | `limitFamily`, `SeqEquiv`, `limitFamily_eq_iff`: limit-family `x = {Z∈𝒟 ∣ ∃n, Xₙ⊆Z}` equal ⟺ sequences equivalent; choice-free | **Pass** |
 | **Def 1.6** | Definition | 235–243 | `Element` (filter: `sub`, `master_mem`, `inter_mem`, `up_mem`) + `Element.ext`; domain `\|𝒟\|` | **Pass** |
-| **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
-| **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}`; the finite elements | **Not Yet** |
-| **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** (`X⊆Y ⟺ ↑Y⊆↑X`) | **Not Yet** |
-| **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` | **Not Yet** |
-| **Exercise 1.21** | Exercise | 271 (ref) | makes "every element is a limit of finite elements" precise | **Ref** |
+| **Def 1.7** | Definition | 251–257 | `principal` `↑X = {Y∈𝒟 ∣ X⊆Y}` (`mem_principal`); the finite elements | **Pass** |
+| **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** — `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`) + `principal_injective` | **Pass** |
+| **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` — `eq_iUnion_principal` | **Pass** |
 | **Def 1.8 (order)** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` — `instance : PartialOrder Element` (choice-free `le_antisymm` via `Element.ext`) | **Pass** |
 | **Def 1.8 (⊥, total)** | Definition | 277 | abstract `⊥={Δ}=↑Δ`; total elements (classical frontier) | **Not Yet** |
 | **Factoid 1.8a** | Factoid | 277 | `⊥={Δ}=↑Δ` is the least element of `\|𝒟\|` | **Not Yet** |
@@ -1166,14 +1167,36 @@ pages.
 | **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` | **Not Yet** |
 | **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` | **Not Yet** |
 | **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` with `σₙ` initial segments (element = limit of finite approx.) | **Not Yet** |
-| **Exercise 1.1** | Exercise | 281 (ref) | generalize Example 1.3 | **Ref** |
 | **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` | **Not Yet** |
+| **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}`; `{[X] ∣ X∈𝒟}` is a nbhd system over `\|𝒟\|` with `𝒟 ≅ {[X]}` (one-one, inclusion-preserving; `[Δ]=\|𝒟\|`, `[X]∩[Y]=[X∩Y]`, `↑X∈[X]`). `[X]` exists as `basicOpen` (Ex 1.22); system+iso not built | **Not Yet** |
+| **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` and under ascending `⋃` (`x₀⊆x₁⊆⋯`) — each is again a filter | **Not Yet** |
+| **Exercise 1.12** | Exercise | 441–447 | `Δ=ℕ`, neighbourhoods = final segments `{n,n+1,…}`; generalizes Example 1.3 (= Scott's "Exercise 1.1" forward-ref at line 281) | **Not Yet** |
+| **Exercise 1.13** | Exercise | 449 | verify all assertions about the infinite binary system `B` (Example 1.B); picture with limit nodes | **Not Yet** |
+| **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; is a system; its total / finite elements | **Not Yet** |
+| **Exercise 1.15** | Exercise | 453 | construct non-isomorphic infinite domains, all elements finite, with no strictly ascending infinite chain | **Not Yet** |
+| **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆`; other `∩`-closed systems | **Not Yet** |
+| **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `{X ∣ t∈X}` is a filter; total elements | **Not Yet** |
+| **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (every finite subset consistent); pairwise-but-not-jointly example; least filter `⊇C`; `⋂` of filters is a filter | **Not Yet** |
+| **Exercise 1.19** | Exercise | 463–465 | *positive* nbhd system (ii′: `X∩Y≠∅ ⟺ X∩Y∈𝒟`); positive ⟹ system; a non-positive example (Hoare) | **Not Yet** |
+| **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}`; `𝒟'` positive; `\|𝒟\|≅\|𝒟'\|`; tokens ↔ finite elements one-one | **Not Yet** |
+| **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) the system `{[X]}` over `\|𝒟\|` is *positive* and *complete* (every filter *fixed* by a unique point); consistency `{Xᵢ ∣ i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅`; **needs Theorem 1.10** | **Not Yet** |
+| **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
+| **Exercise 1.23** | Exercise | 509–525 | countable `D` + decidable consistency ⟹ the greedy sequence `Yₙ` is a total element; all filters sequence-determined | **Not Yet** |
+| **Exercise 1.24** | Exercise | 527–529 | (set theorists) AC ⟹ every partial element extends to a total one; equivalent to AC? (union of a chain of filters is a filter) — **classical** | **Not Yet** |
+| **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` an ordinal, `𝒟 =` non-empty final segments; describe `\|𝒟\|`; are all elements finite? | **Not Yet** |
+| **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A`, `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}`; system; `\|𝒟\| ≅` ideals of `A` under `⊆` | **Not Yet** |
+| **Exercise 1.27** | Exercise | 541–561 | *bounded* `X⊆\|𝒟\|` (has an upper bound); further closure properties of domains on bounded sets | **Not Yet** |
 
-**Awaiting OCR (beyond p. 16, named in the prior handoff and the intro):** Theorem 1.10 (`[X]`,
-the element-token system), Theorem 1.11 (closure of `|𝒟|` under `⋂` and ascending `⋃`), the §1
-exercises' actual statements, and Exercise 2.22 (flagged in the Introduction, line 82, as
-material Scott intends to fold into the main text). These rows will be appended as the pages are
-transcribed.
+**Lecture I is now fully inventoried above** (Def 1.1 → Exercise 1.27). Scott's "Exercise 1.1"
+forward-reference (line 281, "Example 1.3 will be generalized in…") is an OCR garble for
+**Exercise 1.12** (`Δ=ℕ` final segments), the only exercise that generalizes Example 1.3; it is
+listed under its real number.
+
+**Beyond Lecture I — OCR complete, Goal List pending:** the transcript now also covers **Lecture II
+(§2, approximable mappings)** — Def 2.1, Props 2.2/2.6, Thms 2.5/2.7, Examples 2.3/2.4, Exercises
+2.8–2.22 — and **Lecture III (§3, constructions)** — Defs 3.1/3.3/3.8, Props 3.2/3.4/3.7/3.9, Lemma
+3.6, Thms 3.5/3.10–3.13, Exercises 3.14–3.16+. These are *not yet* broken out into Goal Lists (they
+would form new subsections §4.2.II / §4.2.III); see the note in §4.4.
 
 ### 4.3 §1 dependency (parsed so far)
 
@@ -1192,9 +1215,9 @@ flowchart TD
   F15b["Factoid 1.5b limitFamily_eq_iff ✓"]
   D16["Def 1.6 Element · Element.ext ✓"]
   D18o["Def 1.8 PartialOrder ✓"]
-  D17["Def 1.7 principal ↑X"]
-  F17a["Factoid 1.7a ↑ one-one, reversing"]
-  F17b["Factoid 1.7b x = ⋃ ↑X"]
+  D17["Def 1.7 principal ↑X ✓"]
+  F17a["Factoid 1.7a ↑ one-one, reversing ✓"]
+  F17b["Factoid 1.7b x = ⋃ ↑X ✓"]
   D18b["Def 1.8 ⊥ · total"]
   E122["Exercise 1.22 topology on |𝒟| · ⊑ = specialization ✓"]
 
@@ -1222,6 +1245,7 @@ flowchart TD
   D17 --> F17a
   D17 --> F17b
   D16 --> D18b
+  D17 --> D18b
   D16 --> E122
   D18o --> E122
 ```
@@ -1231,9 +1255,16 @@ flowchart TD
 
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
-| Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`)         |
+| Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
 | Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean`) |
-| Report card  | **14 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest queued |
+| Report card  | **17 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
+
+**Goal List coverage.** §4.2 is now the **complete Lecture I (§1)** inventory: Defs 1.1/1.6/1.7/1.8,
+Theorems 1.1c/1.10/1.11, Examples 1.2–1.5/1.B, all Factoids, and Exercises 1.12–1.27 (40 rows,
+17 Pass). **Lecture II (§2, approximable mappings)** and **Lecture III (§3, products / function
+spaces)** are fully OCR'd but not yet inventoried — they will become Goal Lists §4.2.II and §4.2.III
+(≈45 further items: Defs 2.1/3.1/3.3/3.8, Props 2.2/2.6/3.2/3.4/3.7/3.9, Lemma 3.6, Thms
+2.5/2.7/3.5/3.10–3.13, Examples 2.3/2.4, Exercises 2.8–2.22 and 3.14+).
 
 
 ### 4.5 Selected proof notes
@@ -1244,7 +1275,10 @@ flowchart TD
 the master neighbourhood `master` (Scott's `Δ`, kept as a field rather than hard-wired to
 `Set.univ`, for fidelity to the `Δ` notation), and Scott's two conditions: (i) `master_mem`
 (`Δ ∈ 𝒟`) and (ii) `inter_mem` (consistent binary intersections stay in `𝒟`, the witness
-`Z ⊆ X ∩ Y` passed explicitly). Scott's recursive **convention** for the finite intersection
+`Z ⊆ X ∩ Y` passed explicitly). A fourth field `sub_master` records Scott's standing assumption
+`𝒟 ⊆ 𝒫(Δ)` (every neighbourhood `X ⊆ Δ`); it is what gives the principal filter `↑X` its top
+element `Δ` (Def 1.7) and underlies `⊥ = ↑Δ` (Def 1.8). Each finite example supplies it as
+`fun _ => Set.subset_univ _` (their `master` is `Set.univ`). Scott's recursive **convention** for the finite intersection
 `⋂_{i<n} Xᵢ` is the `def interUpTo` (`0 ↦ Δ`, `n+1 ↦ interUpTo n ∩ Xₙ`); **Factoids 1.1a/1.1b**
 are its two defining equations, both `rfl`.
 
@@ -1365,6 +1399,28 @@ deep") when `∀ m, ∃ n, Xₙ ⊆ Yₘ` and `∀ n, ∃ m, Yₘ ⊆ Xₙ`. `li
 each `Yₘ ∈ limitFamily Y` through the family equality to extract `Xₙ ⊆ Yₘ` (and symmetrically);
 `←` chains `Yₘ ⊆ Xₙ ⊆ Z` (and symmetrically) via transitivity. Antitonicity of the sequences is not
 needed for the criterion itself. Footprint `[propext, Quot.sound]`.
+
+#### Definition 1.7 / Factoids 1.7a, 1.7b (principal filters `↑X`) — `principal`, `principal_le_iff`, `principal_injective`, `eq_iUnion_principal` (`Basic.lean`)
+
+Scott's *principal filter* `↑X = {Y ∈ 𝒟 ∣ X ⊆ Y}` is `principal (hX : V.mem X) : V.Element`,
+with `mem Y := V.mem Y ∧ X ⊆ Y`. The four filter laws: `sub` is the first projection;
+`master_mem = ⟨V.master_mem, V.sub_master hX⟩` (this is where the new `sub_master` field earns its
+keep — `X ⊆ Δ`); `inter_mem` combines `Set.subset_inter` (from `X ⊆ Y₁`, `X ⊆ Y₂`) with one use of
+`V.inter_mem`, taking `X` itself as the consistency witness `X ⊆ Y₁ ∩ Y₂`; `up_mem` is `⊆`
+transitivity. `mem_principal` is the membership `rfl`-unfolding.
+
+**Factoid 1.7a (one-one + inclusion-reversing).** `principal_le_iff`:
+`↑X ⊑ ↑Y ↔ Y ⊆ X` — Scott's `X ⊆ Y ⟺ ↑Y ⊑ ↑X`, the **variance flip** (smaller neighbourhood ⇒
+larger principal filter ⇒ more information). `→` evaluates `⊑` at the token `X` (using `X ∈ ↑X`
+since `X ⊆ X`) and reads `Y ⊆ X` off `X ∈ ↑Y`; `←` chains `Y ⊆ X ⊆ Z`. Injectivity
+`principal_injective` (`↑X = ↑Y ⟹ X = Y`) feeds both `le_of_eq` directions through
+`principal_le_iff` into `Set.Subset.antisymm`.
+
+**Factoid 1.7b (density of finite elements).** `eq_iUnion_principal`:
+`x.mem Z ↔ ∃ X, ∃ hX : x.mem X, (↑X).mem Z` — Scott's `x = ⋃ {↑X ∣ X ∈ x}` written as union
+membership (concrete, avoiding `⋃` over a `Set (Set α)`). `→` uses `X = Z` (`Z ∈ ↑Z`); `←` is one
+application of upward closure `x.up_mem` (`X ⊆ Z` with `Z ∈ 𝒟`). All five declarations audit to
+`[propext, Quot.sound]`.
 
 #### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
 
@@ -1617,13 +1673,22 @@ produce `**arxiv_with_code.md`**, which inlines the full source below this narra
 | 7   | `[Domain/ContinuousLattice/MilnerCorrection.lean](Domain/ContinuousLattice/MilnerCorrection.lean)` | March 1972 Milner hypothesis                               |
 | 8   | `[Domain/ContinuousLattice/Constructions.lean](Domain/ContinuousLattice/Constructions.lean)`       | Part I, Scott §2.8–2.12 (partial)                          |
 | 9   | `[Domain/ContinuousLattice/FunctionSpaces.lean](Domain/ContinuousLattice/FunctionSpaces.lean)`     | Part I, Scott §3 (+ 2.10 lemma)                            |
-| 10  | `[Domain/InfoSys.lean](Domain/InfoSys.lean)`                                                       | Part III core (stub)                                       |
+| 10  | `[Domain/ContinuousLattice/Theorem212.lean](Domain/ContinuousLattice/Theorem212.lean)`             | Part I, Scott §2: Theorem 2.12 (injective ⟺ continuous lattice) |
+| 11  | `[Domain/ContinuousLattice/InverseLimits.lean](Domain/ContinuousLattice/InverseLimits.lean)`       | Part I, Scott §4: Prop 4.1 (inverse limits `D∞`)           |
+| 12  | `[Domain/ContinuousLattice/FunctionSpaceTower.lean](Domain/ContinuousLattice/FunctionSpaceTower.lean)` | Part I, Scott §4: Theorem 4.4 (`D∞ ≅ [D∞ → D∞]`)       |
+| 13  | `[Domain/Neighborhood/Basic.lean](Domain/Neighborhood/Basic.lean)`                                 | Part II, Scott §1: `NeighborhoodSystem`, `Element`, `principal` (Defs 1.1/1.6/1.7/1.8-order, Thm 1.1c, Factoids) |
+| 14  | `[Domain/Neighborhood/Example12.lean](Domain/Neighborhood/Example12.lean)`                         | Part II, Scott §1: Example 1.2 (fork)                      |
+| 15  | `[Domain/Neighborhood/Example13.lean](Domain/Neighborhood/Example13.lean)`                         | Part II, Scott §1: Example 1.3 (chain)                     |
+| 16  | `[Domain/Neighborhood/Example14.lean](Domain/Neighborhood/Example14.lean)`                         | Part II, Scott §1: Example 1.4 (binary tree)               |
+| 17  | `[Domain/Neighborhood/Example15.lean](Domain/Neighborhood/Example15.lean)`                         | Part II, Scott §1: Example 1.5 / Factoid 1.5a              |
+| 18  | `[Domain/Neighborhood/Exercise122.lean](Domain/Neighborhood/Exercise122.lean)`                     | Part II, Scott §1: Exercise 1.22 (topology on `\|𝒟\|`)     |
+| 19  | `[Domain/InfoSys.lean](Domain/InfoSys.lean)`                                                       | Part III core (stub)                                       |
 
 
 **Vision / OCR sources (not inlined by script):**
 
 - `[sources/ScottContinLatt1972_vision.md](sources/ScottContinLatt1972_vision.md)` — Part I transcript + inventory
-- `[sources/PRG19.md](sources/PRG19.md)` — Part II OCR draft
+- `[sources/PRG19_vision.md](sources/PRG19_vision.md)` — Part II OCR draft
 - `[sources/Domains_for_Denotational_Semantics.md](sources/Domains_for_Denotational_Semantics.md)` — Part III OCR draft
 
 **Build:** `lake build Domain` (target: sorry-free).

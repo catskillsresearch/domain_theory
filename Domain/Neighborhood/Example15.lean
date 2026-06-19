@@ -38,6 +38,7 @@ def neighborhoodSystem : NeighborhoodSystem Token where
   mem X := X.Nonempty
   master := master
   master_mem := by rw [master]; exact Set.univ_nonempty
+  sub_master := fun _ => Set.subset_univ _
   inter_mem := by
     intro X Y Z _ _ hZ hZsub
     obtain ⟨z, hz⟩ := hZ

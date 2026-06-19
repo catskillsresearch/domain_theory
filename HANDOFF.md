@@ -1,4 +1,4 @@
-# Handoff — Part II, Scott 1981 (PRG-19): Definition 1.7 + Factoids 1.7a/1.7b
+# Handoff — Part II, Scott 1981 (PRG-19): Definition 1.8 (⊥, total) + Factoids 1.8a/1.8b
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (Technical Monograph PRG-19, "the blue pamphlet") in:
@@ -7,39 +7,119 @@ Computation* (Technical Monograph PRG-19, "the blue pamphlet") in:
 
 **Part I (Scott 1972, *Continuous Lattices*) is complete: 38 Pass · 0 Stuck · 0 Not Yet.**
 
-**Just landed (last session): Exercise 1.22** — the topology on `|𝒟|` via the basic opens
-`[X] = {x ∣ X ∈ x}` (`Domain/Neighborhood/Exercise122.lean`): `basicOpen`,
-`instTopologicalSpaceElement`, `isOpen_basicOpen`, the open-set characterization
-`isOpen_iff_upper_basic` (Scott's (i) ⊑-upper ∧ (ii) basic-nbhd), the specialization-order
-characterization `le_iff_isOpen_imp` (Scott's (iii)), and the Mathlib bridge `specializes_iff_le`
-(`y ⤳ x ↔ x ⊑ y`). Core results audit to `[propext, Quot.sound]`; only the optional `⤳` bridge
-pulls `Classical.choice`. **→ 14 Pass.** Report card updated in `arxiv.md §4.2/4.3/4.4/4.5`.
-
 **Part II is live.** The §1 Goal List in `arxiv.md §4` tracks a *biblical*, line-by-line parse of
 PRG-19 Lecture I: Definitions, Theorems, **Factoids** (unnamed prose assertions), **Examples**, and
 **Exercises** are all first-class deliverables. **Proof notes** in `arxiv.md §4.5` are part of the
 monograph deliverable — update them as each result lands.
 
-**Your task this session:** formalize **Definition 1.7** (principal filters `↑X`) and the two
-"obvious" Factoids about them, **1.7a** (the map `X ↦ ↑X` is one-one and inclusion-*reversing*) and
-**1.7b** (`x = ⋃ {↑X ∣ X ∈ x}` for every element `x`). These are general **core** results → put
-them in `Basic.lean` and keep them **constructive** (`[propext, Quot.sound]`).
+**Just landed (last sessions):**
+- **Exercise 1.22** — topology on `|𝒟|` (`Exercise122.lean`): `basicOpen [X]`,
+  `instTopologicalSpaceElement`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le`.
+- **Def 1.7 + Factoids 1.7a/1.7b** — principal filters (`Basic.lean`): `principal` (`↑X`),
+  `mem_principal`, `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`, inclusion-reversing), `principal_injective`,
+  `eq_iUnion_principal` (`x = ⋃{↑X∣X∈x}`). **All constructive `[propext, Quot.sound]`.**
+- **Structure change:** `NeighborhoodSystem` gained a field `sub_master : ∀ {X}, mem X → X ⊆ master`
+  (Scott's `𝒟 ⊆ 𝒫(Δ)`). `ofNestedOrDisjoint` takes it as an argument; Examples 1.2–1.5 supply
+  `fun _ => Set.subset_univ _`. **This unblocks `⊥ = ↑Δ`.**
+
+**→ 17 Pass.** `lake build Domain` is green.
+
+**Your task this session:** formalize **Definition 1.8's `⊥` and total elements**, plus the two
+Factoids around it: **1.8a** (`⊥ = {Δ} = ↑Δ` is the least element of `|𝒟|`) and **1.8b** (in a
+*finite* system every explicitly given filter is principal — "Examples 1.2–1.5 revisited"). The
+approximation order itself (Def 1.8's `x ⊑ y ⟺ x ⊆ y`) is **already done** (`PartialOrder Element`).
 
 ---
 
 ## Hard constraints
 
 - **Zero `sorry`s.** Everything must compile under `lake build`.
-- **Axiom footprint:** Def 1.7 / Factoids 1.7a/1.7b are §1 *core* → keep **constructive**
-  (`[propext, Quot.sound]`). No `fin_cases`/`decide`/classical `simp`. Audit with `#print axioms`
-  in a scratch file, then delete it.
+- **Axiom footprint:** `⊥` and Factoid 1.8a are §1 *core* → keep **constructive**
+  (`[propext, Quot.sound]`). Audit with `#print axioms` in a scratch file, then delete it.
+  - **The total/maximal-element notion is the classical frontier** (Scott: maximal filters need
+    Zorn/choice in general). Defining the *predicate* `IsTotal x := ∀ y, x ≤ y → y ≤ x` (maximal) is
+    constructive; only *existence* of total extensions (Exercise 1.24) needs choice. Do **not** prove
+    existence this session.
+  - Factoid 1.8b is about *finite* systems; if it drags in `Fintype`/`Classical`, scope it to a
+    clearly-labelled lemma and note the footprint (it is a "revisited" remark, not §1 core proper).
 - **Do not commit or push** unless explicitly asked.
 - **Minimize scope:** add to `Domain/Neighborhood/Basic.lean` (general, parametric in `α`/`V`).
-- **Read the source first:** `sources/PRG19_vision.md` lines 251–269 (Def 1.7 at 251–257, Factoid
-  1.7a "obvious … one-one & reversing" at 259–265, Factoid 1.7b "also obvious" at 265–269).
-- **Update docs on completion:** mark Def 1.7 / Factoids 1.7a/1.7b **Pass** in `arxiv.md §4.2`,
-  refresh §4.3 graph and §4.4 tally (**→ 16 Pass**), add §4.5 proof notes. Rewrite this
-  `HANDOFF.md` for the next item.
+- **Read the source first:** `sources/PRG19_vision.md` line 277 (Def 1.8) and 279 (Examples revisited
+  = Factoid 1.8b). `⊥ = {Δ}`; total = maximal under `⊑`.
+- **Update docs on completion:** mark Def 1.8 (⊥/total) / Factoids 1.8a/1.8b **Pass** in
+  `arxiv.md §4.2`, refresh §4.3 graph and §4.4 tally, add §4.5 proof notes. Rewrite this
+  `HANDOFF.md` for the next item (Example 1.B, or Def 1.9 isomorphism).
+
+---
+
+## The mathematics — Definition 1.8 (vision OCR)
+
+Scott (line 277):
+
+> **DEFINITION 1.8.** For `x, y ∈ |𝒟|`, we say that `x` *approximates* `y` iff `x ⊆ y`. The element
+> that approximates all others, `{Δ}`, is called `⊥` (read: *bottom*); it is the "least defined"
+> element… Elements maximal with respect to the approximation relation are called *total elements*.
+
+Examples revisited (line 279, **Factoid 1.8b**):
+
+> The examples as given were all finite, so any explicitly given filter `x` is principal, the element
+> is finite, the minimal `X ∈ x` tells us all we need to know.
+
+### Notes on the formalization
+
+1. **`⊥ = ↑Δ` (`bot`).** Define `bot : V.Element := V.principal V.master_mem` — Scott's `{Δ}`.
+   Sanity factoid: `(V.bot).mem Y ↔ Y = V.master` (forward: `bot.mem Y` gives `V.mem Y ∧ Δ ⊆ Y`, and
+   `V.sub_master` gives `Y ⊆ Δ`, so `Y = Δ` by `Set.Subset.antisymm`; backward: `Y = Δ` gives
+   `⟨V.master_mem, subset_rfl⟩`). So `↑Δ = {Δ}` literally, matching Scott.
+2. **Factoid 1.8a (`⊥` is least).** `bot_le : ∀ x : V.Element, V.bot ≤ x`. Given `bot.mem Y` =
+   `V.mem Y ∧ Δ ⊆ Y`, conclude `x.mem Y` from `x.master_mem` (`Δ ∈ x`) + `x.up_mem` along `Δ ⊆ Y`.
+   Consider also giving `OrderBot V.Element` (with `bot := V.bot`, `bot_le := bot_le`) so `⊥` notation
+   works — check it stays `[propext, Quot.sound]`.
+3. **Total elements.** `def IsTotal (x : V.Element) : Prop := ∀ y, x ≤ y → y ≤ x` (maximal). Keep it a
+   predicate; the *existence* of total elements above a given `x` is Exercise 1.24 (choice) — out of
+   scope. You can sanity-check `IsTotal` against the finite examples (their maximal filters
+   `elemXY_maximal` are already proved) if cheap, but it is optional.
+4. **Factoid 1.8b (finite ⟹ principal).** "Every explicitly given filter is principal." The honest
+   general statement needs a finiteness hypothesis (e.g. `x` has a least/`⊆`-minimal member `X` with
+   `x = ↑X`). Likely cleanest: assume the filter's neighbourhood family has a minimum and show
+   `x = principal`. If this balloons, scope it narrowly or defer with a note — it is a "revisited"
+   remark, not a numbered result.
+
+### Report-card target
+
+| # | Scott | Lean target | Notes |
+| - | ----- | ----------- | ----- |
+| 1 | Def 1.8 `⊥` | `bot : V.Element` (`= principal master_mem`); `mem_bot` (`↑Δ = {Δ}`) | core, constructive |
+| 2 | Factoid 1.8a | `bot_le` (+ optional `OrderBot Element`) | `⊥` least |
+| 3 | Def 1.8 total | `IsTotal x := ∀ y, x ≤ y → y ≤ x` | predicate only; no existence |
+| 4 | Factoid 1.8b | finite ⟹ principal (scoped/optional) | classical frontier OK if needed |
+
+---
+
+## Pitfalls
+
+1. **`sub_master` is now available** (the previous blocker is gone): `V.sub_master hX : X ⊆ Δ`. Use it
+   for `↑Δ = {Δ}`.
+2. **Stay constructive for `⊥`/1.8a.** Use `Set.Subset.antisymm`, `Element.ext`, `x.up_mem`; avoid
+   classical `simp`. Verify `#print axioms` ⊆ `{propext, Quot.sound}`.
+3. **Don't prove maximal-element *existence*.** Only the *predicate*. Existence (Exercise 1.24) is
+   explicitly choice-dependent and not this session.
+4. **Order direction.** `⊥ = ↑Δ` is the *largest* principal filter (`Δ` is the largest neighbourhood),
+   yet the *least* element — the information/inclusion reversal. Keep the variance straight
+   (`principal_le_iff` is the lemma that pins it down).
+
+---
+
+## Workflow
+
+1. Reread `sources/PRG19_vision.md` lines 277–279.
+2. Add `bot`, `mem_bot`, `bot_le` (and optional `OrderBot`), `IsTotal` to `Basic.lean`.
+3. Attempt Factoid 1.8b; scope or defer if it needs heavy finiteness machinery.
+4. `lake build Domain` (green); `#print axioms` audit via scratch file → core `[propext, Quot.sound]`;
+   delete scratch.
+5. Update `arxiv.md` (§4.2 Pass rows, §4.3 graph, §4.4 tally, §4.5 notes) and rewrite this
+   `HANDOFF.md` for the next item (**Example 1.B** binary sequences, lines 281–315; or **Def 1.9**
+   isomorphism, lines 321–322).
 
 ---
 
@@ -47,102 +127,29 @@ them in `Basic.lean` and keep them **constructive** (`[propext, Quot.sound]`).
 
 | Block | Status |
 | ----- | ------ |
-| Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`, ~880 lines and growing) |
+| Vision / OCR | Partial — through **Def 1.9** (`sources/PRG19_vision.md`) |
 | Lean modules | `Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean` |
-| Report card | **14 Pass** · rest queued (see `arxiv.md §4.2`) |
+| Report card | **17 Pass** · rest queued (see `arxiv.md §4.2`) |
 
 **Already Pass:**
 
 | Scott | Lean |
 | ----- | ---- |
-| Def 1.1 | `NeighborhoodSystem` |
+| Def 1.1 | `NeighborhoodSystem` (`mem`, `master`, `master_mem`, `inter_mem`, **`sub_master`**) |
 | Factoids 1.1a, 1.1b | `interUpTo`, `interUpTo_zero`, `interUpTo_succ` |
 | Theorem 1.1c | `interUpTo_mem`, `consistent_iff_interUpTo_mem`, `Consistent`, `interUpTo_subset` |
 | **Factoid 1.4a** | `NestedOrDisjoint`, `NeighborhoodSystem.ofNestedOrDisjoint` (choice-free) |
 | Def 1.6 | `Element`, `Element.ext` |
 | **Factoid 1.5b** | `limitFamily`, `SeqEquiv`, `limitFamily_eq_iff` (choice-free) |
+| **Def 1.7** | `principal` (`↑X`), `mem_principal` (choice-free) |
+| **Factoid 1.7a** | `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`), `principal_injective` (choice-free) |
+| **Factoid 1.7b** | `eq_iUnion_principal` (`x = ⋃{↑X∣X∈x}`, choice-free) |
 | Def 1.8 (order) | `instance : PartialOrder Element` (choice-free) |
 | Example 1.2 | `Example12.*` (fork, one partial / two total) |
 | Example 1.3 | `Example13.*` (chain, two partial / one total) |
 | Example 1.4 | `Example14.*` (binary tree, 7 filters, branching) |
-| **Example 1.5 / Factoid 1.5a** | `Example15.neighborhoodSystem` (all non-empty subsets of `Fin 4`), `consistent_iff_inter_nonempty` — fully constructive |
-| **Exercise 1.22** | `Exercise122.*`: topology on `\|𝒟\|` (`basicOpen [X]`, `instTopologicalSpaceElement`), open-set + specialization-order characterizations — core `[propext, Quot.sound]` |
-
-`lake build Domain` is green today.
-
----
-
-## The mathematics — Definition 1.7 + Factoids 1.7a/1.7b (vision OCR)
-
-Scott (lines 251–269):
-
-> **DEFINITION 1.7.** For `X ∈ 𝒟`, the *principal filter* determined by `X` is
-> `↑X = {Y ∈ 𝒟 ∣ X ⊆ Y}`. The principal filters form the *finite elements* of `|𝒟|`.
->
-> It is obvious that the correspondence between `X` and `↑X` is one-one and inclusion *reversing*:
-> `X ⊆ Y  iff  ↑Y ⊆ ↑X`, for all `X, Y ∈ 𝒟`.
->
-> … it is also obvious from the definitions that for each `x ∈ |𝒟|`,  `x = ⋃ {↑X ∣ X ∈ x}`.
-
-### Notes on the formalization
-
-1. **`↑X` is an `Element`.** For `X ∈ 𝒟`, `principal X` should be a `V.Element` with
-   `mem Y := V.mem Y ∧ X ⊆ Y`. Check the four filter fields:
-   - `sub`: `mem Y → V.mem Y` — first projection.
-   - `master_mem`: `X ⊆ master`. **You need `X ⊆ Δ` for all neighbourhoods.** Currently `master`
-     is an arbitrary field, *not* hard-wired to `Set.univ`, so `X ⊆ master` is **not** automatic.
-     Add a field/hypothesis or a lemma. Cleanest: it is reasonable to require neighbourhoods be
-     subsets of `Δ` — consider adding `sub_master : ∀ {X}, mem X → X ⊆ master` to
-     `NeighborhoodSystem` (Scott's `𝒟 ⊆ 𝒫(Δ)`), then revisit Examples 1.2–1.5 (each `master` is
-     `Set.univ`, so the new field is `fun _ => Set.subset_univ _`). **This is a structure change —
-     confirm with the user before doing it**, or instead state Factoid 1.7b/1.7a with an explicit
-     `X ⊆ master` hypothesis where needed and defer the structural fix.
-   - `inter_mem`: from `X ⊆ Y₁`, `X ⊆ Y₂` get `X ⊆ Y₁ ∩ Y₂` (`Set.subset_inter`); `V.mem (Y₁∩Y₂)`
-     via `V.inter_mem` with witness `X` (since `X ⊆ Y₁ ∩ Y₂`).
-   - `up_mem`: `X ⊆ Y ⊆ Z` ⟹ `X ⊆ Z` (transitivity).
-2. **Factoid 1.7a (one-one + reversing).** State as
-   `principal X ≤ principal Y ↔ Y ⊆ X` (the order on `Element` is inclusion of membership
-   predicates; recall `≤` here means `∀ Z, (principal X).mem Z → (principal Y).mem Z`). Injectivity
-   then follows: `principal X = principal Y → X = Y` (use antisymmetry / `Element.ext` + the iff).
-   Beware the **reversing** direction: `X ⊆ Y ↔ ↑Y ⊆ ↑X`.
-3. **Factoid 1.7b (`x = ⋃ ↑X`).** For `x : V.Element`, every `Z ∈ x` satisfies `Z ∈ ↑Z` (`Z ⊆ Z`)
-   and `Z ∈ x` is in the union; conversely if `Z ∈ ↑X` for some `X ∈ x` then `X ⊆ Z` and `X ∈ x`
-   so `Z ∈ x` by `up_mem`. Phrase the union membership concretely as
-   `x.mem Z ↔ ∃ X, x.mem X ∧ (principal X).mem Z` to avoid wrangling `⋃` over a `Set (Set α)`.
-
-### Report-card target (all **Pass**, sorry-free, constructive)
-
-| # | Scott | Lean target | Notes |
-| - | ----- | ----------- | ----- |
-| 1 | Def 1.7 | `principal : ∀ {X}, V.mem X → V.Element` | needs `X ⊆ master` (see pitfall) |
-| 2 | Factoid 1.7a | `principal_le_iff` (`↑X ≤ ↑Y ↔ Y ⊆ X`) + `principal_injective` | inclusion-reversing |
-| 3 | Factoid 1.7b | `eq_iUnion_principal` (`x.mem Z ↔ ∃ X, x.mem X ∧ X ⊆ Z`) | density of finite elements |
-
----
-
-## Pitfalls
-
-1. **`master = Set.univ` is not assumed.** The `principal` filter's `master_mem` field needs
-   `X ⊆ master`. Decide up front: (a) add `sub_master` to the `NeighborhoodSystem` structure (clean,
-   but touches Examples 1.2–1.5 — each supplies `fun _ => Set.subset_univ _`; **ask the user**), or
-   (b) thread an `X ⊆ V.master` hypothesis through the 1.7 lemmas. Option (a) is more faithful to
-   Scott (`𝒟 ⊆ 𝒫(Δ)`) and unblocks Def 1.8's `⊥ = ↑Δ`.
-2. **Stay constructive.** Use `Set.subset_inter`, `Set.Subset.trans`, `Element.ext`; avoid classical
-   `simp`. Verify `#print axioms` ⊆ `{propext, Quot.sound}`.
-3. **Order direction.** Scott's approximation order is inclusion; `↑` is inclusion-*reversing*, so
-   smaller neighbourhood ⇒ larger principal filter ⇒ more information. Keep the variance straight.
-
----
-
-## Workflow
-
-1. Reread `sources/PRG19_vision.md` lines 251–269.
-2. Decide the `master`/`sub_master` question (pitfall 1) — **ask the user if structural**.
-3. Add `principal`, `principal_le_iff`, `principal_injective`, `eq_iUnion_principal` to `Basic.lean`.
-4. `lake build Domain` (green); `#print axioms` audit via scratch file → `[propext, Quot.sound]`;
-   delete scratch.
-5. Update `arxiv.md` (§4.2 Pass rows, §4.3 graph, §4.4 tally **16 Pass**, §4.5 notes) and rewrite
-   this `HANDOFF.md` for the next item (Def 1.8 `⊥`/total, or Example 1.B binary sequences).
+| **Example 1.5 / Factoid 1.5a** | `Example15.*` (all non-empty subsets of `Fin 4`) — fully constructive |
+| **Exercise 1.22** | `Exercise122.*` (topology on `|𝒟|`; `⊑` = specialization order) |
 
 ---
 
@@ -150,11 +157,11 @@ Scott (lines 251–269):
 
 | Next item | Notes |
 | --------- | ----- |
-| **Def 1.8 (⊥, total)** | abstract `⊥ = {Δ} = ↑Δ` least element; total = maximal filters (classical frontier) |
-| **Factoids 1.8a/1.8b** | `⊥` is least; in finite systems every element is principal |
-| **Example 1.B** | binary sequences `B = {σΣ* ∣ σ∈Σ*}`, generalizing 1.4 (lines 281–315) |
-| **Def 1.9** | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` |
-| **Exercises 1.1, 1.21, 1.22** | statements to pin down as OCR exposes them |
+| **Example 1.B** | binary sequences `B = {σΣ* ∣ σ∈Σ*}`, generalizing 1.4 (lines 281–315); incl. `B`-is-a-system exercise, `σx∈|B|` exercise, `σ₀⊥⊆σ₁⊥ ⟺ initial segment`, `x = ⋃ₙ σₙ⊥` |
+| **Def 1.9** | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` (lines 321–322) |
+| **Theorem 1.10** | `[X]` element-token system (basic opens already in `Exercise122.lean`); `𝒟 ≅ {[X]}` |
+| **Theorem 1.11** | closure of `\|𝒟\|` under `⋂` and ascending `⋃` |
+| **Exercises 1.1, 1.21, 1.23–1.26** | statements as OCR exposes them |
 
 ---
 
@@ -162,12 +169,10 @@ Scott (lines 251–269):
 
 | File | Role |
 | ---- | ------ |
-| `sources/PRG19_vision.md` | **primary source** (lines 251–269) |
-| `Domain/Neighborhood/Basic.lean` | core: `NeighborhoodSystem`, `Element`, `Element.ext`, `PartialOrder`, `NestedOrDisjoint`/`ofNestedOrDisjoint`, `limitFamily`/`SeqEquiv`/`limitFamily_eq_iff` — **add Def 1.7 here** |
-| `Domain/Neighborhood/Example12.lean` | fork (two totals) |
-| `Domain/Neighborhood/Example13.lean` | chain (linear) |
-| `Domain/Neighborhood/Example14.lean` | binary tree (branching, 7 filters) |
-| `Domain/Neighborhood/Example15.lean` | all non-empty subsets of `Fin 4` (fully constructive) |
+| `sources/PRG19_vision.md` | **primary source** (Def 1.8 at line 277, Factoid 1.8b at 279) |
+| `Domain/Neighborhood/Basic.lean` | core: `NeighborhoodSystem` (+`sub_master`), `Element`/`Element.ext`, `PartialOrder`, `NestedOrDisjoint`/`ofNestedOrDisjoint`, `limitFamily`/`SeqEquiv`/`limitFamily_eq_iff`, **`principal`/`principal_le_iff`/`principal_injective`/`eq_iUnion_principal`** — **add `bot`/`IsTotal` here** |
+| `Domain/Neighborhood/Example12–15.lean` | the four finite worked examples (each now supplies `sub_master`) |
+| `Domain/Neighborhood/Exercise122.lean` | topology on `|𝒟|` (Exercise 1.22) |
 | `Domain.lean` | module index |
 | `arxiv.md` | Goal List (§4.2), dependency graph (§4.3), status (§4.4), proof notes (§4.5) |
 

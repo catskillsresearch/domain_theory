@@ -129,6 +129,7 @@ def neighborhoodSystem : NeighborhoodSystem Token where
   mem := mem
   master := master
   master_mem := mem_master
+  sub_master := fun _ => Set.subset_univ _
   inter_mem := by
     intro X Y Z hX hY hZ hZsub
     rcases inter_eq X Y hX hY with h | h | h
