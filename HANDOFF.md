@@ -6,20 +6,19 @@ Source OCR: `sources/ScottContinLatt1972_vision.md`. Narrative + tracker: `arxiv
 
 ## Status
 
-- Report card: **32 Pass · 0 Stuck · 3 Not Yet** (zero `sorry`s).
+- Report card: **33 Pass · 0 Stuck · 2 Not Yet** (zero `sorry`s).
 - HEAD `e344fc0`, working tree clean, `lake build` green.
 - Every proven result has axiom footprint `[propext, Classical.choice, Quot.sound]`.
-- Done through **§3 complete** and **§4.1–4.2**.
+- Done through **§3 complete** and **§4.1–4.3**.
 
 ## Remaining (Scott §4)
 
-- **Cor 4.3** — `D∞` is also the *direct* limit: for continuous `fₙ : Dₙ → D'` with
-  `fₙ = f_{n+1} ∘ iₙ`, define `f∞(x) = ⊔ₙ fₙ(xₙ)` with `fₙ = f∞ ∘ i_{n∞}`.
 - **Lemma 4.5** — (see source ~line 1260+).
 - **Thm 4.4** — capstone `D∞ ≅ [D∞ → D∞]` (solution of the domain equation), uses 3.7 + 4.x.
 
 `i_{n∞} / j_{∞n}` (now `embInf` / `projInf` in `InverseLimits.lean`, with towers `embLE` / `projLE`
-and component map `iComp`) are reused by 4.3 and 4.4.
+and component map `iComp`) are reused by 4.4. The direct-limit mediating map `coconeInf` (= `f∞`)
+and its universal property (`corollary_4_3`) are available for 4.4.
 
 ## Key reusable infrastructure
 
@@ -35,7 +34,10 @@ and component map `iComp`) are reused by 4.3 and 4.4.
   `coe_sSup_of_directed`, `inverseLimitRetraction`, `proposition_4_1`; **(4.2)** `embLE`/`projLE`
   towers (+ `_self`/`_succ`/`_succ_left`/`projLE_retr`/`projLE_compatible`/`embLE_le`), `iComp`
   (+ `iComp_self`/`iComp_compatible`/`iComp_incl_le`/`iComp_preservesDirectedSup`), `embInf`/`projInf`
-  ScottMaps, `proposition_4_2`, `embInf_succ` (recursion), `inverseLimit_eq_iSup` (monotone lub).
+  ScottMaps, `proposition_4_2`, `embInf_succ` (recursion), `inverseLimit_eq_iSup` (monotone lub);
+  **(4.3)** `coconeInf` (`f∞(x)=⊔ₙfₙ(xₙ)`) + `coconeInf_climb`/`coconeInf_descend`/
+  `coconeInf_comp_embInf` (factorization `fₙ=f∞∘i_{n∞}`)/`coconeInf_preservesDirectedSup`,
+  `corollary_4_3` (∃! continuous mediating map — the direct-limit universal property).
 
 ## Conventions / lessons that matter
 

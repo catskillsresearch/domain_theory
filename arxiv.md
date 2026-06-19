@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **32 Pass · 0 Stuck · 3 Not Yet**.
+full deliverable. Score: **33 Pass · 0 Stuck · 2 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -204,7 +204,7 @@ full deliverable. Score: **32 Pass · 0 Stuck · 3 Not Yet**.
 | 3   | Prop 3.14 | `proposition_3_14`, `Proposition314.fixMap`, `fix_eq`/`fix_le`/`fix_unique`                                                      | `FunctionSpaces.lean` | **Pass**    | continuous least-fixed-point op.     |
 | 4   | Prop 4.1  | `proposition_4_1`, `InverseLimit`, `inverseLimitRetraction`                                                                      | `InverseLimits.lean`  | **Pass**    | `D∞` is a continuous lattice         |
 | 4   | Prop 4.2  | `proposition_4_2`, `embInf`/`projInf`, `iComp`, `embInf_succ`, `inverseLimit_eq_iSup`                                            | `InverseLimits.lean`  | **Pass**    | `j_{∞n}` are projections; `i_{n∞}`, recursion, monotone lub |
-| 4   | Cor 4.3   | —                                                                                                                                | —                     | **Not Yet** |                                      |
+| 4   | Cor 4.3   | `corollary_4_3` (∃! mediating map), `coconeInf` (`f∞`), `coconeInf_comp_embInf`                                                  | `InverseLimits.lean`  | **Pass**    | `D∞` is also the *direct* limit      |
 | 4   | Thm 4.4   | —                                                                                                                                | —                     | **Not Yet** | `D∞ ≅ [D∞ → D∞]`                     |
 | 4   | Lemma 4.5 | —                                                                                                                                | —                     | **Not Yet** |                                      |
 
@@ -392,7 +392,7 @@ flowchart TD
   P210a["proposition_2_10_a (retract)"]
   P41["proposition_4_1 ✓"]
   P42["proposition_4_2 ✓"]
-  C43["corollary_4_3"]
+  C43["corollary_4_3 ✓"]
   L45["lemma_4_5"]
   T44["theorem_4_4"]
 
@@ -957,6 +957,29 @@ bare term-mode `:= Nat.leRecOn_self x` fails with "failed to elaborate eliminato
 definitional proof irrelevance means the towers do not depend on *which* `≤` proof is supplied, so the
 `rw` chains match across `le_refl`/`Nat.le_succ_of_le`/`Nat.le_of_succ_le` freely. The eliminator is
 invoked as `induction n, h using Nat.le_induction`. Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Corollary 4.3 (`D∞` is also the *direct* limit) — `corollary_4_3` (`InverseLimits.lean`)
+
+Where Prop 4.2 makes `D∞` the *inverse* (projective) limit, 4.3 is the dual universal property: it is
+the *direct* (injective) limit along the embeddings `iₙ`. Given any complete lattice `D'` and a
+**compatible cocone** of Scott maps `fₙ : Dₙ → D'` with `fₙ = f_{n+1}∘iₙ` (`hf`), the mediating map is
+`coconeInf f x = f∞(x) = ⨆ₙ fₙ(xₙ)`. We prove there is a **unique** continuous `f∞` with
+`fₙ = f∞∘i_{n∞}` (an `∃!` over `ScottMap (InverseLimit D P) D'`).
+
+- *Factorization* `coconeInf_comp_embInf`: `f∞(i_{n∞}(x)) = ⨆ₘ f_m(iComp n x m) = fₙ(x)` by
+  `le_antisymm`. The `≥` direction is `iComp_self` at `m = n`. For `≤`, the family `m ↦ f_m(iComp n x m)`
+  is dominated by `fₙ(x)`: above `n` it is *constant* `= fₙ(x)` (`coconeInf_climb`, `Nat.le_induction`
+  collapsing `f_{m+1}∘iₘ = f_m`), and below `n` it only decreases (`coconeInf_descend`: peel `projLE`
+  via `projLE_succ`, then `fₘ∘jₘ = f_{m+1}∘iₘ∘jₘ ⊑ f_{m+1}` by `incl_retr_le` + monotonicity).
+- *Continuity* `coconeInf_preservesDirectedSup`: needs **no** `hf`. For directed `S`, push the sup
+  through each coordinate (`eval_preservesDirectedSup`) and through each continuous `fₙ`
+  (`preservesDirectedSup_coe`, image of `S` directed under evaluation), then commute the resulting
+  double sup over `ℕ × S` with `iSup_comm` (rewriting images as subtype sups with `sSup_image'`).
+- *Uniqueness*: any continuous `g` with `fₙ = g∘i_{n∞}` satisfies `g(x) = g(⨆ₙ i_{n∞}(xₙ)) =
+  ⨆ₙ g(i_{n∞}(xₙ)) = ⨆ₙ fₙ(xₙ) = f∞(x)`, using `inverseLimit_eq_iSup` (4.2), continuity of `g` on the
+  directed family (`embInf_family_directed`), and `ScottMap.ext`.
+
+Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 
