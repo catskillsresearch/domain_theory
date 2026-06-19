@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **20 Pass · 6 Stuck · 8 Not Yet**.
+full deliverable. Score: **21 Pass · 6 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -191,7 +191,8 @@ full deliverable. Score: **20 Pass · 6 Stuck · 8 Not Yet**.
 | 2   | Prop 2.11 | `proposition_2_11`                                                                                                                | `Constructions.lean`  | **Pass**    | CL injective (`scottExtend`)         |
 | 2   | Thm 2.12  | `theorem_2_12`, `theorem_2_12_backward`, `theorem_2_12_forward`                                                                  | `Theorem212.lean`     | **Pass**    | full equivalence: `T₀`-space injective ⟺ homeomorphic to a CL under its Scott topology |
 | 3   | Prop 3.2  | `proposition_3_2`                                                                                                                | `FunctionSpaces.lean` | **Pass**    |                                      |
-| 3   | Thm 3.3   | `theorem_3_3_sSup`, `theorem_3_3_sup`                                                                                            | `FunctionSpaces.lean` | **Stuck**   | pointwise sups only                  |
+| 3   | Thm 3.3(a) | `theorem_3_3_isContinuousLattice` (+ `ScottMap.instCompleteLattice`, `stepMap`, `stepMap_wayBelow`, `stepMap_pointwise_sSup`) | `FunctionSpaces.lean` | **Pass**    | `[D→D']` is a CL (order content) via step functions |
+| 3   | Thm 3.3(b) | `theorem_3_3_sSup`, `theorem_3_3_sup`                                                                                          | `FunctionSpaces.lean` | **Stuck**   | lattice top. = product top. (topology content) |
 | 3   | Cor 3.4   | `corollary_3_4`, `corollary_3_4_eval_on_C`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | fixed-`x` eval                       |
 | 3   | Prop 3.5  | `scottLambdaAt`, `curry_right_preservesDirectedSup`                                                                              | `FunctionSpaces.lean` | **Stuck**   | right curry only                     |
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
@@ -327,7 +328,8 @@ flowchart TD
   P27["proposition_2_7_*"]
   P32["proposition_3_2"]
   T33c["theorem_3_3_sSup · theorem_3_3_sup"]
-  T33["theorem_3_3 full"]
+  T33a["theorem_3_3_isContinuousLattice (3.3a) · stepMap*"]
+  T33["theorem_3_3 full (3.3a+3.3b)"]
   C34x["corollary_3_4"]
   C34j["corollary_3_4 joint"]
   P35r["scottLambdaAt"]
@@ -347,9 +349,11 @@ flowchart TD
   P314["proposition_3_14"]
 
   P25 --> T33c
+  T33c --> T33a
+  P32 --> T33a
+  T33a --> T33
   P26 --> T33
   P27 --> T33
-  T33c --> T33
   T33 --> C34x
   P26 --> C34j
   T33 --> C34j
@@ -632,13 +636,54 @@ Both directions are now closed; `theorem_2_12` is the full biconditional:
   reverse arrow transfers injectivity across the homeomorphism via `IsInjectiveSpace.of_retract`.
 - Footprint `[propext, Classical.choice, Quot.sound]`.
 
+#### Theorem 3.3(a) (`[D → D']` is a continuous lattice) — `theorem_3_3_isContinuousLattice` (`FunctionSpaces.lean`)
+
+Scott's "pointwise" argument, in three movements.
+
+1. **Complete lattice on `[D → D']`.** `ScottMap D D'` is a genuine `def` (a subtype of
+   `D → D'`), so — unlike the `IdemFix` subtype trap of 2.12 — it carries *no* auto-synthesized
+   order/topology to fight. We register `instPartialOrder` (pointwise `≤`), `instSupSet`
+   (`sSupMaps F x = ⊔{g x | g ∈ F}`, which is itself a `ScottMap` because pointwise suprema of
+   Scott maps preserve directed sups), prove `isLUB_sSup`, and close with
+   `completeLatticeOfSup`. Crucially `sSup` here is *pointwise* (`sSup_apply` is `rfl`), matching
+   Scott's observation that **arbitrary** (not just directed) joins are computed pointwise — while
+   infima are *not* (derived as `⊔` of lower bounds by `completeLatticeOfSup`).
+2. **Step functions.** `ē[e,e'](x) = e'` if `e ≪ x` else `⊥`, encoded as `⨆ _ : e ≪ x, e'`
+   (`stepFun`) to dodge any `Decidable (e ≪ x)`. Scott-continuity of `stepFun` is exactly the
+   Scott-openness of the way-above set `{x | e ≪ x}` (`scottOpen_wayBelow`, true in *any* complete
+   lattice): inaccessibility of that open set supplies the member of a directed `S` realizing the
+   value.
+3. **Way-below + reconstruction.** `e' ≪ f e ⟹ ē[e,e'] ≪ f`, witnessed by the Scott-open
+   `{g | e' ≪ g e}` (open because joins are pointwise, so inaccessibility reduces to
+   `wayBelow_sSup_iff` in `D'`); this is the **topological** way-below of `WayBelow.lean`, so we
+   never need an order-theoretic ≪-characterization. And `f x = ⊔{e' | ∃ e ≪ x, e' ≪ f e}`
+   (`stepMap_pointwise_sSup`) follows from `x = ⊔{e ≪ x}` (continuity of `D`), `f` preserving that
+   directed sup, and `f x = ⊔{w ≪ f x}` (continuity of `D'`) + `wayBelow_sSup_iff`. Continuity of
+   `[D → D']` then drops out: any upper bound `g` of `{h ≪ f}` dominates every `ē[e,e'] ≪ f`, hence
+   pointwise `e' ≤ g x`, hence `f x = ⊔{…} ≤ g x`.
+
+**Engineering notes / lessons from 3.3(a):**
+
+- *Register the lattice as a real instance.* Because `ScottMap` is a plain `def`, a global
+  `CompleteLattice` instance is safe and makes `≪`, `ScottOpen`, and `IsContinuousLattice`
+  typecheck on the function space with no `@`/`letI` gymnastics — the opposite experience to the
+  `IdemFix` subtype.
+- *`⨆ _ : p, a` is the clean "indicator".* It is `a` when `p` holds (`iSup_pos`) and `⊥` otherwise
+  (`iSup_neg`), needs no `Decidable`, and commutes with the proofs cleanly.
+- *Topological ≪ is an asset, not a burden here.* Proving `ē[e,e'] ≪ f` by exhibiting one
+  Scott-open set is shorter than any directed-set argument; the lattice's pointwise `sSup` makes its
+  inaccessibility immediate.
+- The remaining **3.3(b)** (lattice topology of `[D → D']` = product / pointwise-convergence
+  topology) is the Milner-corrected topological half and stays open.
+- Footprint `[propext, Classical.choice, Quot.sound]`.
+
 ### 3.8 Part I — next work (Composer vs Opus)
 
 
 | Priority | Items                                                                       | Suggested agent                    |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------- |
 | Medium   | **3.5** left curry                                                          | Composer 2.5                       |
-| Hard     | **3.3** full, **3.10** converse, Scott §4                                   | Opus 4.8 (one theorem per session) |
+| Hard     | **3.3(b)** topology agreement, **3.10** converse, Scott §4                  | Opus 4.8 (one theorem per session) |
 
 
 ---

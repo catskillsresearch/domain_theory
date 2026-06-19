@@ -217,6 +217,46 @@ theorem sSupMaps_apply (F : Set (ScottMap D D')) (x : D) :
       sSup (Set.image (fun f : ScottMap D D' => (f : D → D') x) F) :=
   rfl
 
+/-! ### The complete lattice `[D → D']` (Theorem 3.3, order content)
+
+The pointwise order makes `ScottMap D D'` a partial order; `sSupMaps` gives suprema (pointwise,
+since directed *and* arbitrary suprema of Scott maps are computed pointwise — Theorem 3.3). By
+`completeLatticeOfSup` this is a complete lattice. Note infima are *not* pointwise (Scott's
+warning); `completeLatticeOfSup` derives them as `sSup` of lower bounds. -/
+
+instance instPartialOrder : PartialOrder (ScottMap D D') where
+  le := ScottMap.le
+  le_refl _ _ := le_refl _
+  le_trans _ _ _ hfg hgh x := le_trans (hfg x) (hgh x)
+  le_antisymm _ _ hfg hgf := ScottMap.ext fun x => le_antisymm (hfg x) (hgf x)
+
+theorem le_def {f g : ScottMap D D'} : f ≤ g ↔ ∀ x, (f : D → D') x ≤ g x := Iff.rfl
+
+noncomputable instance instSupSet : SupSet (ScottMap D D') := ⟨sSupMaps⟩
+
+theorem sSup_apply (F : Set (ScottMap D D')) (x : D) :
+    ((sSup F : ScottMap D D') : D → D') x =
+      sSup (Set.image (fun f : ScottMap D D' => (f : D → D') x) F) :=
+  rfl
+
+theorem isLUB_sSup (F : Set (ScottMap D D')) : IsLUB F (sSup F) := by
+  constructor
+  · intro f hf
+    rw [le_def]
+    intro x
+    rw [sSup_apply]
+    exact le_sSup (Set.mem_image_of_mem _ hf)
+  · intro g hg
+    rw [le_def]
+    intro x
+    rw [sSup_apply]
+    refine sSup_le ?_
+    rintro _ ⟨f, hfF, rfl⟩
+    exact (hg hfF) x
+
+noncomputable instance instCompleteLattice : CompleteLattice (ScottMap D D') :=
+  completeLatticeOfSup (ScottMap D D') isLUB_sSup
+
 end ScottMap
 
 /-! ### Theorem 3.3 (core) -/
@@ -230,6 +270,126 @@ noncomputable def theorem_3_3_sSup (F : Set (ScottMap D D')) : ScottMap D D' :=
 Scott-continuous. -/
 noncomputable def theorem_3_3_sup (f g : ScottMap D D') : ScottMap D D' :=
   ScottMap.sup f g
+
+/-! ### Theorem 3.3 (`[D → D']` is a continuous lattice)
+
+Scott's *step functions* `ē[e, e']` are the building blocks: `ē[e,e'](x) = e'` if `e ≪ x`, else
+`⊥`. We encode the conditional value as `⨆ _ : e ≪ x, e'` (which is `e'` when `e ≪ x` and `⊥`
+otherwise), avoiding any decidability assumption. Each step function is Scott-continuous (the
+way-above set `{x | e ≪ x}` is Scott-open), is way below `f` whenever `e' ≪ f e`, and `f` is the
+supremum of the step functions below it — whence `[D → D']` is a continuous lattice. -/
+
+/-- The (value of the) step function `ē[e, e']` at `x`: `e'` if `e ≪ x`, else `⊥`. -/
+noncomputable def stepFun (e : D) (e' : D') (x : D) : D' := ⨆ _ : e ≪ x, e'
+
+theorem stepFun_of_wayBelow {e : D} {e' : D'} {x : D} (h : e ≪ x) : stepFun e e' x = e' :=
+  iSup_pos h
+
+theorem stepFun_of_not_wayBelow {e : D} {e' : D'} {x : D} (h : ¬ e ≪ x) :
+    stepFun e e' x = ⊥ :=
+  iSup_neg h
+
+/-- Step functions are Scott-continuous: `{x | e ≪ x}` is Scott-open, so the conditional commutes
+with directed suprema. -/
+theorem stepFun_preservesDirectedSup (e : D) (e' : D') :
+    PreservesDirectedSup (stepFun e e') := by
+  intro S hS hSdir
+  show stepFun e e' (sSup S) = sSup (Set.image (stepFun e e') S)
+  by_cases h : e ≪ sSup S
+  · rw [stepFun_of_wayBelow h]
+    obtain ⟨s, hsS, hes⟩ := (scottOpen_wayBelow e).2 hS hSdir h
+    apply le_antisymm
+    · refine le_sSup_of_le (Set.mem_image_of_mem _ hsS) ?_
+      rw [stepFun_of_wayBelow hes]
+    · refine sSup_le ?_
+      rintro _ ⟨x, _, rfl⟩
+      exact iSup_le fun _ => le_rfl
+  · rw [stepFun_of_not_wayBelow h]
+    refine (sSup_eq_bot.2 ?_).symm
+    rintro _ ⟨x, hxS, rfl⟩
+    refine stepFun_of_not_wayBelow (fun hex => ?_)
+    exact h (hex.trans_le (le_sSup hxS))
+
+/-- The step function `ē[e, e']` as a Scott map. -/
+noncomputable def stepMap (e : D) (e' : D') : ScottMap D D' :=
+  ⟨stepFun e e', continuous_of_preservesDirectedSup (stepFun_preservesDirectedSup e e')⟩
+
+theorem stepMap_apply_of_wayBelow {e : D} {e' : D'} {x : D} (h : e ≪ x) :
+    (stepMap e e' : D → D') x = e' :=
+  stepFun_of_wayBelow h
+
+/-- If `e' ≪ g e` then the step function `ē[e, e']` lies below `g` (a pointwise argument). -/
+theorem stepMap_le_of_wayBelow {e : D} {e' : D'} {g : ScottMap D D'}
+    (h : e' ≪ (g : D → D') e) : stepMap e e' ≤ g := by
+  rw [ScottMap.le_def]
+  intro x
+  by_cases hex : e ≪ x
+  · rw [stepMap_apply_of_wayBelow hex]
+    exact h.le.trans (g.monotone hex.le)
+  · show stepFun e e' x ≤ (g : D → D') x
+    rw [stepFun_of_not_wayBelow hex]
+    exact bot_le
+
+/-- **The step function is way below `f`.** If `e' ≪ f e`, then `ē[e, e'] ≪ f` in `[D → D']`,
+witnessed by the Scott-open set `{g | e' ≪ g e}` (open because suprema in `[D → D']` are pointwise
+and `{· ≪ ·}` is inaccessible by directed suprema). -/
+theorem stepMap_wayBelow {e : D} {e' : D'} {f : ScottMap D D'}
+    (he' : e' ≪ (f : D → D') e) : stepMap e e' ≪ f := by
+  refine ⟨{g : ScottMap D D' | e' ≪ (g : D → D') e}, ⟨?_, ?_⟩, he', ?_⟩
+  · intro g g' hgg' hg
+    exact hg.trans_le (hgg' e)
+  · intro F hFne hFdir hmem
+    simp only [Set.mem_setOf_eq, ScottMap.sSup_apply] at hmem
+    have hne : (Set.image (fun g : ScottMap D D' => (g : D → D') e) F).Nonempty := hFne.image _
+    have hdir : DirectedOn (· ≤ ·) (Set.image (fun g : ScottMap D D' => (g : D → D') e) F) := by
+      rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+      obtain ⟨c, hc, hac, hbc⟩ := hFdir a ha b hb
+      exact ⟨(c : D → D') e, Set.mem_image_of_mem _ hc, hac e, hbc e⟩
+    obtain ⟨_, ⟨g, hgF, rfl⟩, hg⟩ := (wayBelow_sSup_iff hne hdir).1 hmem
+    exact ⟨g, hgF, hg⟩
+  · intro g hg
+    exact Set.mem_Ici.2 (stepMap_le_of_wayBelow hg)
+
+/-- **Pointwise reconstruction.** For a Scott map `f`, the supremum of the values of the step
+functions below `f` recovers `f x`: `f x = ⊔ {e' | ∃ e ≪ x, e' ≪ f e}`. Uses continuity of `D`
+(`x = ⊔{e | e ≪ x}`), Scott-continuity of `f`, and continuity of `D'`. -/
+theorem stepMap_pointwise_sSup (hD : IsContinuousLattice D) (hD' : IsContinuousLattice D')
+    (f : ScottMap D D') (x : D) :
+    sSup {e' : D' | ∃ e, e ≪ x ∧ e' ≪ (f : D → D') e} = (f : D → D') x := by
+  apply le_antisymm
+  · refine sSup_le ?_
+    rintro e' ⟨e, hex, he'⟩
+    exact he'.le.trans (f.monotone hex.le)
+  · rw [← hD'.sSup_wayBelow ((f : D → D') x)]
+    refine sSup_le ?_
+    intro w hw
+    have hfx : (f : D → D') x = sSup (Set.image (f : D → D') {e | e ≪ x}) := by
+      rw [← f.preservesDirectedSup_coe {e | e ≪ x} ⟨⊥, bot_wayBelow x⟩ (directedOn_wayBelow x),
+        hD.sSup_wayBelow x]
+    rw [hfx] at hw
+    have hne : (Set.image (f : D → D') {e | e ≪ x}).Nonempty := ⟨f ⊥, ⊥, bot_wayBelow x, rfl⟩
+    have hdir : DirectedOn (· ≤ ·) (Set.image (f : D → D') {e | e ≪ x}) := by
+      rintro _ ⟨a, ha, rfl⟩ _ ⟨b, hb, rfl⟩
+      obtain ⟨c, hc, hac, hbc⟩ := directedOn_wayBelow x a ha b hb
+      exact ⟨f c, Set.mem_image_of_mem _ hc, f.monotone hac, f.monotone hbc⟩
+    obtain ⟨_, ⟨e, hex, rfl⟩, hwe⟩ := (wayBelow_sSup_iff hne hdir).1 hw
+    exact le_sSup ⟨e, hex, hwe⟩
+
+/-- **Scott 1972, Theorem 3.3 (order content).** If `D` and `D'` are continuous lattices, then so
+is `[D → D']` under the pointwise order. Every `f` is the supremum of the step functions way below
+it: `f = ⊔ {ē[e,e'] | e' ≪ f e}`, and each such step function is way below `f`. -/
+theorem theorem_3_3_isContinuousLattice (hD : IsContinuousLattice D)
+    (hD' : IsContinuousLattice D') : IsContinuousLattice (ScottMap D D') := by
+  intro f
+  refine ⟨fun h hh => hh.le, fun g hg => ?_⟩
+  rw [ScottMap.le_def]
+  intro x
+  rw [← stepMap_pointwise_sSup hD hD' f x]
+  refine sSup_le ?_
+  rintro e' ⟨e, hex, he'⟩
+  have hle : stepMap e e' ≤ g := hg (stepMap_wayBelow he')
+  have hx := (ScottMap.le_def.1 hle) x
+  rwa [stepMap_apply_of_wayBelow hex] at hx
 
 /-! ### Corollary 3.4 -/
 
