@@ -163,7 +163,7 @@ Scott's four section titles within Part I:
 ### 3.1 Report card (34 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **22 Pass · 5 Stuck · 8 Not Yet**.
+full deliverable. Score: **23 Pass · 4 Stuck · 8 Not Yet**.
 
 **Supporting keystones (not separately numbered by Scott):** `directedOn_wayBelow`,
 `wayBelow_interpolate` (interpolation property of `≪`, **axiom-free**), `exists_wayBelow_subset`
@@ -193,7 +193,7 @@ full deliverable. Score: **22 Pass · 5 Stuck · 8 Not Yet**.
 | 3   | Prop 3.2  | `proposition_3_2`                                                                                                                | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Thm 3.3(a) | `theorem_3_3_isContinuousLattice` (+ `ScottMap.instCompleteLattice`, `stepMap`, `stepMap_wayBelow`, `stepMap_pointwise_sSup`) | `FunctionSpaces.lean` | **Pass**    | `[D→D']` is a CL (order content) via step functions |
 | 3   | Thm 3.3(b) | `theorem_3_3_topology` (+ `theorem_3_3`, `wayBelow_le_finset_sup_step`, `pointwiseSubbasic_scottOpen`)                          | `FunctionSpaces.lean` | **Pass**    | lattice top. = pointwise-convergence top. (topology content) |
-| 3   | Cor 3.4   | `corollary_3_4`, `corollary_3_4_eval_on_C`                                                                                       | `FunctionSpaces.lean` | **Stuck**   | fixed-`x` eval                       |
+| 3   | Cor 3.4   | `corollary_3_4_jointly_continuous`, `corollary_3_4_preservesDirectedSup` (+ `corollary_3_4` fixed-`x`)                            | `FunctionSpaces.lean` | **Pass**    | joint continuity of `eval` via Prop 2.6 |
 | 3   | Prop 3.5  | `scottLambdaAt`, `curry_right_preservesDirectedSup`                                                                              | `FunctionSpaces.lean` | **Stuck**   | right curry only                     |
 | 3   | Prop 3.7  | `proposition_3_7_retraction`, `proposition_3_7_projection`                                                                       | `FunctionSpaces.lean` | **Pass**    |                                      |
 | 3   | Prop 3.8  | `scottSubspaceExtend`, `proposition_3_8`                                                                                         | `FunctionSpaces.lean` | **Stuck**   | one-sided bound                      |
@@ -331,8 +331,8 @@ flowchart TD
   T33a["theorem_3_3_isContinuousLattice (3.3a) · stepMap*"]
   T33b["theorem_3_3_topology (3.3b) · wayBelow_le_finset_sup_step"]
   T33["theorem_3_3 full (3.3a+3.3b)"]
-  C34x["corollary_3_4"]
-  C34j["corollary_3_4 joint"]
+  C34x["corollary_3_4 (fixed x)"]
+  C34j["corollary_3_4_jointly_continuous"]
   P35r["scottLambdaAt"]
   P35["proposition_3_5 full"]
   P37r["proposition_3_7_retraction"]
@@ -713,6 +713,18 @@ The function space carries two topologies: the Scott topology of the continuous 
 - This closes **3.3 in full** (`theorem_3_3`), with no Milner hypothesis, contrary to the earlier
   expectation recorded for 2.9–2.10.
 - Footprint `[propext, Classical.choice, Quot.sound]`.
+
+#### Corollary 3.4 (joint continuity of evaluation) — `corollary_3_4_jointly_continuous` (`FunctionSpaces.lean`)
+
+`eval : [D → D'] × D → D'`, `(f, x) ↦ f x`, is jointly Scott-continuous. The proof is a clean
+application of **Proposition 2.6** (joint ↔ separate Scott-continuity on a product lattice): reduce
+`PreservesDirectedSup eval` to the two separate slots. In `x` (fixed `f`) it is exactly `f`'s own
+Scott-continuity (`proposition_2_5` + `ScottMap.continuous`); in `f` (fixed `x`) it is the pointwise
+formula for suprema in `[D → D']` (`ScottMap.sSup_apply`: `(⊔F) x = ⊔ {g x | g ∈ F}`). Then
+`continuous_of_preservesDirectedSup` upgrades to topological continuity. Via Theorem 3.3(b) (and
+2.9(b)) the Scott topology of the product lattice is the product of the pointwise topology on
+`[D → D']` and the Scott topology on `D`, so this is joint continuity for Scott's product topology.
+Footprint `[propext, Classical.choice, Quot.sound]`.
 
 ### 3.8 Part I — next work (Composer vs Opus)
 

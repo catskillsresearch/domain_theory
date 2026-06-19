@@ -528,13 +528,38 @@ theorem corollary_3_4_eval_on_C (x : D) :
       scottTopologicalSpace (fun f : ScottC D D' => f x) :=
   continuous_def.2 fun _U hU => scottFunctionSubbasis_isOpen_scott (D := D) (D' := D') (x := x) hU
 
-/-- **Scott 1972, Corollary 3.4.** Evaluation at fixed `x` is continuous on `[D → D']`
-(with Scott topologies on `D` and `D'`); joint continuity uses Proposition 2.6. -/
+/-- **Scott 1972, Corollary 3.4 (fixed `x`).** Evaluation at fixed `x` is continuous on `[D → D']`
+(with Scott topologies on `D` and `D'`); this is one half of the separate-continuity input to
+joint continuity. -/
 theorem corollary_3_4 (x : D) :
     @Continuous (ScottC D D') D'
       (@scottFunctionTopology D D' scottTopologicalSpace scottTopologicalSpace)
       scottTopologicalSpace (fun f : ScottC D D' => f x) :=
   corollary_3_4_eval_on_C (D := D) (D' := D') x
+
+/-- **Scott 1972, Corollary 3.4 (joint continuity, core).** Evaluation `[D → D'] × D → D'`,
+`(f, x) ↦ f x`, preserves directed suprema. By Proposition 2.6 it suffices to check separate
+Scott-continuity: in `x` (with `f` fixed) it is `f`'s own continuity, and in `f` (with `x` fixed)
+it is the pointwise formula for suprema in `[D → D']` (`ScottMap.sSup_apply`). -/
+theorem corollary_3_4_preservesDirectedSup :
+    PreservesDirectedSup (fun p : ScottMap D D' × D => (p.1 : D → D') p.2) := by
+  rw [proposition_2_6]
+  constructor
+  · intro y S hS hSdir
+    show ((sSup S : ScottMap D D') : D → D') y
+        = sSup ((fun x : ScottMap D D' => (x : D → D') y) '' S)
+    rw [ScottMap.sSup_apply]
+  · intro x
+    exact (proposition_2_5 _).mp x.continuous
+
+/-- **Scott 1972, Corollary 3.4.** The evaluation map `eval : [D → D'] × D → D'`, `(f, x) ↦ f x`,
+is (jointly) Scott-continuous. Via Theorem 3.3(b) and Proposition 2.9(b) the Scott topology of the
+product lattice is the product of the pointwise topology on `[D → D']` and the Scott topology on
+`D`, so this is exactly joint continuity for Scott's product topology. -/
+theorem corollary_3_4_jointly_continuous :
+    @Continuous (ScottMap D D' × D) D' scottTopologicalSpace scottTopologicalSpace
+      (fun p : ScottMap D D' × D => (p.1 : D → D') p.2) :=
+  continuous_of_preservesDirectedSup corollary_3_4_preservesDirectedSup
 
 /-! ### Proposition 3.5 (currying) -/
 
