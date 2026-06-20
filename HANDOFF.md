@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–III COMPLETE; IV §4 spine + 6 exercises done (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6; Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20); IV–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); V–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,9 +17,9 @@ Computation* (PRG-19) in:
   `ext_of_toElementMap`). Example 4.3 (`Example43.lean`), Example 4.4 (`Example44.lean`), and
   Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) are the most recent work — see below.
 - **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
-  ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. Lecture IV rows
-  4.1/4.2/4.3/4.4/4.5/4.6 **and Exercises 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.13, 4.14, 4.15, 4.16,
-  4.17, 4.18, 4.19, 4.20** are now **Pass**; the rest of §4 (**4.21–4.25**) and V–VIII are still `—`. Pages
+  ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. **Lecture IV is now
+  complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
+  *and* **every §4 exercise (4.7–4.25)** are **Pass**; V–VIII are still `—`. Pages
   108–111 were re-OCR'd to fix a page-order scramble (Thm 6.14 tail, Lemma 6.15, Thm 6.16,
   Exercises 6.17–6.20 now in correct order).
 
@@ -107,22 +107,21 @@ this is inherited structurally from the truth domain `T = Example12.neighborhood
 
 ---
 
-## What's next: rest of Lecture IV, then V–VIII (transcribed, NOT yet formalized)
+## What's next: Lectures V–VIII (transcribed, NOT yet formalized)
 
 The Goal Lists are in `arxiv.md`:
 
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
-| IV  | §4.2.IV   | 25 | Fixed points & recursion (20/25 done; remaining: 4.21–4.25) | 1647–2382 |
+| IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive | 2383–3207 |
 | VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
-**Done so far in §4:** Theorems 4.1/4.2 (`Theorem41.lean`), Examples 4.3/4.4 (`Example43.lean`,
-`Example44.lean`), Definition 4.5 + Theorem 4.6 (`Theorem46.lean`), and Exercises **4.7, 4.8, 4.9,
-4.10, 4.11, 4.12, 4.13, 4.14, 4.15, 4.16, 4.17, 4.18, 4.19, 4.20**
-(`Exercise407/408/409/410/411/412/413/414/415/416/417/418/419/420.lean`).
+**Done so far in §4 (ALL of Lecture IV):** Theorems 4.1/4.2 (`Theorem41.lean`), Examples 4.3/4.4
+(`Example43.lean`, `Example44.lean`), Definition 4.5 + Theorem 4.6 (`Theorem46.lean`), and Exercises
+**4.7–4.25** (`Exercise407/408/409/410/411/412/413/414/415/416/417/418/419/420/421/422/423/424/425.lean`).
 
 **Most recent batch (4.9, 4.11, 4.13–4.17, 4.19):**
 - **4.9** (`Exercise409.lean`) — `bigPsi = curry(eval∘⟨π_G,eval⟩) : E→E` (E=(D→D)→D), the operator
@@ -144,17 +143,33 @@ The Goal Lists are in `arxiv.md`:
   `one : C→T`; `one_def_strElem`/`one_def_strBot` define `one` from `empty`,`zero`,`cond` (`oneDef`
   inherits only the accepted structural `Classical.choice` from `cond`/`T`).
 
-**Remaining §4 exercises (arxiv.md §4.2.IV, source lines per row):**
-- **4.21** (2326) — `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication.
-- **4.22** (2342) — subset of `N*` satisfying Peano (i)(ii)(iii) via a least fixed point in `PN*`.
-- **4.23** (2346, Eilenberg) — unique fixed point under an approximation scheme `aₙ`.
-- **4.24** (2358, set theorists) — Schröder–Bernstein via Tarski's fixed point (mostly orthogonal to
-  the neighbourhood framework; mathlib has `Function.Embedding.schroeder_bernstein`).
-- **4.25** (2372) — the system `C₁` over `{1}*` analogous to `N`; maps between `N`, `C₁`, `C₂`.
+**Most recent batch (4.21–4.25 — finishing Lecture IV):**
+- **4.21** (`Exercise421.lean`) — `≤` as a *unique* fixed point. Operator `leOp` on `P(ℕ×ℕ)`;
+  `leRel_isFixed` + `leOp_unique` (induction on the 2nd coordinate; the `(n,m⁺)` clause never yields
+  a `0`, so the relation is pinned down). The 4.13(3) function `[m] = upSet m` (`upSet_zero`/`_succ`/
+  `_unique`); the addition iso `addIso : ℕ ≃ {k//m≤k}` is `n ↦ m+n` (`addIso_apply`/`_zero`/`_succ`);
+  multiplication `mulOp_lfp_eq_multiples` (least solution = multiples of `n`). Data choice-free.
+- **4.22** (`Exercise422.lean`) — carving a full Peano model from a partial one. `nats = lfpSet
+  ({0}∪x⁺)` in `P(N*)` (choice-free membership facts `zero_mem_nats`/`succ_mem_nats` proved *directly
+  from the `lfpSet` def*, not via the monotone fixed point, to stay choice-free); `nats_induction`
+  (minimality). `peanoSub : PeanoModel {m // m∈nats}` (all three axioms; (i)/(ii) inherited, (iii) by
+  minimality) ⟹ `exists_peano_submodel`. Existence of `N*` = axiom of infinity (`natPeano`).
+- **4.23** (`Exercise423.lean`) — Eilenberg's criterion. `f_unique_fixedPoint`: under the scheme
+  `aₙ` ((i) `a₀=⊥`, (ii)+(iii) packaged as pointwise `IsLUB {aₙ(x)} x`, (iv) `aₙ₊₁∘f=aₙ₊₁∘f∘aₙ`),
+  `fix f` is the unique fixed point. Hint realized as `approx_le : aₙ(x)⊑aₙ(fix)` by induction (uses
+  (iv) twice). Choice-free.
+- **4.24** (`Exercise424.lean`) — Schröder–Bernstein via Tarski. `sbSet = lfpSet ((A−g B)∪g(f X))`
+  (choice-free); `sbFun` (= `f` on `sbSet`, `g⁻¹` off it) with `sbFun_injective`/`sbFun_surjective`
+  ⟹ `schroeder_bernstein` + `schroeder_bernstein_equiv : A ≃ B`. Inherently classical.
+- **4.25** (`Exercise425.lean`) — the unary domain `C₁` over `{1}* ≅ ℕ`. Nested-or-disjoint `C1`
+  (tails `tail n = {m∣n≤m}` + singletons `{n}`); elements `oneElem n = 1ⁿ`, `oneBot n = 1ⁿ⊥`;
+  successor `consMap` (shift, `consMap_oneElem`/`_oneBot`). Key point of the exercise: `C₁` is
+  *non-flat* — the successor has an infinite fixed point `infElt = 1^∞` (`infElt_eq`) absent from the
+  flat `N` — so `C₁` (= unary analogue of `C₂`) is **not** analogous to `N`. Relating map
+  `relateNToC1 : N → C₁` (`n̂ ↦ 1ⁿ`, strict) via `Example43.constLiftN`. Data choice-free.
 
-Reusable API for these: `funSpace`, `eval`, `comp`, `Element` sups via `sSupMaps`/`iSupDirected`,
-the `Exercise316` infinite iterate `𝒟^∞`, and the new 4.7/4.8/4.10 building blocks
-(`fixAbove`, `fix_induction`, `relSystem`/`relIso`/`relMap`).
+Reusable API now also: `Exercise414.lfpSet`/`gfpSet` (Knaster–Tarski on `P A`), `Exercise413.monoFix`
++ `exists_unique_nat_rec`, `Theorem46.PeanoModel`, `Example43.constLiftN` (strict lift `N → V`).
 
 **OCR anomalies to be aware of (documented in arxiv.md notes):**
 - Lecture V: "Table 5.5" is a combinator table, not a numbered theorem.

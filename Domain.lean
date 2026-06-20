@@ -83,4 +83,9 @@ import Domain.Neighborhood.Exercise417
 import Domain.Neighborhood.Exercise418
 import Domain.Neighborhood.Exercise419
 import Domain.Neighborhood.Exercise420
+import Domain.Neighborhood.Exercise421
+import Domain.Neighborhood.Exercise422
+import Domain.Neighborhood.Exercise423
+import Domain.Neighborhood.Exercise424
+import Domain.Neighborhood.Exercise425
 import Domain.InfoSys
