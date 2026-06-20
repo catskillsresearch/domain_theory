@@ -28,8 +28,9 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **43** numbered results / exercises are **Pass** (zero `sorry`s, zero
-Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27) is now formalized**.
+correction is complete; **47** numbered results / exercises are **Pass** (zero `sorry`s, zero
+Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** plus the **Lecture II core** (Def 2.1,
+Prop 2.2 and the worked maps Examples 2.3–2.4) are now formalized.
 **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -1199,15 +1200,15 @@ generalizing Example 1.3).
 
 ### 4.2.II Lecture II (§2) Goal List — approximable mappings (complete inventory)
 
-**Lean target (planned):** `Domain/Neighborhood/Approximable.lean` (not yet created). All rows
-**Not Yet** unless noted.
+**Lean target:** `Domain/Neighborhood/Approximable.lean` (Def 2.1, Prop 2.2) **live**; concrete
+maps in `Example23.lean` / `Example24.lean`. Remaining rows **Not Yet** unless marked **Pass**.
 
 | Scott (PRG-19 §2) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
-| **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `f⊆𝒟₀×𝒟₁` with (i) `Δ₀ f Δ₁`, (ii) intersectivity on outputs, (iii) monotonicity | **Not Yet** |
-| **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`), `rel_of_map` (`X f Y ⟺ Y∈f(↑X)`), monotonicity, extensionality | **Not Yet** |
-| **Example 2.3** | Example | 615–654 | `f : B → T`: parity of 0's before first 1 (`B` binary tree, `T` two-token domain of Ex 1.2) | **Not Yet** |
-| **Example 2.4** | Example | 658–673 | `g : B → B`: eliminate first run of 1's; total → partial example | **Not Yet** |
+| **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `rel⊆𝒟₀×𝒟₁` (`rel_dom`/`rel_cod`) with (i) `master_rel`, (ii) `inter_right`, (iii) `mono`; relation-extensionality `ext` (`Approximable.lean`) | **Pass** |
+| **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`, all of 2.1 used), `mem_toElementMap`, `rel_iff_mem_principal` (`X f Y ⟺ Y∈f(↑X)`), `toElementMap_mono`, `ext_of_toElementMap` (2.2(iv)) (`Approximable.lean`) | **Pass** |
+| **Example 2.3** | Example | 615–654 | `parityMap : B → T`: parity of 0's before first 1 via scanner `scan`/`valElt` (`scan_append` stability ⟹ `mono`); `T`=two-token domain of Ex 1.2 (`Example23.lean`) | **Pass** |
+| **Example 2.4** | Example | 658–673 | `runMap : B → B`: eliminate first run of 1's via state machine `out`/`del`; `out_mono` (prefix-monotone) ⟹ `mono`; total `1^∞` → partial `⊥` (`Example24.lean`, choice-free) | **Pass** |
 | **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `I_D` (`X I_D Y ⟺ X⊆Y`), composition `g∘f`, associativity | **Not Yet** |
 | **Prop 2.6** | Proposition | 726–732 | elementwise: `I_D(x)=x`, `(g∘f)(x)=g(f(x))` — concrete category of sets & functions | **Not Yet** |
 | **Theorem 2.7** | Theorem | 738–760 | every domain iso `|𝒟₀|≅|𝒟₁|` comes from an approximable map; finite elements → finite elements | **Not Yet** |
@@ -1367,7 +1368,7 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**) |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`Example23.lean`**, **`Example24.lean`**) |
 | Report card  | **43 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.27**, Factoids 1.4a/1.5a/1.5b) — **all of Lecture I formalized** |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
@@ -1376,9 +1377,9 @@ flowchart TD
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
-| II (approximable mappings) | §4.2.II | 22 | 0 |
+| II (approximable mappings) | §4.2.II | 22 | **4** |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **93** | **43** |
+| **Total PRG-19 I–III** | | **93** | **47** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
