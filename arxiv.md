@@ -28,9 +28,10 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **47** numbered results / exercises are **Pass** (zero `sorry`s, zero
+correction is complete; **50** numbered results / exercises are **Pass** (zero `sorry`s, zero
 Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** plus the **Lecture II core** (Def 2.1,
-Prop 2.2 and the worked maps Examples 2.3–2.4) are now formalized.
+Prop 2.2, the worked maps Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, and the
+isomorphism Theorem 2.7) are now formalized.
 **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -1200,8 +1201,9 @@ generalizing Example 1.3).
 
 ### 4.2.II Lecture II (§2) Goal List — approximable mappings (complete inventory)
 
-**Lean target:** `Domain/Neighborhood/Approximable.lean` (Def 2.1, Prop 2.2) **live**; concrete
-maps in `Example23.lean` / `Example24.lean`. Remaining rows **Not Yet** unless marked **Pass**.
+**Lean target:** `Domain/Neighborhood/Approximable.lean` (Def 2.1, Prop 2.2, Thm 2.5, Prop 2.6,
+Thm 2.7) **live**; concrete maps in `Example23.lean` / `Example24.lean`. Remaining rows **Not Yet**
+unless marked **Pass**.
 
 | Scott (PRG-19 §2) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
@@ -1209,9 +1211,9 @@ maps in `Example23.lean` / `Example24.lean`. Remaining rows **Not Yet** unless m
 | **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`, all of 2.1 used), `mem_toElementMap`, `rel_iff_mem_principal` (`X f Y ⟺ Y∈f(↑X)`), `toElementMap_mono`, `ext_of_toElementMap` (2.2(iv)) (`Approximable.lean`) | **Pass** |
 | **Example 2.3** | Example | 615–654 | `parityMap : B → T`: parity of 0's before first 1 via scanner `scan`/`valElt` (`scan_append` stability ⟹ `mono`); `T`=two-token domain of Ex 1.2 (`Example23.lean`) | **Pass** |
 | **Example 2.4** | Example | 658–673 | `runMap : B → B`: eliminate first run of 1's via state machine `out`/`del`; `out_mono` (prefix-monotone) ⟹ `mono`; total `1^∞` → partial `⊥` (`Example24.lean`, choice-free) | **Pass** |
-| **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `I_D` (`X I_D Y ⟺ X⊆Y`), composition `g∘f`, associativity | **Not Yet** |
-| **Prop 2.6** | Proposition | 726–732 | elementwise: `I_D(x)=x`, `(g∘f)(x)=g(f(x))` — concrete category of sets & functions | **Not Yet** |
-| **Theorem 2.7** | Theorem | 738–760 | every domain iso `|𝒟₀|≅|𝒟₁|` comes from an approximable map; finite elements → finite elements | **Not Yet** |
+| **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `idMap` (`X I_D Y ⟺ X⊆Y`), composition `comp g f` (`X g∘f Z ⟺ ∃Y, X f Y ∧ Y g Z`), laws `idMap_comp`/`comp_idMap`/`comp_assoc` (`Approximable.lean`) | **Pass** |
+| **Prop 2.6** | Proposition | 726–732 | elementwise functor: `toElementMap_idMap` (`I_D(x)=x`), `toElementMap_comp` (`(g∘f)(x)=g(f(x))`) — concrete category of sets & functions (`Approximable.lean`) | **Pass** |
+| **Theorem 2.7** | Theorem | 738–760 | every domain iso `e:\|𝒟₀\|≃o\|𝒟₁\|` comes from an approximable map `ofIso e` (`toElementMap_ofIso`: `(ofIso e)(x)=e(x)`; `exists_approximable_of_iso`); finite→finite `exists_principal_eq_apply_principal` via directed union `sSupDirected` (`Approximable.lean`, choice-free) | **Pass** |
 | **Exercise 2.8** | Exercise | 764 | approximable map determined by action on finite elements; any monotone fn on finite elements extends to approximable map | **Not Yet** |
 | **Exercise 2.9** | Exercise | 768–774 | approximable `f` satisfies `f(x)=⋃{f(↑X)∣X∈x}` (Scott's formula for elementwise action) | **Not Yet** |
 | **Exercise 2.10** | Exercise | 776–782 | prove Prop 2.6; for `f,g : D₀→D₁` show `∃h` with `h(x)=f(x)⊔g(x)` pointwise (lub of maps) | **Not Yet** |
@@ -1377,9 +1379,9 @@ flowchart TD
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
-| II (approximable mappings) | §4.2.II | 22 | **4** |
+| II (approximable mappings) | §4.2.II | 22 | **7** |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **93** | **47** |
+| **Total PRG-19 I–III** | | **93** | **50** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
