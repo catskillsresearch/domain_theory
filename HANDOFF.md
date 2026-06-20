@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); V–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2, Prop 5.3/5.4, Ex 5.7/5.9/5.11/5.12); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,21 +7,63 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3025 jobs).
+- **`lake build Domain` is green, zero `sorry`s** (≈3038 jobs).
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
   Lecture III is now **complete end-to-end**: the spine (Def 3.1 → Thm 3.13) *and* every §3 exercise
   (3.14–3.28).
-- **Lecture IV: Theorems 4.1 and 4.2, Examples 4.3 and 4.4, and Definition 4.5 + Theorem 4.6 are
-  Pass.** Theorems 4.1/4.2 are in `Domain/Neighborhood/Theorem41.lean` (`fixElement`, `fixMap`,
-  both choice-free; only `fixMap_unique` uses `Classical.choice` via the permitted
-  `ext_of_toElementMap`). Example 4.3 (`Example43.lean`), Example 4.4 (`Example44.lean`), and
-  Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) are the most recent work — see below.
+- **Lecture IV spine is Pass.** Theorems 4.1/4.2 are in `Domain/Neighborhood/Theorem41.lean`
+  (`fixElement`, `fixMap`, both choice-free; only `fixMap_unique` uses `Classical.choice` via the
+  permitted `ext_of_toElementMap`); Example 4.3 (`Example43.lean`), Example 4.4 (`Example44.lean`),
+  and Definition 4.5 + Theorem 4.6 (`Theorem46.lean`). The §4 exercises 4.7–4.25 are all Pass —
+  **the most recent work (4.21–4.25) is detailed in the "What's next" section below.**
 - **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
   ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. **Lecture IV is now
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
-  *and* **every §4 exercise (4.7–4.25)** are **Pass**; V–VIII are still `—`. Pages
-  108–111 were re-OCR'd to fix a page-order scramble (Thm 6.14 tail, Lemma 6.15, Thm 6.16,
-  Exercises 6.17–6.20 now in correct order).
+  *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V core is now Pass** (see next
+  section); VI–VIII are still `—`. Pages 108–111 were re-OCR'd to fix a page-order scramble
+  (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
+
+### Lecture V §5 completed (most recent work)
+
+All nine modules build alone, pass the audit, and are imported from `Domain.lean`; the full `Domain`
+build is green. Lecture V is interpreted **semantically** inside the approximable-map framework
+(closure properties + combinator identities), matching Scott's informal presentation rather than
+building a separate λ-syntax.
+
+- **Table 5.5** (`Table55.lean`) — the combinators as approximable maps with value equations: `P₀`,
+  `P₁`, `pairC`, `diagC` (`= λx.⟨x,x⟩`), `swapC`, `evalC`, `constC`, `curryC`, `compC` (`= g∘f`,
+  `compC_eq_comp`), `funpairC` (`= ⟨f,g⟩`), `fixC` (`= fixMap`). Internal uncurried helpers are
+  `compMapTbl`/`funpairMapTbl` (**renamed** from `compMap`/`funpairMap` and `diag→diagC` to avoid
+  clashes with `Exercise322.compMap` / `Exercise314.diag` at the `Domain.Neighborhood` namespace).
+- **Theorem 5.1** (`Theorem51.lean`) — every typed λ-term denotes an approximable map: closure of the
+  interpretation under variables/constants/tuples/application/abstraction.
+- **Theorem 5.2** (`Theorem52.lean`) — the β/substitution rule as combinator identities (`beta`,
+  `beta_tuple`, `beta_abs`) via `curry`/`eval`.
+- **Proposition 5.3** (`Proposition53.lean`) — Bekić: least fixed point of `⟨τ,σ⟩` is
+  `⟨!x.τ(x,!y.σ(x,y)), !y.σ(!x.τ(x,y),y)⟩` (`fixElement_paired_eq`).
+- **Proposition 5.4** (`Proposition54.lean`) — `λx.!y.τ(x,y) = !g.λx.τ(x,g x)`
+  (`pfix_eq_fixElement_recOp`).
+- **Exercise 5.7** (`Exercise507.lean`) — multi-variable λ/application from one-variable forms:
+  surjective pairing `⟨p₀ z,p₁ z⟩=z`, `uncurry_apply` / `app_two_args` (apply one arg at a time),
+  `lam_two_vars` (= `curry`), and the three-variable generalisation `curry₃`.
+- **Exercise 5.9** (`Exercise509.lean`) — commuting `f∘g=g∘f` ⟹ least common fixed point;
+  `f(⊥)=g(⊥) ⟹ fix f = fix g`; `fix f = fix f²`.
+- **Exercise 5.11** (`Exercise511.lean`) — `D^∞ = iterSys D` as stacks: `head`/`tail`/`push` from
+  `iterProdIso` with the stack laws (`head_push`, `tail_push`, `push_head_tail`); `diag` by the
+  recursion `diag x = push(x,diag x)` with **all components `= x`** (`component_diag`); and `map` by
+  recursion with `component_map` (`map(⟨fₙ⟩,x)ₙ = fₙ(x)`). **Fully choice-free** (`[propext,
+  Quot.sound]`).
+- **Exercise 5.12** (`Exercise512.lean`) — the `while` combinator as the least fixed point of
+  `Wop(w) = λx.cond(p x, w(f x), x)`: recursion `whileMap_rec`, the three unfoldings
+  `whileMap_true/false/bot`, and leastness `whileMap_least`. `cond` from Exercise 3.26, so the data
+  inherits `Classical.choice` only through the truth domain `T` (Example 1.2), exactly as `cond` does.
+
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Theorem 5.6 (partial recursive
+⟹ λ-definable; needs a recursion-theory bridge), Exercise 5.8 (combinatory completeness), Exercise
+5.10 (smash product `D₀⊗D₁` + strict function space — a new neighbourhood-system construction),
+Exercise 5.13 (one-one `num:N×N→N`), Exercise 5.14 (`fun`/`graph`), Exercise 5.15 (free-semigroup
+domain), Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond` on `C` plus a
+continuity/approximation argument for `neg(neg x)=x`).
 
 ### Lecture IV §4 completed (most recent work)
 
