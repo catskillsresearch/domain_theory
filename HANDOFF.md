@@ -1,192 +1,234 @@
-# Handoff — Part II, Scott 1981 (PRG-19): Lecture III (§3) — products, sums, function spaces
+# Handoff — Scott 1981 (PRG-19) Lecture III §3: remaining Exercises 3.16, 3.17, 3.25, 3.26, 3.27
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
-Computation* (Technical Monograph PRG-19) in:
+Computation* (PRG-19) in:
 
-`/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`.
+`/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`, Lean toolchain per `lean-toolchain`.
 
-**Lecture I is COMPLETE (43 Pass).** **Lecture II is COMPLETE (22 Pass).** **The Lecture III (§3)
-spine is COMPLETE (15 Pass): Def 3.1 → Theorem 3.13** (`lake build Domain` green, zero `sorry`s).
-Current total: **80 Pass + 10 Lecture III exercises**. **Remaining Lecture III work:** Exercises
-3.16, 3.17, 3.25, 3.26, 3.27 (`arxiv.md §4.2.III`).
+**Status:** Lecture I (43), Lecture II (22), and the Lecture III §3 *spine* (Def 3.1 → Thm 3.13, 15)
+are COMPLETE and green. **Eleven of the §3 exercises are done** (3.14, 3.15, 3.18, 3.19, 3.20, 3.21,
+3.22, 3.23, 3.24(i), 3.26, 3.28). **3.26 is now COMPLETE** in `Exercise326.lean` (the conditional
+`cond : T × D × D → D` with `cond_true/false/bot` and the elementwise characterization
+`cond_toElementMap_mem`) and `Exercise326Sum.lean` (the sum-valued `condSum : T × D₀ × D₁ → D₀ + D₁`
+built by composition through `cond` on the sum, and the discriminator `whichMap : D₀ + D₁ → T` with
+Scott's identity `cond_which : cond(which x, in₀(out₀ x), in₁(out₁ x)) = x`). **Four exercises
+remain: 3.16, 3.17, 3.25, 3.27** (plus the missing sub-parts 3.24(ii)(iii)(iv)). `lake build Domain`
+is green, zero `sorry`s.
 
----
-
-## Lecture III §3 exercises landed (3.14–3.28 batch)
-
-| Exercise | Module | Key Lean names |
-| -------- | ------ | -------------- |
-| **3.14** (diagonal) | `Exercise314.lean` | `diag = ⟨I,I⟩`, `toElementMap_diag` (`diag x = ⟨x,x⟩`), `proj₀_comp_diag` |
-| **3.15** (product isos) | `Exercise315.lean` | `prodCommD`, `prodAssocD`, `unitSys` (terminal `𝟙`), `prodUnitD`/`unitProdD`, `prodCongrD`; choice-free order-iso helpers `prodCongrOrderIso`/`prodUniqueOrderIso` |
-| **3.18** (sum system) | `Exercise318.lean` | `sum` (over `Option (α⊕β)`, choice-free), `inMap₀`/`inMap₁`, `outMap₀`/`outMap₁` (via `leftPart`/`rightPart`), `outMapᵢ_comp_inMapᵢ = I` |
-| **3.19/3.20** (product) | `Exercise319.lean` | `prodMap = ⟨f∘p₀,g∘p₁⟩`, `toElementMap_prodMap`, `prodMap_id`/`prodMap_comp` (functor), `paired_unique` (categorical product) |
-| **3.19** (sum functor) | `Exercise319Sum.lean` | `sumMap` (`f+g`, choice-free), `outMap₀_comp_sumMap_comp_inMap₀ = f`, `…inMap₁ = g`; non-uniqueness noted (`Λ↦Λ` choice) |
-| **3.21** (`[Y,Z]` identity) | `Exercise321.lean` | `leastStep`, `step_master_right`, `step_eq_univ_iff`, `step_eq_of_ne_master` (uniqueness for `Z≠Δ₂`), `step_eq_iff` (general criterion) |
-| **3.22** (composition) | `Exercise322.lean` | `compApp`/`compMap = curry(compApp)`, `toApproxMap_compMap` (`comp(g,f)=g∘f`) |
-| **3.23** (CCC) | `Exercise323.lean` | terminal `Unique (ApproximableMap V unitSys)`, `toUnit`, `homAdjunction = curryEquiv` |
-| **3.24(i)** (fun-prod) | `Exercise324.lean` | `funProdEquiv`, `funProdIso`, `funProd_isomorphic` (`(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)`) |
-| **3.28** (least-map formula) | `Exercise328.lean` | `leastMapVals`, `toElementMap_leastMap_eq_sSup` (`f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}`) |
-
-**Axiom audit (this batch).** Choice-free *constructions* `[propext, Quot.sound]`: `diag`, all of 3.15's
-order-isos, `sum`/`inMapᵢ`/`outMapᵢ`/retraction identities, `sumMap` + both defining identities,
-`prodMap`, `compMap`, `funProdEquiv`/`funProdIso`, `step_master_right`. Map-equality and uniqueness
-lemmas (`prodMap_comp`, `paired_unique`, `step_eq_of_ne_master`, `leastStep`, …) pull `Classical.choice`
-only through the project's established `ext_of_toElementMap` / `leastMap` `X⊆Xᵢ` decidability — the
-same documented classical *proof* steps as the §3 spine.
-
-**Remaining (need substantial new infrastructure):** 3.16 (`𝒟^∞` infinite product), 3.17 (`B→T^∞`,
-depends on 3.16), 3.25 (Scott-topology: opens of `|D|` form a domain), 3.26 (conditional `cond:T×D×D→D`
-+ `which`), 3.27 (alt representation proof via Ex 2.22). 3.24 has only part (i) so far.
+*Note on choice for 3.26:* `cond`/`condSum`/`whichMap` report `Classical.choice` in their axiom
+audit, but this is inherited structurally from the truth domain `T = Example12.neighborhoodSystem`
+(whose own `inter_mem` proof uses `fin_cases`/`simp`), exactly as the pre-existing
+`Example23.parityMap` does — not from any new choice in these constructions.
 
 ---
 
-## What just landed (Lecture III §3 — the cartesian-closed spine)
+## Working rules (read first)
 
-| Result | Module | Key Lean names |
-| ------ | ------ | -------------- |
-| **Def 3.1 / Prop 3.2** (product) | `Product.lean` | `prod`, `prodNbhd` (`Sum.inl '' X ∪ Sum.inr '' Y`), `prodNbhd_inter`/`_subset_iff`/`_injective` (choice-free), `pair`, `Element.fst`/`snd`, `pair_le_pair_iff`, `prodEquiv : |𝒟₀×𝒟₁|≃o|𝒟₀|×|𝒟₁|` |
-| **Def 3.3 / Prop 3.4** (proj/pair) | `Product.lean` | `proj₀`/`proj₁`, `paired`, `proj_comp_paired`, `toElementMap_paired_apply` (`⟨f,g⟩(w)=⟨f(w),g(w)⟩`) |
-| **Thm 3.5 / Lemma 3.6** (joint⟺separate) | `Product.lean` | `constMap`, `toElementMap_constMap`, `toMap₂`/`ofMap₂`/`map₂Equiv` (`ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂`) |
-| **Prop 3.7** (substitution) | `Product.lean` | `substitution_toElementMap` |
-| **Def 3.8** (function space) | `FunctionSpace.lean` | `step`/`stepFun`/`funSpace`; `step_inter_right`/`step_subset`/`step_master_eq`/`step_mem`; `mem_stepFun_iff` |
-| **Prop 3.9** (least map) | `FunctionSpace.lean` | `interYs`, `leastMap` (cond. (ii)), `leastMap_mem_stepFun`, `rel_interYs`, `leastMap_le` (minimality), `stepFun_subset_step_iff` (remark after 3.9) |
-| **Thm 3.10** (completeness, the crux) | `FunctionSpace.lean` | `toApproxMap`/`toFilter`, `funSpaceEquiv : |𝒟₀→𝒟₁|≃o ApproximableMap V₀ V₁` |
-| **Thm 3.11** (eval) | `FunctionSpace.lean` | `eval` (`ApproximableMap₂`), `evalMap`, `evalMap_apply` (`eval(f,x)=f(x)`) |
-| **Thm 3.12** (curry) | `FunctionSpace.lean` | `curry`/`uncurry`, `toElementMap_curry_apply`, `uncurry_curry`/`curry_uncurry`, `eval_comp_curry`/`curry_eval_comp`, `curryEquiv` (adjunction `≃o`) |
-| **Thm 3.13(i)** (pointwise order) | `FunctionSpace.lean` | `le_iff_toElementMap_le` (`f⊑g ⟺ ∀x f(x)⊑g(x)`) |
-| **Thm 3.13(ii)** (pointwise bdd) | `FunctionSpace.lean` | `MapsBounded`/`PointwiseBounded`, `mapsBounded_iff_pointwiseBounded` (`F` bdd ⟺ `{f(x)}` bdd ∀`x`) |
-| **Thm 3.13(iii)** (pointwise sup) | `FunctionSpace.lean` | `supOnPrincipal`, `sSupMaps` (via `ofMono`), `le_sSupMaps`/`sSupMaps_le`, `toElementMap_sSupMaps` (`(⊔F)(x)=⊔{f(x)}`) |
+- **One module per exercise**, named `Domain/Neighborhood/Exercise<NN>.lean` (or `Exercise<NN>Foo.lean`
+  for a second piece, e.g. `Exercise319Sum.lean`). Add `import Domain.Neighborhood.Exercise<NN>` to
+  `Domain.lean` (keep imports in numeric order).
+- **Goal:** `lake build Domain` green, **zero `sorry`**.
+- **Choice discipline:** keep every *data construction* (a `NeighborhoodSystem`, an `ApproximableMap`,
+  an `OrderIso`/`≃o`, an `Equiv`) choice-free: `#print axioms <name>` must be `⊆ {propext, Quot.sound}`.
+  Map/structure *equalities* and *uniqueness* lemmas may pull `Classical.choice` **only** through the
+  project's established `ApproximableMap.ext_of_toElementMap` (elementwise extensionality) and the
+  `leastMap`/`rel_interYs` `X ⊆ Xᵢ` case split — these are documented classical *proof* steps. Do not
+  introduce *new* choice in constructions.
+- **Prefer relational extensionality** `ApproximableMap.ext` (compares `.rel`) when you can — it is
+  choice-free, unlike `ext_of_toElementMap`.
+- After each module: build it alone, then run the axiom audit, then update `arxiv.md` (flip the row to
+  **Pass** with the module name; rows are near lines 1267–1281) and the status line of this file.
 
-**Axiom audit (Lecture III spine).** Every *construction* is choice-free `[propext, Quot.sound]`:
-`prod`, `prodEquiv`, `proj₀`, `paired`, `map₂Equiv`, `funSpace`, `funSpaceEquiv`, `eval`, `curry`,
-`curryEquiv`, `leastMap`, `interYs`. The few equational identities proved by elementwise
-extensionality (`ext_of_toElementMap`) or the `X⊆Xᵢ` case split (`leastMap_le`,
-`stepFun_subset_step_iff`, `eval_comp_curry`, `curry_eval_comp`) pull in `Classical.choice` — these
-are documented classical *proof* steps, not constructions.
+### Commands
 
----
+```bash
+cd /home/catskills/Desktop/domain_theory
+lake build Domain.Neighborhood.Exercise<NN>      # build one module
+lake build Domain                                 # full build (≈3007 jobs)
+```
 
-## What landed earlier (Lecture II — complete)
+Axiom audit (scratch file, delete after):
 
-| Result | Module | Key Lean names |
-| ------ | ------ | -------------- |
-| Def 2.1, Prop 2.2, Thm 2.5/2.6/2.7 | `Approximable.lean` | `ApproximableMap` (`rel`/`master_rel`/`inter_right`/`mono`), `toElementMap`, `rel_iff_mem_principal`, `idMap`/`comp`/laws, `ofIso`, `exists_principal_eq_apply_principal`, `sSupDirected` |
-| Ex 2.8–2.12, 2.19 | `ApproximableExercises.lean` | `ofMono`, `eq_of_toElementMap_principal`, `toElementMap_mem_iff_principal`, `interMap`, `iSupDirected`, `iSupMap`, `ApproximableMap₂`/`toElementMap₂`/`rel₂_iff_mem_principal`/`toElementMap₂_mono` |
-| Ex 2.16, 2.17 | `Exercise216.lean`, `Example24.lean` | `sigmaMap`; `runMap`/`out`/`del`/`out_append`/`out_mono` |
-| **Ex 2.13** (continuous = approximable) | `Exercise213.lean` | `continuous_toElementMap`, `continuous_monotone`, `mem_iff_principal_of_continuous`, `ofContinuous`, `toElementMap_ofContinuous` — **choice-free** |
-| **Ex 2.14** (`φ` of an iso) | `Exercise214.lean` | `phi`/`phi_spec`, `rel_ofIso_iff`, `phi_inter` |
-| **Ex 2.15** (Sierpiński/opens) | `Exercise215.lean` | one-token `O` (`Fin 1`), `topElt`/`botElt`, `openToMap`/`mapToOpen`/`openSet_equiv_map` |
-| **Ex 2.18** (spacing map) | `Exercise218.lean` | `hOut`/`kOut`, `hMap`/`kMap`, `kMap_comp_hMap` (`k∘h=I`), `kMap_not_injective`, `hMap_not_surjective` — **choice-free** |
-| **Ex 2.20** (powerset domain) | `Exercise220.lean` | `powerSet` (cofinite nbhds / `ℕ`), `equivSetNat` (`≃o Set ℕ`), `unionMap`/`interMap₂`, `succMap`/`predMap` |
-| **Ex 2.21** (system `C`, juxtaposition) | `Exercise221.lean` | `C`, `singletonElt`/`isTotal_singletonElt`, `bot_lt_Lambda`, `juxtapose`/`juxtapose_cone`/`juxtapose_singleton_mem` — **choice-free** |
-| **Ex 2.22** (abstract representation theorem) | `Exercise222.lean` | `Cl`, `IsTok`, `reprSystem`, `toC`/`ofC`, `mem_nbhd_iff`, `reprIso` (`≃o C`) — classical |
-
-**Axiom audit (Lecture II this session).** Choice-free `[propext, Quot.sound]`: 2.13, 2.18, 2.21.
-Classical (`Classical.choice`, documented as intrinsic): 2.14, 2.15, 2.20, 2.22. Details in
-`arxiv.md §4.5`.
+```bash
+cat > scratch_axioms.lean <<'EOF'
+import Domain.Neighborhood.Exercise<NN>
+open Domain.Neighborhood
+#print axioms <name1>
+#print axioms <name2>
+EOF
+lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
+```
 
 ---
 
-## Hard constraints
+## Reusable API cheat-sheet (what the remaining exercises build on)
 
-- **Zero `sorry`s.** Everything must compile under `lake build Domain`.
-- **Axiom footprint:** keep *constructions* and *structural* lemmas choice-free
-  (`[propext, Quot.sound]`); audit with `#print axioms` in a scratch file, then delete it. Classical
-  steps are OK where genuinely needed — **document** in the module docstring and `arxiv.md §4.5`.
-- **Do not commit or push** unless explicitly asked.
-- **Read the source first:** `sources/PRG19_vision.md` lines **939–1642** (Def 3.1 → Exercise 3.28).
-- **Update docs on completion:** mark rows **Pass** in `arxiv.md §4.2.III`; refresh the §4.4 tally and
-  the report-card module list; add §4.5 proof notes; update this file.
+### Core (`Basic.lean`)
+- `structure NeighborhoodSystem (α)` fields: `mem : Set α → Prop`, `master : Set α`, `master_mem`,
+  `inter_mem : mem X → mem Y → mem Z → Z ⊆ X∩Y → mem (X∩Y)`, `sub_master : mem X → X ⊆ master`.
+- `V.Element` = filters: fields `mem`, `up_mem`, `master_mem`, `inter_mem`; `Element.ext` (by `mem`),
+  order `≤` is `∀ Z, y.mem Z → x.mem Z`-style reverse-inclusion-of-filters (`x ≤ y` ⟺ `x.mem ⊆ y.mem`).
+- `V.principal (hX : V.mem X) : V.Element`, `V.bot`, `mem_bot`.
+- `DomainIso V₀ V₁ := V₀.Element ≃o V₁.Element`; `Isomorphic V₀ V₁` (`V₀ ≅ᴰ V₁`) `:= Nonempty (DomainIso …)`;
+  `Isomorphic.refl/symm/trans`. **Pitfall:** the superscript `ᴰ` is fine in the *notation* `≅ᴰ` but
+  **cannot** appear in plain identifiers (`prodCommᴰ` fails to parse) — use `D` (`prodCommD`).
 
----
+### Approximable maps (`Approximable.lean`, `ApproximableExercises.lean`)
+- `structure ApproximableMap V₀ V₁` fields: `rel : Set α → Set β → Prop`, `rel_dom`, `rel_cod`,
+  `master_rel`, `inter_right`, `mono`. `ApproximableMap.ext` (relational), `ext_of_toElementMap`.
+- `toElementMap f : V₀.Element → V₁.Element`; `rel_iff_mem_principal`; `idMap`, `comp` (`(A.comp B).rel x z = ∃ y, B.rel x y ∧ A.rel y z`),
+  `toElementMap_comp`, `toElementMap_idMap`, `ofIso`.
+- `ofMono`, `interMap`, `iSupMap`, `ApproximableMap₂` (curried two-arg maps), `toElementMap₂`.
 
-## Theorem 3.13(ii)(iii) — DONE (vision 1385–1399)
+### Products (`Product.lean`)
+- `prod V₀ V₁ : NeighborhoodSystem (α ⊕ β)`; `prodNbhd X Y = Sum.inl '' X ∪ Sum.inr '' Y` (= Scott's
+  `0X ∪ 1Y`); `prodNbhd_inter`, `prodNbhd_subset_iff`, `prodNbhd_injective` (all choice-free).
+- `pair x y`, `Element.fst`, `Element.snd`, `fst_pair`/`snd_pair`/`pair_fst_snd`, `pair_le_pair_iff`,
+  `prodEquiv : (prod V₀ V₁).Element ≃o V₀.Element × V₁.Element`.
+- `proj₀`/`proj₁`, `paired`, `proj₀_comp_paired`/`proj₁_comp_paired`, `paired_proj`,
+  `toElementMap_paired`, `toElementMap_proj₀`/`_proj₁`, `constMap`, `toElementMap_constMap`.
+- `toMap₂`/`ofMap₂`/`map₂Equiv` (`ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂`),
+  `substitution_toElementMap`.
 
-The full spine **Def 3.1 → Thm 3.13** is now formalized. For `F ⊆ |𝒟₀→𝒟₁|`:
+### Sum (`Exercise318.lean`) — the model to copy for tagged/indexed constructions
+- Tokens `Option (α ⊕ β)`: `Λ = none`, `il a = some (inl a)`, `ir b = some (inr b)`.
+- `inj₀ X = il '' X` (`0X`), `inj₁ Y = ir '' Y` (`1Y`); membership simp lemmas `il_mem_inj₀` etc.;
+  `inj₀_inter`, `inj₀_inter_inj₁ = ∅`, `inj₀_subset_inj₀ ↔ ⊆`, `inj₀_injective` (all choice-free).
+- `sumMaster`, `sum V₀ V₁ (h₀ : ∀X, V₀.mem X → X.Nonempty) (h₁ : …) : NeighborhoodSystem (Option (α⊕β))`.
+  **Non-emptiness `h₀ h₁` is what makes `inter_mem` hold** (cross pairs `0X ∩ 1Y = ∅` are inconsistent).
+- `inMap₀`/`inMap₁`, `outMap₀`/`outMap₁` (via choice-free `leftPart`/`rightPart` retraction helpers),
+  `outMapᵢ_comp_inMapᵢ = idMap`. `Exercise319Sum.lean` adds `sumMap` (`f+g`) and `mem_subset_inj₀`,
+  `eq_sumMaster_of_subset`, `not_inj₀_subset_inj₁` (handy structural lemmas).
 
-- **(ii)** `mapsBounded_iff_pointwiseBounded` — `F` is bounded (`MapsBounded`) iff `{f(x) ∣ f∈F}` is
-  bounded in `|𝒟₁|` for each `x` (`PointwiseBounded`). Forward is Thm 3.13(i)
-  (`le_iff_toElementMap_le`) applied pointwise; backward exhibits `sSupMaps F` as the bound.
-- **(iii)** `sSupMaps F hF` is built choice-free: `supOnPrincipal` takes the `Element` sup
-  (`Exercise127.lean`'s `Bounded`/`sSup`/`le_sSup`/`sSup_le`) of `{f(↑X) ∣ f∈F}` on principal inputs,
-  then Exercise 2.8's `ofMono` extends it (monotonicity = `supOnPrincipal_mono`). `le_sSupMaps` /
-  `sSupMaps_le` prove it is the least upper bound, and `toElementMap_sSupMaps` proves the pointwise
-  identity `(⊔F)(x) = ⊔{f(x) ∣ f∈F}` by `le_antisymm` (read `(⊔F)(x)` off a principal `↑X` via
-  Exercise 2.9's `toElementMap_mem_iff_principal`, bound it using `↑X ⊑ x`).
+### Function space (`FunctionSpace.lean`, `Exercise321.lean`, `Exercise328.lean`)
+- `step X Y = {f | f.rel X Y}` (`[X,Y]`), `stepFun L`, `stepFun_singleton`, `step_inter_right`,
+  `step_subset`, `step_master_eq`, `step_mem`, `mem_stepFun_iff`.
+- `funSpace V₀ V₁ : NeighborhoodSystem (ApproximableMap V₀ V₁)`,
+  `funSpaceEquiv : (funSpace V₀ V₁).Element ≃o ApproximableMap V₀ V₁`, `toApproxMap`/`toFilter`.
+- `interYs`, `mem_interYs`, `interYs_antitone`, `leastMap L hL hcons`, `leastMap_rel`,
+  `leastMap_mem_stepFun`, `rel_interYs`, `leastMap_le`, `stepFun_subset_step_iff`.
+- `eval`/`evalMap`/`evalMap_apply`, `curry`/`uncurry`/`curryEquiv`, `le_iff_toElementMap_le`,
+  pointwise-bdd/sup (`mapsBounded_iff_pointwiseBounded`, `sSupMaps`, `toElementMap_sSupMaps`).
+- 3.15 helpers in `Exercise315.lean`: `unitSys` (terminal `𝟙`), `prodCongrOrderIso`,
+  `prodUniqueOrderIso`, `uniqueProdOrderIso` (choice-free `≃o` for plain `Prod`; **mathlib has
+  `OrderIso.prodComm`/`prodAssoc` but NOT `prodCongr`/`prodUnique` for non-lex products** — hence these).
 
-All `[propext, Quot.sound]` (no `Classical.choice`). No new `Element`-sup infra was needed —
-`Exercise127.lean` already had bounded-`sSup` for `Element`.
-
----
-
-## Exercises 3.14–3.28 (after the spine)
-
-| Exercise | One-liner | Key dependency |
-| -------- | --------- | -------------- |
-| 3.14 | tagged product `0Δ₀∪1Δ₁`; `diag:D→D×D`; `n`-fold products | Def 3.1 |
-| 3.15 | product isos: comm/assoc/empty/functoriality | Prop 3.2 |
-| 3.16 | `𝒟^∞` over `Δ^∞`; `𝒟^∞ ≅ 𝒟×𝒟^∞` | 3.14 |
-| 3.17 | `B→T^∞`, `T^∞→B`; section/retraction | 3.16, `ExampleB` |
-| 3.18 | **sum** system `𝒟₀+𝒟₁`; `inᵢ`/`outᵢ`; `outᵢ∘inᵢ=I` | Def 3.1 (dual) |
-| 3.19 | functorial `f×g`, `f+g` | 3.18, Prop 3.4 |
-| 3.20 | (cat) `+`,`×` functors; `×` categorical product | 3.19 |
-| 3.21 | `[Y,Z]` determines `Y,Z` when `Z≠Δ₂` | Def 3.8 |
-| 3.22 | composition `(D₁→D₂)×(D₀→D₁)→(D₀→D₂)` approximable | Thm 3.11/3.12 |
-| 3.23 | (cat) domains+approximable maps are CCC | Thm 3.11/3.12 |
-| 3.24 | more function-space isos | Thm 3.12 |
-| 3.25 | (top) open subsets of `\|D\|` form a domain | Thm 3.10, Ex 1.21, **Ex 2.13** |
-| 3.26 | `fix:(D→D)→D` least fixed point, approximable | Thm 3.10/3.11 |
-| 3.27 | (set) alt proof `(D₀→D₁)` is a domain via **Ex 2.22** | `Exercise222.lean` |
-| 3.28 | minimal element of `⋂[Xᵢ,Yᵢ]`: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | Def 3.8, `sSupDirected` |
-
----
-
-## Reusable infrastructure (in the codebase)
-
-| Need | Where |
-| ---- | ----- |
-| `ApproximableMap`, `toElementMap`, `rel_iff_mem_principal`, `idMap`/`comp`/`comp_assoc`/laws, `ofIso`, `exists_principal_eq_apply_principal`, `sSupDirected` | `Approximable.lean` |
-| `ofMono`, `toElementMap_mem_iff_principal` (**Ex 2.9**), `interMap`, `iSupDirected`/`iSupMap`, **`ApproximableMap₂`/`toElementMap₂`/`rel₂_iff_mem_principal`/`toElementMap₂_mono`** (**Ex 2.19 — central to 3.5/3.11**) | `ApproximableExercises.lean` |
-| `continuous_toElementMap`/`ofContinuous` (continuity bridge — **3.25**) | `Exercise213.lean` |
-| `reprSystem`/`reprIso`/`Cl`/`IsTok` (abstract representation — **alt proof for 3.27**) | `Exercise222.lean` |
-| `basicOpen`, topology of `\|𝒟\|`, `le_iff_isOpen_imp`, `specializes_iff_le` (**3.25**) | `Exercise122.lean` |
-| `bracket`/`tokenSystem`/`tokenIso`; `iUnion`/`iInter` closure | `Theorem110.lean`, `Theorem111.lean` |
-| `FinitelyConsistent`/`sInf`/`leastFilter`; `Bounded`/`sSup`/`consistent_pair_iff_bounded` | `Exercise118.lean`, `Exercise127.lean` |
-| `B`/`cone`/`prepend`; `runMap`/`out`/`del` | `ExampleB.lean`, `Example24.lean` |
-| `principal`, `principal_le_iff`, `IsTotal`, `bot`, `DomainIso`/`≃o`, `ofNestedOrDisjoint`, `ofPositive` | `Basic.lean` |
-| **continuous-lattice analogue of the function space** (structural reference for Thm 3.10) | `Domain/ContinuousLattice/FunctionSpaceTower.lean` |
+### Examples reused below
+- **`Example12.lean`** (`= Example23.T`): the truth domain `T` over `Token = Fin 2`, neighbourhoods
+  `memSet = {master=univ, zero={0}, one={1}}`; `mem_iff`, `not_mem_empty`, `elemZero`/`elemOne`.
+  `Example23.lean`: `trueElt = elemZero`, `falseElt = elemOne`, `botElt = T.bot`, `botElt_le`.
+- **`ExampleB.lean`**: binary system `B` over `Str = List Bool`; `cone σ = {w | σ <+: w}`, `B`,
+  `sigmaBot`, `sigmaElt`, `cone_subset_cone`, prefix trichotomy via `ofNestedOrDisjoint`.
+- **`Exercise222.lean`**: abstract representation theorem — `reprSystem`, `toC`/`ofC`, `reprIso` (`≃o C`).
+- **`Exercise213.lean`**: continuous ⟺ approximable, `ofContinuous`, topology bridge for `|D|`.
 
 ---
 
-## Workflow
+## The five remaining exercises (with concrete plans)
 
-1. Read `sources/PRG19_vision.md` lines **1405–1642** (Ex 3.14–3.28). The §4.2.III
-   inventory in `arxiv.md` has the exact vision line ranges per row.
-2. The exercises 3.14–3.28, one module each (`Construction3xx.lean` or grouped sensibly).
-   `Product.lean`/`FunctionSpace.lean` already provide the products, sums-precursors, `eval`,
-   `curry`, `leastMap`, etc. Note 3.28 = `leastMap`'s elementwise formula `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}`,
-   which connects directly to the already-built `leastMap`/`interYs`.
-4. Add each file to `Domain.lean`; keep `lake build Domain` green; `#print axioms` scratch audit
-   (delete the scratch file after).
-5. Update `arxiv.md`: §4.2.III rows → **Pass**; §4.4 tally (Lecture III count, total); report-card
-   module list; §4.5 proof notes. Update this `HANDOFF.md` for whatever remains (Lecture IV is
-   partially OCR'd from line 1646 but not yet inventoried).
+### Exercise 3.16 — the infinite power `𝒟^∞` (HARD; the keystone, 3.17 & 3.24(ii) depend on it)
+Source lines ~1443–1466. `Δ^∞ = ⋃_{n≥0} 1ⁿ0 Δ` (infinitely many disjoint tagged copies of `Δ`).
+`𝒟^∞` is the **least** family with (1) `Δ^∞ ∈ 𝒟^∞`, and (2) `X ∈ 𝒟`, `Y ∈ 𝒟^∞` ⟹ `0X ∪ 1Y ∈ 𝒟^∞`.
+Deliverables: `𝒟^∞` is a neighbourhood system over `Δ^∞`; **`𝒟^∞ ≅ 𝒟 × 𝒟^∞`**; elements of `|𝒟^∞|`
+↔ arbitrary sequences `⟨xₙ⟩` of `|𝒟|`-elements (via `0X₀ ∪ 10X₁ ∪ ⋯ ∪ 1ⁿ0Xₙ ∪ ⋯`, eventually all `Δ`).
+
+Plan / suggested encoding:
+- **Tokens:** `ℕ × α` works cleanly — token `(n, a)` *is* `1ⁿ0 a`. Then `Δ^∞ = Set.univ`-image
+  `{(n,a) | a ∈ Δ}`, copy-`n` is `{n} ×ˢ Δ`. A general neighbourhood from rule (2) iterated is a
+  *finite* prefix of per-index neighbourhoods then `Δ` forever: `W = ⋃ₙ ({n} ×ˢ Xₙ)` with `Xₙ ∈ 𝒟`
+  and `Xₙ = Δ` for all `n ≥ N` (some `N`). Model a neighbourhood by a function `g : ℕ → Set α` with
+  `(∀ n, V.mem (g n)) ∧ (∃ N, ∀ n ≥ N, g n = V.master)`; the set is `{(n,a) | a ∈ g n}`.
+  Define `mem W := ∃ g, (cofinitely master) ∧ W = {p | p.2 ∈ g p.1}`. **`inter_mem`** is pointwise
+  (`(g ∩ g')ₙ = gₙ ∩ g'ₙ`, still cofinitely `Δ`, witness pointwise from the `Z`).
+- **`𝒟^∞ ≅ 𝒟 × 𝒟^∞`** (`prod V (D∞)` over `α ⊕ (ℕ×α)`): the iso shifts indices —
+  `0X ∪ 1Y ↔ (X, Y)` i.e. `g ↔ (g 0, n ↦ g (n+1))`. Build the element-level `≃o` and conclude `≅ᴰ`.
+  This is the analogue of `Exercise315`'s product isos; reuse `prodEquiv`.
+- **Elements ↔ sequences:** `|𝒟^∞| ≃o (∀ n, |𝒟|)` with the **product order**. Forward: a filter `x`
+  gives `xₙ := out at copy n`; back: a sequence gives the filter generated by the cofinite-`Δ` nbhds.
+  Mirror `prodEquiv`'s proof style. Expect this to be the longest part.
+- **Pitfalls:** "least family" — don't try to define via an inductive `Prop` if you can give the closed
+  form above (closed form is easier to prove `inter_mem`/`sub_master` for, and is choice-free). Keep
+  the cofinite-`Δ` witness as explicit data, not `∃` you must `choose` from (avoid `Classical.choice`).
+
+### Exercise 3.17 — `B ⇆ T^∞` (depends on 3.16 giving `T^∞`)
+Source ~1468–1486. Need a **one-one** approximable `f : B → T^∞` and `g : T^∞ → B` with `g∘f = I_B`
+and `f∘g ⊆ I_{T^∞}` (so `f` is a section, `g` a retraction; `B` is a *retract* of `T^∞`). Then discuss
+(prose-level or as `¬ Isomorphic`) whether `B ≅ T^∞` and `B ≅ T × B`.
+- Idea: a binary string / infinite binary sequence ↔ a sequence of truth values (`T`'s `true/false/⊥`).
+  `f` sends the `B`-cone of `σ` to the `T^∞`-sequence "first `|σ|` coordinates are the bits of `σ`
+  (as `true/false`), rest `⊥`". `g` reads coordinates back into a prefix. Use `Example23.trueElt`/
+  `falseElt`/`botElt`. Reuse the `comp`/`idMap` and the `≤`-as-`⊆` on maps for `f∘g ⊆ I`.
+- Pattern to copy: `Exercise318`'s `outMapᵢ_comp_inMapᵢ = idMap` (relational `ext`), and
+  `Exercise218` (`kMap_comp_hMap = I`, plus `not_injective`/`not_surjective` for the "are they iso?"
+  questions) in Lecture II.
+
+### Exercise 3.25 — open subsets of `|D|` form a domain (For topologists)
+Source line 1578. Recall `|D|` as a topological space (Exercises 1.21, 2.13 — see `Exercise213.lean`
+for the continuity/topology bridge, and `Exercise215.lean` for the Sierpiński/opens-as-maps idea).
+Using Thm 3.10, show the family of **open subsets of `|D|`** is isomorphic to a domain.
+- Likely route: opens of `|D|` ↔ continuous maps `|D| → 𝕊` (Sierpiński) ↔ approximable maps `D → O`
+  (the one-token system `O` of `Exercise215.lean`, where `openSet_equiv_map` already gives
+  opens ≃ maps for that example) ↔ `|D → O|` via `funSpaceEquiv` (Thm 3.10). So the target domain is
+  `funSpace D O`. Assemble `Opens |D| ≃o |funSpace D O|`. Check what `Exercise213`/`215` already expose
+  before building topology from scratch.
+
+### Exercise 3.26 — the conditional operator `cond` (self-contained; flagship) — ✅ DONE (`Exercise326.lean`, `Exercise326Sum.lean`)
+Source ~1580–1620. For every domain `D`, an approximable `cond : T × D × D → D` with
+`cond(true,x,y)=x`, `cond(false,x,y)=y`, `cond(⊥,x,y)=⊥`. **Scott's hint gives the relation directly**
+(with `T = {{0},{1},{0,1}}`, using the 3.14 tagged product):
+```
+0C ∪ 10X ∪ 110Y  cond  Z   iff   (0∈C ∧ X⊆Z) ∨ (1∈C ∧ Y⊆Z) ∨ (0,1∈C ∧ Δ⊆Z).
+```
+Plan:
+- Domain is `prod T (prod D D)` (tokens `T.Token ⊕ (α ⊕ α)`). A neighbourhood is
+  `prodNbhd C (prodNbhd X Y)`; recover `C, X, Y` from `W` by preimage/`leftPart`-style projection
+  (reuse `Product.lean` projections / `proj₀ ∘ ...`, or write `Cpart/Xpart/Ypart` like `leftPart`).
+- `T.Token = Fin 2`; "`0 ∈ C`" is `(0 : Fin 2) ∈ C`, "`1 ∈ C`" is `(1 : Fin 2) ∈ C`. With
+  `Example12.mem_iff`, `C ∈ {Δ,{0},{1}}` so the three guard combinations are: `{0}`→only first,
+  `{1}`→only second, `Δ`→third (and both firsts), giving the `cond(true/false/⊥)` outputs.
+- Prove `inter_right`/`mono` for the relation (case on which guards hold; similar bookkeeping to
+  `Exercise319Sum.sumMap`). Then the three elementwise identities via `toElementMap`.
+- Then the **two follow-ups**: (a) the sum-valued operator `T × D₀ × D₁ → D₀ + D₁` (route `true→in₀`,
+  `false→in₁`); (b) `which : D₀ + D₁ → T` with
+  `cond(which x, in₀(out₀ x), in₁(out₁ x)) = x` — `which` reads the tag (`0X→true`, `1Y→false`,
+  `Λ→⊥`). Reuse `inMapᵢ`/`outMapᵢ` from `Exercise318`.
+
+### Exercise 3.27 — alternate proof that `(D₀→D₁)` is a domain (For set theorists)
+Source ~1622–1628. Reprove "`{f : D₀→D₁}` ≅ a domain" via the **general argument of Exercise 2.22**
+(`Exercise222.lean`: `reprSystem`/`reprIso`) instead of the explicit 3.9/3.10 construction; compare the
+methods (a short prose `/-! -/` discussion is appropriate, but back the iso with Lean). Second part:
+show `eval : (D₁→D₂) × D₁ → D₂` is approximable **without** explicit neighbourhoods, using Thm 3.5
+(`map₂Equiv`) and the idea of Exercise 2.12. Mostly a re-derivation that reuses existing pieces.
+
+### Also missing: Exercise 3.24 (ii)(iii)(iv)
+`Exercise324.lean` has only **(i)** `(D₀→D₁×D₂) ≅ (D₀→D₁)×(D₀→D₂)`. Still to do:
+(ii) `(D₀→D₁^∞) ≅ (D₀→D₁)^∞` (needs 3.16); (iii) `D₀×(D₁+D₂) ≅ (D₀×D₁)+(D₀×D₂)` (needs sum, may be
+false/partial — Scott says "if not true, establish mapping relationships"); (iv)
+`(D₀+D₁)→D₂ ≅ (D₀→D₂)×(D₁→D₂)`. Suggested order: do (iv) and (iii) after 3.26; (ii) after 3.16.
+
+**Recommended sequence:** ~~3.26 (self-contained, high value)~~ ✅ DONE → 3.16 (keystone) →
+3.17 & 3.24(ii) (use 3.16) → 3.24(iv)/(iii) → 3.25 → 3.27.
 
 ---
 
-## Key reference files
+## Pitfalls learned this session (don't relearn them)
+- **`ᴰ` in identifiers fails to parse.** Notation `≅ᴰ` is fine; names must use `D`.
+- **`simpa`/`simp` can pull `Classical.choice`** into a construction. In choice-free lemmas, replace with
+  explicit term-mode (`il_mem_inj₀.mp (h (il_mem_inj₀.mpr ha))`) or `simp only [...]`. `Set.image_mono`
+  / `Set.image_subset` were unavailable/choice-y — unfold and use `obtain ⟨a, ha, rfl⟩`.
+- **`rw` needs syntactic match:** `(sum …).master` is *defeq* but not syntactically `sumMaster …`; pass
+  an explicitly-typed `show W ⊆ sumMaster … from …` to `Set.inter_eq_right.mpr`, or use `Eq.subset`.
+- **`X ▸ subset_rfl` often fails** to rewrite the right occurrence; prefer `hEq ▸ hsub` where `hsub` is
+  the actual subset hypothesis (e.g. `hWX₀ ▸ hinj : inj₀ X ⊆ inj₀ X₀`).
+- **`rw [foo]` leaves a `⊆`-refl goal open** (e.g. after `leftPart_inj₀`); finish with the term
+  `(leftPart_inj₀ V Z).subset` or add `exact subset_rfl`.
+- **`OrderIso.prodCongr`/`prodUnique`/`uniqueProd` don't exist for plain `Prod`** — use the helpers in
+  `Exercise315.lean`. `OrderIso.prodAssoc` is `(A×B)×C ≃o A×(B×C)`; take `.symm` for the other way.
+- **Don't `choose` from existentials in a construction** (pulls choice). Carry witnesses as data.
 
-| File | Role |
-| ---- | ---- |
-| `sources/PRG19_vision.md` | **Primary source** — Ex 3.14–3.28 @1405–1642 (spine Def 3.1–Thm 3.13 already formalized) |
-| `arxiv.md §4.2.III` | full Lecture III inventory; spine rows (Def 3.1–Thm 3.13) **Pass**, Ex 3.14–3.28 **Not Yet** |
-| `Domain/Neighborhood/Product.lean` | **§3.1–3.7** — `prod`/`prodEquiv`, `proj`/`paired`, `constMap`, `map₂Equiv`, `substitution_toElementMap` |
-| `Domain/Neighborhood/FunctionSpace.lean` | **§3.8–3.13** — `funSpace`/`funSpaceEquiv`, `leastMap`, `eval`/`evalMap`, `curry`/`uncurry`/`curryEquiv`, `le_iff_toElementMap_le`, `sSupMaps`/`toElementMap_sSupMaps` |
-| `Domain/Neighborhood/Approximable.lean` | `ApproximableMap`, `comp`, `ofIso`, `sSupDirected` |
-| `Domain/Neighborhood/ApproximableExercises.lean` | `ApproximableMap₂` (Ex 2.19) — central to products/eval |
-| `Domain.lean` | already imports `Product`, `FunctionSpace`; add `Construction3xx` imports for the exercises |
-
-The §3 **spine (3.1 → 3.13) is formalized**, so the cartesian-closed-category structure of
-domains (`eval`, `curry`, `curryEquiv`) plus the pointwise lattice structure of the function space
-(`sSupMaps`) is in place. The exercises then fill in sums, infinite products, `fix`, and the
-categorical statements.
+## Files map
+- New work goes in `Domain/Neighborhood/Exercise<NN>.lean`, imported from `Domain.lean`.
+- Source statements: `sources/PRG19_vision.md` (3.16 ~1443; 3.17 ~1468; 3.24 ~1566; 3.25 ~1578;
+  3.26 ~1580; 3.27 ~1622).
+- Inventory/status: `arxiv.md` (Lecture III exercise rows ~1267–1281; flip to **Pass**).
+- This file: update the status line as you complete modules.
