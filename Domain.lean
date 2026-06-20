@@ -37,5 +37,12 @@ import Domain.Neighborhood.Approximable
 import Domain.Neighborhood.ApproximableExercises
 import Domain.Neighborhood.Example23
 import Domain.Neighborhood.Example24
+import Domain.Neighborhood.Exercise213
+import Domain.Neighborhood.Exercise214
+import Domain.Neighborhood.Exercise215
 import Domain.Neighborhood.Exercise216
+import Domain.Neighborhood.Exercise218
+import Domain.Neighborhood.Exercise220
+import Domain.Neighborhood.Exercise221
+import Domain.Neighborhood.Exercise222
 import Domain.InfoSys
