@@ -7,7 +7,36 @@ Computation* (Technical Monograph PRG-19) in:
 
 **Lecture I is COMPLETE (43 Pass).** **Lecture II is COMPLETE (22 Pass).** **The Lecture III (§3)
 spine is COMPLETE (15 Pass): Def 3.1 → Theorem 3.13** (`lake build Domain` green, zero `sorry`s).
-Current total: **80 Pass**. **Remaining Lecture III work:** Exercises 3.14–3.28 (`arxiv.md §4.2.III`).
+Current total: **80 Pass + 10 Lecture III exercises**. **Remaining Lecture III work:** Exercises
+3.16, 3.17, 3.25, 3.26, 3.27 (`arxiv.md §4.2.III`).
+
+---
+
+## Lecture III §3 exercises landed (3.14–3.28 batch)
+
+| Exercise | Module | Key Lean names |
+| -------- | ------ | -------------- |
+| **3.14** (diagonal) | `Exercise314.lean` | `diag = ⟨I,I⟩`, `toElementMap_diag` (`diag x = ⟨x,x⟩`), `proj₀_comp_diag` |
+| **3.15** (product isos) | `Exercise315.lean` | `prodCommD`, `prodAssocD`, `unitSys` (terminal `𝟙`), `prodUnitD`/`unitProdD`, `prodCongrD`; choice-free order-iso helpers `prodCongrOrderIso`/`prodUniqueOrderIso` |
+| **3.18** (sum system) | `Exercise318.lean` | `sum` (over `Option (α⊕β)`, choice-free), `inMap₀`/`inMap₁`, `outMap₀`/`outMap₁` (via `leftPart`/`rightPart`), `outMapᵢ_comp_inMapᵢ = I` |
+| **3.19/3.20** (product) | `Exercise319.lean` | `prodMap = ⟨f∘p₀,g∘p₁⟩`, `toElementMap_prodMap`, `prodMap_id`/`prodMap_comp` (functor), `paired_unique` (categorical product) |
+| **3.19** (sum functor) | `Exercise319Sum.lean` | `sumMap` (`f+g`, choice-free), `outMap₀_comp_sumMap_comp_inMap₀ = f`, `…inMap₁ = g`; non-uniqueness noted (`Λ↦Λ` choice) |
+| **3.21** (`[Y,Z]` identity) | `Exercise321.lean` | `leastStep`, `step_master_right`, `step_eq_univ_iff`, `step_eq_of_ne_master` (uniqueness for `Z≠Δ₂`), `step_eq_iff` (general criterion) |
+| **3.22** (composition) | `Exercise322.lean` | `compApp`/`compMap = curry(compApp)`, `toApproxMap_compMap` (`comp(g,f)=g∘f`) |
+| **3.23** (CCC) | `Exercise323.lean` | terminal `Unique (ApproximableMap V unitSys)`, `toUnit`, `homAdjunction = curryEquiv` |
+| **3.24(i)** (fun-prod) | `Exercise324.lean` | `funProdEquiv`, `funProdIso`, `funProd_isomorphic` (`(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)`) |
+| **3.28** (least-map formula) | `Exercise328.lean` | `leastMapVals`, `toElementMap_leastMap_eq_sSup` (`f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}`) |
+
+**Axiom audit (this batch).** Choice-free *constructions* `[propext, Quot.sound]`: `diag`, all of 3.15's
+order-isos, `sum`/`inMapᵢ`/`outMapᵢ`/retraction identities, `sumMap` + both defining identities,
+`prodMap`, `compMap`, `funProdEquiv`/`funProdIso`, `step_master_right`. Map-equality and uniqueness
+lemmas (`prodMap_comp`, `paired_unique`, `step_eq_of_ne_master`, `leastStep`, …) pull `Classical.choice`
+only through the project's established `ext_of_toElementMap` / `leastMap` `X⊆Xᵢ` decidability — the
+same documented classical *proof* steps as the §3 spine.
+
+**Remaining (need substantial new infrastructure):** 3.16 (`𝒟^∞` infinite product), 3.17 (`B→T^∞`,
+depends on 3.16), 3.25 (Scott-topology: opens of `|D|` form a domain), 3.26 (conditional `cond:T×D×D→D`
++ `which`), 3.27 (alt representation proof via Ex 2.22). 3.24 has only part (i) so far.
 
 ---
 

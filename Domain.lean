@@ -47,4 +47,14 @@ import Domain.Neighborhood.Exercise221
 import Domain.Neighborhood.Exercise222
 import Domain.Neighborhood.Product
 import Domain.Neighborhood.FunctionSpace
+import Domain.Neighborhood.Exercise314
+import Domain.Neighborhood.Exercise315
+import Domain.Neighborhood.Exercise318
+import Domain.Neighborhood.Exercise319
+import Domain.Neighborhood.Exercise319Sum
+import Domain.Neighborhood.Exercise321
+import Domain.Neighborhood.Exercise322
+import Domain.Neighborhood.Exercise323
+import Domain.Neighborhood.Exercise324
+import Domain.Neighborhood.Exercise328
 import Domain.InfoSys
