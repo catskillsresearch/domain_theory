@@ -1403,22 +1403,22 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | **Pass** (`Exercise424.lean`: Tarski set `sbSet = lfpSet ((A−g B)∪g(f X))` (choice-free), bijection `sbFun` with `sbFun_injective`/`sbFun_surjective` ⟹ `schroeder_bernstein` + `schroeder_bernstein_equiv : A ≃ B`; classical) |
 | **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | **Pass** (`Exercise425.lean`: nested-or-disjoint `C1` over `{1}* ≅ ℕ` (tails + singletons), `oneElem`/`oneBot`, successor `consMap` (`consMap_oneElem`/`_oneBot`), the infinite fixed point `infElt = 1^∞` (`infElt_eq`) distinguishing non-flat `C₁` from flat `N`, and the relating map `relateNToC1 : N → C₁`; data choice-free) |
 
-### 4.2.V Lecture V — *Typed λ-calculus* (transcribed; formalization deferred)
+### 4.2.V Lecture V — *Typed λ-calculus* (partially formalized)
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
-| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | — |
-| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | — |
-| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise | — |
-| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | — |
-| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | — |
+| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | `Theorem51.lean` |
+| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | `Theorem52.lean` |
+| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise (Bekić) | `Proposition53.lean` |
+| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | `Proposition54.lean` |
+| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | `Table55.lean` |
 | **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | — |
-| **Exercise 5.7** | Exercise | 3001 | find definitions of various combinators | — |
+| **Exercise 5.7** | Exercise | 3001 | multi-variable `λ`/application from one-variable forms (`p₀`,`p₁`,`pair`) | `Exercise507.lean` |
 | **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinators ↔ `λ`-expressions via `σ(τ)` only | — |
-| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | — |
+| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | `Exercise509.lean` |
 | **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
-| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators | — |
-| **Exercise 5.12** | Exercise | 3067 | a combinator on `D` by least fixed point | — |
+| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | `Exercise511.lean` |
+| **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | `Exercise512.lean` |
 | **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |
 | **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
 | **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |

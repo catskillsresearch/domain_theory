@@ -88,4 +88,13 @@ import Domain.Neighborhood.Exercise422
 import Domain.Neighborhood.Exercise423
 import Domain.Neighborhood.Exercise424
 import Domain.Neighborhood.Exercise425
+import Domain.Neighborhood.Table55
+import Domain.Neighborhood.Theorem51
+import Domain.Neighborhood.Theorem52
+import Domain.Neighborhood.Proposition53
+import Domain.Neighborhood.Proposition54
+import Domain.Neighborhood.Exercise507
+import Domain.Neighborhood.Exercise509
+import Domain.Neighborhood.Exercise511
+import Domain.Neighborhood.Exercise512
 import Domain.InfoSys
