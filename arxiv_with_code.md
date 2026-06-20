@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED: run scripts/generate_arxiv_with_code.sh to refresh -->
 # Scott's 3 Successively Less Topological, Simpler, and More Constructive Presentations of Domain Theory and Their Equivalence — full narrative + complete Lean source
 
-*Generated 2026-06-19 from `arxiv.md` and all library `.lean` files in dependency order (`Domain.lean`).*
+*Generated 2026-06-20 from `arxiv.md` and all library `.lean` files in dependency order (`Domain.lean`).*
 
 **Review copy.** The narrative body matches [`arxiv.md`](arxiv.md) (excluding the review pointer at the top). This file appends **Appendix A: Complete Lean source** with every line of the formalization inlined below.
 
@@ -16,7 +16,7 @@
 
 ### Appendix A — file index
 
-- [`Domain.lean`](#domainlean) — 18 lines
+- [`Domain.lean`](#domainlean) — 69 lines
 - [`Domain/Constructive.lean`](#domainconstructivelean) — 92 lines
 - [`Domain/ContinuousLattice/Injective.lean`](#domaincontinuouslatticeinjectivelean) — 125 lines
 - [`Domain/ContinuousLattice/WayBelow.lean`](#domaincontinuouslatticewaybelowlean) — 229 lines
@@ -28,7 +28,7 @@
 - [`Domain/ContinuousLattice/Theorem212.lean`](#domaincontinuouslatticetheorem212lean) — 291 lines
 - [`Domain/ContinuousLattice/InverseLimits.lean`](#domaincontinuouslatticeinverselimitslean) — 595 lines
 - [`Domain/ContinuousLattice/FunctionSpaceTower.lean`](#domaincontinuouslatticefunctionspacetowerlean) — 632 lines
-- [`Domain/Neighborhood/Basic.lean`](#domainneighborhoodbasiclean) — 304 lines
+- [`Domain/Neighborhood/Basic.lean`](#domainneighborhoodbasiclean) — 449 lines
 - [`Domain/Neighborhood/Example12.lean`](#domainneighborhoodexample12lean) — 288 lines
 - [`Domain/Neighborhood/Example13.lean`](#domainneighborhoodexample13lean) — 309 lines
 - [`Domain/Neighborhood/Example14.lean`](#domainneighborhoodexample14lean) — 856 lines
@@ -36,7 +36,7 @@
 - [`Domain/Neighborhood/Exercise122.lean`](#domainneighborhoodexercise122lean) — 144 lines
 - [`Domain/InfoSys.lean`](#domaininfosyslean) — 98 lines
 
-**Total:** 19 files, 6562 lines of Lean.
+**Total:** 19 files, 6758 lines of Lean.
 
 ---
 
@@ -69,8 +69,20 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **20 / 34** tracked numbered results are **Pass**, **6 Stuck**,
-**8 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+correction is complete; **94** numbered results / exercises are **Pass** (zero `sorry`s, zero
+Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** and **all of Lecture II** (Def 2.1,
+Prop 2.2, Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, the isomorphism Theorem 2.7, and
+Exercises 2.8–2.22) are now formalized. Lecture II completed this session: 2.13 (approximable =
+continuous), 2.14 (`φ` of an iso), 2.15 (Sierpiński/opens), 2.18 (spacing map), 2.20 (powerset
+domain), 2.21 (system `C`/juxtaposition), 2.22 (abstract representation theorem). **Lecture III (§3)
+— products, sums, function spaces — has its full spine (Def 3.1 → Thm 3.13) formalized:** the
+product `prodEquiv`, the function space `funSpaceEquiv` (Thm 3.10), the least map of Prop 3.9, the
+cartesian-closed structure `eval`/`curry`/`curryEquiv` (Thm 3.11–3.12), and the pointwise
+boundedness/sups of Thm 3.13(ii)(iii) (`sSupMaps`), all choice-free. **All §3 exercises (3.14–3.28)
+are now formalized**, including the infinite iterate `𝒟^∞` (3.16), the retract `B ◁ T^∞` (3.17), the
+function-space isos/mapping relationships (3.24), open sets as a domain (3.25), and the abstract
+Ex 2.22 re-proof of the function-space domain (3.27).
+**Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
 **classical** (see §1.2).
@@ -95,13 +107,98 @@ theorems (§2.2) showing the three presentations coincide. Part I's internal §1
 dependency structure (injective spaces → continuous lattices → function spaces → inverse
 limits) is spelled out in §3.
 
+**Why this formalization is hard: Scott's topological lineage.** A working hypothesis of this
+project is that the chief obstacle to mechanizing Scott's notes is not Lean but *prerequisite
+mathematical culture*. Scott's lecture notes — especially the 1972 *Continuous Lattices* — read
+with a level of topological maturity that leaves most modern computer scientists dizzy, because
+Scott did **not** treat topology as a standalone tool grafted onto computation. He treated it as a
+natural extension of logic and algebra. The typical computer-science reader has never been trained
+in point-set topology *as a pure discipline in its own right*, and so meets these notes missing the
+very reflexes they silently assume. The striking fact — and the key to the difficulty — is that
+Scott himself had **no formal, conventional graduate training in topology either**. His deep
+topological expertise developed *organically* out of his foundational training in mathematical
+logic, algebra, and set theory: first as an undergraduate under **Alfred Tarski** at UC Berkeley
+(1950–1954), then during his doctoral studies at Princeton [Plo20], [Sco22]. Rather than approaching
+topology as a geometric discipline, he came to it sideways, recognizing the deep structural bridges
+between order theory, non-classical logic, and mathematical space.
+
+One piece of explicitly topological schooling did anchor this: as a Berkeley undergraduate Scott
+studied general topology directly under **John L. Kelley**, who during exactly those years was
+drafting his field-defining textbook *General Topology* (1955) [Kel55]. Kelley's rigorous,
+comprehensive framework standardized point-set topology, and in particular popularized the use of
+**filters and nets** (rather than sequences) to describe convergence in arbitrary spaces, taking a
+foundation-up, non-metric view entirely comfortable with **non-Hausdorff** spaces. Both fingerprints
+are all over domain theory: Scott's domains are presented through filters of neighborhoods, and their
+natural topology is **`T₀` but not `T₁`/`T₂`** — asymmetric, with "points" standing for *states of
+information* rather than geometric locations. These are precisely the `T₀`/`T₁` separation axioms
+required by computer-science domains, and precisely the corner of topology that mainstream curricula,
+fixated on Hausdorff spaces and open balls, skip entirely.
+
+The deeper, organizing influence was **Tarski**, whose graduate courses Scott took as an
+undergraduate and who introduced him to **lattice theory, Boolean algebras, and the Tarski
+Fixed-Point Theorem**. Tarski assigned Scott to study Marshall Stone's seminal paper representing
+Boolean algebras as topological spaces [Sto36], seeding a lifelong interest in the interplay of
+algebra and topology [Man18]. Compounded by the algebraic formulation of **intuitionistic and modal
+logics** — which model truth values by the open sets of a topological space rather than by classical
+binary `{true, false}` — this produced the governing slogan of Scott's career: every Boolean algebra
+*is* the space of its ultrafilters, intuitionistic logic *is* the lattice of opens, and therefore
+**Topology = Posets + Logic**. This is the lens the present formalization must keep in focus. Where
+the typical computer scientist imagines topology as geometry (metrics, balls, distance), Scott means
+the **specialization order**: the open sets *are* the observable properties, and the order of
+information *is* the topology. Concretely, the Lean work below lives or dies on translating fluently
+between the `TopologicalSpace` and `PartialOrder` typeclasses via the **Scott topology**, and
+mathlib's `Topology.Order` hierarchy (specialization order, sober spaces, the filter machinery
+descended from exactly Kelley's approach) is the principal bridge we lean on.
+
+This lineage is not antiquarian decoration: the same lens generated the very structures we are
+formalizing. The **Scott topology** inverts standard point-set practice, acting on posets/domains
+where a set is *Scott-open* exactly when it names a property verifiable from a finite approximation;
+**domain theory** recasts computation through continuous functions on such spaces and so furnished
+the first rigorous model of the untyped λ-calculus; and the **pointless-topology** thread —
+*Continuous Lattices* proving that injective `T₀` spaces are equivalent to continuous lattices
+[Sco72], [GHKLMS03], together with Scott's continuing advocacy of "Geometry Without Points" [Sco23]
+— is exactly the order-theoretic distillation of topology that the later presentations exploit. It is
+also the explanation for *why* the 1972 layer demands classical, topology-heavy machinery while the
+later 1981/1982 layers can be made progressively more elementary and constructive — the arc this
+monograph sets out to make precise.
+
+**A conjecture about the descent (1972 → 1981 → 1982).** This lineage suggests a reading of *why*
+Scott reformulated the same theory three times that is more sociological than mathematical. The
+standard story treats the descent as Scott gradually finding "better" foundations. We offer a
+complementary speculation: the simplification was at least partly **tactical, a problem of
+adoption rather than of comfort**. Scott was entirely at home in the topology-sophisticated 1972
+continuous-lattice formulation — that was, after all, his native dialect under Kelley and Tarski.
+But to *sell* domain theory to the very audience that most needed it — topology-naive computer
+science practitioners — he was arguably compelled to strip out the heavy general-topology
+prerequisites and to recast the constructions in a form that leans far less on classical, point-set
+machinery. The 1981 neighborhood systems replace the lattice-of-opens with concrete filters of
+neighborhoods; the 1982 information systems go further, reducing the data to finite consistency and
+entailment on tokens. Read this way, the trajectory is a deliberate lowering of the entry barrier:
+each step trades topological sophistication for combinatorial transparency that a logician or
+programmer can manipulate without a course in general topology.
+
+A striking corollary, and one this formalization is positioned to make objective, is that the
+descent is also a descent in **logical strength** — toward presentations that are *constructive* in
+the technical sense of avoiding the law of the excluded middle (and, in Lean's terms, of not
+invoking `Classical.choice`). The 1972 layer is unavoidably classical; the 1981 §1 core is already
+choice-free for its foundational constructions; the 1982 information systems are fully constructive.
+We do not claim Scott consciously pursued intuitionistic constructivity as a goal — only that
+making the presentation palatable to topology-naive practitioners and making it constructive turn
+out to be **the same move**, because the topological apparatus he was removing is exactly where the
+non-constructive (excluded-middle, choice, maximal-filter) steps lived. The `#print axioms` audits
+throughout this monograph (§1.2) are, in effect, an empirical test of that conjecture: they let us
+measure, theorem by theorem, how much classical content each presentation actually requires.
+
 ### 1.1 Contribution (overall)
 
 1. **Part I:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
   and partial §3–§4 spine in `Domain/ContinuousLattice/`.
 2. **Part II (live, §1 foundations):** PRG-19 neighborhood systems in `Domain/Neighborhood/` —
-  Defs 1.1/1.6/1.7/1.8-order, Theorem 1.1c, Examples 1.2–1.5, Factoids 1.1a–1.7b, Exercise 1.22
-  (topology on `|𝒟|`); **17 results**, §1 core audited choice-free (`[propext, Quot.sound]`).
+  Defs 1.1/1.6/1.7/1.8/1.9, Theorems 1.1c/1.10 (element-token system `𝒟 ≅ᴰ {[X]}`)/1.11
+  (`⋂`/ascending-`⋃` closure), Examples 1.2–1.5/1.B, Factoids 1.1a–1.8b, Exercises 1.12–1.15, 1.22
+  (topology on `|𝒟|`); **32 results**, foundational constructions audited choice-free
+  (`[propext, Quot.sound]`); the infinite-system classification / maximality / non-isomorphism
+  results (Ex 1.12/1.14/1.15) use `Classical.choice` (deciding boundedness/membership).
 3. **Part III (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
   and `Domain/Constructive.lean`.
 4. **Part IV (planned):** functors and isomorphisms tying Parts I–III; constructive certification
@@ -205,10 +302,10 @@ Scott's four section titles within Part I:
 | §4  | **Inverse limits**      | `InverseLimits.lean` (4.1, 4.2 done)                                                                    |
 
 
-### 3.1 Report card (38 tracked results)
+### 3.1 Report card (43 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **38 Pass · 0 Stuck · 0 Not Yet**.
+full deliverable. Score: **43 Pass · 0 Stuck · 0 Not Yet**.
 
 Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
 Session prompt: `HANDOFF-Theorem-4.4.md`.
@@ -1145,10 +1242,11 @@ Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 ## 4. Part II — Scott 1981 PRG-19 (§1 foundations: live)
 
 **Source:** Scott, *Lectures on a Mathematical Theory of Computation*, Technical Monograph
-PRG-19, Oxford (May 1981), Lectures I–III. Vision OCR draft:
-`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (now transcribed through **Lecture III**,
-≈1960 lines — all of Lecture I, II and III). The Goal List in §4.2 below is the **complete Lecture
-I (§1)** inventory; Lectures II (§2) and III (§3) are OCR'd and awaiting their own Goal Lists.
+PRG-19, Oxford (May 1981), Lectures I–VIII. Vision OCR draft:
+`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (now **fully transcribed**, all eight
+lectures, ≈5340 lines). The Goal Lists in §4.2 below are **complete inventories** for every lecture:
+Lectures I–III are formalized (Pass), and Lectures IV–VIII (§4.2.IV–VIII) are inventoried with
+formalization deferred (Lean column `—`).
 
 **Constructivity:** the **§1 core is constructive.** Scott deliberately works with *partial*
 filters so the basic theory needs no maximal-filter existence (Zorn/choice); the **classical
@@ -1202,33 +1300,33 @@ every numbered item and exercise below has its statement transcribed.)
 | **Factoid 1.7a** | Factoid | 259–265 | "*obvious*": `X↦↑X` one-one & inclusion-**reversing** — `principal_le_iff` (`↑X⊑↑Y ⟺ Y⊆X`) + `principal_injective` | **Pass** |
 | **Factoid 1.7b** | Factoid | 265–269 | "*also obvious*": `x = ⋃ {↑X ∣ X∈x}` for every `x∈\|𝒟\|` — `eq_iUnion_principal` | **Pass** |
 | **Def 1.8 (order)** | Definition | 277 | approximation `x⊑y ⟺ x⊆y` — `instance : PartialOrder Element` (choice-free `le_antisymm` via `Element.ext`) | **Pass** |
-| **Def 1.8 (⊥, total)** | Definition | 277 | abstract `⊥={Δ}=↑Δ`; total elements (classical frontier) | **Not Yet** |
-| **Factoid 1.8a** | Factoid | 277 | `⊥={Δ}=↑Δ` is the least element of `\|𝒟\|` | **Not Yet** |
-| **Factoid 1.8b** | Factoid | 279 | finite systems: every explicit filter is principal / every element finite | **Not Yet** |
-| **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 | **Not Yet** |
-| **Exercise 1.B-sys** | Exercise | 297 | "*should be done as an exercise*": `B` is a neighbourhood system | **Not Yet** |
-| **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` | **Not Yet** |
-| **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` | **Not Yet** |
-| **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` with `σₙ` initial segments (element = limit of finite approx.) | **Not Yet** |
-| **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` | **Not Yet** |
-| **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}`; `{[X] ∣ X∈𝒟}` is a nbhd system over `\|𝒟\|` with `𝒟 ≅ {[X]}` (one-one, inclusion-preserving; `[Δ]=\|𝒟\|`, `[X]∩[Y]=[X∩Y]`, `↑X∈[X]`). `[X]` exists as `basicOpen` (Ex 1.22); system+iso not built | **Not Yet** |
-| **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` and under ascending `⋃` (`x₀⊆x₁⊆⋯`) — each is again a filter | **Not Yet** |
-| **Exercise 1.12** | Exercise | 441–447 | `Δ=ℕ`, neighbourhoods = final segments `{n,n+1,…}`; generalizes Example 1.3 (= Scott's "Exercise 1.1" forward-ref at line 281) | **Not Yet** |
-| **Exercise 1.13** | Exercise | 449 | verify all assertions about the infinite binary system `B` (Example 1.B); picture with limit nodes | **Not Yet** |
-| **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; is a system; its total / finite elements | **Not Yet** |
-| **Exercise 1.15** | Exercise | 453 | construct non-isomorphic infinite domains, all elements finite, with no strictly ascending infinite chain | **Not Yet** |
-| **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆`; other `∩`-closed systems | **Not Yet** |
-| **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `{X ∣ t∈X}` is a filter; total elements | **Not Yet** |
-| **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (every finite subset consistent); pairwise-but-not-jointly example; least filter `⊇C`; `⋂` of filters is a filter | **Not Yet** |
-| **Exercise 1.19** | Exercise | 463–465 | *positive* nbhd system (ii′: `X∩Y≠∅ ⟺ X∩Y∈𝒟`); positive ⟹ system; a non-positive example (Hoare) | **Not Yet** |
-| **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}`; `𝒟'` positive; `\|𝒟\|≅\|𝒟'\|`; tokens ↔ finite elements one-one | **Not Yet** |
-| **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) the system `{[X]}` over `\|𝒟\|` is *positive* and *complete* (every filter *fixed* by a unique point); consistency `{Xᵢ ∣ i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅`; **needs Theorem 1.10** | **Not Yet** |
+| **Def 1.8 (⊥, total)** | Definition | 277 | `bot := principal master_mem` (`⊥={Δ}=↑Δ`), `mem_bot` (`Y∈⊥ ⟺ Y=Δ`); `IsTotal x := ∀ y, x⊑y→y⊑x` (predicate only, existence = Ex 1.24, out of scope) | **Pass** |
+| **Factoid 1.8a** | Factoid | 277 | `bot_le` (`⊥⊑x` for all `x`) + `instance OrderBot Element`; constructive | **Pass** |
+| **Factoid 1.8b** | Factoid | 279 | `eq_principal_of_isMin` (filter with `⊆`-minimum member `X` is `↑X`) — constructive core of "finite ⟹ principal"; the finiteness⟹min step left implicit | **Pass** |
+| **Example 1.B** | Example | 281–297 | `B = {σΣ* ∣ σ∈Σ*}` (binary), generalizing 1.4 — `Str := List Bool`, `cone σ = σΣ*`, `B` via `ofNestedOrDisjoint` from prefix `cone_trichotomy` | **Pass** |
+| **Exercise 1.B-sys** | Exercise | 297 | "*should be done as an exercise*": `B` is a neighbourhood system — `nestedOrDisjoint` (cones pairwise nested-or-disjoint) | **Pass** |
+| **Exercise 1.B-elt** | Exercise | 305–307 | "*an exercise here*": `σx ∈ \|B\|` for `x∈\|B\|` — `sigmaElt σ x` (witness `σ(X₁∩X₂)` is a cone); `sigmaElt σ ⊥ = σ⊥` (`sigmaElt_bot`) | **Pass** |
+| **Factoid 1.B-mono** | Factoid | 307 | `σ₀⊥ ⊆ σ₁⊥ ⟺ σ₀` is an initial segment of `σ₁` — `sigmaBot_le_iff` (`σ₀⊥⊑σ₁⊥ ⟺ σ₀<+:σ₁`) | **Pass** |
+| **Factoid 1.B-lim** | Factoid | 309–315 | `x = ⋃ₙ σₙ⊥` (element = limit of finite approx.) — `mem_iff_exists_sigmaBot` (union-of-`σ⊥` form; chain enumeration left to prose / choice) | **Pass** |
+| **Def 1.9** | Definition | 321–322 | `𝒟₀ ≅ 𝒟₁`: order-iso of `\|𝒟₀\|` and `\|𝒟₁\|` — `DomainIso := V₀.Element ≃o V₁.Element`, `Isomorphic`/`≅ᴰ := Nonempty DomainIso` with `refl`/`symm`/`trans` (`Basic.lean`); `≃o` *reflects* `⊑` (`map_rel_iff`) = Scott's two-way inclusion-preservation | **Pass** |
+| **Theorem 1.10** | Theorem | 329–359 | element-token system: `[X]={x ∣ X∈x}` (`bracket`); `tokenSystem : NeighborhoodSystem \|𝒟\|`; `𝒟 ≅ᴰ tokenSystem` via `tokenIso`/`isomorphic_tokenSystem` (mutually-inverse `toToken`/`ofToken`). Facts: `bracket_master` (1), `bracket_inter_nonempty_iff` (2), `bracket_inter` (3), `principal_mem_bracket` (4); one-one `bracket_injective`, preserving `bracket_subset_iff` (`Theorem110.lean`) | **Pass** |
+| **Theorem 1.11** | Theorem | 367–377 | `\|𝒟\|` closed under countable `⋂` (`iInter`, no proviso) and ascending `⋃` (`iUnion`, `Monotone x`) — each again a filter; GLB `iInter_le`/`le_iInter`, LUB `le_iUnion`/`iUnion_le`; `mem_iInter`/`mem_iUnion` (`Theorem111.lean`) | **Pass** |
+| **Exercise 1.12** | Exercise | 441–447 | `Δ=ℕ`, final-segment `tail n={m ∣ n≤m}`; `neighborhoodSystem` (chain via `ofNestedOrDisjoint`); finite elts `fin n=↑(tail n)` (`fin_strictMono`); unique limit/total `top` (`le_top`, `top_isTotal`, `isTotal_iff_top`); `element_eq` (every elt `fin n` or `top`, classical) (`Exercise112.lean`) | **Pass** |
+| **Exercise 1.13** | Exercise | 449 | assertions about `B` = `ExampleB.lean`; this file adds the **limit nodes**: `branch p = ⋃ₙ (p↾n)⊥` (via Thm 1.11 `iUnion`), `branch_mem_iff`, `branchSeq_le_branch`, and `branch_isTotal` (each infinite path is a total/maximal element) (`Exercise113.lean`) | **Pass** |
+| **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; `neighborhoodSystem` (manual `inter_mem`, not nested-or-disjoint); finite elts `fin h=↑X`; total elts = singletons `singleton_isTotal` (`↑{n}` maximal) (`Exercise114.lean`) | **Pass** |
+| **Exercise 1.15** | Exercise | 453 | two infinite finite-element domains: `flat` (`{ℕ}∪{{n}}`, fully classified: `flat_classify`, `flat_atom_maximal`, `flat_no_three_chain`, `flat_no_infinite_chain`, `flat_all_finite`) and `stem` (`{ℕ,{0,1}}∪{{n}}`, `stem_three_chain`); `not_isomorphic` (3-chain transports under `≃o`) (`Exercise115.lean`) | **Pass** |
+| **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆` — `cofiniteSystem`, `ofExcluded`/`toExcluded`, `cofiniteIso` (excluded-point set), `mem_compl_of_finite` (`⋂_{n∈F}{n}ᶜ=Fᶜ`); total elt `ofExcluded ℕ` (`ofExcluded_univ_isTotal`); second `∩`-closed `fullSystem` (`Exercise116.lean`, `Cofinite` ns) | **Pass** |
+| **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `ratIntervalSystem` (`inter_mem'` via `Ioo_inter_Ioo`+`max`/`min`), `filterAt t={X∣t∈X}` is a filter, `filterAt_injective` (`ℝ ↪ \|𝒟\|`); full total-elt classification documented as out-of-scope (`Exercise117.lean`, `RatInterval` ns) | **Pass** |
+| **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (`FinitelyConsistent`); pairwise-but-not-jointly `triSys`/`family` (`family_pairwise_nonempty`, `not_finitelyConsistent`); `leastFilter` `⊇C` (`subset_leastFilter`/`leastFilter_le`, via `interUpTo_appendSeq`); `sInf` of a non-empty family of filters is a filter (`sInf_le`/`le_sInf`) (`Exercise118.lean`) | **Pass** |
+| **Exercise 1.19** | Exercise | 463–465 | *positive* nbhd system (ii′: `X∩Y≠∅ ⟺ X∩Y∈𝒟`) — `IsPositive`, `ofPositive` (positive ⟹ system, in `Basic.lean`); positive `positiveExample`; non-positive `notPositiveSystem` (`{Δ,{0,1},{1,2}}`, intersection `{1}∉𝒟`; smaller than Hoare's `ℕ×ℕ`) `not_isPositive` (`Exercise119.lean`) | **Pass** |
+| **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}` (`upSet`, ≠ `principal`); `powerSystem`, `powerSystem_isPositive`; `\|𝒟\|≅\|𝒟'\|` via `toPower`/`ofPower`/`powerIso`, `isomorphic_powerSystem`; tokens ↔ finite elements one-one (`toPower_principal`) (`Exercise120.lean`) | **Pass** |
+| **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) `{[X]}` over `\|𝒟\|` is *positive* (`tokenSystem_isPositive`) and *complete* (`IsComplete`, `tokenSystem_complete`: every filter fixed by a unique point `ofToken y`; `tokenSystem_toToken_bijective`); consistency `{Xᵢ∣i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅` (`consistent_iff_iInter_bracket_nonempty`) (`Exercise121.lean`) | **Pass** |
 | **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
-| **Exercise 1.23** | Exercise | 509–525 | countable `D` + decidable consistency ⟹ the greedy sequence `Yₙ` is a total element; all filters sequence-determined | **Not Yet** |
-| **Exercise 1.24** | Exercise | 527–529 | (set theorists) AC ⟹ every partial element extends to a total one; equivalent to AC? (union of a chain of filters is a filter) — **classical** | **Not Yet** |
-| **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` an ordinal, `𝒟 =` non-empty final segments; describe `\|𝒟\|`; are all elements finite? | **Not Yet** |
-| **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A`, `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}`; system; `\|𝒟\| ≅` ideals of `A` under `⊆` | **Not Yet** |
-| **Exercise 1.27** | Exercise | 541–547 | *bounded* `X⊆\|𝒟\|` (`⊔X` = least upper bound); `{U,V}` consistent in `𝒟` ⟺ `{↑U,↑V}` bounded; `X` bounded ⟺ every finite subset bounded (uses 1.18) | **Not Yet** |
+| **Exercise 1.23** | Exercise | 509–525 | countable system (`enum`/`henum`/`hsurj`) + `[DecidablePred V.mem]` ⟹ greedy sequence `Yₙ`/`acc` gives a **total** element: `greedyElement`, `greedyElement_isTotal` (choice-free, `Y_prefix_consistent`); every filter is sequence-determined `filters_sequence_determined` (classical) (`Exercise123.lean`) | **Pass** |
+| **Exercise 1.24** | Exercise | 527–529 | (set theorists) the union of a non-empty **chain** of filters is a filter — `chainUnion` (`inter_mem` via `IsChain.total`), `le_chainUnion`; **with Zorn** every element extends to a total one `exists_total_ge` (`zorn_le_nonempty_Ici₀`, `IsMax = IsTotal`) — **classical** (`Exercise124.lean`) | **Pass** |
+| **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` linearly+well-ordered, `𝒟 =` non-empty upper sets (`finalSegmentSystem`); `\|𝒟\| ≅ {non-empty lower sets}` under `⊆` — `finalSegmentClassify` (`lowerSetOf`/`ofLowerSet`); top element `topElement` is the unique total element (`topElement_isTotal`, `eq_topElement_of_isTotal`); with no maximum it is *not* finite/principal (`topElement_not_principal_of_noMax`) (`Exercise125.lean`) | **Pass** |
+| **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A` (`[DecidableEq A]`), `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}` (`IFamily`, `IFamily_inter`); `ringSystem`; `\|𝒟\| ≅` ideals of `A` under `⊆` — `ringIso` (`idealOf`/`ofIdeal` mutually inverse) (`Exercise126.lean`) | **Pass** |
+| **Exercise 1.27** | Exercise | 541–547 | *bounded* `X⊆\|𝒟\|` (`Bounded`, `sSup` = `sInf` of `upperBounds`, `le_sSup`/`sSup_le`); `{U,W}` consistent in `𝒟` ⟺ `{↑U,↑W}` bounded `consistent_pair_iff_bounded` (choice-free); `X` bounded ⟺ every finite subset bounded `bounded_iff_finite_bounded` (uses 1.18) (`Exercise127.lean`) | **Pass** |
 
 **Lecture I is fully inventoried above** (Def 1.1 → Exercise 1.27). Scott's "Exercise 1.1"
 forward-reference (line 281) is an OCR garble for **Exercise 1.12** (the only exercise
@@ -1236,73 +1334,238 @@ generalizing Example 1.3).
 
 ### 4.2.II Lecture II (§2) Goal List — approximable mappings (complete inventory)
 
-**Lean target (planned):** `Domain/Neighborhood/Approximable.lean` (not yet created). All rows
-**Not Yet** unless noted.
+**Lean target:** `Domain/Neighborhood/Approximable.lean` (Def 2.1, Prop 2.2, Thm 2.5, Prop 2.6,
+Thm 2.7) **live**; the structural exercises 2.8–2.12 and 2.19 in `ApproximableExercises.lean`;
+concrete maps in `Example23.lean` / `Example24.lean` / `Exercise216.lean`; the exercises completed
+this session in `Exercise213.lean`, `Exercise214.lean`, `Exercise215.lean`, `Exercise218.lean`,
+`Exercise220.lean`, `Exercise221.lean`, `Exercise222.lean`. **Lecture II is now complete — every row
+is Pass.**
 
 | Scott (PRG-19 §2) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
-| **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `f⊆𝒟₀×𝒟₁` with (i) `Δ₀ f Δ₁`, (ii) intersectivity on outputs, (iii) monotonicity | **Not Yet** |
-| **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`), `rel_of_map` (`X f Y ⟺ Y∈f(↑X)`), monotonicity, extensionality | **Not Yet** |
-| **Example 2.3** | Example | 615–654 | `f : B → T`: parity of 0's before first 1 (`B` binary tree, `T` two-token domain of Ex 1.2) | **Not Yet** |
-| **Example 2.4** | Example | 658–673 | `g : B → B`: eliminate first run of 1's; total → partial example | **Not Yet** |
-| **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `I_D` (`X I_D Y ⟺ X⊆Y`), composition `g∘f`, associativity | **Not Yet** |
-| **Prop 2.6** | Proposition | 726–732 | elementwise: `I_D(x)=x`, `(g∘f)(x)=g(f(x))` — concrete category of sets & functions | **Not Yet** |
-| **Theorem 2.7** | Theorem | 738–760 | every domain iso `|𝒟₀|≅|𝒟₁|` comes from an approximable map; finite elements → finite elements | **Not Yet** |
-| **Exercise 2.8** | Exercise | 764 | approximable map determined by action on finite elements; any monotone fn on finite elements extends to approximable map | **Not Yet** |
-| **Exercise 2.9** | Exercise | 768–774 | approximable `f` satisfies `f(x)=⋃{f(↑X)∣X∈x}` (Scott's formula for elementwise action) | **Not Yet** |
-| **Exercise 2.10** | Exercise | 776–782 | prove Prop 2.6; for `f,g : D₀→D₁` show `∃h` with `h(x)=f(x)⊔g(x)` pointwise (lub of maps) | **Not Yet** |
-| **Exercise 2.11** | Exercise | 784–804 | directed `I`, `a:I→\|D\|` approximable in each coordinate ⟹ `⋃ᵢ a(i)` is a filter; domains closed under directed `⋃` | **Not Yet** |
-| **Exercise 2.12** | Exercise | 806–818 | directed family `{fᵢ}` of approximable maps: `⋃ᵢ fᵢ` (pointwise lub) is approximable | **Not Yet** |
-| **Exercise 2.13** | Exercise | 820–838 | (topologists) approximable maps = continuous maps between the `|D|` spaces of Ex 1.22 (uses 2.9) | **Not Yet** |
-| **Exercise 2.14** | Exercise | 840–854 | domain iso `f` and nbhd correspondence `φ` from Thm 2.7; verify `φ` recovers `f` | **Not Yet** |
-| **Exercise 2.15** | Exercise | 856–864 | (topologists) one-token system; its topology | **Not Yet** |
-| **Exercise 2.16** | Exercise | 866–870 | `σx` on `\|B\|` approximable? `f:B→T` of Ex 2.3 uniquely determined by equations on finite sequences | **Not Yet** |
-| **Exercise 2.17** | Exercise | 872–881 | `g:B→B` of Ex 2.4 approximable in detail; unique? | **Not Yet** |
-| **Exercise 2.18** | Exercise | 883–892 | interpret approximable `h:B→B` (given by equations) in words | **Not Yet** |
-| **Exercise 2.19** | Exercise | 894–906 | generalize Def 2.1 to multivariate `f:D₀×D₁→D₂` as ternary relation `X,Y f Z` | **Not Yet** |
-| **Exercise 2.20** | Exercise | 908–913 | Ex 1.15 powerset domain `𝒫`; finite elements = finite subsets; `∪,∩` and other ops approximable | **Not Yet** |
-| **Exercise 2.21** | Exercise | 915 | modify `B` to system `C` with finite *and* infinite total sequences; approximable juxtaposition `xy` | **Not Yet** |
-| **Exercise 2.22** | Exercise | 917–927 | (set theorists) families closed under `⋂` + directed `⋃` are inclusion-iso to a domain (dual of Ex 1.18/2.11) | **Not Yet** |
+| **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `rel⊆𝒟₀×𝒟₁` (`rel_dom`/`rel_cod`) with (i) `master_rel`, (ii) `inter_right`, (iii) `mono`; relation-extensionality `ext` (`Approximable.lean`) | **Pass** |
+| **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`, all of 2.1 used), `mem_toElementMap`, `rel_iff_mem_principal` (`X f Y ⟺ Y∈f(↑X)`), `toElementMap_mono`, `ext_of_toElementMap` (2.2(iv)) (`Approximable.lean`) | **Pass** |
+| **Example 2.3** | Example | 615–654 | `parityMap : B → T`: parity of 0's before first 1 via scanner `scan`/`valElt` (`scan_append` stability ⟹ `mono`); `T`=two-token domain of Ex 1.2 (`Example23.lean`) | **Pass** |
+| **Example 2.4** | Example | 658–673 | `runMap : B → B`: eliminate first run of 1's via state machine `out`/`del`; `out_mono` (prefix-monotone) ⟹ `mono`; total `1^∞` → partial `⊥` (`Example24.lean`, choice-free) | **Pass** |
+| **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `idMap` (`X I_D Y ⟺ X⊆Y`), composition `comp g f` (`X g∘f Z ⟺ ∃Y, X f Y ∧ Y g Z`), laws `idMap_comp`/`comp_idMap`/`comp_assoc` (`Approximable.lean`) | **Pass** |
+| **Prop 2.6** | Proposition | 726–732 | elementwise functor: `toElementMap_idMap` (`I_D(x)=x`), `toElementMap_comp` (`(g∘f)(x)=g(f(x))`) — concrete category of sets & functions (`Approximable.lean`) | **Pass** |
+| **Theorem 2.7** | Theorem | 738–760 | every domain iso `e:\|𝒟₀\|≃o\|𝒟₁\|` comes from an approximable map `ofIso e` (`toElementMap_ofIso`: `(ofIso e)(x)=e(x)`; `exists_approximable_of_iso`); finite→finite `exists_principal_eq_apply_principal` via directed union `sSupDirected` (`Approximable.lean`, choice-free) | **Pass** |
+| **Exercise 2.8** | Exercise | 764 | determined by finite elements `eq_of_toElementMap_principal`; any monotone fn on finite elements extends: `ofMono`, `toElementMap_ofMono_principal` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.9** | Exercise | 768–774 | approximable `f` satisfies `f(x)=⋃{f(↑X)∣X∈x}` — `toElementMap_mem_iff_principal` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.10** | Exercise | 776–782 | Prop 2.6 (done in `Approximable.lean`); pointwise **meet** `h(x)=f(x)∩g(x)` — `interMap`, `mem_toElementMap_interMap` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.11** | Exercise | 784–804 | directed `a:I→\|D\|` ⟹ `⋃ᵢ a(i)` is a filter (`iSupDirected`, `mem`/`le`/`le_`); approximable maps preserve directed `⋃` — `toElementMap_iSupDirected` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.12** | Exercise | 806–818 | directed family `{fᵢ}` of approximable maps: pointwise union `⋃ᵢ fᵢ` approximable — `iSupMap`, `mem_toElementMap_iSupMap` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.13** | Exercise | 820–838 | (topologists) approximable maps = continuous maps between the `\|D\|` spaces of Ex 1.22 — `continuous_toElementMap`, `ofContinuous`, `toElementMap_ofContinuous`, `mem_iff_principal_of_continuous` (`Exercise213.lean`, choice-free) | **Pass** |
+| **Exercise 2.14** | Exercise | 840–854 | domain iso `e` and nbhd correspondence `φ` from Thm 2.7; `phi`/`phi_spec`, `rel_ofIso_iff` (`(ofIso e).rel X Y ⟺ φX⊆Y`), `phi_inter` (`φ(X∩X')=φX∩φX'` for consistent `X,X'`) (`Exercise214.lean`) | **Pass** |
+| **Exercise 2.15** | Exercise | 856–864 | (topologists) one-token Sierpiński system `O`; opens of `\|D\|` ↔ approximable maps `D→O` — `openToMap`/`mapToOpen`/`openSet_equiv_map` (`Exercise215.lean`, builds on 2.13) | **Pass** |
+| **Exercise 2.16** | Exercise | 866–870 | `σx` on `\|B\|` **is** approximable — `sigmaMap σ`, `toElementMap_sigmaMap` (= `sigmaElt σ`) (`Exercise216.lean`); uniqueness-by-equations clause deferred | **Pass** |
+| **Exercise 2.17** | Exercise | 872–881 | `g:B→B` of Ex 2.4 **is** approximable — `runMap` (`Example24.lean`); uniqueness/"some missing?" clause deferred | **Pass** |
+| **Exercise 2.18** | Exercise | 883–892 | "spacing" map `h:B→B` (`b↦b0`) and left inverse `k`; `hMap`/`kMap`, `kMap_comp_hMap` (`k∘h=I_B`), `kMap_not_injective`, `hMap_not_surjective` (`h` not an iso) (`Exercise218.lean`, choice-free) | **Pass** |
+| **Exercise 2.19** | Exercise | 894–906 | two-variable approximable maps `f:𝒟₀×𝒟₁→𝒟₂` as ternary relations — `ApproximableMap₂`, `toElementMap₂`, `rel₂_iff_mem_principal`, `toElementMap₂_mono` (`ApproximableExercises.lean`) | **Pass** |
+| **Exercise 2.20** | Exercise | 908–913 | powerset domain `𝒫` (cofinite nbhds over `ℕ`); `equivSetNat` (`\|𝒫\|≃o Set ℕ`); `unionMap`/`interMap₂` (`∪`,`∩` via Ex 2.19), `succMap`/`predMap` (`x±1`) (`Exercise220.lean`) | **Pass** |
+| **Exercise 2.21** | Exercise | 915 | system `C ⊇ B` with finite *and* infinite total sequences (terminator singletons `{σ}`); `isTotal_singletonElt`, `bot_lt_Lambda` (`⊥⊏Λ`); juxtaposition `juxtapose : C×C→C` with `juxtapose_cone` (left bias) / `juxtapose_singleton_mem` (`Exercise221.lean`, choice-free) | **Pass** |
+| **Exercise 2.22** | Exercise | 917–927 | (set theorists) any family `C` closed under non-empty `⋂` + directed `⋃` is inclusion-iso to a domain — closure `Cl`, `reprSystem` (nbhds `C(F)={G∣F⊆Ḡ}`), `reprIso : \|reprSystem\| ≃o C` (`Exercise222.lean`, classical) | **Pass** |
 
 ### 4.2.III Lecture III (§3) Goal List — domain constructs (complete inventory)
 
-**Lean target (planned):** `Domain/Neighborhood/Constructions.lean` (not yet created). All rows
-**Not Yet**.
+**Lean target:** `Domain/Neighborhood/Product.lean` (§3.1–3.7) and
+`Domain/Neighborhood/FunctionSpace.lean` (§3.8–3.13) — **live**. The product and function-space
+**spine (Def 3.1 → Thm 3.13) is now complete**; every construction is choice-free
+(`#print axioms ⊆ {propext, Quot.sound}`). Remaining: the exercises 3.14–3.28.
 
 | Scott (PRG-19 §3) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
-| **Def 3.1** | Definition | 939–951 | product system `𝒟₀×𝒟₁={X∪Y}`; element pairing `⟨x,y⟩={X∪Y∣X∈x,Y∈y}` (disjoint `Δ₀,Δ₁`) | **Not Yet** |
-| **Prop 3.2** | Proposition | 953–999 | `𝒟₀×𝒟₁` is a nbhd system; `⟨x,y⟩⊑⟨x',y'⟩ ⟺ x⊑x'∧y⊑y'`; bijection `\|𝒟₀×𝒟₁\|≅\|𝒟₀\|×\|𝒟₁\|` | **Not Yet** |
-| **Def 3.3** | Definition | 1003–1027 | projections `p₀,p₁`; paired map `⟨f,g⟩`; multivariate `f:D₂→D₀×D₁` | **Not Yet** |
-| **Prop 3.4** | Proposition | 1031–1047 | `p₀,p₁,⟨f,g⟩` approximable; `pᵢ∘⟨f,g⟩=f/g`; `h=⟨p₀∘h,p₁∘h⟩`; `⟨f,g⟩(w)=⟨f(w),g(w)⟩` | **Not Yet** |
-| **Theorem 3.5** | Theorem | 1081–1112 | `f:\|D₀×D₁\|→\|D₂\|` approximable ⟺ approximable in each argument separately (uses Lemma 3.6) | **Not Yet** |
-| **Lemma 3.6** | Lemma | 1089–1093 | constant map `b:\|D₀\|→\|D₁\|` (`b(x)=b`) from approximable relation `X b Y ⟺ Y∈b` | **Not Yet** |
-| **Prop 3.7** | Proposition | 1124–1158 | approximable multivariate functions closed under substitution (composition + projections) | **Not Yet** |
-| **Def 3.8** | Definition | 1164–1170 | function space `(D₀→D₁)`: tokens = approximable maps; nbhds `⋂[Xᵢ,Yᵢ]` with `[X,Y]={f∣X f Y}` | **Not Yet** |
-| **Prop 3.9** | Proposition | 1176–1266 | `{[Xᵢ,Yᵢ]}` consistent in `(D₀→D₁)` ⟺ `{Xᵢ}` consistent ⟹ `{Yᵢ}` consistent; finite elements characterized | **Not Yet** |
-| **Theorem 3.10** | Theorem | 1268–1282 | `(D₀→D₁)` *complete*: filters ↔ approximable maps bijectively (inclusion-preserving) | **Not Yet** |
-| **Theorem 3.11** | Theorem | 1286–1318 | evaluation `eval:(D₁→D₂)×D₁→D₂` approximable; `eval(f,x)=f(x)` | **Not Yet** |
-| **Theorem 3.12** | Theorem | 1322–1381 | curry `curry(g):D₀→(D₁→D₂)`; `curry(g)(x)(y)=g(x,y)`; `eval∘⟨curry(g)∘p₀,p₁⟩=g`; adjunction with `eval` | **Not Yet** |
-| **Theorem 3.13** | Theorem | 1385–1399 | `f⊑g ⟺ ∀x, f(x)⊑g(x)`; boundedness & `⊔` on function space are pointwise | **Not Yet** |
-| **Exercise 3.14** | Exercise | 1405–1429 | tagged product `0Δ₀∪1Δ₁` (disjointness unnecessary); `diag:D→D×D`; `n`-fold products | **Not Yet** |
-| **Exercise 3.15** | Exercise | 1431–1439 | product isomorphisms: commutativity, associativity, empty product, functoriality | **Not Yet** |
-| **Exercise 3.16** | Exercise | 1443–1466 | `𝒟^∞` over `Δ^∞`; `𝒟^∞≅𝒟×𝒟^∞`; elements = infinite sequences of `\|𝒟\|` elements | **Not Yet** |
-| **Exercise 3.17** | Exercise | 1468–1486 | `B→T^∞` and `T^∞→B` approximable; section/retraction; iso questions | **Not Yet** |
-| **Exercise 3.18** | Exercise | 1490–1506 | *sum* system `𝒟₀+𝒟₁`; injections `inᵢ`, projections `outᵢ`; `outᵢ∘inᵢ=I`; `n`-term sums | **Not Yet** |
-| **Exercise 3.19** | Exercise | 1508–1532 | functorial `f×g` and `f+g` on products/sums; `f×g=⟨f∘p₀,g∘p₁⟩`; `outᵢ∘(f+g)∘inᵢ=f/g` | **Not Yet** |
-| **Exercise 3.20** | Exercise | 1536 | (category theorists) `+` and `×` are functors; `×` is the categorical product | **Not Yet** |
-| **Exercise 3.21** | Exercise | 1538 | `[Y,Z]` in `(D₁→D₂)` uniquely determines `Y,Z` when `Z≠Δ₂`; edge case `Z=Δ₂` | **Not Yet** |
-| **Exercise 3.22** | Exercise | 1540–1560 | composition `comp:(D₁→D₂)×(D₀→D₁)→(D₀→D₂)` approximable; `comp(g,f)=g∘f`; from `eval`+`curry` | **Not Yet** |
-| **Exercise 3.23** | Exercise | 1564 | (category theorists) domains + approximable maps form a cartesian closed category (3.11, 3.12) | **Not Yet** |
-| **Exercise 3.24** | Exercise | 1566–1576 | more function-space isomorphisms (currying, products of codomains, …) | **Not Yet** |
-| **Exercise 3.25** | Exercise | 1578 | (topologists) open subsets of `\|D\|` form a domain (uses 3.10, Exercises 1.21 & 2.13) | **Not Yet** |
-| **Exercise 3.26** | Exercise | 1580–1620 | for every domain `D`, approximable `fix:(D→D)→D` with `fix(f)` least fixed point of `f` | **Not Yet** |
-| **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Not Yet** |
-| **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Not Yet** |
+| **Def 3.1** | Definition | 939–951 | `prod`, `prodNbhd` (`Sum.inl '' X ∪ Sum.inr '' Y`), element pairing `pair`, `Element.fst/snd` (`Product.lean`) | **Pass** |
+| **Prop 3.2** | Proposition | 953–999 | `prod` is a nbhd system; `prodEquiv : \|𝒟₀×𝒟₁\|≃o\|𝒟₀\|×\|𝒟₁\|`; `pair_le_pair_iff` (`Product.lean`) | **Pass** |
+| **Def 3.3** | Definition | 1003–1027 | projections `proj₀`, `proj₁`; paired map `paired`; multivariate via `prod` (`Product.lean`) | **Pass** |
+| **Prop 3.4** | Proposition | 1031–1047 | `proj₀/proj₁/paired` approximable; `proj_comp_paired`; `toElementMap_paired_apply` (`⟨f,g⟩(w)=⟨f(w),g(w)⟩`) (`Product.lean`) | **Pass** |
+| **Theorem 3.5** | Theorem | 1081–1112 | `toMap₂`/`ofMap₂`/`map₂Equiv`: `ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂` (joint ⟺ separate) (`Product.lean`) | **Pass** |
+| **Lemma 3.6** | Lemma | 1089–1093 | constant map `constMap`; `toElementMap_constMap` (`Product.lean`) | **Pass** |
+| **Prop 3.7** | Proposition | 1124–1158 | `substitution_toElementMap`: multivariate functions closed under substitution (`Product.lean`) | **Pass** |
+| **Def 3.8** | Definition | 1164–1170 | `step` (`[X,Y]={f∣X f Y}`), `stepFun`, `funSpace`; algebra `step_inter_right`/`step_subset`/`step_master_eq`/`step_mem` (`FunctionSpace.lean`) | **Pass** |
+| **Prop 3.9** | Proposition | 1176–1266 | `interYs`, `leastMap` (cond. (ii) `X f₀ Y ⟺ ⋂{Yᵢ∣X⊆Xᵢ}⊆Y`), `leastMap_mem_stepFun`, `leastMap_le` (minimal element), `stepFun_subset_step_iff` (remark after 3.9) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.10** | Theorem | 1268–1282 | `funSpaceEquiv : \|𝒟₀→𝒟₁\|≃o ApproximableMap V₀ V₁` (`toApproxMap`/`toFilter`); completeness, inclusion-preserving (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.11** | Theorem | 1286–1318 | `eval : ApproximableMap₂ (funSpace V₁ V₂) V₁ V₂`, `evalMap`; `evalMap_apply` (`eval(f,x)=f(x)`) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.12** | Theorem | 1322–1381 | `curry`, `uncurry`; `toElementMap_curry_apply`; `uncurry_curry`/`curry_uncurry`; `eval_comp_curry`/`curry_eval_comp`; `curryEquiv` (adjunction) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.13(i)** | Theorem | 1385–1399 | `le_iff_toElementMap_le` (`f⊑g ⟺ ∀x, f(x)⊑g(x)`) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.13(ii)** | Theorem | 1385–1399 | `mapsBounded_iff_pointwiseBounded` (`F` bounded ⟺ `{f(x)}` bounded ∀`x`) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.13(iii)** | Theorem | 1385–1399 | `sSupMaps` + `toElementMap_sSupMaps` (`(⊔F)(x) = ⊔{f(x)}`) (`FunctionSpace.lean`) | **Pass** |
+| **Exercise 3.14** | Exercise | 1405–1429 | tagged product `0Δ₀∪1Δ₁` (disjointness unnecessary); `diag:D→D×D`; `n`-fold products | **Pass** (`Exercise314.lean`) |
+| **Exercise 3.15** | Exercise | 1431–1439 | product isomorphisms: commutativity, associativity, empty product, functoriality | **Pass** (`Exercise315.lean`) |
+| **Exercise 3.16** | Exercise | 1443–1466 | `𝒟^∞` over `Δ^∞`; `𝒟^∞≅𝒟×𝒟^∞`; elements = infinite sequences of `\|𝒟\|` elements | **Pass** (`Exercise316.lean`) |
+| **Exercise 3.17** | Exercise | 1468–1486 | `B→T^∞` and `T^∞→B` approximable; section/retraction; iso questions | **Pass** (`Exercise317.lean`) |
+| **Exercise 3.18** | Exercise | 1490–1506 | *sum* system `𝒟₀+𝒟₁`; injections `inᵢ`, projections `outᵢ`; `outᵢ∘inᵢ=I`; `n`-term sums | **Pass** (`Exercise318.lean`) |
+| **Exercise 3.19** | Exercise | 1508–1532 | functorial `f×g` and `f+g` on products/sums; `f×g=⟨f∘p₀,g∘p₁⟩`; `outᵢ∘(f+g)∘inᵢ=f/g` | **Pass** (`Exercise319.lean`, `Exercise319Sum.lean`) |
+| **Exercise 3.20** | Exercise | 1536 | (category theorists) `+` and `×` are functors; `×` is the categorical product | **Pass** (`Exercise319.lean`) |
+| **Exercise 3.21** | Exercise | 1538 | `[Y,Z]` in `(D₁→D₂)` uniquely determines `Y,Z` when `Z≠Δ₂`; edge case `Z=Δ₂` | **Pass** (`Exercise321.lean`) |
+| **Exercise 3.22** | Exercise | 1540–1560 | composition `comp:(D₁→D₂)×(D₀→D₁)→(D₀→D₂)` approximable; `comp(g,f)=g∘f`; from `eval`+`curry` | **Pass** (`Exercise322.lean`) |
+| **Exercise 3.23** | Exercise | 1564 | (category theorists) domains + approximable maps form a cartesian closed category (3.11, 3.12) | **Pass** (`Exercise323.lean`) |
+| **Exercise 3.24** | Exercise | 1566–1576 | more function-space isos: (i) `(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)`, (ii) `(D₀→D₁^∞)≅(D₀→D₁)^∞`; (iii)(iv) as canonical mapping relationships (separated-sum bottom obstructs iso) | **Pass** (`Exercise324.lean`, `Exercise324Iter.lean`, `Exercise324Distrib.lean`) |
+| **Exercise 3.25** | Exercise | 1578 | (topologists) open subsets of `\|D\|` form a domain (uses 3.10, Exercises 1.21 & 2.13) | **Pass** (`Exercise325.lean`) |
+| **Exercise 3.26** | Exercise | 1580–1620 | conditional `cond:T×D×D→D` (`cond(true,x,y)=x`, etc.); sum variant `condSum:T×D₀×D₁→D₀+D₁`; `which:D₀+D₁→T` with `cond(which x,in₀ out₀ x,in₁ out₁ x)=x` | **Pass** (`Exercise326.lean`, `Exercise326Sum.lean`) |
+| **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Pass** (`Exercise327.lean`) |
+| **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Pass** (`Exercise328.lean`) |
 
-**Beyond Lecture III — OCR started, Goal List pending:** Lecture IV (*Fixed points and recursion*,
-from line 1646) is partially transcribed (Theorems 4.1–4.2, Examples 4.3–4.4, Def 4.5, Thm 4.6, …);
-rows will be added as the inventory pass continues.
+### 4.2.IV Lecture IV — *Fixed points and recursion* (Theorems 4.1, 4.2 formalized)
+
+The full PRG-19 text (Lectures I–VIII) is now transcribed in `sources/PRG19_vision.md`. The Lean
+**spine** of the formalization targets Lectures I–III (complete); formalization keyed to the PRG-19
+numbering has now begun in Lecture IV with the **Fixed-point Theorem 4.1** and the approximability
+of **`fix` (Theorem 4.2)** in `Domain/Neighborhood/Theorem41.lean` (choice-free constructions). The
+remaining IV–VIII items are inventoried below; some fixed-point and domain-equation material is also
+*separately* explored in the `Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`,
+`InverseLimits.lean`, `Theorem212.lean`), not yet keyed to the PRG-19 numbering.
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Theorem 4.1** | Theorem | 1653 | every approximable `f:D→D` has a **least** fixed point `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixElement`, `toElementMap_fixElement`, `fixElement_le_of_toElementMap_le`) |
+| **Theorem 4.2** | Theorem | 1711 | the fixed-point operator `fix:(D→D)→D` is itself approximable; `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixMap`, `fixMap_fixed`, `fixMap_least`, `fixMap_eq_iSup`, `fixMap_unique`) |
+| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | — |
+| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | — |
+| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | — |
+| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | — |
+| **Exercise 4.7** | Exercise | 2199 | `a⊑f(a)` ⟹ is there a fixed point `x=f(x)` with `a⊑x`? | — |
+| **Exercise 4.8** | Exercise | 2205 | `f:D→D`, `S⊆\|D\|` closure conditions for fixed points | — |
+| **Exercise 4.9** | Exercise | 2221 | an approximable operator (least fixed point over a family) | — |
+| **Exercise 4.10** | Exercise | 2235 | construct the relativized domain `Dₐ` (elements above `a`) | — |
+| **Exercise 4.11** | Exercise | 2245 | (Plotkin) `fix` uniquely determined by general conditions on `D⇝F_D` | — |
+| **Exercise 4.12** | Exercise | 2255 | need `f` have a *maximum* fixed point? example with many fixed points | — |
+| **Exercise 4.13** | Exercise | 2257 | eliminate the apparent circularity between 4.1 and 4.6 | — |
+| **Exercise 4.14** | Exercise | 2279 | need monotone `f:PA→PA` have a maximum fixed point? | — |
+| **Exercise 4.15** | Exercise | 2281 | (set theorists) monotone `f:\|D\|→\|D\|` has a *maximal* fixed point (Zorn) | — |
+| **Exercise 4.16** | Exercise | 2289 | (fixed-point nuts) the *optimal* fixed point | — |
+| **Exercise 4.17** | Exercise | 2301 | (algebraists) semigroup `⟨S,1,·⟩`, `PS` a domain; least `x` | — |
+| **Exercise 4.18** | Exercise | 2317 | verify the assertions about `N`, `F` in Example 4.3 | — |
+| **Exercise 4.19** | Exercise | 2319 | verify Example 4.4; `one:C→T` from the rest by a fixed-point equation | — |
+| **Exercise 4.20** | Exercise | 2321 | `fix(f∘g)=f(fix(g∘f))` | — |
+| **Exercise 4.21** | Exercise | 2327 | `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication | — |
+| **Exercise 4.22** | Exercise | 2343 | `N*` satisfying (i)(ii) ⟹ subset `N` satisfying (i)(ii)(iii)? | — |
+| **Exercise 4.23** | Exercise | 2347 | (Eilenberg) unique fixed point under an approximation `aₙ` scheme | — |
+| **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | — |
+| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | — |
+
+### 4.2.V Lecture V — *Typed λ-calculus* (transcribed; formalization deferred)
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | — |
+| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | — |
+| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise | — |
+| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | — |
+| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | — |
+| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | — |
+| **Exercise 5.7** | Exercise | 3001 | find definitions of various combinators | — |
+| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinators ↔ `λ`-expressions via `σ(τ)` only | — |
+| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | — |
+| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
+| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators | — |
+| **Exercise 5.12** | Exercise | 3067 | a combinator on `D` by least fixed point | — |
+| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |
+| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
+| **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |
+| **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | — |
+
+### 4.2.VI Lecture VI — *Introduction to domain equations* (transcribed; formalization deferred)
+
+*OCR note:* `Example 6.1` (line 3214) is not bold-tagged. Scott labels item **6.15** as
+**Lemma 6.15** (3952) but later calls it **Theorem 6.15** (4863) — same result, original typo.
+(Pages 108–111 were re-OCR'd to fix an earlier page-order scramble.)
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | — |
+| **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | — |
+| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | — |
+| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | — |
+| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | — |
+| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | — |
+| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | — |
+| **Definition 6.8** | Definition | 3761 | a functor *continuous on maps* | — |
+| **Theorem 6.9** | Theorem | 3771 | continuous `T` with `D≅T(D)` ⟹ a homomorphism `D→E` to any `T`-algebra | — |
+| **Definition 6.10** | Definition | 3795 | the subsystem relation `D ◁ E` | — |
+| **Proposition 6.11** | Proposition | 3813 | the subsystems of `E` form a domain | — |
+| **Proposition 6.12** | Proposition | 3823 | `D◁E` ⟹ a projection pair `i,j` | — |
+| **Definition 6.13** | Definition | 3845 | a functor *monotone / continuous on domains* | — |
+| **Theorem 6.14** | Theorem | 3857 | (main) continuous monotone `T` with a generating set `Γ` ⟹ solution `D≅T(D)` | — |
+| **Lemma 6.15** | Lemma | 3952 | projection pair `i,j` with `j∘i=I_D`, `i∘j⊑I_E` ⟹ `D⊴E` (converse to 6.12) | — |
+| **Theorem 6.16** | Theorem | 4010 | initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E≅T(E)` | — |
+| **Exercise 6.17** | Exercise | 4072 | algebras for which `C` is initial | — |
+| **Exercise 6.18** | Exercise | 4074 | `D^∞` (Ex 3.16) as an initial algebra / domain-equation solution | — |
+| **Exercise 6.19** | Exercise | 4082 | sum & product on the category of strict maps | — |
+| **Exercise 6.20** | Exercise | 4094 | the `tok(D)` function on systems | — |
+| **Exercise 6.21** | Exercise | 4081 | functors generated by the operations | — |
+| **Exercise 6.22** | Exercise | 4093 | comment on given domain equations | — |
+| **Exercise 6.23** | Exercise | 4107 | the initial solution to a domain equation | — |
+| **Exercise 6.24** | Exercise | 4127 | existence of domains satisfying given equations | — |
+| **Exercise 6.25** | Exercise | 4141 | projection-pair `g,h` identities on elements | — |
+| **Exercise 6.26** | Exercise | 4153 | definitions on systems as in 6.19 | — |
+| **Exercise 6.27** | Exercise | 4165 | which subsystem relationships hold | — |
+| **Exercise 6.28** | Exercise | 4173 | (Plotkin) finite systems `D,E` | — |
+| **Exercise 6.29** | Exercise | 4181 | generalize `+`, `×` to infinitary operations | — |
+
+### 4.2.VII Lecture VII — *Computability in effectively given domains* (transcribed; formalization deferred)
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Definition 7.1** | Definition | 4209 | a *computable presentation* of a neighbourhood system | — |
+| **Definition 7.2** | Definition | 4237 | *computable map* between recursively presented domains | — |
+| **Proposition 7.3** | Proposition | 4271 | identity is computable; computable maps compose | — |
+| **Theorem 7.4** | Theorem | 4277 | `D₀+D₁` and `D₀×D₁` are effectively given if `D₀,D₁` are | — |
+| **Theorem 7.5** | Theorem | 4327 | `(D₀→D₁)` is effectively given; `eval`/`curry` computable; computable elements = computable maps | — |
+| **Theorem 7.6** | Theorem | 4377 | `fix:(D→D)→D` is computable on effectively given `D` | — |
+| **Proposition 7.7** | Proposition | 4399 | `D^§` is effectively given; the Example 6.1 combinators are computable | — |
+| **Example 7.8** | Example | 4443 | the powerset `PN` is effectively given | — |
+| **Definition 7.9** | Definition | 4461 | the power domain `PD` | — |
+| **Proposition 7.10** | Proposition | 4483 | `PD` is a neighbourhood system, effectively given if `D` is | — |
+| **Definition 7.11** | Definition | 4523 | finite-element joins `{x₀,…,x_{n-1}}` in the power domain | — |
+| **Proposition 7.12** | Proposition | 4529 | the union mapping on the power domain | — |
+| **Exercise 7.13** | Exercise | 4575 | effectively given domain ↔ an `INCL(n,m)` relation on integers | — |
+| **Exercise 7.14** | Exercise | 4597 | (recursion theorists) r.e. facts after Def 7.2; computable elements | — |
+| **Exercise 7.15** | Exercise | 4609 | finish 7.4 for `D₀⊗D₁`, `D₀⊕D₁`, `D^∞` | — |
+| **Exercise 7.16** | Exercise | 4611 | `curry` as a neighbourhood relation: recursive or r.e.? | — |
+| **Exercise 7.17** | Exercise | 4613 | finish 7.7 for `D^§`; strict `g:D^§→E` | — |
+| **Exercise 7.18** | Exercise | 4621 | define *effective isomorphism*; effective `Tok ≅` | — |
+| **Exercise 7.19** | Exercise | 4629 | `D↦PD` is a functor | — |
+| **Exercise 7.20** | Exercise | 4641 | a combinator of given type | — |
+| **Exercise 7.21** | Exercise | 4655 | a non-trivial combinator of given type? | — |
+| **Exercise 7.22** | Exercise | 4673 | (algebraists) a domain by least fixed point over `{0,1}*` | — |
+| **Exercise 7.23** | Exercise | 4693 | finish `PN` (Ex 7.8); `fun`/`graph` computable | — |
+| **Exercise 7.24** | Exercise | 4705 | (LUCID, Ashcroft–Wadge) stream operators | — |
+
+### 4.2.VIII Lecture VIII — *Retracts of the universal domain* (transcribed; formalization deferred)
+
+*OCR note:* item 8.4 is labelled `EXAMPLES 8.4` (plural, line 4773) — present, not missing; `7.9` is
+mis-typed `DEFINITION 7.9..` (double period, line 4461).
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Definition 8.1** | Definition | 4735 | a *retraction* `a:E→E` with `a∘a=a` | — |
+| **Proposition 8.2** | Proposition | 4737 | `D◁E` induces a retraction `a:E→E` | — |
+| **Definition 8.3** | Definition | 4767 | a *projection* (retraction with `a⊑I`) | — |
+| **Examples 8.4** | Examples | 4773 | the two-element system `O={{0},{0,1}}` arises from a retraction on any non-trivial `D` | — |
+| **Theorem 8.5** | Theorem | 4820 | equivalent characterizations of an approximable retraction `a:E→E` | — |
+| **Theorem 8.6** | Theorem | 4856 | the domain of retracts of `E` | — |
+| **Definition 8.7** | Definition | 4894 | the universal domain `U` over the rationals `Q` | — |
+| **Theorem 8.8** | Theorem | 4909 | `U` is universal: every countable system `D ◁ U` | — |
+| **Definition 8.9** | Definition | 4994 | fixed computable projection pairs `i_+,j_+,i_×,j_×,i_→,j_→` for `U` | — |
+| **Proposition 8.10** | Proposition | 5006 | `a+b`, `a×b`, `a→b` are projections (finitary if `a,b` are) | — |
+| **Exercise 8.11** | Exercise | 5103 | a neighbourhood system over the rationals `Q` | — |
+| **Exercise 8.12** | Exercise | 5113 | generalize `2X+1` to sets | — |
+| **Exercise 8.13** | Exercise | 5119 | (logicians) `U ≅` filters of the free Boolean algebra on `ℵ₀` generators | — |
+| **Exercise 8.14** | Exercise | 5125 | *closure operators* (`I⊑a`); fixed-point set finitary | — |
+| **Exercise 8.15** | Exercise | 5127 | `{X∣X◁D}` effectively presented if `D` is | — |
+| **Exercise 8.16** | Exercise | 5129 | finitary projections `a:E→E` | — |
+| **Exercise 8.17** | Exercise | 5139 | projection pairs for `U+U`, `U×U`, `U→U`; a universal `V≠U` | — |
+| **Exercise 8.18** | Exercise | 5143 | establish the unproved cases of 8.10 | — |
+| **Exercise 8.19** | Exercise | 5145 | consequences of two known facts | — |
+| **Exercise 8.20** | Exercise | 5151 | `D ⊴ D+D`; what about other constructs? | — |
+| **Exercise 8.21** | Exercise | 5157 | a computable operator `λa.a^§` on finitary projections | — |
+| **Exercise 8.22** | Exercise | 5161 | which of two relations holds | — |
+| **Exercise 8.23** | Exercise | 5173 | construct `T` as a computable operator `(U→U)→(U→U)` | — |
+| **Exercise 8.24** | Exercise | 5185 | binary constructs `S,T` ⟹ a pair of effectively presented domains | — |
+| **Exercise 8.25** | Exercise | 5190 | non-trivial solutions of a domain equation | — |
+| **Exercise 8.26** | Exercise | 5212 | untyped/typed `λ`-calculus translated into `U` via projections | — |
+| **Exercise 8.27** | Exercise | 5233 | (Donahue) — | — |
 
 ### 4.3 §1 dependency (parsed so far)
 
@@ -1324,8 +1587,22 @@ flowchart TD
   D17["Def 1.7 principal ↑X ✓"]
   F17a["Factoid 1.7a ↑ one-one, reversing ✓"]
   F17b["Factoid 1.7b x = ⋃ ↑X ✓"]
-  D18b["Def 1.8 ⊥ · total"]
+  D18b["Def 1.8 ⊥ · total · Factoids 1.8a/1.8b ✓"]
+  EB["Example 1.B B binary · σ⊥ · σx · x=⋃σₙ⊥ ✓"]
   E122["Exercise 1.22 topology on |𝒟| · ⊑ = specialization ✓"]
+  D19["Def 1.9 𝒟₀ ≅ᴰ 𝒟₁ (order-iso) ✓"]
+  T110["Theorem 1.10 token system {[X]} · 𝒟 ≅ᴰ {[X]} ✓"]
+  T111["Theorem 1.11 ⋂ · ascending ⋃ closure ✓"]
+  E112["Exercise 1.12 ℕ tails · unique limit ✓"]
+  E113["Exercise 1.13 B limit nodes · branch total ✓"]
+  E114["Exercise 1.14 ℕ finite subsets · singletons total ✓"]
+  E115["Exercise 1.15 flat ≇ stem (no/has 3-chain) ✓"]
+  E119["Exercise 1.19 IsPositive · ofPositive · non-positive example ✓"]
+  E118["Exercise 1.18 FinitelyConsistent · sInf · leastFilter ✓"]
+  E120["Exercise 1.20 powerSystem ↑X · powerIso ✓"]
+  E121["Exercise 1.21 tokenSystem positive+complete · consistency↔⋂[X] ✓"]
+  E116["Exercise 1.16 cofiniteSystem ≅ 𝒫(ℕ) ✓"]
+  E117["Exercise 1.17 ratIntervalSystem · filterAt ✓"]
 
   D11 --> F11a
   D11 --> F11b
@@ -1352,8 +1629,36 @@ flowchart TD
   D17 --> F17b
   D16 --> D18b
   D17 --> D18b
+  F14a --> EB
+  D17 --> EB
+  D18b --> EB
+  F17b --> EB
   D16 --> E122
   D18o --> E122
+  D18o --> D19
+  D19 --> T110
+  D17 --> T110
+  D16 --> T111
+  F14a --> E112
+  D18b --> E112
+  EB --> E113
+  T111 --> E113
+  D18b --> E114
+  F14a --> E115
+  D19 --> E115
+  D18b --> E115
+  D11 --> E119
+  E119 --> E120
+  E119 --> E121
+  D19 --> E120
+  D17 --> E120
+  T110 --> E121
+  T11c --> E121
+  T11c --> E118
+  T111 --> E118
+  D19 --> E116
+  D18b --> E116
+  D16 --> E117
 ```
 
 ### 4.4 Status
@@ -1361,23 +1666,37 @@ flowchart TD
 
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
-| Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `Exercise122.lean`) |
-| Report card  | **17 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Examples 1.2–1.5, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
+| Vision / OCR | **Lectures I–VIII** fully transcribed (`sources/PRG19_vision.md`, ≈5340 lines) |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`ApproximableExercises.lean`**, **`Example23.lean`**, **`Example24.lean`**, **`Exercise216.lean`**, **`Exercise213.lean`**, **`Exercise214.lean`**, **`Exercise215.lean`**, **`Exercise218.lean`**, **`Exercise220.lean`**, **`Exercise221.lean`**, **`Exercise222.lean`**, **`Product.lean`**, **`FunctionSpace.lean`**) |
+| Report card  | **94 Pass** — all of Lecture I (43), all of Lecture II (22), and **all of Lecture III (29)**: the product + function-space spine (Def 3.1 → Thm 3.13) *and* every §3 exercise (3.14–3.28, including `𝒟^∞`, the `B ◁ T^∞` retract, the 3.24 isos/mapping relationships, open sets as a domain, and the Ex 2.22 re-proof) |
 
-**Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
-**complete inventories** of PRG-19 Lectures I–III:
+**Goal List coverage.** §4.2 and §4.2.II–VIII are now **complete inventories** of *all eight*
+PRG-19 lectures. Lectures I–III are fully formalized (94 Pass); Lectures IV–VIII are inventoried
+with Lean formalization deferred:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
-| I (domains by neighbourhoods) | §4.2 | 40 | **17** |
-| II (approximable mappings) | §4.2.II | 22 | 0 |
-| III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **90** | **17** |
+| I (domains by neighbourhoods) | §4.2 | 43 | **43** |
+| II (approximable mappings) | §4.2.II | 22 | **22** |
+| III (products, sums, function spaces) | §4.2.III | 29 | **29** |
+| IV (fixed points and recursion) | §4.2.IV | 25 | **2** (Thm 4.1, 4.2) |
+| V (typed λ-calculus) | §4.2.V | 16 | — |
+| VI (domain equations) | §4.2.VI | 29 | — |
+| VII (computability) | §4.2.VII | 24 | — |
+| VIII (universal domain) | §4.2.VIII | 27 | — |
+| **Total PRG-19 I–VIII** | | **215** | **96** |
 
-**Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
-inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
-`Domain/Neighborhood/Constructions.lean` (§3).
+The Lecture III **spine** (Def 3.1 → Thm 3.13) is complete and choice-free, and **all Lecture III
+exercises (3.14–3.28) are now formalized** (`Exercise316`/`317`/`324Iter`/`324Distrib`/`325`/`327`
+completing the set).
+
+**Lectures IV–VIII** are fully **transcribed and inventoried** (§4.2.IV–VIII); formalization keyed
+to PRG-19 numbering has now **begun in Lecture IV** with the Fixed-point Theorem **4.1** and the
+approximability of `fix` **4.2** (`Theorem41.lean`). The remaining IV–VIII items are not yet
+formalized; the domain-equation material is also explored separately in the
+`Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`), not yet
+keyed to the PRG-19 numbering. Lean roots for the formalized spine: `Approximable.lean` (§2),
+`Product.lean` + `FunctionSpace.lean` (§3), `Theorem41.lean` (§4 fixed points).
 
 
 ### 4.5 Selected proof notes
@@ -1535,6 +1854,219 @@ membership (concrete, avoiding `⋃` over a `Set (Set α)`). `→` uses `X = Z` 
 application of upward closure `x.up_mem` (`X ⊆ Z` with `Z ∈ 𝒟`). All five declarations audit to
 `[propext, Quot.sound]`.
 
+#### Definition 1.8 (`⊥`, total) / Factoids 1.8a, 1.8b — `bot`, `mem_bot`, `bot_le`, `OrderBot`, `IsTotal`, `eq_principal_of_isMin` (`Basic.lean`)
+
+Scott's bottom element `⊥ = {Δ}` is simply the principal filter of the master neighbourhood:
+`bot := principal master_mem`, i.e. `⊥ = ↑Δ`. `mem_bot` shows it really is the *singleton* `{Δ}`:
+`Y ∈ ⊥ ↔ Y = Δ`. The forward direction is where `sub_master` pays off — `Y ∈ ↑Δ` gives `Y ∈ 𝒟`
+*and* `Δ ⊆ Y`, while `V.sub_master` supplies the reverse `Y ⊆ Δ`, so `Set.Subset.antisymm` collapses
+`Y` to `Δ`. This is the *variance* curiosity (Pitfall 4): `⊥ = ↑Δ` is the *largest* principal filter
+(`Δ` is the largest neighbourhood) yet the *least* element.
+
+**Factoid 1.8a (`⊥` is least).** `bot_le : ∀ x, ⊥ ⊑ x`: a member `Y ∈ ⊥` is `Y = Δ` (`mem_bot`),
+and `Δ ∈ x` is filter axiom (i) `x.master_mem`. Packaged as `instance : OrderBot V.Element` so the
+`⊥` notation resolves to `{Δ}`; the instance stays `[propext, Quot.sound]`.
+
+**Definition 1.8 (total elements).** `IsTotal x := ∀ y, x ⊑ y → y ⊑ x` — maximality under the
+approximation order, kept as a *predicate*. Per Scott, the *existence* of total (maximal) elements
+above a given `x` is the classical frontier (Exercise 1.24, needs Zorn/choice) and is deliberately
+**not** proved here.
+
+**Factoid 1.8b ("Examples 1.2–1.5 revisited": finite ⟹ principal).** Scott's prose "any explicitly
+given filter `x` is principal … the minimal `X ∈ x` tells us all we need to know" is formalized as
+`eq_principal_of_isMin`: if `x` has a `⊆`-minimum member `X` (one with `X ⊆ Y` for every `Y ∈ x`),
+then `x = ↑X`. `⊆` is minimality, `⊇` is one `up_mem`. This is the constructive *core*; the step
+"finite system ⟹ such a minimum exists" (take the intersection of the finitely many members, itself
+in `x` by closure) is the only classical ingredient and is left implicit, so the stated lemma audits
+to `[propext, Quot.sound]`. All four new declarations are constructive.
+
+#### Example 1.B (binary sequences) — `cone`, `B`, `sigmaBot`, `sigmaElt`, `mem_iff_exists_sigmaBot` (`ExampleB.lean`)
+
+Scott's recurring **binary** example, the first *infinite* neighbourhood system in Part II. Tokens
+are `Str := List Bool` (`Σ* `, with `Λ = []`); the *initial-segment* relation `σ ⪯ τ` is mathlib's
+list-prefix `σ <+: τ`; the neighbourhood `σΣ*` is `cone σ := {w ∣ σ <+: w}`. The whole point is the
+**reversal** `cone_subset_cone : cone σ ⊆ cone τ ↔ τ <+: σ` (a longer prefix carves out a smaller
+cone), proved by testing `⊆` at `σ ∈ cone σ` and chaining `<+:` the other way.
+
+*The system (`B`, and the "`B` is a system" exercise).* `cone_trichotomy` shows any two cones are
+nested-or-disjoint: deciding `σ <+: τ` and `τ <+: σ` (list-prefix is **decidable**, so this is a
+`dite`, not `Classical.em`) gives the two nested cases via `cone_subset_cone`; in the remaining case
+a common extension `w` of `σ` and `τ` would make them comparable (`List.prefix_or_prefix_of_prefix`),
+contradiction, so `cone σ ∩ cone τ = ∅`. Then `B := ofNestedOrDisjoint memB Set.univ … nestedOrDisjoint`
+reuses Factoid 1.4a — no bespoke `inter_mem` proof. `B.master = Set.univ = cone []` (`cone_nil`).
+
+*Finite elements `σ⊥` and the initial-segment factoid.* `sigmaBot σ := ↑(cone σ)` (principal filter
+of `σΣ*`, minimal neighbourhood `σΔ = cone σ`). `sigmaBot_le_iff : σ₀⊥ ⊑ σ₁⊥ ↔ σ₀ <+: σ₁` falls out
+of `principal_le_iff` (reversal) composed with `cone_subset_cone` (reversal again) — the two
+variance flips **cancel**, so the order on finite elements is exactly the prefix order. This is
+Scott's "`σ₀⊥ ⊆ σ₁⊥` iff `σ₀` is an initial segment of `σ₁`".
+
+*The operator `σx` (`σx ∈ |B|` exercise).* `sigmaElt σ x` has `mem Y := B.mem Y ∧ ∃ X ∈ x, σX ⊆ Y`,
+where `σX = prepend σ X = {στ ∣ τ ∈ X}`. The crucial algebraic fact is `prepend_cone :
+σ(τΣ*) = (στ)Σ*` (so `prepend` of a cone is a cone, `memB_prepend`). In the filter's `inter_mem` the
+consistency witness for `B.inter_mem` is `σ(X₁∩X₂)`: `X₁∩X₂ ∈ x ⊆ B` is a cone, hence `σ(X₁∩X₂)` is a
+cone in `B` contained in `Y₁ ∩ Y₂`. `sigmaElt_bot : σ⊥ = sigmaElt σ ⊥` (via `prepend_univ :
+σΣ* = prepend σ Σ*`) confirms `sigmaBot` is genuinely "`σ` applied to `⊥`".
+
+*Element = limit of finite approximations.* `mem_iff_exists_sigmaBot : x.mem Z ↔ ∃ σ, x.mem (cone σ)
+∧ (σ⊥).mem Z` is Scott's `x = ⋃ₙ σₙ⊥` in concrete union-membership form — every member of `x` is a
+cone (so `Basic.eq_iUnion_principal` specializes), and `x` is the union of the finite elements `σ⊥`
+with `σΣ* ∈ x`. Arranging the `σ` into a single ascending chain `σ₀ ⪯ σ₁ ⪯ …` needs an
+enumeration/choice and is left to Scott's prose. **All declarations audit to `[propext, Quot.sound]`**
+— decidability of list-prefix keeps even the trichotomy choice-free.
+
+#### Definition 1.9 (isomorphic domains) — `DomainIso`, `Isomorphic` / `≅ᴰ` (`Basic.lean`)
+
+Scott asks for "a one-one correspondence between `|𝒟₀|` and `|𝒟₁|` which preserves inclusion". An
+`OrderIso` (`≃o`) packages exactly this: it is a bijection that both preserves *and reflects* `⊑`
+(`map_rel_iff`), the two-way inclusion-preservation Scott wants. `DomainIso V₀ V₁ := V₀.Element ≃o
+V₁.Element` (over possibly *different* token types); `V₀ ≅ᴰ V₁ := Nonempty (DomainIso V₀ V₁)` with
+`refl`/`symm`/`trans` from `OrderIso.refl`/`symm`/`trans`. Choice-free.
+
+#### Theorem 1.10 (the element-token system `{[X]}`) — `bracket`, `tokenSystem`, `tokenIso` (`Theorem110.lean`)
+
+`[X] := {x ∈ |𝒟| ∣ X ∈ x}` (`bracket X`). Scott's four facts are short lemmas: `bracket_master`
+`[Δ]=|𝒟|` (every filter contains `Δ`); `bracket_inter` `[X]∩[Y]=[X∩Y]` (`⊆` is filter closure under
+`∩`, `⊇` is upward closure); `principal_mem_bracket` `↑X ∈ [X]`; and `bracket_inter_nonempty_iff` the
+consistency criterion. The correspondence `X ↦ [X]` is one-one (`bracket_injective`) and
+inclusion-preserving (`bracket_subset_iff` `[X]⊆[Y] ↔ X⊆Y`, both tested at the principal `↑X`). The
+system `tokenSystem : NeighborhoodSystem |𝒟|` has `mem S := ∃ X∈𝒟, S=[X]` and `master := univ`; its
+`inter_mem` reads a witness `W ⊆ X∩Y` off `↑W ∈ [W] ⊆ [X]∩[Y]`, so `X∩Y ∈ 𝒟` and `[X]∩[Y]=[X∩Y]`.
+The isomorphism `tokenIso : |𝒟| ≃o |{[X]}|` is built by hand from `toToken x := {[X] ∣ X∈x}` and
+`ofToken y := {X ∣ [X]∈y}`, proved mutually inverse and order-reflecting via `bracket_injective`.
+`isomorphic_tokenSystem : 𝒟 ≅ᴰ tokenSystem`. All choice-free (`[propext, Quot.sound]`).
+
+#### Theorem 1.11 (`⋂` and ascending `⋃` closure) — `iInter`, `iUnion` (`Theorem111.lean`)
+
+For `x : ℕ → |𝒟|`, `iInter x` has `mem X := ∀ n, X ∈ xₙ`: all four filter laws are pointwise, so the
+countable intersection is again a filter with **no proviso**, and it is the *greatest* lower bound
+(`iInter_le`, `le_iInter`) — "exactly what is common to all the `xₙ`". `iUnion x hmono` (for
+`hmono : Monotone x`) has `mem X := ∃ n, X ∈ xₙ`; only the intersection law needs the ascending
+proviso (`X∈xₙ`, `Y∈xₘ` ⟹ both in `x_{max n m}`), and it is the *least* upper bound (`le_iUnion`,
+`iUnion_le`) — "just what the increasing sequence approximates". Choice-free.
+
+#### Exercise 1.12 (final segments of `ℕ`) — `tail`, `neighborhoodSystem`, `element_eq` (`Exercise112.lean`)
+
+`tail n = {m ∣ n≤m}` (Scott's `{m ∣ m>n}` is `tail (n+1)`); `tail 0 = ℕ = Δ` and the tails form a
+descending chain, so `ofNestedOrDisjoint` builds the system (the infinite analogue of the chain
+Example 1.3). Finite elements `fin n = ↑(tail n)` form an ascending `ω`-chain (`fin_strictMono`). The
+single **limit element** `top` is the filter of *all* tails — the greatest element (`le_top`), the
+unique total element (`top_isTotal`, `isTotal_iff_top`). `element_eq` classifies every element as
+some `fin n` or `top` (Scott's "only one limit element"): this decides whether the indices in `x`
+are bounded (`Nat.find` over a `¬`-predicate), so it is the *classical* step (`Classical.choice`);
+the system and order facts are choice-free.
+
+#### Exercise 1.13 (limit nodes of `B`) — `prefixSeq`, `branch`, `branch_isTotal` (`Exercise113.lean`)
+
+The "assertions about `B`" are `ExampleB.lean` (system, `σ⊥`, `σx`, monotonicity, `x=⋃ₙσₙ⊥`). This
+file supplies the **limit nodes "all along the top"**: for an infinite path `p : ℕ → Bool`,
+`branch p := ⋃ₙ (p↾n)⊥` is the ascending union (Theorem 1.11's `iUnion`) of the finite
+approximations `prefixSeq p n`. `branch_mem_iff` characterizes its members; `branchSeq_le_branch`
+shows each finite `(p↾n)⊥` approximates it; and `branch_isTotal` proves it is a **total/maximal**
+element: any `y` it approximates approximates it back, since a member `cone σ` of `y` is comparable
+to `p↾|σ|` (their cones meet inside `y ⊆ B`), forcing `σ = p↾|σ|` on the path.
+
+#### Exercise 1.14 (finite non-empty subsets of `ℕ`) — `neighborhoodSystem`, `singleton_isTotal` (`Exercise114.lean`)
+
+`mem X := X = ℕ ∨ (X.Finite ∧ X.Nonempty)`. Unlike the tail/binary examples this is *not*
+nested-or-disjoint, so `inter_mem` is checked by hand: the consistency witness `Z ⊆ X∩Y` keeps `X∩Y`
+non-empty (`nonempty_of_mem`), and `X∩Y` is finite as soon as either factor is. The total elements
+are exactly the **singletons** `↑{n}`: `singleton_isTotal` shows `↑{n}` is maximal — a `y ⊋ ↑{n}`
+would contain a `W ∌ n`, whence `{n}∩W = ∅ ∈ y ⊆ 𝒟`, contradicting `empty_not_mem`.
+
+#### Exercise 1.15 (non-isomorphic finite-element domains) — `flat`, `stem`, `not_isomorphic` (`Exercise115.lean`)
+
+Two infinite neighbourhood systems over `ℕ`, both nested-or-disjoint. **`flat`** (`{ℕ}∪{{n}}`) is the
+flat domain: `flat_classify` shows every element is `⊥` or a pairwise-incomparable atom `↑{n}`, so
+all elements are finite (`flat_all_finite`), atoms are maximal (`flat_atom_maximal`), there is **no
+strict 3-chain** (`flat_no_three_chain`: `⊥` is least, atoms maximal) and hence **no infinite
+ascending chain** (`flat_no_infinite_chain`). **`stem`** (`{ℕ,{0,1}}∪{{n}}`) inserts one length-3
+stem and so contains the strict 3-chain `⊥ ⊏ ↑{0,1} ⊏ ↑{0}` (`stem_three_chain`). An order-iso would
+transport that 3-chain into `flat`, which has none — so `not_isomorphic : ¬ (flat ≅ᴰ stem)`. The
+classifications use `Classical.choice` (deciding whether an element contains an atom); the
+constructions and the 3-chain transfer are otherwise elementary.
+
+#### Exercise 1.19 (positive neighbourhood systems) — `IsPositive`, `ofPositive` (`Basic.lean`), `notPositiveSystem` (`Exercise119.lean`)
+
+Scott's *positive* systems replace condition (ii) by the biconditional **(ii′)**:
+`X ∩ Y ∈ 𝒟 ⟺ X ∩ Y ≠ ∅` for `X, Y ∈ 𝒟`. `IsPositive V` is this predicate; `ofPositive`
+*builds* a `NeighborhoodSystem` from the data `(Δ ∈ 𝒟, 𝒟 ⊆ 𝒫(Δ), (ii′))`, discharging (ii):
+a consistency witness `Z ⊆ X ∩ Y` with `Z ∈ 𝒟` is non-empty (apply (ii′) to `Z ∩ Z = Z`), so
+`X ∩ Y ⊇ Z` is non-empty, hence `X ∩ Y ∈ 𝒟`. Choice-free (`[propext, Quot.sound]`).
+For the *non-positive* example, note Scott's fork (Example 1.2) is actually **positive** (disjoint
+neighbourhoods have *empty* intersection, and (ii′) is then `False ↔ False`). We instead use the
+minimal `notPositiveSystem` over `{0,1,2}` with `𝒟 = {Δ, {0,1}, {1,2}}`: it is a genuine system
+(the lone overlapping pair has intersection `{1}`, which has **no** witness in `𝒟`, so (ii) never
+fires) but `not_isPositive` holds since `{1} ≠ ∅` yet `{1} ∉ 𝒟`. A small stand-in for Hoare's
+`ℕ × ℕ` example. The finite construction uses `Classical.choice` only through `simp`/`fin_cases`
+(as do the other concrete finite systems, e.g. Example 1.2).
+
+#### Exercise 1.20 (the power system `𝒟' = {↑X}`) — `upSet`, `powerSystem`, `powerIso` (`Exercise120.lean`)
+
+`Δ' = 𝒟`, `𝒟' = {↑X ∣ X ∈ 𝒟}` with `↑X = upSet X = {Y ∈ 𝒟 ∣ Y ⊆ X}` — the *up-set inside `𝒟`*,
+**not** Definition 1.7's principal filter (down-set). Note `X ↦ ↑X` is inclusion-*preserving*
+(`upSet_subset_iff`) and one-one on `𝒟` (`upSet_injective`), with the set identity
+`↑X ∩ ↑Y = ↑(X∩Y)` (`upSet_inter`). `powerSystem` is a `NeighborhoodSystem (Set α)` and is
+**positive** (`powerSystem_isPositive`): `↑X ∩ ↑Y` is a neighbourhood iff non-empty, since a shared
+`Z` gives `Z ⊆ X ∩ Y ∈ 𝒟`. The isomorphism mirrors Theorem 1.10 exactly: `toPower x = {↑W ∣ W∈x}`,
+`ofPower y = {W ∣ ↑W ∈ y}`, mutually inverse and order-reflecting (`powerIso : |𝒟| ≃o |𝒟'|`,
+`isomorphic_powerSystem`). `toPower_principal` shows the iso carries the finite element `↑X` to the
+finite element generated by the token `↑X`, so tokens of `𝒟'` ↔ finite elements one-one. Choice-free.
+
+#### Exercise 1.21 (Theorem 1.10 in detail: positive + complete) — `tokenSystem_isPositive`, `IsComplete`, `tokenSystem_complete` (`Exercise121.lean`)
+
+Two corollaries of Theorem 1.10's `{[X]}` system over `|𝒟|`. **Positive**
+(`tokenSystem_isPositive`): `[X] ∩ [Y] = [X∩Y]` (`bracket_inter`) is a neighbourhood iff non-empty,
+since a common filter `x ∈ [X]∩[Y]` gives `X∩Y ∈ 𝒟` via `x.sub (x.inter_mem …)` and conversely
+`[W] ∋ ↑W`. **Complete** (`IsComplete V' := ∀ y, ∃! point b, ∀ S ∈ 𝒟', y∋S ↔ b∈S`):
+`tokenSystem_complete` shows every filter `y` of `{[X]}` is fixed by the unique point `ofToken y`
+(`[W] ∈ y ↔ ofToken y ∈ [W]`), uniqueness by `Element.ext` through the brackets — the
+`by_cases V.mem W` step pulls in `Classical.choice`. `tokenSystem_toToken_bijective` repackages
+`tokenIso` as the token↔element bijection. Finally `consistent_iff_iInter_bracket_nonempty` is the
+finite Theorem 1.10(2): `⟨Xᵢ⟩` consistent `⟺ ⋂_{i<n}[Xᵢ] ≠ ∅`, combining Theorem 1.1c
+(`consistent_iff_interUpTo_mem`) with `[⋂] ≠ ∅ ⟺ ⋂ ∈ 𝒟` (`bracket_nonempty_iff`) and
+`Element.mem_interUpTo`.
+
+#### Exercise 1.18 (consistent subsets; least filter; `⋂` of filters) — `FinitelyConsistent`, `sInf`, `leastFilter` (`Exercise118.lean`)
+
+`FinitelyConsistent C` says every finite sequence drawn from `C ⊆ 𝒟` is `Consistent` (Scott: every
+finite subset consistent). **Pairwise ⇏ jointly**: over the all-non-empty-subsets system `triSys`
+on `{0,1,2}`, the family `{A,B,Cc} = {{0,1},{1,2},{0,2}}` is pairwise consistent
+(`family_pairwise_nonempty`, each pair meets) but not consistent (`not_finitelyConsistent`):
+`A∩B∩Cc = ∅`, so its triple has empty `interUpTo` and no non-empty witness.
+**`sInf F hF`** (intersection of a *non-empty* family of filters, `{X ∣ ∀ x∈F, X∈x}`) is a filter and
+the greatest lower bound (`sInf_le`, `le_sInf`); non-emptiness of `F` supplies the `sub` witness.
+**`leastFilter C`** `= {Y ∈ 𝒟 ∣ ⋂_{i<n} Xᵢ ⊆ Y for some finite ⟨Xᵢ⟩ from C}`. The filter's `∩`-law
+concatenates two finite sequences via `appendSeq` and the identity
+`interUpTo (X1 ⧺ X2) (n1+n2) = interUpTo X1 n1 ∩ interUpTo X2 n2` (`interUpTo_appendSeq`), keeping the
+combined intersection in `𝒟` by `FinitelyConsistent`. `subset_leastFilter` (`C ⊆` it) and
+`leastFilter_le` (any filter `⊇ C` contains it) make it the least. Core choice-free.
+
+#### Exercise 1.16 (cofinite subsets of `ℕ`; `|𝒟| ≅ 𝒫(ℕ)`) — `cofiniteSystem`, `cofiniteIso` (`Exercise116.lean`, `Cofinite` ns)
+
+`𝒟 =` cofinite subsets of `ℕ` (`Xᶜ` finite), closed under all finite `∩` since
+`(X∩Y)ᶜ = Xᶜ ∪ Yᶜ`. The order-iso `cofiniteIso : |𝒟| ≃o (Set ℕ, ⊆)` sends a filter `x` to its
+**excluded-point set** `toExcluded x = {n ∣ {n}ᶜ ∈ x}`; the inverse `ofExcluded E = {Y cofinite ∣
+Yᶜ ⊆ E}` is a filter for **every** `E ⊆ ℕ`. The crux is the reconstruction lemma
+`mem_compl_of_finite`: for finite `F` whose single-deletions `{n}ᶜ` all lie in `x`, the intersection
+`⋂_{n∈F}{n}ᶜ = Fᶜ` lies in `x` (filter `∩`-closure, by `Set.Finite.induction_on`). The unique total
+element is `ofExcluded ℕ` (= all of `𝒟`, the top, `ofExcluded_univ_isTotal`), matching the greatest
+`ℕ ∈ 𝒫(ℕ)`. `fullSystem` (all subsets) is the requested second `∩`-closed system (not positive: `∅`
+is a neighbourhood). `Set.Finite` reasoning is classical; the constructions `cofiniteSystem`,
+`ofExcluded` are `[propext, Quot.sound]` modulo that.
+
+#### Exercise 1.17 (rational open intervals on `ℝ`) — `ratIntervalSystem`, `filterAt` (`Exercise117.lean`, `RatInterval` ns)
+
+The first **uncountable** `Δ`: `𝒟 =` non-empty open intervals `(a,b)` with `a,b ∈ ℚ`, plus `Δ = ℝ`.
+The system law reduces to `inter_mem'`: two neighbourhoods meeting at a point intersect in a
+rational interval, via `Set.Ioo_inter_Ioo` (`(a,b)∩(c,d) = (max a c, min b d)`) and `Rat.cast_max`/
+`Rat.cast_min`. For each `t : ℝ`, `filterAt t = {X ∈ 𝒟 ∣ t ∈ X}` is a filter (`∩`-closure uses `t`
+itself as the shared point). `filterAt_injective` (rational density via `exists_rat_btwn`) shows
+`ℝ ↪ |𝒟|`. Scott's full classification of the *total* elements — for rational `t` the right-endpoint
+intervals yield a *second* total element at `t` — needs more real analysis and is documented as
+out-of-scope; the system, point-filters and their injectivity are delivered. Real-number reasoning is
+classical.
+
 #### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
 
 Scott's exercise "(for topologists)" asks to topologize the domain `|𝒟|` by the *basic opens*
@@ -1566,6 +2098,128 @@ audit to `[propext, Quot.sound]`; only the optional `specializes_iff_le` bridge 
 `Classical.choice` from Mathlib's `specializes_iff_forall_open`. The open-ended tail of the exercise
 (Hausdorffness, limit points of ascending chains and of `{↑X ∣ X ∈ x}`) needs Definition 1.7 (`↑X`)
 and is deferred.
+
+#### Exercise 2.13 (approximable maps = continuous maps) — `continuous_toElementMap`, `ofContinuous`, `toElementMap_ofContinuous` (`Exercise213.lean`)
+
+Scott's "(for topologists)" exercise: with `|𝒟|` topologized by the basic opens of Ex 1.22, an
+approximable map `f : 𝒟₀ → 𝒟₁` induces a *continuous* `toElementMap f : |𝒟₀| → |𝒟₁|`, and every
+continuous map arises this way. Forward (`continuous_toElementMap`): pulling back a basic open `[Y]`
+gives `{x ∣ Y ∈ f·x} = {x ∣ ∃ X∈x, X f Y}` (`mem_iff_principal_of_continuous`),
+a union of basic opens `[X]` over `{X ∣ X f Y}`, hence open. Backward (`ofContinuous`): from a
+continuous `g` define `rel X Y := [Y] ⊇ g⁻¹? …` — concretely `X (rel) Y ⟺ ↑X ∈ g⁻¹([Y])` i.e.
+`Y ∈ g(↑X)`; the three approximable-map axioms follow from continuity + monotonicity of `g` on the
+specialization order. The round trip `toElementMap_ofContinuous` recovers `g` pointwise using that
+every `x` is the directed sup of the principal `↑X` for `X ∈ x` (Thm 1.10). **Choice-free**
+(`[propext, Quot.sound]`); the only classical leak would be Mathlib's specialization bridge, which is
+not used here.
+
+#### Exercise 2.14 (the neighbourhood correspondence `φ` of an isomorphism) — `phi`, `rel_ofIso_iff`, `phi_inter` (`Exercise214.lean`)
+
+For a domain iso `e : |𝒟₀| ≃o |𝒟₁|` (Thm 2.7), Scott's `φ` sends a neighbourhood `X` of `𝒟₀` to the
+"image" neighbourhood; we define `φ X` and prove `(ofIso e).rel X Y ⟺ φ X ⊆ Y`, exhibiting the
+approximable map underlying `e`. `phi_inter` records `φ(X ∩ X') = φ X ∩ φ X'` on consistent inputs
+(the iso preserves the finite-meet structure). Footprint inherits `Classical.choice` from the
+`≃o`/principal-sup machinery.
+
+#### Exercise 2.15 (the Sierpiński/one-token system and opens) — `openToMap`, `mapToOpen`, `openSet_equiv_map` (`Exercise215.lean`)
+
+The one-token system `O` (master `{*}`, neighbourhoods `{∅?,{*}}`) is Scott's Sierpiński domain: its
+two elements are `⊥ ⊏ ⊤`. Building on Ex 2.13, open subsets of `|𝒟|` correspond bijectively to
+approximable maps `𝒟 → O`: `openToMap`/`mapToOpen` are mutually inverse, packaged as the equivalence
+`openSet_equiv_map`. The bijection uses choice (`equivSetNat`-style classical packaging of the open ↔
+characteristic-map data), so the footprint is `[propext, Classical.choice, Quot.sound]`.
+
+#### Exercise 2.18 (the spacing map and its left inverse) — `hMap`, `kMap`, `kMap_comp_hMap`, `hMap_not_surjective` (`Exercise218.lean`)
+
+On the binary-sequence domain `B`, Scott's "spacing" map `h` appends a `0` (`b ↦ b0`) and `k` is the
+left inverse stripping it: we build `hMap, kMap : B → B` as approximable maps and prove
+`kMap_comp_hMap : k ∘ h = I_B`. The point of the exercise is that `h` is a section but **not** an
+isomorphism: `kMap_not_injective` and `hMap_not_surjective` (nothing maps onto sequences ending in
+`1`). **Choice-free** (`[propext, Quot.sound]`).
+
+#### Exercise 2.20 (the powerset domain and its operations) — `equivSetNat`, `unionMap`, `interMap₂`, `succMap`, `predMap` (`Exercise220.lean`)
+
+Ex 1.15's powerset domain `𝒫` is modelled with **cofinite** neighbourhoods over `ℕ` (`X` a
+neighbourhood iff `Xᶜ` finite); `equivSetNat : |𝒫| ≃o Set ℕ` identifies elements with arbitrary sets
+of naturals (finite elements ↔ finite sets). The set operations are realized as approximable maps:
+`unionMap`/`interMap₂` (binary `∪`, `∩`, the latter a two-variable map via Ex 2.19) and the shift
+maps `succMap`/`predMap` (`x ↦ x+1`, `x ↦ x−1`). Establishing the order-iso (`map_rel_iff'`) needed
+an explicit `show toSet x ≤ toSet y ↔ x ≤ y` to defeat a defeq stall, and `succSet_mono` uses
+`Set.image_mono`. Footprint inherits `Classical.choice` from the finite/cofinite bookkeeping.
+
+#### Exercise 2.21 (the system `C` and approximable juxtaposition) — `C`, `isTotal_singletonElt`, `juxtapose`, `juxtapose_cone` (`Exercise221.lean`)
+
+Scott asks to enlarge `B` to a system `C` carrying **both** finite and infinite total sequences. We
+take neighbourhoods to be the cones of `B` together with *terminator singletons* `{σ}` (a finished
+finite sequence), assembled through `ofNestedOrDisjoint` after proving every pair is nested or
+disjoint (`cone_singleton_nd`, `singleton_cone_nd`, `singleton_singleton_nd`). `singletonElt σ` is
+then a finite **total** element (`isTotal_singletonElt`), and `bot_lt_Lambda` (`⊥ ⊏ Λ`) witnesses the
+new content. Juxtaposition `juxtapose : C × C → C` is a two-variable approximable map (Ex 2.19) that is
+**left-biased**: `juxtapose_cone` keeps the left cone, and `juxtapose_singleton_mem` prepends a
+finished left operand onto the right. The whole file is **choice-free** (`[propext, Quot.sound]`):
+this drove the refactor of every `by_cases` into `if … then … else` / `rcases (inferInstance :
+Decidable _)`, and replacing `simpa`/`le_of_eq` with explicit `List.length` + `omega` arguments to
+keep `Classical.choice` out.
+
+#### Exercise 2.22 (the abstract representation theorem) — `Cl`, `IsTok`, `reprSystem`, `reprIso` (`Exercise222.lean`)
+
+Scott's "(for set theorists)" dual of Ex 1.18/2.11: **any** family `C ⊆ 𝒫(τ)` closed under non-empty
+intersections (`hInter`) and directed unions (`hDir`), with `C` nonempty (`hne`), is inclusion-iso to
+the elements of a neighbourhood system. We take **tokens** to be finite `F` contained in some `X ∈ C`
+(`IsTok C F`), with closure `Cl C F = ⋂₀ {X ∈ C ∣ F ⊆ X}` (`Cl_mem` shows the closure lands back in
+`C`). `reprSystem C hInter hne` has neighbourhoods `C(F) = {G ∣ F ⊆ Cl C G}`; `toC`/`ofC` convert an
+element to its set in `C` and back, with round-trips `toC_ofC`, `ofC_toC` and `mem_nbhd_iff`,
+yielding the order-iso `reprIso : |reprSystem …| ≃o C`. As Scott notes, this construction is
+**inherently classical**: `botTok` uses `hne.choose`, and the finite-induction over directed unions
+(`exists_tok_of_finite_subset`) plus general set surgery pull in `Classical.choice`
+(`[propext, Classical.choice, Quot.sound]`). Section variables `hInter`/`hne`/`hDir` are threaded with
+explicit `include … in` before each declaration that uses them only in its proof body.
+
+**Axiom-footprint summary (Lecture II exercises, this session).** Choice-free
+(`[propext, Quot.sound]`): **2.13**, **2.18**, **2.21**. Classical (`Classical.choice` present and
+documented as intrinsic): **2.14**, **2.15**, **2.20**, **2.22**. No `sorry`/`admit` anywhere.
+
+#### Lecture III §3 — the product (`Product.lean`)
+
+The product `𝒟₀ × 𝒟₁` is modelled on the **disjoint-union token type** `α ⊕ β`, the faithful Lean
+reading of Scott's "disjoint `Δ₀, Δ₁`". A product neighbourhood is `prodNbhd X Y = Sum.inl '' X ∪
+Sum.inr '' Y`; the key algebra (`prodNbhd_inter`, `prodNbhd_subset_iff`, and crucially
+`prodNbhd_injective`) is proved through the **preimage characterizations** `inl_preimage_prodNbhd`
+/ `inr_preimage_prodNbhd` rather than `Set.Subset.antisymm`, which keeps `prodNbhd_injective` — and
+hence the order-iso `prodEquiv : |𝒟₀×𝒟₁| ≃o |𝒟₀|×|𝒟₁|` — **choice-free**. The element projections
+`Element.fst`/`Element.snd` recover their `inter_mem` from the product element's `inter_mem` composed
+with `prodNbhd_injective` (no fabricated witnesses, again avoiding choice). Theorem 3.5 is the
+bridge `map₂Equiv : ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂` (the payoff of the
+Ex 2.19 `ApproximableMap₂` work), and Prop 3.7 is `substitution_toElementMap`. Footprint of all
+constructions: `[propext, Quot.sound]`.
+
+#### Lecture III §3 — the function space (`FunctionSpace.lean`)
+
+Tokens of `(𝒟₀ → 𝒟₁)` are approximable maps; a neighbourhood is a finite intersection of **step
+sets** `step X Y = {f ∣ X f Y}`, modelled by a `List (Set α × Set β)` via `stepFun L`, and the
+system is **positive** (neighbourhoods are required non-empty — exactly what makes a filter's
+induced relation intersective). The crux **Theorem 3.10** is `funSpaceEquiv : |𝒟₀→𝒟₁| ≃o
+ApproximableMap V₀ V₁`, with `toApproxMap φ` (`X φ̂ Y ↔ [X,Y] ∈ φ`) and `toFilter f`
+(`f̂ = {F ∣ f ∈ F}`); the "generation" lemma `mem_stepFun_iff` (a filter contains `⋂[Xᵢ,Yᵢ]` iff it
+contains each `[Xᵢ,Yᵢ]`) does the heavy lifting on both inverse legs. **Proposition 3.9** is the
+least map: `interYs Δ₁ L X` is Scott's `⋂{Yᵢ ∣ X ⊆ Xᵢ}` taken inside `Δ₁` (so the empty
+intersection is `Δ₁`, per convention 1.1a), and `leastMap` realises condition (ii) `X f₀ Y ↔
+interYs Δ₁ L X ⊆ Y`. `leastMap_mem_stepFun` places it in the neighbourhood; `rel_interYs` (a list
+induction with a `by_cases X ⊆ Xᵢ` step) shows any `f` in the neighbourhood relates `X` to the whole
+`interYs`, whence `leastMap_le` (minimality) and `stepFun_subset_step_iff` (the remark after 3.9,
+the form used to check `curry` is monotone). **Theorems 3.11/3.12** give `eval`
+(`ApproximableMap₂ (funSpace V₁ V₂) V₁ V₂`, with `evalMap_apply : eval(f,x)=f(x)`), and `curry` /
+`uncurry` with the round-trips `uncurry_curry` / `curry_uncurry` and the CCC adjunction
+`eval_comp_curry` / `curry_eval_comp`, packaged as the order-iso `curryEquiv`. **Theorem 3.13(i)** is
+`le_iff_toElementMap_le`. Every *construction* (`funSpace`, `funSpaceEquiv`, `eval`, `curry`,
+`curryEquiv`, `leastMap`, `interYs`) is `[propext, Quot.sound]`; the equational identities proved by
+the elementwise extensionality `ext_of_toElementMap` or the `X ⊆ Xᵢ` case split (`leastMap_le`,
+`stepFun_subset_step_iff`, `eval_comp_curry`, `curry_eval_comp`) carry `Classical.choice` as a
+documented *proof*-level step. **Theorems 3.13(ii)(iii)** reuse the bounded-`sSup` infrastructure for
+`Element` from `Exercise127.lean`: `mapsBounded_iff_pointwiseBounded` (a set `F` of maps is bounded
+iff each `{f(x) ∣ f ∈ F}` is bounded), and `sSupMaps` (the pointwise sup, built choice-free via
+`supOnPrincipal` + Exercise 2.8's `ofMono`) with `le_sSupMaps`/`sSupMaps_le` (it is the least upper
+bound) and `toElementMap_sSupMaps : (⊔F)(x) = ⊔{f(x) ∣ f ∈ F}` — all `[propext, Quot.sound]`.
 
 ---
 
@@ -1749,7 +2403,18 @@ Monograph PRG-19, Oxford University Computing Laboratory, May 1981.
 - **[Sco82]** D. Scott. *Domains for Denotational Semantics*. ICALP 1982, LNCS 140.
 - **[Win93]** G. Winskel. *The Formal Semantics of Programming Languages*. MIT Press, 1993.
 - **[AJ94]** S. Abramsky and A. Jung. *Domain Theory*. Handbook of Logic in Computer Science, Vol. 3.
-- **[GHKLMS03]** G. Gierz et al. *Continuous Lattices and Domains*. Cambridge, 2003.
+- **[GHKLMS03]** G. Gierz, K. H. Hofmann, K. Keimel, J. D. Lawson, M. Mislove, and D. S. Scott.
+*Continuous Lattices and Domains*. Cambridge University Press, 2003.
+- **[Kel55]** J. L. Kelley. *General Topology*. D. Van Nostrand Company, 1955.
+- **[Sto36]** M. H. Stone. *The Theory of Representations for Boolean Algebras*. Transactions of the
+American Mathematical Society, 40(1):37–111, 1936.
+- **[Man18]** P. Mancosu. *The Origin of the Group in Logic and the Methodology of Science*. Journal
+of Humanistic Mathematics, 8(1):371–413, 2018.
+- **[Plo20]** G. Plotkin. *Dana Scott Turing Award Interview (Transcript)*. A.M. Turing Award Oral
+History Project, ACM, 2020.
+- **[Sco22]** D. S. Scott. *An Interview with Dana Scott*. Communications of the ACM, 65(8), 2022.
+- **[Sco23]** D. S. Scott. *70 Years of Hiding Algebra*. Logic and the Methodology of Science
+Seminar, UC Berkeley, 2023.
 - **[DT26]** Catskills Research. *domain_theory* (this work).
 [https://github.com/catskillsresearch/domain_theory](https://github.com/catskillsresearch/domain_theory).
 - **[COPE24]** Committee on Publication Ethics (COPE). *Authorship and AI tools: COPE
@@ -1814,7 +2479,7 @@ Files appear in `Domain.lean` import order. Each block is a verbatim copy of the
 
 ## `Domain.lean`
 
-*18 lines.*
+*69 lines.*
 
 ```lean
 import Domain.Constructive
@@ -1833,7 +2498,58 @@ import Domain.Neighborhood.Example12
 import Domain.Neighborhood.Example13
 import Domain.Neighborhood.Example14
 import Domain.Neighborhood.Example15
+import Domain.Neighborhood.ExampleB
+import Domain.Neighborhood.Theorem110
+import Domain.Neighborhood.Theorem111
+import Domain.Neighborhood.Exercise112
+import Domain.Neighborhood.Exercise113
+import Domain.Neighborhood.Exercise114
+import Domain.Neighborhood.Exercise115
+import Domain.Neighborhood.Exercise116
+import Domain.Neighborhood.Exercise117
+import Domain.Neighborhood.Exercise118
+import Domain.Neighborhood.Exercise119
+import Domain.Neighborhood.Exercise120
+import Domain.Neighborhood.Exercise121
 import Domain.Neighborhood.Exercise122
+import Domain.Neighborhood.Exercise123
+import Domain.Neighborhood.Exercise124
+import Domain.Neighborhood.Exercise125
+import Domain.Neighborhood.Exercise126
+import Domain.Neighborhood.Exercise127
+import Domain.Neighborhood.Approximable
+import Domain.Neighborhood.ApproximableExercises
+import Domain.Neighborhood.Example23
+import Domain.Neighborhood.Example24
+import Domain.Neighborhood.Exercise213
+import Domain.Neighborhood.Exercise214
+import Domain.Neighborhood.Exercise215
+import Domain.Neighborhood.Exercise216
+import Domain.Neighborhood.Exercise218
+import Domain.Neighborhood.Exercise220
+import Domain.Neighborhood.Exercise221
+import Domain.Neighborhood.Exercise222
+import Domain.Neighborhood.Product
+import Domain.Neighborhood.FunctionSpace
+import Domain.Neighborhood.Exercise314
+import Domain.Neighborhood.Exercise315
+import Domain.Neighborhood.Exercise318
+import Domain.Neighborhood.Exercise319
+import Domain.Neighborhood.Exercise319Sum
+import Domain.Neighborhood.Exercise321
+import Domain.Neighborhood.Exercise322
+import Domain.Neighborhood.Exercise323
+import Domain.Neighborhood.Exercise324
+import Domain.Neighborhood.Exercise316
+import Domain.Neighborhood.Exercise317
+import Domain.Neighborhood.Exercise324Iter
+import Domain.Neighborhood.Exercise324Distrib
+import Domain.Neighborhood.Exercise325
+import Domain.Neighborhood.Exercise327
+import Domain.Neighborhood.Exercise326
+import Domain.Neighborhood.Exercise326Sum
+import Domain.Neighborhood.Exercise328
+import Domain.Neighborhood.Theorem41
 import Domain.InfoSys
 ```
 
@@ -6399,10 +7115,11 @@ end Domain.ContinuousLattice
 
 ## `Domain/Neighborhood/Basic.lean`
 
-*304 lines.*
+*449 lines.*
 
 ```lean
 import Mathlib.Data.Set.Basic
+import Mathlib.Order.Hom.Basic
 
 /-!
 # Neighborhood systems (Scott 1981, PRG-19, §1) — foundations
@@ -6490,6 +7207,39 @@ def NeighborhoodSystem.ofNestedOrDisjoint {α : Type*} (mem : Set α → Prop) (
     · rw [h]
       rw [h] at hZsub
       rwa [← Set.subset_empty_iff.mp hZsub]
+
+/-- **Exercise 1.19 (Scott 1981, PRG-19) — positivity, condition (ii′).** A neighbourhood
+system is *positive* when Scott's (ii) is strengthened to the biconditional **(ii′)**: for
+`X, Y ∈ 𝒟`, the intersection `X ∩ Y` is a neighbourhood **iff** it is non-empty. -/
+def NeighborhoodSystem.IsPositive {α : Type*} (V : NeighborhoodSystem α) : Prop :=
+  ∀ ⦃X Y : Set α⦄, V.mem X → V.mem Y → (V.mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)
+
+/-- **Exercise 1.19 — a positive system is a neighbourhood system.** Scott: "*prove that a
+positive neighbourhood system is indeed a neighbourhood system*". From the raw data — (i)
+`Δ ∈ 𝒟`, `𝒟 ⊆ 𝒫(Δ)`, and the positivity axiom (ii′) — condition (ii) follows: a consistency
+witness `Z ⊆ X ∩ Y` with `Z ∈ 𝒟` is itself non-empty (apply (ii′) to `Z ∩ Z = Z`), so
+`X ∩ Y ⊇ Z` is non-empty, whence `X ∩ Y ∈ 𝒟` by (ii′). Choice-free. -/
+def NeighborhoodSystem.ofPositive {α : Type*} (mem : Set α → Prop) (master : Set α)
+    (master_mem : mem master) (sub_master : ∀ {X : Set α}, mem X → X ⊆ master)
+    (pos : ∀ ⦃X Y : Set α⦄, mem X → mem Y → (mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)) :
+    NeighborhoodSystem α where
+  mem := mem
+  master := master
+  master_mem := master_mem
+  sub_master := sub_master
+  inter_mem := by
+    intro X Y Z hX hY hZ hZsub
+    have hZZ : mem (Z ∩ Z) := by rwa [Set.inter_self]
+    have hZne : (Z ∩ Z).Nonempty := (pos hZ hZ).mp hZZ
+    rw [Set.inter_self] at hZne
+    exact (pos hX hY).mpr (hZne.mono hZsub)
+
+/-- The system built by `ofPositive` is indeed positive. -/
+theorem NeighborhoodSystem.ofPositive_isPositive {α : Type*} (mem : Set α → Prop)
+    (master : Set α) (master_mem : mem master) (sub_master : ∀ {X : Set α}, mem X → X ⊆ master)
+    (pos : ∀ ⦃X Y : Set α⦄, mem X → mem Y → (mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)) :
+    (NeighborhoodSystem.ofPositive mem master master_mem sub_master pos).IsPositive :=
+  pos
 
 namespace NeighborhoodSystem
 
@@ -6597,6 +7347,31 @@ theorem Element.ext {x y : V.Element} (h : ∀ X, x.mem X ↔ y.mem X) : x = y :
   subst hmem
   rfl
 
+/-- A filter (`Element`) is closed under the finite intersection `⋂_{i<n} Xᵢ`: if every factor
+`Xᵢ` (`i < n`) lies in the filter `x`, so does `interUpTo X n`. Used in Exercises 1.18 and 1.21.
+Base case `x.master_mem`; inductive step one `x.inter_mem`. -/
+theorem Element.mem_interUpTo {α : Type*} {V : NeighborhoodSystem α} (x : V.Element)
+    (X : ℕ → Set α) :
+    ∀ {n : ℕ}, (∀ i, i < n → x.mem (X i)) → x.mem (V.interUpTo X n) := by
+  intro n
+  induction n with
+  | zero => intro _; exact x.master_mem
+  | succ n ih =>
+    intro h
+    rw [interUpTo_succ]
+    exact x.inter_mem (ih (fun i hi => h i (Nat.lt_succ_of_lt hi))) (h n (Nat.lt_succ_self n))
+
+/-- Membership of the finite intersection in a filter, as a biconditional (given all factors
+are neighbourhoods). `→` is upward closure along `interUpTo X n ⊆ Xᵢ` (`interUpTo_subset`); `←`
+is `Element.mem_interUpTo`. -/
+theorem Element.mem_interUpTo_iff {α : Type*} {V : NeighborhoodSystem α} (x : V.Element)
+    (X : ℕ → Set α) {n : ℕ} (hX : ∀ i, i < n → V.mem (X i)) :
+    x.mem (V.interUpTo X n) ↔ ∀ i, i < n → x.mem (X i) := by
+  constructor
+  · intro h i hi
+    exact x.up_mem h (hX i hi) (V.interUpTo_subset X hi)
+  · exact x.mem_interUpTo X
+
 /-- Elements are ordered by inclusion of their membership predicates (Scott's approximation
 order, Definition 1.8). -/
 instance : PartialOrder V.Element where
@@ -6703,7 +7478,93 @@ theorem eq_iUnion_principal (x : V.Element) {Z : Set α} :
   · rintro ⟨X, hX, hVZ, hXZ⟩
     exact x.up_mem hX hVZ hXZ
 
+/-- **Definition 1.8 (Scott 1981, PRG-19) — `⊥`.** The least defined element `⊥ = {Δ}`,
+"read: *bottom*". It is the principal filter of the master neighbourhood `Δ`: `⊥ = ↑Δ`. -/
+def bot : V.Element := V.principal V.master_mem
+
+/-- **Definition 1.8 — `⊥ = {Δ}` literally.** Scott's `⊥` is the *singleton* `{Δ}`: a
+neighbourhood `Y` belongs to `⊥` iff `Y = Δ`.
+
+`→`: `Y ∈ ⊥ = ↑Δ` gives `Y ∈ 𝒟` and `Δ ⊆ Y`; `V.sub_master` gives the reverse `Y ⊆ Δ`, so
+`Y = Δ` by antisymmetry. `←`: `Δ ∈ 𝒟` and `Δ ⊆ Δ`. -/
+@[simp] theorem mem_bot {Y : Set α} : V.bot.mem Y ↔ Y = V.master := by
+  constructor
+  · rintro ⟨hY, hΔY⟩
+    exact Set.Subset.antisymm (V.sub_master hY) hΔY
+  · rintro rfl
+    exact ⟨V.master_mem, subset_rfl⟩
+
+/-- **Factoid 1.8a (Scott 1981, PRG-19).** "The element that approximates all others, `{Δ}`,
+is called `⊥`": `⊥` is the least element of `|𝒟|`, `⊥ ⊑ x` for every `x`.
+
+Given `Y ∈ ⊥`, i.e. `Y = Δ`, membership `Δ ∈ x` is filter condition (i) (`x.master_mem`). -/
+theorem bot_le (x : V.Element) : V.bot ≤ x := by
+  intro Y hY
+  rw [mem_bot] at hY
+  subst hY
+  exact x.master_mem
+
+/-- **Factoid 1.8a, packaged.** `⊥` is an `OrderBot` for the approximation order, so the `⊥`
+notation refers to `{Δ}`. Constructive (`bot_le` is `[propext, Quot.sound]`). -/
+instance : OrderBot V.Element where
+  bot := V.bot
+  bot_le := V.bot_le
+
+/-- **Definition 1.8 (Scott 1981, PRG-19) — *total* elements.** "Elements maximal with respect
+to the approximation relation are called *total elements*." `x` is total iff it is maximal: any
+`y` it approximates approximates it back. This is the *predicate* only; the *existence* of total
+elements above a given `x` (Exercise 1.24) is choice-dependent and out of scope here. -/
+def IsTotal (x : V.Element) : Prop := ∀ y, x ≤ y → y ≤ x
+
+/-- **Factoid 1.8b (Scott 1981, PRG-19) — "Examples 1.2–1.5 revisited".** "Any explicitly given
+filter `x` is principal … the minimal `X ∈ x` tells us all we need to know." Stated honestly: if
+the filter `x` has a `⊆`-minimum member `X` (one contained in every member of `x`), then `x` is
+exactly the principal filter `↑X`. In a *finite* system every filter has such a minimum (the
+intersection of its finitely many members, itself in `x` by closure), so every element is
+principal; that finiteness step is the only classical ingredient and is left implicit here — this
+constructive core captures the content.
+
+`⊆`: any `Z ∈ x` satisfies `X ⊆ Z` by minimality, so `Z ∈ ↑X`. `⊇`: `Z ∈ ↑X` means `Z ∈ 𝒟` and
+`X ⊆ Z`, so `Z ∈ x` by upward closure from `X ∈ x`. -/
+theorem eq_principal_of_isMin (x : V.Element) {X : Set α} (hX : x.mem X)
+    (hmin : ∀ Y, x.mem Y → X ⊆ Y) : x = V.principal (x.sub hX) := by
+  apply Element.ext
+  intro Z
+  constructor
+  · intro hZ
+    exact ⟨x.sub hZ, hmin Z hZ⟩
+  · rintro ⟨hZmem, hXZ⟩
+    exact x.up_mem hX hZmem hXZ
+
 end NeighborhoodSystem
+
+/-- **Definition 1.9 (Scott 1981, PRG-19).** Two neighbourhood systems `𝒟₀` and `𝒟₁` (over possibly
+*different* token types) *determine isomorphic domains* iff there is a one-one, inclusion-preserving
+correspondence between `|𝒟₀|` and `|𝒟₁|`. We package "one-one + preserves inclusion (both ways)" as
+mathlib's order-isomorphism `≃o`: an `OrderIso` is automatically a bijection that *reflects* as well
+as preserves `⊑` (`map_rel_iff`), which is exactly Scott's requirement. -/
+abbrev DomainIso {α β : Type*} (V₀ : NeighborhoodSystem α) (V₁ : NeighborhoodSystem β) : Type _ :=
+  V₀.Element ≃o V₁.Element
+
+/-- Scott's `𝒟₀ ≅ 𝒟₁`: the domains are isomorphic (there *exists* a `DomainIso`). -/
+def Isomorphic {α β : Type*} (V₀ : NeighborhoodSystem α) (V₁ : NeighborhoodSystem β) : Prop :=
+  Nonempty (DomainIso V₀ V₁)
+
+@[inherit_doc] infix:25 " ≅ᴰ " => Isomorphic
+
+/-- `≅ᴰ` is reflexive (`OrderIso.refl`). -/
+theorem Isomorphic.refl {α : Type*} (V : NeighborhoodSystem α) : V ≅ᴰ V :=
+  ⟨OrderIso.refl _⟩
+
+/-- `≅ᴰ` is symmetric (`OrderIso.symm`). -/
+theorem Isomorphic.symm {α β : Type*} {V₀ : NeighborhoodSystem α} {V₁ : NeighborhoodSystem β}
+    (h : V₀ ≅ᴰ V₁) : V₁ ≅ᴰ V₀ :=
+  h.elim fun e => ⟨e.symm⟩
+
+/-- `≅ᴰ` is transitive (`OrderIso.trans`). -/
+theorem Isomorphic.trans {α β γ : Type*} {V₀ : NeighborhoodSystem α} {V₁ : NeighborhoodSystem β}
+    {V₂ : NeighborhoodSystem γ} (h₀ : V₀ ≅ᴰ V₁) (h₁ : V₁ ≅ᴰ V₂) : V₀ ≅ᴰ V₂ :=
+  h₀.elim fun e₀ => h₁.elim fun e₁ => ⟨e₀.trans e₁⟩
 
 end Domain.Neighborhood
 ```

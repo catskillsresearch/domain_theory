@@ -278,7 +278,7 @@ DEFINITION 1.8. For $x, y \in |\mathcal{D}|$, we say that $x$ *approximates* $y$
 
 EXAMPLES 1.2 – 1.5 (Revisited). The examples as given were all finite, so any explicitly given filter $x$ is principal, the element is finite, the minimal $X \in x$ tells us all we need to know. In such simple situations there is essentially no difference between elements and neighbourhoods — except for the reversal of the order as noted. This (necessary) reversal should not, however, become a matter of confusion: the smaller the neighbourhood has become, the more it has "converged", and so the better defined the element has become. In the approximation relation the "poorer" elements are placed below the "better" with the total up at the top. This will become clearer in discussing "infinite" elements.
 
-Example 1.3 will be generalized in Exercise 1.1. Let us here generalize first 1.4. We let
+Example 1.3 will be generalized in Exercise 1.12. Let us here generalize first 1.4. We let
 
 $$
 \Delta = \Sigma^*,
@@ -3210,7 +3210,7 @@ Prove that the $n^{\mathrm{th}}$ digit of $t$ is the sum mod 2 of the digits of 
 
 The major reason for introducing the theory of domains is to have a notion of *computability* incorporating both finite and infinite elements. In our many examples already explored we have seen how functions (functionals, operators, combinators) can be defined on domains; owing to the property of *approximability (continuity)* of these functions, we have also seen how they can be "calculated" by finite approximation. In this lecture further examples of domains will be constructed -- especially domains having infinite elements, which can be introduced in a variety of ways giving rise to interesting structural possibilities. The next lecture then treats a precise notion of *computability* appropriate to these domains; while the last lecture opens up new methods of domain construction.
 
-EXAMPLE 6.1. Let $D$ be fixed as a given domain. We are now familiar with a useful construct like $D \times D$ whose elements are ordered pairs $\langle x, y \rangle$ of elements $x, y$ of $D$. The question is: can this construct be iterated? The answer is obviously yes, since $D \times (D \times D)$ and $(D \times D) \times (D \times D)$ and so on can be formed with elements $\langle x, \langle y, z \rangle \rangle$ and $\langle \langle u, v \rangle, \langle x, y \rangle \rangle$ and the like. But the real question is: can the construct be iterated *indefinitely*? AND can the results be collected together into a *single* domain? The answer is yes, but it requires a bit of work to get it right. The method to be introduced will be open to many variations, so more than one answer is possible, giving non-isomorphic domains.
+**EXAMPLE 6.1**. Let $D$ be fixed as a given domain. We are now familiar with a useful construct like $D \times D$ whose elements are ordered pairs $\langle x, y \rangle$ of elements $x, y$ of $D$. The question is: can this construct be iterated? The answer is obviously yes, since $D \times (D \times D)$ and $(D \times D) \times (D \times D)$ and so on can be formed with elements $\langle x, \langle y, z \rangle \rangle$ and $\langle \langle u, v \rangle, \langle x, y \rangle \rangle$ and the like. But the real question is: can the construct be iterated *indefinitely*? AND can the results be collected together into a *single* domain? The answer is yes, but it requires a bit of work to get it right. The method to be introduced will be open to many variations, so more than one answer is possible, giving non-isomorphic domains.
 
 In order to collect all the iterates into one large domain we give ourselves first a very big domain inside of which the desired family of neighbourhoods will be found. There are many ways to make this choice, and we are fixing on one that will keep the notation simple. We have often used binary sequences for examples and constructions, but for this example let us use
 
@@ -4004,3 +4004,1361 @@ $$
 $$
 
 It follows that $Y' \cap Z' = X' \in i(\uparrow X)$. On the other hand we already knew $X \in j(\uparrow X')$, which implies $i(\uparrow X) \subseteq \uparrow X'$. We may thus conclude that $i(\uparrow X) = \uparrow X'$. In other words $X' \in \mathcal{D}'$. $\square$
+
+<!-- page 111 -->
+
+**THEOREM 6.16.** If on the category of domains and strict approximable maps the functor $T$ is continuous on maps, and if $D$ is an initial $T$-algebra, then for any system $E \cong T(E)$ we have $D \trianglelefteq E$.
+
+**Proof:** There is a homomorphism $h : D \to E$. By 6.9 there is a homomorphism $g : E \to D$. Now $g \circ h : D \to D$ is also a homomorphism, so $g \circ h = I_D$ because $D$ is initial. In view of 6.15, all we have to prove now is that $h \circ g \sqsubseteq I_E$.
+
+Let the maps $i : T(D) \to D$ and $j : D \to T(D)$ give the isomorphism for $D$, and let $u : T(E) \to E$ and $v : E \to T(E)$ do the same for $E$. By the proof of 6.9 we know
+
+$$
+g = i \circ T(g) \circ v \quad \text{and} \quad h = u \circ T(h) \circ j
+$$
+
+and each of these maps is the least fixed point of its respective equation. Let
+
+$$
+g_0 = \bot_{E \to D} \quad \text{and} \quad h_0 = \bot_{D \to E}
+$$
+
+and define by recursion
+
+$$
+g_{n+1} = i \circ T(g_n) \circ v \quad \text{and} \quad h_{n+1} = u \circ T(h_n) \circ j.
+$$
+
+By the fixed-point calculation
+
+$$
+g = \bigsqcup_{n=0}^{\infty} g_n \quad \text{and} \quad h = \bigsqcup_{n=0}^{\infty} h_n.
+$$
+
+Now we see that
+
+$$
+h_0 \circ g_0 = \bot_{E \to E},
+$$
+
+and for each $n$ that
+
+$$
+\begin{aligned}
+h_{n+1} \circ g_{n+1} &= u \circ T(h_n) \circ j \circ i \circ T(g_n) \circ v \\
+&= u \circ T(h_n) \circ T(g_n) \circ v \\
+&= u \circ T(h_n \circ g_n) \circ v.
+\end{aligned}
+$$
+
+But this means that
+
+$$
+h \circ g = \bigsqcup_{n=0}^{\infty} (h_n \circ g_n)
+$$
+
+is the least fixed point for the equation
+
+$$
+k = u \circ T(k) \circ v.
+$$
+
+But $I_E$ is one of the fixed points; whence $h \circ g \sqsubseteq I_E$ must follow. $\square$
+
+<!-- page 112 -->
+
+# EXERCISES
+
+**EXERCISE 6.17.** What are the algebras for which $C$ is initial? If $A$ of 6.2 is a generalization of $B$, what is the corresponding generalization of $C$? Prove that it exists and explain what are the algebras involved.
+
+**EXERCISE 6.18.** With reference back to Exercise 3.16 discuss the construction of $\mathcal{D}^\infty$ as an initial algebra and as a solution to the domain equation
+
+$$
+\mathcal{D}^\infty \cong \mathcal{D} \times \mathcal{D}^\infty .
+$$
+
+(I do not know whether all solutions must be of the form $\mathcal{D}^\infty \times E$.)
+
+**EXERCISE 6.19.** For the sake of uniformity restrict attention to systems $\mathcal{D}$ on sets $\Delta \subseteq \{0,1\}^*$, where $\Lambda \in \Delta$ and $\emptyset \notin \mathcal{D}$, and to the category of strict maps. Define sum and product by:
+
+$$
+\mathcal{D}_0 + \mathcal{D}_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in \mathcal{D}_0\} \cup \{1Y \mid Y \in \mathcal{D}_1\},
+$$
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 = \{\{\Lambda\} \cup 0X \cup 1Y \mid X \in \mathcal{D}_0 \text{ and } Y \in \mathcal{D}_1\}.
+$$
+
+Are these correct up to isomorphism? Now generate all constructs $T(X)$ formed by the constants (that is, $T(X) = \mathcal{D}$ for a fixed $\mathcal{D}$), by the identity ($T(X) = X$), and by sums and products ($T_0(X) + T_1(X)$, etc.). Show that these are all functors, continuous on maps, and monotone and continuous on domains.
+
+**EXERCISE 6.20.** For any system $\mathcal{D}$ let $\mathrm{tok}(\mathcal{D})$ be the underlying set of tokens, so that $\mathcal{D}$ is a system over $\mathrm{tok}(\mathcal{D})$. For the category of Exercise 6.19 show that the function
+
+$$
+\lambda \Gamma.\, \mathrm{tok}(T(\{\Gamma\}))
+$$
+
+is continuous on the domain $\{\Gamma \subseteq \{0,1\}^* \mid \Lambda \in \Gamma\}$, where $T$ is any of the functors generated in 6.19. Conclude that there must exist a set
+
+$$
+\Gamma = \mathrm{tok}(T(\{\Gamma\})),
+$$
+
+so that $\{\Gamma\} \triangleleft T(\{\Gamma\})$, and so 6.14 applies.
+
+<!-- page 113 -->
+
+**EXERCISE 6.21.** Do the same as 6.19 and 6.20 when the functors are also allowed to be generated by the operations:
+
+$$
+D_0 \oplus D_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in D_0 \setminus \{\Delta_0\}\} \cup \{1Y \mid Y \in D_1 \setminus \{\Delta_1\}\},
+$$
+
+$$
+D_0 \otimes D_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{\{\Lambda\} \cup 0X \cup 1Y \mid X \in D_0 \setminus \{\Delta_0\} \text{ and } Y \in D_1 \setminus \{\Delta_1\}\}.
+$$
+
+Generalize all of $+$, $\times$, $\oplus$, $\otimes$ to combinations of several terms, not just the binary sums and products.
+
+**EXERCISE 6.22.** Comment on these domain equations:
+
+$$
+N \cong \{\{0\}, \{0, \Lambda\}\} \oplus N,
+$$
+
+$$
+M \cong \{\{\Lambda\}\} + M,
+$$
+
+$$
+N^* \cong N \oplus (N \otimes N^*).
+$$
+
+**EXERCISE 6.23.** Construe the initial solution to
+
+$$
+\mathit{Exp} \cong N \oplus ((\mathit{Exp} \times \mathit{Exp}) + (\mathit{Exp} \times \mathit{Exp}))
+$$
+
+as a “syntactical domain” of expressions generated from infinitely many “variables” by means of two binary “operation symbols”. Given an algebra $D$ with two operations
+
+$$
+u : D \times D \to D \quad \text{and} \quad v : D \times D \to D,
+$$
+
+show how any strict map $s : N \to D$ determines a unique map
+
+$$
+\mathit{val}(s) : \mathit{Exp} \to D
+$$
+
+that can be regarded as the “evaluation of an expression”.
+
+**EXERCISE 6.24.** Show that there must exist domains satisfying:
+
+$$
+D \cong D + (D \times E), \quad \text{and}
+$$
+
+$$
+E \cong D + E,
+$$
+
+by using a double fixed-point method. First decide what the underlying set of tokens should be, and then define $D$ and $E$ by simultaneous fixed points. (Syntactical domains as in 6.23 may very well require several simultaneous equations.)
+
+<!-- page 114 -->
+
+**EXERCISE 6.25.** For a projection pair $g : \mathcal{D} \to \mathcal{E}$ and $h : \mathcal{E} \to \mathcal{D}$ show that for $x \in |\mathcal{D}|$ and $y \in |\mathcal{E}|$ we have:
+
+$$g(x) \sqsubseteq y \text{ iff } x \sqsubseteq h(y).$$
+
+Thus, conclude that:
+
+$$h(y) = \bigsqcup \{x \in |\mathcal{D}| \mid g(x) \sqsubseteq y\}, \quad \text{and}$$
+
+$$g(x) = \bigsqcap \{y \in |\mathcal{E}| \mid x \sqsubseteq h(y)\},$$
+
+for all $x \in |\mathcal{D}|$ and $y \in |\mathcal{E}|$. So each of the functions determines the other. In the first equation check that the set on the right is directed, and in the second equation that the set on the right is non empty. Prove also that $g$ maps consistent sets to consistent sets and preserves $\bigsqcup$ (not just directed unions).
+
+**EXERCISE 6.26.** For systems $\mathcal{D}$ as in 6.19 define
+
+$$\mathcal{D}_\perp = \{ \{\Lambda\} \cup 0\Delta \} \cup \{ 0X \mid X \in \mathcal{D} \}.$$
+
+Describe the construct in terms of elements. Is this a suitable functor? Prove that
+
+$$\mathcal{D}_\perp \oplus \mathcal{E}_\perp \cong \mathcal{D} + \mathcal{E}.$$
+
+What is
+
+$$\mathcal{D}_\perp \otimes \mathcal{E}_\perp \cong \ ??$$
+
+**EXERCISE 6.27.** Which of the following relationships are true:
+
+$$(\mathcal{D} \otimes \mathcal{E}) \trianglelefteq (\mathcal{D} \times \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \times \mathcal{E} \ ;$$
+
+$$(\mathcal{D} \oplus \mathcal{E}) \trianglelefteq (\mathcal{D} + \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \oplus \mathcal{E} \ ;$$
+
+$$(\mathcal{D} \to_\perp \mathcal{E}) \trianglelefteq (\mathcal{D} \to \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \otimes \mathcal{E} \ ?$$
+
+**EXERCISE 6.28.** (Suggested by G. Plotkin). Show that if $\mathcal{D}$ and $\mathcal{E}$ are *finite* systems and
+
+$$\mathcal{D} \trianglelefteq \mathcal{E} \trianglelefteq \mathcal{D} \ ,$$
+
+then $\mathcal{D} \cong \mathcal{E}$. Need the same be true of infinite systems?
+
+<!-- page 115 -->
+
+**EXERCISE 6.29.** Generalize $+$ and $\times$ to infinitary operations on domains:
+
+$$\sum_{n=0}^{\infty} D_n \quad \text{and} \quad \prod_{n=0}^{\infty} D_n.$$
+
+Would a similar generalization be possible for $\oplus$ and $\otimes$?
+
+<!-- page 116 -->
+
+# LECTURE VII
+
+<u>COMPUTABILITY IN EFFECTIVELY GIVEN DOMAINS</u>
+
+For the domain $N$ the strict functions from $N$ into $N$, the strict maps $f : N \to N$, correspond exactly to the partial functions $g : N \to N$ (as we wrote in 5.6 we had $f = \bar{g}$). For such functions there is a standard theory of computability: $g$ is called computable if it can be defined as a partial recursive function with its "program" written down in a certain standard form. The non-strict maps $h : N \to N$ are all constant, and so are intuitively computable; so we know all about computable maps in $|N \to N|$ in general. The question is: what are the computable maps on (elements of) other domains?
+
+The answer will of course depend on how the domain is presented to us. Even with $N$, there are continuum many isomorphisms $\pi : N \to N$ of $N$ onto itself, not all of which can be computable. That is, if we permute $N$ and, so to speak, present the integers in a different order, then a well-behaved computable function $f : N \to N$ may well be transformed into a non-computable function,
+
+$$
+\pi \circ f \circ \pi^{-1} : N \to N.
+$$
+
+(Hint: Consider the characteristic function $e$ of the even numbers. Take $f = \bar{e}$ and let $\pi$ be very horrid.) The reason we imagined we knew which were the computable $f : N \to N$ is that $N$ is always thought of in a standard presentation. We must thus define "in general" a concept of an *effectively given domain*, that is to say, one with a sufficiently computable presentation to represent the additional knowledge about the domain.
+
+The main idea will be that the *finite elements* of $|D|$ should be regarded as the ones initially known. Abstractly, to know a finite element is to know how it is *related* to other finite elements.
+
+<!-- page 117 -->
+
+Of course, this will mean that we will allow at most a countable infinity of finite elements — but this restriction well accords with intuition. To make precise the terminology "related to" it proves most convenient to go back to the neighbourhoods (in any case they are in a one-one correspondence with the finite elements).
+
+**DEFINITION 7.1.** A neighbourhood system $D$ has a *computable presentation* provided we can write
+
+$$D = \{ X_n \mid n \in N \},$$
+
+where the following two relations
+
+(i) $X_n \cap X_m = X_k \ ;$ and
+
+(ii) $\exists k \in N \ldotp X_k \subseteq X_n$ and $X_k \subseteq X_m$
+
+are recursively decidable (in integer indices $n, m, k$ and in $n, m$, respectively). $\square$
+
+More strictly the sequence,
+
+$$\langle X_n \rangle_{n=0}^{\infty},$$
+
+is the presentation. Even more strictly, when it is required to cope with infinitely many domains at a time, it would be necessary to give the actual Gödel numbers of the recursive relations (i) and (ii) (rather than just saying there exists some way of showing them to be recursively decidable).
+
+The intuitive idea of 7.1 is that the system is effectively given if you know how to do elementary "calculations" with neighbourhoods. The basic calculations are the forming of intersections. The neighbourhoods have to be laid out in a systematic way; and, if we are asked for an intersection of two given neighbourhoods, we have to be able to locate it in the standard sequence. Relation (ii) is the *consistency condition* , which is the necessary and sufficient condition for the intersection to exist in $D$. When (ii) is true, therefore, we have only to try $k = 0, 1, 2, \ldots$ until we discover that we have found the intersection. We are
+
+<!-- page 118 -->
+
+assuming that these basic decisions can be carried out in "finite time". Note that the obvious biconditional,
+
+$$X_n \subseteq X_m \text{ iff } X_n \cap X_m = X_n,$$
+
+assures us that the inclusion relation between neighbourhoods is itself decidable in terms of the indices. So in (ii) if $k$ exists, *then* it (or the first one) can indeed be found in finite time. The rub is that if it *does not exist*, no finite number of inclusion checks will determine that fact. That is why we have to *assume* that (ii) is always decidable. The information contained in (ii) is a fundamental part of the neighbourhood structure. (An axiomatic characterization of neighbourhood structures is given in Exercise 7.13, which may make clearer what we are assuming and what a presentation is.)
+
+**DEFINITION 7.2.** Given two recursively presented domains,
+
+$$\mathcal{D} = \{ X_n \mid n \in \mathbf{N} \} \text{ and } E = \{ Y_m \mid m \in \mathbf{N} \},$$
+
+an approximable mapping $f : \mathcal{D} \to E$ is said to be *computable* iff the relation
+
+$$X_n f Y_m$$
+
+is recursively enumerable in $n$ and $m$. $\square$
+
+The question to ask first is why "recursively enumerable" rather than "recursive" (= "recursively decidable")? The answer will become clear when we let $\mathcal{D}$ degenerate to the one-element domain, $\mathcal{D} = \{ \Delta \}$. Then what we are considering is merely a single element
+
+$$y = f(\{ \Delta \}) \in |E|.$$
+
+Therefore, 7.2 incorporates the notion of a *computable element* of a domain. And the condition reduces to the statement that the filter $y \in |E|$ is such that the set
+
+$$\{ m \in \mathbf{N} \mid Y_m \in y \}$$
+
+is a recursively enumerable set of integers. The point is that the elements of $|E|$ are finite or infinite. If $y$ were finite, the set of indices above would indeed be recursive in view of
+
+<!-- page 119 -->
+
+our assumptions on $E$. But an infinite element can in general only be approximated "a little at a time". We cannot expect to know the whole story of its approximations in a flash. What it means to be recursively enumerable is that there is a primitive recursive function (hence, a total function), $r : \mathbf{N} \to \mathbf{N}$, such that
+
+$$y = \{ Y_{r(i)} \mid i \in \mathbf{N} \}.$$
+
+That is to say, *all* the approximations to $y$ can eventually be listed. In the case of the mapping $f$ we could write
+
+$$f = \{ (X_{s(i)}, Y_{r(i)}) \mid i \in \mathbf{N} \},$$
+
+for a suitable pair of primitive recursive functions $s$ and $r$.
+
+Definitions 7.1 and 7.2 may very well irritate the person hearing them for the first time: instead of explaining computability in direct terms, the whole question is thrown into the lap of recursion theory! There are several answers. "You have to start somewhere" is one thing I always say. Recursion on the integers is a well-understood theory, and we shall not need the refined parts of the development, fortunately. In any case, our definitions apply to *many* domains of quite different structure, not just to the domain $\mathbf{N}$. And the next step we shall take is to show how to build up computable functions (and also effectively given domains) from simpler ones. Thus, often it will not be necessary to go back to the seemingly over-precise definitions involving the indices but to appeal to some broad general principles.
+
+**PROPOSITION 7.3.** The identity map on an effectively given domain is computable; the composition of computable mappings on effectively given domains is again computable. $\square$
+
+The proofs for 7.3 are so trivial they are hardly worth an exercise. Note the immediate and useful consequence: if $f : D \to E$ is computable and $x \in |D|$ is computable, then $f(x) \in |E|$ is also computable. The next result is, however, worth working out even though it is quite easy.
+
+<!-- page 120 -->
+
+**THEOREM 7.4.** If $\mathcal{D}_0$ and $\mathcal{D}_1$ are effectively given, then so are $(\mathcal{D}_0 + \mathcal{D}_1)$ and $(\mathcal{D}_0 \times \mathcal{D}_1)$.
+
+Moreover the combinators $\mathrm{in}_i$ and $\mathrm{out}_i$ and $\mathrm{proj}_i^2$ are all computable; further, if $f$ and $g$ are computable maps, then so are $f + g$ and $f \times g$.
+
+*Proof:* Let the computable presentations be given as:
+
+$$\mathcal{D}_i = \{ X_n^i \mid n \in \mathbf{N} \}.$$
+
+We can assume that the sets of tokens $\Delta_0$ and $\Delta_1$ are disjoint and $\emptyset \notin \mathcal{D}_i$. Then the construction of the sum is just
+
+$$\mathcal{D}_0 + \mathcal{D}_1 = \{ \Delta_0 \cup \Delta_1 \} \cup \mathcal{D}_0 \cup \mathcal{D}_1.$$
+
+As an enumeration we define for $n \in \mathbf{N}$:
+
+$$Z_0 = \Delta_0 \cup \Delta_1 \ ; \ Z_{2n+1} = X_n^0 \ ; \ Z_{2n+2} = X_n^1 \ .$$
+
+We leave as an exercise the check of 7.1(i)–(ii).
+
+For the product we want:
+
+$$\mathcal{D}_0 \times \mathcal{D}_1 = \{ X_n^0 \cup X_m^1 \mid n, m \in \mathbf{N} \}.$$
+
+What we then need are recursive functions $p : \mathbf{N} \to \mathbf{N}$, $q : \mathbf{N} \to \mathbf{N}$, and $r : \mathbf{N} \times \mathbf{N} \to \mathbf{N}$ where for $m, n, k \in \mathbf{N}$ we have:
+
+$$p(r(n, m)) = n \text{ and } q(r(n, m)) = m, \text{ and } r(p(k), q(k)) = k.$$
+
+Thus $r$ is a "one-one pairing function"; there are many ways to find such functions (see Exercise 5.13). We can then define for $k \in \mathbf{N}$:
+
+$$W_k = X_{p(k)}^0 \cup X_{q(k)}^1 \ .$$
+
+Again we leave as an exercise the check that this provides a computable presentation of $\mathcal{D}_0 \times \mathcal{D}_1$.
+
+As for the combinators, the neighbourhood relations have to be worked out in terms of the indices. For example
+
+$$X_n^0 \ \mathrm{in}_0 \ Z_m \text{ iff either } m = 0 \text{ or for some } k$$
+
+$$m = 2k + 1 \text{ and } X_n^0 \subseteq X_k^0 \ .$$
+
+and
+
+$$W_k \ \mathrm{proj}_1^2 \ X_m^1 \text{ iff } X_{q(k)}^1 \subseteq X_m^1 \ .$$
+
+The reader needs to check that these are recursively enumerable
+
+<!-- page 121 -->
+
+Relations in the indices. For this purpose it may be convenient to recall some closure properties of these relations: taking conjunctions, disjunctions, substituting recursive functions, applying an existential quantifier to the front. $\square$
+
+Products give us a way of providing an immediate meaning to the notion of a computable function of several variables. Note that the proof of 3.7 is “effective” and shows that substitution of computable functions of several variables into each other always gives computable functions. We turn next to the function spaces.
+
+**THEOREM 7.5.** If $\mathcal{D}_0$ and $\mathcal{D}_1$ are effectively given, then so is $(\mathcal{D}_0 \to \mathcal{D}_1)$. The combinators eval and curry are computable, provided all the domains involved are effectively given. The computable elements $f \in |\mathcal{D}_0 \to \mathcal{D}_1|$ are exactly the computable maps $f : \mathcal{D}_0 \to \mathcal{D}_1$.
+
+*Proof:* The proofs of 3.9, 3.11, and 3.12 were set up with this theorem in mind. If
+$$
+\mathcal{D}_0 = \{ X_n \mid n \in \mathbf{N} \} \quad \text{and} \quad \mathcal{D}_1 = \{ Y_m \mid m \in \mathbf{N} \}
+$$
+are two effectively given neighbourhood systems, then the neighbourhoods of $(\mathcal{D}_0 \to \mathcal{D}_1)$, by Definition 3.8, are non-empty intersections like
+$$
+\bigcap_{i < q} [X_{n_i}, Y_{m_i}],
+$$
+where $\langle n_0, n_1, \ldots, n_{q-1} \rangle$ and $\langle m_0, m_1, \ldots, m_{q-1} \rangle$ are two finite sequences of integers determining the choice of the function-space neighbourhood. In 3.9(i) the test for nonemptiness is given. Assuming the decidability of relations in $\mathcal{D}_0$ and $\mathcal{D}_1$, one remarks that the consistency of *finite sequences* of neighbourhoods is also decidable. (Hint: Test the first *two*, then form their intersection. Next test the third given neighbourhood against this one set; if consistent, form the intersection, and carry on.) By 3.9(i) at most $2 \cdot 2^q$ such sequential checks must be carried out to determine whether the function-space neighbourhood is non empty.
+
+<!-- page 122 -->
+
+It may not be fun, but the checks can be carried out in finite time. Owing to this decidability, we can therefore enumerate in a systematic way *all* the pairs of finite sequences $\langle n_0, \ldots \rangle$ and $\langle m_0, \ldots \rangle$ that determine neighbourhoods: that is the way that $(\mathcal{D}_0 \to \mathcal{D}_1)$ obtains its enumeration.
+
+Concerning the decidability of the required relations on $(\mathcal{D}_0 \to \mathcal{D}_1)$, we remark first off that consistency is more of the same: to test two finite intersections against each other, just form one big intersection and test it for non-emptiness as before. Secondly, the testing for intersection comes down in the end to testing one typical intersection of $[X, Y]$-neighbourhoods for equality with another. But equality amounts to two inclusions; inclusion in an intersection amounts to inclusion in each term. Therefore, what we need to do is to check a finite number of statements of the form:
+
+$$\bigcap_{i < q} [X_{n_i}, Y_{m_i}] \subseteq [X_k, Y_\ell].$$
+
+As we pointed out after the proof of 3.9, this inclusion is equivalent to
+
+$$\bigcap \{ Y_{m_i} \mid X_k \subseteq X_{n_i} \} \subseteq Y_\ell.$$
+
+By decidability in $\mathcal{D}_0$, we can effectively find the $n_i$ that are needed. Then in $\mathcal{D}_1$, we form the intersection of the corresponding $Y_{m_i}$. Finally, we check the inclusion. Again, one check in $(\mathcal{D}_0 \to \mathcal{D}_1)$ requires a whole sequence of checks in $\mathcal{D}_0$ and in $\mathcal{D}_1$, but the process is finite. So we have argued that $(\mathcal{D}_0 \to \mathcal{D}_1)$ is effectively given.
+
+In showing that the combinators are computable, we refer first to the proof of 3.11. The typical pair of neighbourhoods possibly belonging to eval is
+
+$$\bigcap_{i < q} [X_{n_i}, Y_{m_i}], \ X_k \text{ eval } Y_\ell.$$
+
+As we needed not to be so specific, we expressed the holding of this relationship in terms of *all* the functions in the function-
+
+<!-- page 123 -->
+
+space neighbourhood. But we know that the neighbourhood, by 3.9(ii), has a minimal element; it is then sufficient to test for the holding of $X_k f_0 Y_\ell$ at this minimal function $f_0$. But this test, we have already seen, is decidable. So the pairs in eval actually form a recursive set, not just a recursively enumerable set; thus, eval is a computable function.
+
+The case of curry involves three domains and is a bit more messy. But again, if the required neighbourhoods are written out in full, it will be seen that curry, too, is computable. We leave this minor struggle to the exercises.
+
+The final statement is an easy consequence of the fundamental connection between approximable $f : \mathcal{D}_0 \to \mathcal{D}_1$ as relations and as elements. Recall, as in the proof of 3.10, that we have
+
+$$f \in [X, Y] \text{ iff } X f Y,$$
+
+for all $X \in \mathcal{D}_0$ and $Y \in \mathcal{D}_1$. Therefore,
+
+$$f \in \bigcap_{i < q} [X_{n_i}, Y_{m_i}] \text{ iff } \forall i < q.\, X_{n_i} f Y_{m_i}.$$
+
+It follows that if $f$ is recursively enumerable as a set of pairs, then, by forming all the non-empty intersections (as shown), we get an enumeration of all the neighbourhoods to which $f$ belongs; and this is the same as the filter corresponding to $f$ as an element of the function space. The converse direction is clear. $\square$
+
+We have nearly all our favourite combinators computable, but perhaps the most important one - since it is the key to recursive definitions - is the fixed-point combinator. It is not left out.
+
+**THEOREM 7.6.** For any effectively given domain $\mathcal{D}$, the combinator $\mathrm{fix} : (\mathcal{D} \to \mathcal{D}) \to \mathcal{D}$ is computable.
+
+*Proof :* Referring back to the proof of Theorem 4.2 and thinking of
+
+$$\mathcal{D} = \{ X_n \mid n \in \mathbb{N} \}$$
+
+as effectively given, fix as a relation comes down to
+
+<!-- page 124 -->
+
+$$\bigcap_{i < q} [X_{n_i}, X_{m_i}] \text{ fix } X_\ell \text{ iff for some finite sequence}$$
+
+$$\Delta = X_{k_0}, \ldots, X_{k_p} = X_\ell,$$
+
+we have, for each $j < p$,
+
+$$\bigcap \{ X_{m_i} \mid X_{k_j} \subseteq X_{n_i} \} \subseteq X_{k_{j+1}}.$$
+
+Inside the “for some finite sequence” all the checks are decidable by assumption on $D$. But the existential quantification of a decidable predicate always gives a recursively enumerable predicate. (And, as there is no implied bound on the size of the finite sequence we are looking for, this really *is* an enumerable set and not generally a recursive set.) $\square$
+
+The major consequence of what we have done up to this point concerns typed $\lambda$-calculus. Any expression involving only *effectively given types* and, perhaps, some *basic computable constants* using only the $\lambda, !$-notation defines a computable function of its free variables. And such functions applied to computable arguments give computable values. And such functions have computable least fixed points. Etc., etc. In a definite sense then we have in the “metalanguage”, as people say, a quite precise and fully *mathematical programming language* for defining computable operators. It is not a machine implemented language, but it is a mathematically well-defined and easy-to-use language. And when we combine the usual type-definition facility together with *domain equations*, we have an especially powerful language.
+
+**PROPOSITION 7.7.** For any effectively given domain $D$, the domain $D^\S$ is also effectively given, and all the combinators of Example 6.1 prove to be computable.
+
+*Proof:* This proof is essentially an exercise, but it is useful to have an easy-to-grasp example. Indeed, to make things easy to reason about, we can assume that $D$ is a system over $\Delta = \mathbf{N}$, and that in the presentation where
+
+$$D = \{ X_n \mid n \in \mathbf{N} \},$$
+
+the relation $k \in X_n$ is *recursive* in $k$ and $n$. (It is worth thinking why this is so.) Of course, a lot of other things are recursive also.
+
+<!-- page 125 -->
+
+Now what kind of a system is $D^\S$? The construction of 6.1 made it a system over a certain set of strings $\Gamma$. For the sake of checking various assertions about computability, we are transposing everything back to $\mathbf{N}$. (These are all denumerable sets in any case.) The set $\Gamma$ is divided into three equally big parts, and we can do the same for $\mathbf{N}$. Let us write for any $m, k \in \mathbf{N}$ and subset $X \subseteq \mathbf{N}$:
+
+$$mX + k = \{ m \cdot n + k \mid n \in X \}.$$
+
+Then by splitting the integers modulo 3 we have:
+
+$$\mathbf{N} = 3\mathbf{N} \cup (3\mathbf{N} + 1) \cup (3\mathbf{N} + 2),$$
+
+and this equation is quite analogous to that for $\Gamma$. We then propose this definition for $D^\S$:
+
+$$D^\S = \{\mathbf{N}\} \cup \{3X \mid X \in D\} \cup \{(3X + 1) \cup (3Y + 2) \mid X, Y \in D^\S\},$$
+
+but this does not make the enumeration of $D^\S$ all that obvious. This is one way to do it:
+
+$$V_0 = \mathbf{N} \ ; \ V_{2n+1} = 3X_n \ ; \ V_{2n+2} = (3V_{p(n)} + 1) \cup (3V_{q(n)} + 2).$$
+
+Here $p$ and $q$ are the inverse of the pairing functions mentioned in 7.4. They must be chosen so that $p(n) < n$ and $q(n) < n$ for all $n \in \mathbf{N}$. Thus, in calculating $V_k$ where $k = 2n + 2$ we will be using $V_{p(n)}$ and $V_{q(n)}$ where both subscripts are strictly less than $k$. This observation is required so that $m \in V_k$ is going to be a recursive relation. What we claim is that
+
+$$D^\S = \{V_k \mid k \in \mathbf{N}\}.$$
+
+It should be clear that everything on the right belongs to $D^\S$. What needs an inductive argument is that everything in $D^\S$ is eventually of the form $V_k$. But this should be fairly obvious owing to the properties of $r : \mathbf{N} \times \mathbf{N} \leftrightarrow \mathbf{N}$.
+
+The reader also has to check that 7.1(i)–(ii) hold for the $V_k$. The idea is that any such check is either (1) trivial, or (2) something already assumed about $D$ and the $X_n$, or (3) can be thrown back to some sets $V_m$ with strictly smaller subscripts. Therefore, the checks will give an answer in finite time according to an effective reduction.
+
+Next for the combinators, we have to translate neighbourhood relations into relations among integer indices. A selection of examples must suffice,
+
+$$X_n\ (\lambda x.\, x^\S)\ V_k \text{ iff } V_{2n+1} \subseteq V_k$$
+
+<!-- page 126 -->
+
+$$V_m \ \mathrm{proj}_0 \ V_k \text{ iff } k = 0 \text{ or } \exists n \in \mathbf{N}.\, m = 2n + 2 \text{ and } V_{p(n)} \subseteq V_k.$$
+
+The reader should write out other cases. $\square$
+
+**EXAMPLE 7.8.** We have often made reference to the powerset $P\mathbf{N}$ as a domain and we should check here that it is effectively given. One easy way to see this is to note
+
+$$P\mathbf{N} \cong |T^\infty|.$$
+
+The (slight) trouble with $P\mathbf{N}$ is that we usually think of it in terms of *elements* rather than *neighbourhoods*. Going back to Exercise 1.16, we can argue that the neighbourhoods of $P\mathbf{N}$ are ordered not like the finite sets of integers but in the partial ordering *converse* to that. But this is of no trouble, since all will be decidable. What we need first is an enumeration of all finite sets of integers. We can do this by:
+
+$$E_n = \{ k \mid \exists i, j.\, i < 2^k \text{ and } n = i + 2^k + j \cdot 2^{k+1} \}.$$
+
+The idea is that $k \in E_n$ means that the exponent $k$ does occur in the binary expansion of $n$ as a sum of powers of 2. All finite subsets of $\mathbf{N}$ are of the form $E_n$. We then find that as a neighbourhood system
+
+$$(P\mathbf{N}) = \{ \mathbf{N} \setminus E_n \mid n \in \mathbf{N} \}.$$
+
+As the relationship $E_n \cup E_m = E_k$ is recursive, there is no trouble in proving that this is a computable presentation. In this system, of course, any two neighbourhoods are consistent. Various combinators on $P\mathbf{N}$ are suggested in Exercise 7.23. $\square$
+
+We end this chapter with an example of another kind of domain construct. This construct is known as the *Smyth Power Domain*. It is defined for any neighbourhood system $\mathcal{D}$ and results in a new system we shall call here $\mathbb{P}\mathcal{D}$. The elements of $\mathbb{P}\mathcal{D}$ behave rather like *sets of elements* of $\mathcal{D}$, but since our elements can be either partial or total, there are certain dangers to pushing the analogy too far. For some purposes a rival construct called the *Plotkin Power Domain* is better, but it leads outside the category of neighbourhood systems as defined in these lectures. Do not confuse $P\mathbf{N}$ with $\mathbb{P}\mathcal{D}$.
+
+<!-- page 127 -->
+
+**DEFINITION 7.9.** Let $\mathcal{D}$ be any neighbourhood system and define
+
+$$\mathbb{P}\mathcal{D} = \left\{ \bigcup_{i < n} (\downarrow X_i) \mid \forall i < n.\, X_i \in \mathcal{D} \right\}.$$
+
+We recall that for any $X \in \mathcal{D}$
+
+$$\downarrow X = \{ Y \in \mathcal{D} \mid Y \subseteq X \}.$$
+
+The finite unions in $\mathbb{P}\mathcal{D}$ can be empty (i.e. if $n = 0$). $\square$
+
+Formally, the system $\mathbb{P}\mathcal{D}$ is just more or less the closure of $\mathcal{D}$ under finite unions; however, this would not be an isomorphism-invariant construct unless $\mathcal{D}$ is "prepared". The preparation consists of replacing $\mathcal{D}$ by the isomorphic domain
+
+$$\mathcal{D}^\dagger = \{ \downarrow X \mid X \in \mathcal{D} \}.$$
+
+(In this connection refer back to Exercise 1.20.) We remark that
+
+$$\downarrow X \cap \downarrow Y \neq \emptyset \text{ iff } \{X, Y\} \text{ is consistent in } \mathcal{D},$$
+
+and in that case
+
+$$\downarrow X \cap \downarrow Y = \downarrow (X \cap Y).$$
+
+**PROPOSITION 7.10.** The power domain $\mathbb{P}\mathcal{D}$ is a neighbourhood system if $\mathcal{D}$ is, and it is effectively given if $\mathcal{D}$ is.
+
+*Proof* : The system $\mathcal{D}^\dagger$ is a neighbourhood system as we just remarked; indeed it is a positive neighbourhood system. It is easy to prove that the closure of any positive system under finite unions is a neighbourhood system, because the resulting family of sets is closed under *all* finite intersections. (If we left out the empty union, the result would be a positive system.) The proof is obvious since intersection of sets distributes over finite union. So $\mathbb{P}\mathcal{D}$ is a neighbourhood system.
+
+For the second half of the proposition, we just have to constructivize the previous argument. Thus, if
+
+$$\mathcal{D} = \{ X_n \mid n \in \mathbb{N} \},$$
+
+then the elements of $\mathbb{P}\mathcal{D}$ can be written as:
+
+$$\bigcup_{i < q} (\downarrow X_{n_i}),$$
+
+<!-- page 128 -->
+
+and hence are indexed by the finite sequences $\langle n_0, \dots, n_{q-1} \rangle$ of integers. Now one of the standard devices of recursion theory is to put the finite sequences of integers into a recursive one-one correspondence with the integers themselves. This is the start of the recursive presentation of $\mathbb{P}\mathcal{D}$, since it means we can list effectively all the required neighbourhoods.
+
+Next consider an intersection
+
+$$\bigcup_{i < q} (\downarrow X_{n_i}) \cap \bigcup_{j < r} (\downarrow X_{m_j}) = \bigcup_{\substack{i < q \\ j < r}} \downarrow (X_{n_i} \cap X_{m_j}) \, .$$
+
+Some of the terms which are $\emptyset$ have to be thrown out — but this requires only a finite number of decisions all computable by assumption. Now we have to rewrite
+
+$$X_{n_i} \cap X_{m_j} = X_{k_{ij}} \, ,$$
+
+but the finding of $k_{ij}$ is also computable. *Finally*, we have to re-order the doubly indexed sequence into a singly indexed sequence of length $q \cdot r$, but this is easily seen to be computable also. Therefore, intersections can be "calculated".
+
+It remains to be shown that equality between neighbourhoods in $\mathbb{P}\mathcal{D}$ is decidable. The question really comes down to deciding something like:
+
+$$\downarrow X_k \subseteq \bigcup_{i < q} \downarrow X_{n_i} \, .$$
+
+Now since $X_k \in \downarrow X_k$, we find that the above is just equivalent to:
+
+$$\exists i < q \ldotp X_k \subseteq X_{n_i} \, .$$
+
+By our assumptions on $\mathcal{D}$, this is decidable. (It is this part of the argument that required the passage to $\mathcal{D}^\dagger$. It does not seem to be generally true that the closure under finite unions of an effectively given system is again effectively given.) $\square$
+
+One of the main reasons that $\mathbb{P}\mathcal{D}$ is like a power domain is the possibility of forming "finite sets".
+
+<!-- page 129 -->
+
+**DEFINITION 7.11.** For elements $x_0, \dots, x_{n-1} \in |D|$ we define
+
+$$\{x_0, \dots, x_{n-1}\} = \{z \in \mathbb{P} D \mid \exists X_0 \in x_0 \dots \exists X_{n-1} \in x_{n-1}.\, \bigcup_{i<n} (\uparrow X_i) \subseteq z\}.$$
+
+(Note, we could also write $\forall i < n.\, X_i \in z$.) $\square$
+
+**PROPOSITION 7.12.** The mapping
+
+$$\lambda x_0, \dots, x_{n-1}.\, \{x_0, \dots, x_{n-1}\} : D^n \to \mathbb{P} D$$
+
+is approximable and is computable if $D$ is effectively given. Moreover, the map $\lambda x.\, \{x\}$ shows that $D \trianglelefteq \mathbb{P} D$, and we also have the law:
+
+$$\{x_0, \dots, x_{n-1}\} = \{x_0\} \cap \dots \cap \{x_{n-1}\}$$
+
+as an intersection of filters.
+
+*Proof* : The second part shows that everything reduces to $\lambda x.\, \{x\}$. We see that
+
+$$X_k\ (\lambda x.\, \{x\})\ \bigcup_{i<q} (\uparrow X_{n_i}) \text{ iff } \exists i < q.\, X_k \sqsubseteq X_{n_i}.$$
+
+Thus, $\lambda x.\, \{x\}$ is an approximable mapping and is computable in the effectively given case.
+
+The proof of the law can be reduced to the special case
+
+$$\{x\} \cap \{y\} = \{x, y\}$$
+
+for the sake of illustration. In terms of finite elements of the two domains $D$ and $\mathbb{P} D$ we find
+
+$$\{\uparrow X\} = \uparrow\uparrow X,$$
+
+and so,
+
+$$\begin{aligned}
+\{\uparrow X\} \cap \{\uparrow Y\} &= \uparrow\uparrow X \cap \uparrow\uparrow Y \\
+&= \uparrow(\uparrow X \cup \uparrow Y) \\
+&= \{\uparrow X, \uparrow Y\}.
+\end{aligned}$$
+
+An equation between approximable functions that checks for finite elements also holds for all elements.
+
+Finally, we note that
+
+$$D \cong D^\dagger \trianglelefteq \mathbb{P} D$$
+
+<!-- page 130 -->
+
+and that the isomorphism involved is just $\lambda x.\,\{x\}$ by what we saw on the finite elements. $\square$
+
+Further combinators on the power domain are given in the exercises.
+
+## EXERCISES
+
+**EXERCISE 7.13.** Show that an effectively given domain can always be identified with a relation $\mathrm{INCL}(n,m)$ on integers, where the two derived relations
+
+$$\mathrm{CONS}(n,m) \text{ iff } \exists k.\,\mathrm{INCL}(k,n) \text{ and } \mathrm{INCL}(k,m);$$
+
+$$\mathrm{MEET}(n,m,k) \text{ iff } \forall j\,[\mathrm{INCL}(j,k) \text{ iff } \mathrm{INCL}(j,n) \text{ and } \mathrm{INCL}(j,m)]$$
+
+are both recursively decidable, and where the following axioms hold:
+
+(i) $\forall n.\,\mathrm{INCL}(n,n);$
+
+(ii) $\forall n,m,k.\,\mathrm{INCL}(n,m)$ and $\mathrm{INCL}(m,k)$ imply $\mathrm{INCL}(n,k);$
+
+(iii) $\exists m\,\forall n.\,\mathrm{INCL}(n,m)$
+
+(iv) $\forall n,m.\,\mathrm{CONS}(n,m)$ implies $\exists k.\,\mathrm{MEET}(n,m,k).$
+
+(Hint: Consider the neighbourhood system
+
+$$\mathcal{D} = \big\{ \{m \in \mathbf{N} \mid \mathrm{INCL}(m,n)\} \mid n \in \mathbf{N} \big\}.$$
+
+Is this essentially any effectively given system?)
+
+**EXERCISE 7.14.** (For recursive-function theorists.) Prove the statements after definition 7.2 about the existence of primitive recursive functions for showing things recursively enumerable. (Recall that a non-empty set is r.e. iff it is the range of a primitive recursive function.) Show also that every computable element $y \in |E|$ can be written
+
+$$y = \bigcup \{ \uparrow Y_{t(i)} \mid i \in \mathbf{N} \},$$
+
+where $t : \mathbf{N} \to \mathbf{N}$ is primitive recursive and where we may assume
+
+<!-- page 131 -->
+
+$Y_{t(i+1)} \subseteq Y_{t(i)}$
+
+for all $i \in \mathbf{N}$.
+
+**EXERCISE 7.15.** Finish the proof of 7.4 and establish similar results for the constructs $(D_0 \otimes D_1)$, $(D_0 \oplus D_1)$ and $D^\infty$. Take into account the various appropriate combinators.
+
+**EXERCISE 7.16.** Let $D_0 = \{ X_n \mid n \in \mathbf{N} \}$, $D_1 = \{ Y_m \mid m \in \mathbf{N} \}$ and $D_2 = \{ Z_k \mid k \in \mathbf{N} \}$ be three effectively given domains. Complete the proof of 7.5 by writing out curry as a relation between neighbourhoods. Is it a recursive set or only a recursively enumerable set?
+
+**EXERCISE 7.17.** Complete the proof of 7.7 for showing that $D^{\S}$ is effectively given if $D$ is. Include all the combinators of 6.2. Prove also that if $E$ is effectively given and $u : D \to E$ and $v : E \times E \to E$ are computable, then the unique strict mapping $g : D^{\S} \to E$, where, for $x \in |D|$ and $y, z \in |E|$,
+
+$$g(\mathrm{in}(x)) = u(x), \quad \text{and}$$
+
+$$g(\mathrm{pair}(y, z)) = v(g(y), g(z)),$$
+
+is a computable mapping.
+
+**EXERCISE 7.18.** Two effectively given systems $D$ and $E$ are *effectively isomorphic* iff … (complete the sentence!). Show that if $D$ is effectively given then the isomorphism
+
+$$D^\infty \cong (D^\infty)^\infty$$
+
+is effective.
+
+<!-- page 132 -->
+
+**EXERCISE 7.19.** Prove that $D \mapsto \mathbb{P} D$ is a functor by defining for each $f : D \to E$ a mapping
+
+$$\mathbb{P} f : \mathbb{P} D \to \mathbb{P} E$$
+
+by the formula
+
+$$\bigcup_{i < n} \downarrow X_i \quad \mathbb{P} f \quad \bigcup_{j < m} \downarrow Y_j \quad \text{iff} \quad \forall i < n \exists j < m.\, X_i f Y_j \, .$$
+
+Be sure to check that $\mathbb{P} f$ is approximable and that $\mathbb{P}$ preserves identity maps and composition. If $f$ is computable, is $\mathbb{P} f$? Is there a combinator $\lambda f.\, \mathbb{P} f$? What is
+
+$$\mathbb{P} f(\{x, y\}) = ??$$
+
+**EXERCISE 7.20.** Show that there is a combinator
+
+$$\text{union} : \mathbb{P}(\mathbb{P} D) \to \mathbb{P} D$$
+
+where for suitable neighbourhoods
+
+$$\bigcup_{i < n} \downarrow \Bigl(\bigcup_{j < m_i} \downarrow X_{ij}\Bigr) \quad \text{union} \quad \bigcup_{k < q} \downarrow Y_k \quad \text{iff} \quad \forall i < n \forall j < m_i \exists k < q.\, X_{ij} \subseteq Y_k \, .$$
+
+Is union computable if $D$ is effectively given? What is
+
+$$\text{union}(\{\{x\}, \{y, z\}\}) = ??$$
+
+Are $\mathbb{P}(\mathbb{P} D)$ and $\mathbb{P} D$ generally isomorphic??
+
+**EXERCISE 7.21.** Is there a non-trivial combinator of type
+
+$$\mathbb{P}(D \to E) \to (\mathbb{P} D \to \mathbb{P} E)\ ?$$
+
+Are there in general any isomorphisms between the systems
+
+$$(D \to \mathbb{P} E),\, \mathbb{P}(D \times E),\, \mathbb{P} D \times \mathbb{P} E\ ??$$
+
+Is there a non-trivial combinator of type
+
+$$\mathbb{P}(D \times E) \times \mathbb{P}(E \times F) \to \mathbb{P}(D \times F)\ ???$$
+
+Is there any connection between
+
+$$\mathbb{P}\mathbf{N} \text{ and } P\mathbf{N}\ ????$$
+
+<!-- page 133 -->
+
+**EXERCISE 7.22.** (For algebraists.) Let $\Sigma = \{0,1\}^*$ be the free semigroup. A new domain is constructed by defining a family of sets by the least fixed point theorem as follows:
+
+$$S = \{\Sigma\} \cup \{\{\sigma\} \mid \sigma \in \Sigma\} \cup \{XY \mid X, Y \in S\} \cup \{X \cap Y \mid X, Y \in S \text{ and } X \cap Y \neq \emptyset\}.$$
+
+Here we write: $XY = \{\sigma\tau \mid \sigma \in X \text{ and } \tau \in Y\}$.
+
+Prove that $S$ is an effectively given, positive neighbourhood system. (Hint: The sets in $S$ are each “regular events” in the terminology of automata theory, and we have a decision method for the set algebra of regular events.)
+
+Define multiplication on $|S|$ by
+
+$$xy = \{Z \in S \mid \exists X \in x \ \exists Y \in y.\ XY \subseteq Z\},$$
+
+and show $|S|$ becomes a semigroup with $\Sigma$ embedded into $|S|$ by the homomorphism $\sigma \mapsto \{X \in S \mid \sigma \in X\}$.
+
+Investigate some *infinite words* in $S$, say those defined by least fixed points such as: $\vec{\sigma} = \sigma\,\vec{\sigma}$ and $\vec{\sigma} = \vec{\sigma}\,\sigma$. Are these equations true:
+
+$$\vec{\sigma}\,\vec{\sigma} = \vec{\sigma}, \quad \vec{\sigma}\,\vec{\sigma}\,\vec{\sigma} = \vec{\sigma}, \quad \vec{\sigma}\,\vec{1}\,\vec{\sigma}\,\vec{1} = \vec{\sigma}\,\vec{1},$$
+
+and $\vec{01}\,\vec{01}\,\vec{01}\,\vec{01} = \vec{01}\,\vec{01}$ ?
+
+**EXERCISE 7.23.** Complete the discussion of $P\mathbf{N}$ of Example 7.8. Show that the combinators $\mathrm{fun}$ and $\mathrm{graph}$ of Exercise 5.14 are computable. Also do the same for
+
+$$\lambda x, y.\, x \cap y, \quad \lambda x, y.\, x \cup y, \quad \text{and } \lambda x, y.\, x + y,$$
+
+where for $x, y \in P\mathbf{N}$ we define
+
+$$x + y = \{n + m \mid n \in x \text{ and } m \in y\}.$$
+
+What are the computable elements of $P\mathbf{N}$ ?
+
+<!-- page 134 -->
+
+**EXERCISE 7.24.** (Suggested by the LUCID language of Ashcroft and Wadge: SIAM Jour. Comp. vol. 5 (1976).)
+
+Define a set $\Gamma$ by
+
+$$\Gamma = \bigcup_{i=0}^{\infty} (\{i\} \times \Gamma) \cup \{\star\}.$$
+
+Define a system
+
+$$L = \{\Gamma\} \cup \{ \{i\} \times X \mid i \in \mathbf{N} \text{ and } X \in L \}.$$
+
+Show that $L$ is effectively given. Show that the elements of $|L|$ can be identified with the finite and infinite sequences of natural numbers. What is the connection between $B$ and $L$?
+
+Show that the combinators of LUCID can be construed as computable mappings of type
+
+$$(L \to T) \to (L \to T)$$
+
+or of type
+
+$$(L \to T) \times (L \to T) \to (L \to T).$$
+
+Conclude that programs in LUCID define computable maps.
+
+<!-- page 135 -->
+
+# LECTURE VIII
+
+<u>RETRACTS OF THE UNIVERSAL DOMAIN</u>
+
+In order to be able to have a fully flexible method of solving domain equations and to be able to see why the domains obtained are effectively given, we shall embed all the desired domains in one "largest" domain. This universal domain will be easily shown to be effectively given, and the mappings needed to extract the other domains will be found to be computable. In order to be able to carry out this programme, we investigate first how certain subdomains correspond to mappings — the so-called *retracts*. An advantage of this analysis is that all the necessary definitions can be written out in $\lambda$-calculus notation, thus demonstrating the power of our mathematical programming language.
+
+**DEFINITION 8.1.** A retraction of a given domain $E$ is an approximable mapping $a : E \to E$ such that $a \circ a = a$. $\square$
+
+**PROPOSITION 8.2.** If $D \triangleleft E$ and if $a : E \to E$ is defined by
+
+$$X \ a \ Z \quad \text{iff} \quad \exists Y \in D.\ X \subseteq Y \subseteq Z$$
+
+for all $X, Z \in E$, then $a$ is a retraction and $|D|$ is isomorphic to the fixed-point set of $a$, the set $\{y \in |E| \mid a(y) = y\}$, under inclusion.
+
+*Proof:* That $a$ is an approximable mapping is a direct consequence of Definition 6.10. Indeed, in the notation of Proposition 6.12, we have
+
+$$a = i \circ j,$$
+
+and this is another proof that $a$ is approximable. This remark is also convenient, since we know from 6.10
+
+$$j \circ i = I_D.$$
+
+Therefore, we find:
+
+$$a \circ a = i \circ j \circ i \circ j = i \circ j = a;$$
+
+and so $a$ is a retraction.
+
+We can also employ $i$ and $j$ to give the isomorphism on $|D|$. If $x \in |D|$, then $i(x) \in |E|$ and we calculate:
+
+<!-- page 136 -->
+
+$$a(i(x)) = i \circ j \circ i(x) = i(x).$$
+
+Thus, $i(x)$ belongs to the fixed-point set of $a$. In the other direction, if $a(y) = y$, then $i(j(y)) = y$. But $j(y) \in |D|$, so $i$ maps $|D|$ one-one and onto the fixed-point set of $a$. As $i$ and $j$ are monotone, the map is an isomorphism with respect to $\sqsubseteq$. $\square$
+
+Not every retraction comes from a relationship like $D \triangleleft E$; in fact, we can see from the definition of $a$ above that $a \sqsubseteq 1_E$. But, as is indicated in Exercise 8.11, even this condition is not sufficient to characterize the kind of retractions provided by 8.2. The characterization is as follows.
+
+**DEFINITION 8.3.** A retraction $a : E \to E$ is called a *projection* provided
+
+$$a \sqsubseteq 1_E;$$
+
+it is *finitary* iff its fixed-point set is isomorphic to a domain. $\square$
+
+**EXAMPLES 8.4.** If a system $D$ over $\Delta$ is not trivial, then the two element system $O = \{\{0\}, \{0,1\}\}$ comes from a retraction on $D$. Specifically, define a combinator
+
+$$\mathrm{check} : D \to O$$
+
+by the relation
+
+$$X \ \mathrm{check}\ Y \quad \text{iff either } Y = \{0,1\} \text{ or } X \neq \Delta.$$
+
+We see $\mathrm{check}(x) = \bot_O$ iff $x = \bot_D$. We leave to the reader the definition of a combinator:
+
+$$\mathrm{fade} : O \times D \to D,$$
+
+where we have for $t \in |O|$ and $x \in |D|$:
+
+$$\begin{aligned}
+\mathrm{fade}(t,x) &= \bot_D, \text{ if } t = \bot_O; \\
+&= x, \text{ if not.}
+\end{aligned}$$
+
+Now, take any $u \in |D|$ with $u \neq \bot$, and define
+
+$$a(x) = \mathrm{fade}(\mathrm{check}(x), u).$$
+
+Then $a$ is a retraction (not a projection in general) and the range of $a$ is isomorphic to $O$.
+
+<!-- page 137 -->
+
+Another way of using these combinators is to find $(D \to_{\perp} E)$ as a retraction of $(D \to E)$. Specifically, define a combinator
+
+$$\mathrm{strict} : (D \to E) \to (D \to E)$$
+
+by the equation
+
+$$\mathrm{strict}(f) = \lambda x.\ \mathrm{fade}(\mathrm{check}(x), f(x)),$$
+
+where this time
+
+$$\mathrm{fade} : O \times E \to E\ .$$
+
+The range of $\mathrm{strict}$ consists exactly of the strict functions and this time $\mathrm{strict}$ is a projection whose range is indeed a domain.
+
+Similarly, we can find a projection on $D \times E$ with a range isomorphic to $D \otimes E$ by the combinator such that:
+
+$$\mathrm{smash}(x, y) = \mathrm{fade}(\mathrm{check}(x), \mathrm{fade}(\mathrm{check}(y), \langle x, y \rangle)),$$
+
+for $x \in |D|$ and $y \in |E|$. $\square$
+
+**THEOREM 8.5.** For an approximable mapping $a : E \to E$ the following are equivalent:
+
+(i) $a$ is a finitary projection;
+
+(ii) $a(x) = \{Y \in E \mid \exists X \in x.\, X \subseteq Y \land X \ a \ X\}$, for all $x \in |E|$.
+
+*Proof:* Suppose $a$ satisfies (ii) first. Inasmuch as $X \in x$ and $X \subseteq Y$ always imply $Y \in x$, for all $x \in |E|$, we see $a(x) \subseteq x$ must always hold. Moreover, it is obvious that $X \in x$ and $X \ a \ X$ always imply $X \in a(x)$; therefore, $a(x) \subseteq a(a(x))$ for all $x \in |E|$. This shows that $a$
+
+<!-- page 138 -->
+
+is indeed a projection.
+
+Let $D = \{X \in E \mid X \ a \ X\}$, then it is easy to check that $D \triangleleft E$ and that $a$ is determined from $D$ exactly as in 8.2; thus, the fixed-point set of $a$ is isomorphic to a domain, by what we have already proved. So we have shown (ii) implies (i).
+
+In the converse direction, assume that $a$ is a finitary projection. And let the system $D$ be isomorphic to the fixed-point set of $a$. We have the situation of Theorem 6.15. There is a projection pair,
+
+$$i : D \to E \quad \text{and} \quad j : E \to D,$$
+
+where the connection with $a$ gives:
+
+$$j \circ i = I_D \quad \text{and} \quad i \circ j = a \subseteq I_E.$$
+
+By 6.15, $D \cong D' \triangleleft E$, and we want to identify $D'$ in terms of $a$ as follows:
+
+$$D' = \{X \in E \mid X \ a \ X\}.$$
+
+Now from a reading of the proof of 6.15 the neighbourhoods of $D'$ are just those corresponding to the finite elements of $D$. But any such element is a fixed point of $a$. We have
+
+$$X \in D' \quad \text{implies} \quad a(\uparrow X) = \uparrow X \quad \text{implies} \quad X \ a \ X.$$
+
+Conversely, if $X \ a \ X$ holds, then $\uparrow X \subseteq a(\uparrow X)$. But $a$ is a projection, so $\uparrow X$ is a fixed point. But $i(j(\uparrow X)) = \uparrow X$ means $j(\uparrow X)$ is a finite element of $|D|$. So $X \in D'$, and we have $D'$ identified as desired.
+
+Finally, if we calculate $a = i \circ j$ by the formulae of 6.12 (with $D'$ for $D$, of course), we obtain our formula (ii). $\square$
+
+The criterion for being a finitary projection just obtained provides us with a very interesting new combinator.
+
+**THEOREM 8.6.** For any domain $E$ define
+
+$$\mathrm{sub} : (E \to E) \to (E \to E)$$
+
+by the formula
+
+$$X \ \mathrm{sub} \ (f) \ Z \quad \text{iff} \quad \exists Y \in E.\quad X \subseteq Y \ \ f \ Y \subseteq Z,$$
+
+<!-- page 139 -->
+
+for all $X, Z \in E$ and all $f : E \to E$. Then the range of $\mathrm{sub}$ consists exactly of the finitary projections on $E$, and moreover $\mathrm{sub}$ itself is a finitary projection on $(E \to E)$. If $E$ is effectively given, then $\mathrm{sub}$ is computable.
+
+*Proof:* It is trivial to check that $\mathrm{sub}(f)$ is always approximable. Also, it is obvious from the definition that the correspondence
+
+$$f \mapsto \mathrm{sub}(f)$$
+
+preserves directed unions of $f$'s. Thus, $\mathrm{sub}$ is itself approximable. We note that
+
+$$X \subseteq Y \ \ f \ Y \subseteq Z \text{ always implies } X \ f \ Z;$$
+
+hence, $\mathrm{sub}(f) \subseteq f$ holds. Also
+
+$$Y \ f \ Y \text{ always implies } Y \ \mathrm{sub}(f) \ Y,$$
+
+hence, $\mathrm{sub}(f) \subseteq \mathrm{sub}(\mathrm{sub}(f))$ holds. This shows $\mathrm{sub}$ to be a projection on $(E \to E)$. The effectiveness of the definition makes it also clear that $\mathrm{sub}$ is computable when $E$ has a computable presentation.
+
+Since, $\mathrm{sub}$ is a projection, its range is the same as its fixed-point set. If
+
+$$\mathrm{sub}(a) = a,$$
+
+then there is no problem in checking that $a$ satisfies 8.5(ii) *and conversely*. So the range of $\mathrm{sub}$ picks out exactly the finitary projections in view of 8.5.
+
+Finally, to prove that $\mathrm{sub}$ is a finitary projection of $(E \to E)$, we invoke 6.11 and remark that, in view of 8.2, the fixed point set (range) of $\mathrm{sub}$ is in a one-one inclusion-preserving correspondence with the domain $\{D \mid D \triangleleft E\}$. $\square$
+
+These results have almost completely translated the theory of $\triangleleft$-subdomains into $\lambda$-calculus via the sub-combinator. One last step will complete the passage, and then we shall be able to return to solving domain equations.
+
+<!-- page 140 -->
+
+**DEFINITION 8.7.** Let $\mathbb{Q}$ be the set of rational numbers, and let
+$$[0, 1) = \{q \in \mathbb{Q} \mid 0 \le q < 1\},$$
+and similarly for $[r, s)$ for any $r < s$ in $\mathbb{Q}$. The neighbourhood system $\mathcal{U}$ over $[0, 1)$ is the set of all non-empty finite unions of rational intervals $[r, s)$ with $0 \le r < s \le 1$. $\square$
+
+A picture of a typical element of $\mathcal{U}$ could be drawn like this:
+
+```
+0    r_0  r_1     r_2  r_3     r_4  r_5     1
+[======)       [=====)       [=====)
+```
+
+Note that any union can be taken as a *disjoint* union of the form
+$$\bigcup_{i \le n} [r_{2i}, r_{2i+1})$$
+where $0 \le r_0 < r_1 < r_2 < \cdots < r_{2n} < r_{2n+1} \le 1$. (Hint: Any overlapping intervals or abutting intervals can always be combined into one long interval.) It is a most elementary exercise to show that, by virtue of this representation, the system $\mathcal{U}$ has a computable presentation. (Some isomorphic versions of $\mathcal{U}$ — equally effective — are recorded in the exercises.) Note that $\mathcal{U}$ has no minimal neighbourhoods: every set in $\mathcal{U}$ can be written as the union of two disjoint sets in $\mathcal{U}$. (Hint: Use the density of the ordering of $\mathbb{Q}$.) The significance of $\mathcal{U}$ can now be explained.
+
+**THEOREM 8.8.** The system $\mathcal{U}$ is universal in the sense that, for every countable neighbourhood system $\mathcal{D}$, we have
+$$\mathcal{D} \trianglelefteq \mathcal{U}.$$
+Moreover, if $\mathcal{D}$ is effectively given, then the projection pair making the embedding can be taken as computable. Indeed there is a correspondence between effectively presented domains and the computable, finitary projections of $\mathcal{U}$.
+
+*Proof:* As $\mathcal{D}$ is countable, we can assume that
+$$\mathcal{D} = \{X_n \mid n \in \mathbb{N}\},$$
+
+<!-- page 141 -->
+
+where $\mathcal{D}$ is a system over a set $\Delta$ (say, $X_0 = \Delta$). We shall do the effective and general cases together, where for the latter all remarks on recursiveness are just left out. So, if we want $\mathcal{D}$ effectively given, the above enumeration should be taken as the computable presentation.
+
+Without loss of generality we can assume $\mathcal{D} \cong \mathcal{D}^\dagger$, since otherwise we would just replace $\mathcal{D}$ by $\mathcal{D}^\dagger$. The advantage of this preparation is that unions in $\mathcal{D}^\dagger$ keep things rather *separate* (as we noticed in constructing $\mathbb{P}\mathcal{D}$). In particular, we can be sure of this equivalence:
+
+$$(\blacklozenge) \qquad X_m \subseteq \bigcup_{i < k} X_{n_i} \quad \text{iff} \quad \exists i < k.\ X_m \subseteq X_{n_i}.$$
+
+This property, for example, fails for the system $\mathcal{U}$ as presented in Definition 8.7. However, that observation is of no moment, because we are employing the assumption with respect to $\mathcal{D}$ not $\mathcal{U}$.
+
+The reason for the assumption is this: for $\delta \in \{+, -\}$ define for $X \in \mathcal{D}$:
+
+$$
+\begin{aligned}
+\delta X &= X && \text{if } \delta = + ; \\
+&= \Delta \setminus X && \text{if } \delta = - .
+\end{aligned}
+$$
+
+(A similar notation will be used for $Y \in \mathcal{U}$.) Then for $\delta \in \{+, -\}^n$ the sets of the form
+
+$$\bigcap_{i < n} \delta_i X_i \quad (= X_\delta, \text{ for short})$$
+
+form a partition of $\Delta$ into (at most) $2^n$ parts. The reason for assumption $(\blacklozenge)$ is that we can effectively decide for each $\delta \in \{+, -\}^n$ whether one of these intersections is empty or not. (Why? — assuming that $\mathcal{D}$ is effectively given, of course). If for some reason we had not wanted to pass to $\mathcal{D}^\dagger$, we could have made this stronger assumption of decidability on the (positive) system $\mathcal{D}$. ($\mathcal{U}$, for example, satisfies it.)
+
+Suppose, corresponding to $X_0, X_1, \ldots, X_{n-1}$, we have selected $Y_0, Y_1, \ldots, Y_{n-1} \in \mathcal{U}$ so that, for all $\delta \in \{+, -\}^n$,
+
+$$(\blacksquare) \qquad \bigcap_{i < n} \delta_i X_i = \emptyset \quad \text{iff} \quad \bigcap_{i < n} \delta_i Y_i = \emptyset.$$
+
+<!-- page 142 -->
+
+We wish to show - effectively - how to choose $Y_n$ corresponding to $X_n$, so that $(\blacksquare)$ holds with $n+1$ replacing $n$. Proceeding inductively, we obtain a recursive enumeration of sets $Y_n \in \mathcal{U}$ so that
+
+$$\mathcal{D} \equiv \{ Y_n \mid n \in \mathbb{N} \} \triangleleft \mathcal{U} .$$
+
+Clearly the isomorphism (matching $X_i$ to $Y_i$) will be computable and the projection is computable. (It will then remain only to consider the arbitrary finitary computable projection to complete the proof of the theorem.)
+
+So, consider $X_n$; for each $\delta \in \{+, -\}^n$ there are four cases:
+
+$$
+\begin{aligned}
+X_\delta \cap X_n &= \emptyset, & X_\delta \cap -X_n &= \emptyset, \\
+X_\delta \cap X_n &\neq \emptyset, & X_\delta \cap -X_n &\neq \emptyset .
+\end{aligned}
+$$
+
+Corresponding to $X_\delta$ is a similar intersection $Y_\delta$. If $X_\delta$ were $\emptyset$, then $Y_\delta$ would be also. If not, $Y_\delta \subseteq [0, 1)$ is a union of rational intervals that can be written down explicitly. (Why?) In our four cases on $X_n$, the first implies the fourth. (Why?) Thus, we need only make some choices in these circumstances:
+
+$$
+\begin{aligned}
+X_\delta \cap X_n = \emptyset &: \text{choose } I_{\delta, n} = \emptyset ; \\
+X_\delta \cap -X_n = \emptyset &: \text{choose } I_{\delta, n} = Y_\delta ; \\
+\text{otherwise} &: \text{choose } I_{\delta, n} \subseteq Y_\delta, \text{ with } \emptyset \neq I_{\delta, n} \neq Y_\delta .
+\end{aligned}
+$$
+
+All these cases are decidable by assumption on $\mathcal{D}$, and the effective choice of (unions of) intervals is effective by construction of $\mathcal{U}$. Now set
+
+$$Y_n = \bigcup_{\delta \in \{+, -\}^n} I_{\delta, n} \neq \emptyset .$$
+
+The set $Y_n \in \mathcal{U}$, it can be found effectively, and $(\blacksquare)$ is obviously satisfied for $n+1$ .
+
+Finally, suppose that $a$ is a computable, finitary projection of $\mathcal{U}$. As we have seen in the proof of 8.5, the domain corresponding to the range of $a$ is isomorphic to the neighbourhood system
+
+$$\{ Y \in \mathcal{U} \mid Y \ a \ Y \} \triangleleft \mathcal{U} .$$
+
+<!-- page 143 -->
+
+Clearly, if $a$ as a set of ordered pairs of neighbourhoods is recursively enumerable, then the above set is also recursively enumerable (because equality between neighbourhoods is decidable). It follows easily that the subsystem is effectively given as a neighbourhood system in its own right. $\square$
+
+We have now proved that $\mathcal{U}$ is a nice and big domain that is nicely behaved with respect to computable mappings. It has some very interesting subdomains; to name a few:
+
+$$\mathcal{U} + \mathcal{U}, \quad \mathcal{U} \oplus \mathcal{U}, \quad \mathcal{U} \times \mathcal{U}, \quad \mathcal{U} \otimes \mathcal{U}$$
+
+$$\mathcal{U}_\bot, \quad \mathcal{U}^\infty, \quad \mathcal{U}^\S, \quad \mathbb{P}\mathcal{U}, \quad \mathcal{U} \to \mathcal{U}$$
+
+That all of these are $\trianglelefteq \mathcal{U}$ follows from knowing that they are all effectively presented. What we wish to check next is that they all combine well with respect to projections. To this end the explicit definitions are given for the constructs $+$, $\times$, and $\to$, and the details of the others are left for the exercises.
+
+**DEFINITION 8.9.** Let the computable projection pairs $i_+ : \mathcal{U} + \mathcal{U} \to \mathcal{U}$ and $j_+ : \mathcal{U} \to \mathcal{U} + \mathcal{U}$ be fixed. Similarly choose $i_\times, j_\times$ and $i_\to, j_\to$ for $\mathcal{U} \times \mathcal{U}$ and $\mathcal{U} \to \mathcal{U}$. Define:
+
+$$a + b = \mathrm{cond} \circ \langle \mathrm{which}, i_+ \circ \mathrm{in}_0 \circ a \circ \mathrm{out}_0, i_+ \circ \mathrm{in}_1 \circ b \circ \mathrm{out}_1 \rangle \circ j_+ \ ;$$
+
+$$a \times b = i_\times \circ \langle a \circ \mathrm{proj}_0, b \circ \mathrm{proj}_1 \rangle \circ j_\times \ ;$$
+
+$$a \to b = i_\to \circ (\lambda f.\ b \circ f \circ a) \circ j_\to \ ,$$
+
+for all $a, b : \mathcal{U} \to \mathcal{U}$. $\square$
+
+These interesting(computable!) combinators on elements of $\mathcal{U} \to \mathcal{U}$ have many, many properties. We shall, however, only see what they do to projections.
+
+**PROPOSITION 8.10.** If $a, b : \mathcal{U} \to \mathcal{U}$ are projections, then so are $a + b$, $a \times b$, and $a \to b$. If $a$ and $b$ are finitary, then so are the others; for the fixed-point set of each of them is isomorphic to the corresponding construct applied to the domains determined by $a$ and $b$.
+
+<!-- page 144 -->
+
+*Proof:* Suppose that $a, b \sqsubseteq I_{\mathcal{U}}$ (= $I$ for short). Then
+
+$$a + b \sqsubseteq I + I = i_+ \circ j_+ \sqsubseteq I.$$
+
+The other cases are similar.
+
+Suppose $a = a \circ a$ and $b = b \circ b$, then, for example,
+
+$$
+\begin{aligned}
+(a \times b) \circ (a \times b) &= i_\times \circ \langle a \circ \mathrm{proj}_0,\ b \circ \mathrm{proj}_1 \rangle \circ \langle a \circ \mathrm{proj}_0,\ b \circ \mathrm{proj}_1 \rangle \circ j_\times \\
+&= i_\times \circ \langle a \circ a \circ \mathrm{proj}_0,\ b \circ b \circ \mathrm{proj}_1 \rangle \circ j_\times \\
+&= a \times b.
+\end{aligned}
+$$
+
+The other cases are similar.
+
+Now in case the fixed-point sets of $a$ and $b$ are domains, they are respectively isomorphic to
+
+$$D_a = \{ X \in \mathcal{U} \mid X \ a \ X \} \quad \text{and}$$
+$$D_b = \{ Y \in \mathcal{U} \mid Y \ b \ Y \}.$$
+
+We have to show, for example, that
+
+$$D_a \to D_b \cong D_{a \to b}.$$
+
+Now to simplify matters, remark that the fixed-point set of $a \to b$ on $\mathcal{U}$ is isomorphic to the fixed-point set of $\lambda f.\ b \circ f \circ a$ on $(\mathcal{U} \to \mathcal{U})$. (Hint: use $i_\to$ and $j_\to$ to set up the isomorphism.) So we have to think what it is for an $f : \mathcal{U} \to \mathcal{U}$ to satisfy
+
+$$f = b \circ f \circ a.$$
+
+Notice that we might as well say that $a : \mathcal{U} \to D_a$ and that this map is the other half of an obvious projection pair where
+
+$$i_a : D_a \to \mathcal{U},$$
+
+and $i_a \circ a = a$ and $a \circ i_a = i_a$. So if $g : D_a \to D_b$, let
+
+$$f = i_b \circ g \circ a;$$
+
+then $b \circ f \circ a = f$. Conversely, if $f$ is like this, then let
+
+$$g = b \circ f \circ i_a.$$
+
+Thus, $i_b \circ g \circ a = b \circ f \circ a = f$; so there is an order-preserving isomorphism between the $g : D_a \to D_b$ and the $f = b \circ f \circ a$.
+
+<!-- page 145 -->
+
+The isomorphism proofs for $+$ and $\times$ are similar. $\square$
+
+Well, this was a lot of work, but the pay-off is rather handsome. What we have done is transpose all the
+
+$$D_a \triangleleft U$$
+
+over to finitary projections $a : U \to U$. This transposition is an isomorphism, because
+
+$$D_a \triangleleft D_b \text{ iff } a \sqsubseteq b.$$
+
+Moreover, by the method of 8.9 and 8.10, all our favourite constructs have been made into *combinators*, that is, approximable — even computable — maps on the domain of finitary projections. *ALL APPROXIMABLE (COMPUTABLE) MAPS HAVE (COMPUTABLE) FIXED POINTS.* And there you are! The standard fixed-point method is available to obtain computable (i.e. effectively given) solutions to *all* domain equations (even sets of equations) where the constructs can be reworked in *this* way to be defined on projections. Examples are suggested in the exercises.
+
+Another pay-off concerns the $\lambda$-calculus itself. Inasmuch as
+
+$$U + U, \quad U \times U, \quad U \to U \triangleleft U,$$
+
+we might just as well forget the outside world and regard all these useful domains as being part of $U$. For example, on the left we have the new notation and on the right the old notation:
+
+$$
+\begin{aligned}
+\mathrm{which}(z) &= \mathrm{which}(j_+(z)) ; \\
+\mathrm{in}_i(x) &= i_+(\mathrm{in}_i(x)), \quad i = 0, 1 ; \\
+\mathrm{out}_i(x) &= \mathrm{out}_i(j_+(x)), \quad i = 0, 1 ; \\
+\langle x, y \rangle &= i_\times(\langle x, y \rangle) ; \\
+\mathrm{proj}_i(z) &= \mathrm{proj}_i(j_\times(z)), \quad i = 0, 1 ; \\
+u(x) &= j_\to(u)(x) ; \\
+\lambda x.\,\tau &\cong i_\to(\lambda x.\,\tau) .
+\end{aligned}
+$$
+
+And, there is no reason to stop here. The system
+
+$$T \cong \{\{0, 1/2\}, \{1/2, 1\}, \{0, 1\}\} \triangleleft U,$$
+
+so we might as well think of
+
+<!-- page 146 -->
+
+$$\text{true, false} \in |U|$$
+
+and think of $\mathrm{cond} : U \times U \times U \to U$. No! that is wrong: under the new regime *EVERYTHING IS AN ELEMENT OF U*. With the new meaning of $\lambda$, all functions, all pairs, all combinators, all constructs become elements of $U$.
+
+It takes a little time to get used to "universal conscription" with all elements doing (at least) double duty in the same domain, but there are many advantages, both notational and conceptual.
+
+**EXERCISES**
+
+**EXERCISE 8.11.** Let $\mathbb{Q}$ be the set of rational numbers and define a neighbourhood system by the equation
+
+$$R = \{[0, r) \mid r \in \mathbb{Q} \text{ and } 0 < r \le 1\}.$$
+
+Show that the following defines an approximable map $a : R \to R$:
+
+$$[0, r) \ a \ [0, s) \quad \text{iff} \quad r < s \text{ or } r = s = 1.$$
+
+Show in addition that $a$ is a projection where the fixed-point set of $a$ is in a one-one correspondence with the *real* numbers between 0 and 1 inclusive. (Hint: Recall Dedekind cuts and show $\subseteq$ matches $\le$.) Conclude that $a$ is *NOT* finitary. (Hint: Aside from $\bot$ there are no finite elements for $\{x \mid x = a(x)\}$.)
+
+**EXERCISE 8.12.** Generalize the notation $2X + 1$ for subsets $X \subseteq \mathbb{N}$ to sets of the form
+
+$$2^k X + \ell, \quad \text{where } \ell < 2^k.$$
+
+Let $V$ be the non-empty finite unions of sets $2^k \mathbb{N} + \ell$. Show that $U \cong V$ and that the isomorphism is effective, thus obtaining another presentation of $U$.
+
+**EXERCISE 8.13.** (For logicians.) Prove that the universal domain $U$ is isomorphic to the domain of all proper filters of the free Boolean algebra on $\aleph_0$-generators (= the Lindenbaum algebra of propositional calculus). (For topologists.) Connect this
+
+<!-- page 147 -->
+
+representation of $\mathcal{U}$ with the collection of non-empty open subsets of the product space $2^{\mathbf{N}}$ (= Cantor space).
+
+**EXERCISE 8.14.** A retraction $a : D \to D$ is called a *closure operator* iff $I_D \sqsubseteq a$. On a domain like $P\mathbf{N}$, give some examples of closure operators. (Hint: Close up a set of integers under addition. Is this continuous on $P\mathbf{N}$?) Prove in general for any closure $a : D \to D$ that the fixed-point set of $a$ is always a finitary domain. (Hint: Show that the fixed-point set is closed under intersections and directed unions.) What are the finite elements of the fixed-point set?
+
+**EXERCISE 8.15.** Give a direct proof that the domain $\{X \mid X \triangleleft D\}$ is effectively presented if $D$ is. (Hint: The finite elements of the domain correspond exactly to the finite systems $X \triangleleft D$.) In the case of $D = \mathcal{U}$, show that the computable elements of the domain correspond exactly to the effectively presented domains (up to effective isomorphism).
+
+**EXERCISE 8.16.** For finitary projections $a : E \to E$, write
+
+$$D_a = \{X \in E \mid X \sqsubseteq a X\}$$
+
+(cf. 8.5.). Show that for any two such projections $a, b : E \to E$ we have
+
+$$a \sqsubseteq b \quad \text{iff} \quad D_a \triangleleft D_b.$$
+
+(This fills in the gap at the end of the proof of 8.6.) Also finish off the proof of 8.8 by showing that if $E$ is effectively given and $a : E \to E$ is computable, then $D_a$ is effectively given.
+
+**EXERCISE 8.17.** Find explicitly (if possible) the projection pairs for $\mathcal{U} + \mathcal{U}$, $\mathcal{U} \times \mathcal{U}$, and $\mathcal{U} \to \mathcal{U}$ needed for 8.9. Are any of these domains isomorphic with $\mathcal{U}$? (The author does not know a really good construction for $\mathcal{U} \to \mathcal{U}$.) Find a universal domain $V \neq \mathcal{U}$.
+
+<!-- page 148 -->
+
+**EXERCISE 8.18.** Many of the cases of 8.10 were left unproved. Please establish these assertions explicitly.
+
+**EXERCISE 8.19.** Suppose we know both
+
+$$T \quad \text{and} \quad E \to E \trianglelefteq E \ .$$
+
+Does it follow that $E + E$ and $E \times E \trianglelefteq E$?
+
+**EXERCISE 8.20.** For any system we know $D \trianglelefteq D + D$, but what about
+
+$$D \trianglelefteq D \times D \quad \text{and} \quad D \trianglelefteq D \to D \ ?$$
+
+Would these projections be computable if $D$ is effectively given? Are there more than one projection pair in each case?
+
+**EXERCISE 8.21.** Using the fixed-point construction, show that there is a continuous and computable operator $\lambda a.\, a^{\S}$, such that if $a$ is a finitary projection of $U$, then
+
+$$D_{a^{\S}} \cong (D_a)^{\S} \ .$$
+
+**EXERCISE 8.22.** Which of the two relations hold:
+
+$$B \trianglelefteq C \quad \text{or} \quad C \trianglelefteq B \ ?$$
+
+Or do they both hold? In general if we use domain equations
+
+$$D = T(D) + S(D) \ , \quad \text{and}$$
+
+$$E = T(E) \ ,$$
+
+will $E \trianglelefteq D$ hold? What projections do you see in the examples in 6.2?
+
+**EXERCISE 8.23.** Suppose a construct $T$ on domains can be made into a computable operator $t : (U \to U) \to (U \to U)$ so that whenever $a : U \to U$ is a finitary projection, then so is $t(a)$ and
+
+$$D_{t(a)} \cong T(D_a) \ .$$
+
+Does it follow that $\|t\| = \mathrm{fix}(t)$ is such that
+
+$$D_{\|t\|} \cong T(D_{\|t\|})$$
+
+<!-- page 149 -->
+
+really is the initial solution of the domain equation with respect to projections? Since $t$ is computable, will this solution be effectively given?
+
+**EXERCISE 8.24.** Suppose $S$ and $T$ are two (binary-argument) constructs on domains that can be made into computable operators on projections of the universal domain. Show that we can therefore find a pair of effectively presented domains such that
+$$
+D \cong S(D, E) \quad \text{and} \quad E \cong T(D, E).
+$$
+
+**EXERCISE 8.25.** The problem is to find non-trivial solutions to the domain equation
+$$
+(\spadesuit) \qquad D \cong D \to D.
+$$
+Show that the "obvious" solution by retracts is of no use because
+$$
+1 \to 1 = 1
+$$
+for projections. Change the method as follows. Show first
+$$
+U^\infty \times U^\infty \cong U^\infty.
+$$
+Next solve
+$$
+D \cong D \to U^\infty
+$$
+and remark that $U \triangleleft D$; so $D$ is universal and non-trivial. Finally prove $(\spadesuit)$ for this $D$. (Hint: First show
+$$
+D \times D \cong D,
+$$
+and then show $D$ satisfies $(\spadesuit)$.) Is this $D$ effectively given?
+
+**EXERCISE 8.26.** Discuss in more detail the "pay-off" for $U$, namely the translation of "untyped" $\lambda$-calculus into $U$ as shown by the equations at the end of the lecture after the proof of 8.9. In particular show how the whole of the **typed** $\lambda$-calculus can be retranslated back into $U$ with the aid of projections. (Hint: Whenever you want to write
+$$
+f : D_a \to D_b,
+$$
+
+<!-- page 150 -->
+
+write instead
+
+$$f = b \circ f \circ a,$$
+
+where $a$, $b$ are finitary projections. Whenever you want to form a $\lambda$-abstraction
+
+$$\lambda x^{D_a}.\,\sigma,$$
+
+where $\sigma$ is of type $D_b$, instead form
+
+$$\lambda x.\, b(\sigma'[a(x)/x]),$$
+
+where $\sigma'$ is the further translation of $\sigma$ into untyped $\lambda$-calculus. Be sure to show that this result "has the right type" in the sense defined above.)
+
+**EXERCISE 8.27.** (Suggested by James Donahue.)
+
+Finite cartesian products of domains are formed by the $D_0 \times D_1$-construct we have used so often. The problem is to define — computably — some *infinite* cartesian products. In particular, as applied to the universal domain $U$, the combinator `sub` is to be regarded as a finitary projection of $U$ whose fixed points are exactly *all* the finitary projections. A map
+
+$$d = \mathrm{sub} \circ d \circ \mathrm{sub}$$
+
+can be regarded as a *polymorphic type* (because, whenever $t$ is a finitary projection ($=$ type), then so is $d(t)$). The *continuous product* of *all* these types would be the domain of all approximable functions $x$ such that
+
+$$x(t) = d(t)(x(t))$$
+
+for all types $t$. (Why does this equation mean that $x$ is in the product?) Define $\Pi$ as a combinator by
+
+$$\Pi = \lambda d\,\lambda x\,\lambda t.\,\mathrm{sub}(d(\mathrm{sub}(t)))(x(\mathrm{sub}(t))).$$
+
+Show that for $d$ a polymorphic type, $\Pi(d)$ is a type. (Hint: It is easy to check that $\Pi(d)$ is a projection; the problem is to show it is *finitary*.)
+
+<!-- page 151 -->
+
+# PROGRAMMING RESEARCH GROUP TECHNICAL MONOGRAPHS
+
+## JUNE 1981
+
+This is a series of technical monographs on topics in the field of computation. Copies may be obtained from the Programming Research Group, (Technical Monographs), 45 Banbury Road, Oxford, OX2 6PE, England.
+
+**PRG-1** (out of print)
+
+**PRG-2** Dana Scott  
+*Outline of a Mathematical Theory of Computation*
+
+**PRG-3** Dana Scott  
+*The Lattice of Flow Diagrams*
+
+**PRG-4** (cancelled)
+
+**PRG-5** Dana Scott  
+*Data Types as Lattices*
+
+**PRG-6** Dana Scott and Christopher Strachey  
+*Toward a Mathematical Semantics for Computer Languages*
+
+**PRG-7** Dana Scott  
+*Continuous Lattices*
+
+**PRG-8** Joseph Stoy and Christopher Strachey  
+*OS6 — an Experimental Operating System for a Small Computer*
+
+**PRG-9** Christopher Strachey and Joseph Stoy  
+*The Text of OSPub*
+
+**PRG-10** Christopher Strachey  
+*The Varieties of Programming Language*
+
+**PRG-11** Christopher Strachey and Christopher P. Wadsworth  
+*Continuations: A Mathematical Semantics for Handling Full Jumps*
+
+**PRG-12** Peter Mosses  
+*The Mathematical Semantics of Algol 60*
+
+**PRG-13** Robert Milne  
+*The Formal Semantics of Computer Languages and their Implementations*
+
+**PRG-14** Shan S Kuo, Michael H. Linck and Sohrab Saadat  
+*A Guide to Communicating Sequential Processes*
+
+**PRG-15** Joseph Stoy  
+*The Congruence of Two Programming Language Definitions*
+
+**PRG-16** C. A. R. Hoare, S. D. Brookes and A. W. Roscoe  
+*A Theory of Communicating Sequential Processes*
+
+<!-- page 152 -->
+
+**PRG-17**  
+Andrew P Black  
+*Report on the Programming Notation 3R*
+
+**PRG-18**  
+Elizabeth Fielding  
+*The Specification of Abstract Mappings and their implementation as $B^{+}$-trees*
+
+**PRG-19**  
+Dana Scott  
+*Lectures on a Mathematical Theory of Computation*
+
+**PRG-20**  
+Zhou Chao Chen and C A. R. Hoare  
+*Partial Correctness of Communicating Processes and Protocols*
+
+**PRG-21**  
+Bernard Sufrin  
+*Formal Specification of a Display Editor*
+
+**PRG-22**  
+C A. R Hoare  
+*A Model for Communicating Sequential Processes*
+
+**PRG-23**  
+C. A R. Hoare  
+*A Calculus for Total Correctness of Communicating Processes*
+
+**PRG-24**  
+Bernard Sufrin  
+*Reading Formal Specifications*

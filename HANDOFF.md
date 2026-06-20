@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–III COMPLETE; IV–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–III COMPLETE; IV §4 spine done (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6); IV–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,15 +7,49 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3015 jobs).
+- **`lake build Domain` is green, zero `sorry`s** (≈3016 jobs).
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
   Lecture III is now **complete end-to-end**: the spine (Def 3.1 → Thm 3.13) *and* every §3 exercise
   (3.14–3.28).
-- **Lectures IV–VIII are now fully transcribed** in `sources/PRG19_vision.md` (all eight lectures,
-  ≈5340 lines) **and fully inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists (Lean column `—` =
-  not yet formalized). This is the next frontier.
+- **Lecture IV: Theorems 4.1 and 4.2, Examples 4.3 and 4.4, and Definition 4.5 + Theorem 4.6 are
+  Pass.** Theorems 4.1/4.2 are in `Domain/Neighborhood/Theorem41.lean` (`fixElement`, `fixMap`,
+  both choice-free; only `fixMap_unique` uses `Classical.choice` via the permitted
+  `ext_of_toElementMap`). Example 4.3 (`Example43.lean`), Example 4.4 (`Example44.lean`), and
+  Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) are the most recent work — see below.
+- **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
+  ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. Lecture IV rows
+  4.1/4.2/4.3/4.4/4.5/4.6 are now **Pass**; the rest (4.7–4.25, V–VIII) are still `—`. Pages
+  108–111 were re-OCR'd to fix a page-order scramble (Thm 6.14 tail, Lemma 6.15, Thm 6.16,
+  Exercises 6.17–6.20 now in correct order). The §4 exercises (4.7–4.25) are the next frontier.
 
-### Lecture III exercises completed (most recent work)
+### Lecture IV §4 completed (most recent work)
+
+- **Example 4.3** (`Example43.lean`) — the natural-number domain `N` (flat domain over `ℕ`, tokens
+  `{n}`/`ℕ`, built by `ofNestedOrDisjoint`); total elements `natElem n = n̂`. One reusable strict-lift
+  combinator `constLiftN V val : ApproximableMap N V` (sends `n̂ ↦ val n`, `⊥ ↦ ⊥`) with computation
+  rules `constLiftN_natElem`/`constLiftN_bot`; from it `succMap`, `predMap` (codomain `N`,
+  choice-free) and `zeroMap : N → T` with all the value equations (`succMap_natElem`,
+  `predMap_natElem_succ`/`_zero`, `zeroMap_natElem_zero`/`_succ`, `*_bot`). **Pitfall:** `le_antisymm`
+  on `Set` pulled `Classical.choice` — use `Set.Subset.antisymm` to stay choice-free.
+- **Example 4.4** (`Example44.lean`) — the binary-sequence domain `C = {σΣ*} ∪ {{σ}}` over
+  `Str = List Bool` (again `ofNestedOrDisjoint`, reusing `ExampleB.cone`/`prepend`); elements
+  `strBot σ = σ⊥`, `strElem σ = σ`. The two successors `consMap b` (prepend a bit) with
+  `consMap_strElem`/`consMap_strBot`, and the fixed-point element `altElt = a = 01a`
+  (`((consMap false).comp (consMap true)).fixElement`, equation `altElt_eq`). `tail` and the tests
+  `empty`/`zero`/`one : C → T` are Scott's own "left to the reader" (Exercise 4.19) — out of scope.
+- **Definition 4.5 + Theorem 4.6** (`Theorem46.lean`) — `PeanoModel N` (zero, succ; `0 ≠ n⁺`,
+  injective succ, induction). Theorem 4.6 `peano_models_isomorphic`: any two models are isomorphic.
+  Scott's least-fixed-point relation `r` is realized as the inductive `Graph` (the least relation
+  with `(0,□)` and closed under `(n,m) ↦ (n⁺,m#)`); `exists_unique_right`/`exists_unique_left`
+  (induction 4.5(iii) + inversions from 4.5(i)/(ii)) show it is a one-one correspondence.
+  **Pitfall:** inverting an indexed inductive whose indices are *abstract terms* (`P.zero`,
+  `P.succ m`) — plain `cases` fails ("dependent elimination failed"); first
+  `generalize hz : P.zero = z at h`, then `cases h`, recovering the equation `hz` to refute the
+  impossible constructor. Everything is choice-free except the final packaging of the bijection
+  `M ≃ N` (which must pull `Classical.choice` from a functional+total relation — a Dedekind/
+  recursion theorem).
+
+### Lecture III exercises completed (earlier work)
 
 - **3.16** (`Exercise316.lean`) — the infinite iterate `𝒟^∞` over `ℕ × Δ` via fibers + cofinite-`Δ`
   bound: `iterSys` is a system, `iterSeqEquiv : |𝒟^∞| ≃o (ℕ → |𝒟|)`, and `𝒟^∞ ≅ 𝒟 × 𝒟^∞`
@@ -41,28 +75,36 @@ this is inherited structurally from the truth domain `T = Example12.neighborhood
 
 ---
 
-## What's next: Lectures IV–VIII (transcribed, NOT yet formalized)
+## What's next: rest of Lecture IV, then V–VIII (transcribed, NOT yet formalized)
 
 The Goal Lists are in `arxiv.md`:
 
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
-| IV  | §4.2.IV   | 25 | Fixed points & recursion (`fix`, `N`, Peano models) | 1647–2382 |
+| IV  | §4.2.IV   | 25 | Fixed points & recursion (`fix` ✓ 4.1/4.2; `N`, Peano models next) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive | 2383–3207 |
-| VI  | §4.2.VI   | 27 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
-| VIII| §4.2.VIII | 26 | Retracts of the universal domain `U` | 4729–5336 |
+| VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
-**Suggested first target: Theorem 4.1 + Theorem 4.2** (least fixed point `fix(f)=⊔ₙ fⁿ(⊥)` and that
-`fix : (D→D)→D` is itself approximable). These are the keystones the rest of Lecture IV (and V–VIII)
-lean on, and the `Domain/Neighborhood` API already has everything needed (`funSpace`, `eval`,
-`comp`, `Element` sups via `sSupMaps`/directed joins).
+**Done so far in §4:** Theorems 4.1/4.2 (`Theorem41.lean`), Examples 4.3/4.4 (`Example43.lean`,
+`Example44.lean`), and Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) — see the "most recent work"
+section above.
+
+**Suggested next target: the §4 exercises 4.7–4.25** (arxiv.md §4.2.IV rows, lines 2199–2373). Good
+early ones: **4.20** `fix(f∘g)=f(fix(g∘f))` (pure `fixMap`/`comp` algebra), **4.10** the relativized
+domain `Dₐ`, **4.7/4.8** fixed points above `a`/over a closure family. **4.18** "verify the
+assertions about `N`, `F` in Example 4.3" and **4.19** "verify Example 4.4; `tail`, `empty`/`zero`/
+`one`, `one:C→T` by a fixed-point equation" build directly on `Example43.lean`/`Example44.lean`
+(the `tail` map and the three `C → T` tests are the substantive part Scott left to the reader). The
+`Domain/Neighborhood` API has the rest (`funSpace`, `eval`, `comp`, `Element` sups via
+`sSupMaps`/directed joins, the `Exercise316` infinite iterate `𝒟^∞`).
 
 **OCR anomalies to be aware of (documented in arxiv.md notes):**
 - Lecture V: "Table 5.5" is a combinator table, not a numbered theorem.
-- Lecture VI: `Example 6.1` (line 3214) is not bold-tagged; `6.15` is absent; `Theorem 6.16` (3995)
-  is out of order; Exercises **6.17–6.20 are duplicated** (3933–3955 and again 4043–4065).
-- Lecture VIII: `Theorem 8.4` is absent (numbering jumps 8.3 → 8.5).
+- Lecture VI: `Example 6.1` (line 3214) is not bold-tagged; Scott labels **Lemma 6.15** (3952) but
+  later calls it **Theorem 6.15** (4863) — same item, original inconsistency.
+- Lecture VIII: item 8.4 is `EXAMPLES 8.4` (plural, line 4773); `7.9` has a double period (4461).
 
 **Parallel track (not keyed to PRG-19 numbering):** `Domain/ContinuousLattice/*` already explores
 fixed points / domain equations / inverse limits (`FunctionSpaceTower.lean`, `InverseLimits.lean`,
@@ -92,7 +134,7 @@ deliverable is a `Domain/Neighborhood/Exercise<NN>.lean`-style module keyed to P
 ```bash
 cd /home/catskills/Desktop/domain_theory
 lake build Domain.Neighborhood.Exercise<NN>      # build one module
-lake build Domain                                 # full build (≈3015 jobs)
+lake build Domain                                 # full build (≈3016 jobs)
 ```
 
 Axiom audit (scratch file, delete after):
@@ -149,6 +191,34 @@ lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
 ### Infinite iterate (`Exercise316.lean`) — for Lecture IV/VI recursion work
 - `iterSys V : NeighborhoodSystem (ℕ × α)` (the `𝒟^∞`), `component n`, `ofSeq`, `projN`,
   `iterSeqEquiv : |iterSys V| ≃o (ℕ → V.Element)`, `iter_isomorphic : iterSys V ≅ᴰ prod V (iterSys V)`.
+
+### Fixed points (`Theorem41.lean`) — Lecture IV §4, Theorems 4.1 & 4.2
+- `f.iterMap n` (`fⁿ`, `f⁰=idMap`, `f^{n+1}=f.comp (fⁿ)`); `iterMap_mono_map`, `iter_comm`,
+  `rel_master_mono` (extend `Δ fⁿ X` chains).
+- `f.fixElement : V.Element` (least fixed point `{X ∣ ∃ n, Δ fⁿ X}`); `toElementMap_fixElement`
+  (`f(x)=x`), `fixElement_le_of_toElementMap_le` (least pre-fixed), `fixElement_mono`.
+- `f.iterElem n = fⁿ(⊥)`, `iterElem_eq_iterate` (`= (f(·))^[n] ⊥`), `fixElement_eq_iSupDirected`.
+- `fixMap V : ApproximableMap (funSpace V V) V` (the operator); key bridge
+  `fixMap_toElementMap : fix.toElementMap φ = (toApproxMap φ).fixElement` (Scott's eq. ∗), proved via
+  `exists_principal_iterMap` (a finite `f`-chain factors through one finite approximant `F ∈ φ`).
+  Then `fixMap_fixed` (i), `fixMap_least` (ii), `fixMap_eq_iSup` (iii), `fixMap_unique`, and
+  `fixMap_toElementMap_toFilter` (bridge to "for any `f`"). **All data choice-free**; `fixMap_unique`
+  uses `Classical.choice` only via `ext_of_toElementMap`.
+
+### Natural numbers / binary sequences / Peano (`Example43.lean`, `Example44.lean`, `Theorem46.lean`)
+- **`Example43`**: `N : NeighborhoodSystem ℕ` (flat, `memN X ↔ X = univ ∨ ∃ n, X = {n}`); `natElem n`
+  (`= n̂`), `mem_natElem_iff`, `N_bot_mem`. Strict-lift `constLiftN V val : ApproximableMap N V`
+  with `constLiftN_natElem` (`f(n̂)=val n`) / `constLiftN_bot` (`f(⊥)=⊥`). Maps `succMap`,
+  `predMap` (codomain `N`), `zeroMap : N → T` + value equations. Helpers `univ_ne_singleton`,
+  `singleton_nat_inj`.
+- **`Example44`**: `C : NeighborhoodSystem Str` (`memC X ↔ (∃σ,X=cone σ) ∨ (∃σ,X={σ})`); `strBot σ`
+  (`σ⊥`), `strElem σ` (`σ`). Successors `consMap b` + `consMap_strBot`/`consMap_strElem`; fixed-point
+  element `altElt` (`a=01a`, `altElt_eq`). Reuses `ExampleB.cone`/`prepend`; new `prepend_singleton`,
+  `prepend_mono`, `memC_prepend`.
+- **`Theorem46`**: `PeanoModel N` (`zero`, `succ`, `zero_ne_succ`, `succ_injective`, `induction`).
+  `Graph` (least-fixed-point relation), `exists_unique_right`/`_left`, `peano_models_isomorphic`
+  (Theorem 4.6). Inversions `graph_zero_right`/`graph_succ_right` use the `generalize`-then-`cases`
+  idiom for abstract indices.
 
 ### Examples reused
 - **`Example12.lean`** (`= Example23.T`): truth domain `T` over `Token = Fin 2`, `{master, zero={0},

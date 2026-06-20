@@ -65,4 +65,8 @@ import Domain.Neighborhood.Exercise327
 import Domain.Neighborhood.Exercise326
 import Domain.Neighborhood.Exercise326Sum
 import Domain.Neighborhood.Exercise328
+import Domain.Neighborhood.Theorem41
+import Domain.Neighborhood.Example43
+import Domain.Neighborhood.Example44
+import Domain.Neighborhood.Theorem46
 import Domain.InfoSys

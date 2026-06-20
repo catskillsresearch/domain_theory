@@ -1365,23 +1365,24 @@ is Pass.**
 | **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Pass** (`Exercise327.lean`) |
 | **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Pass** (`Exercise328.lean`) |
 
-### 4.2.IV Lecture IV — *Fixed points and recursion* (transcribed; formalization deferred)
+### 4.2.IV Lecture IV — *Fixed points and recursion* (Theorems 4.1, 4.2; Examples 4.3, 4.4; Definition 4.5 + Theorem 4.6 formalized)
 
 The full PRG-19 text (Lectures I–VIII) is now transcribed in `sources/PRG19_vision.md`. The Lean
-**spine** of the formalization targets Lectures I–III (complete); Lectures IV–VIII are inventoried
-below for completeness. Their **Lean** column is `—` (not yet formalized) — the fixed-point and
-domain-equation material is *separately* explored in the `Domain/ContinuousLattice/*` track
-(e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`, `Theorem212.lean`) but is not yet keyed to
-the PRG-19 numbering.
+**spine** of the formalization targets Lectures I–III (complete); formalization keyed to the PRG-19
+numbering has now begun in Lecture IV with the **Fixed-point Theorem 4.1** and the approximability
+of **`fix` (Theorem 4.2)** in `Domain/Neighborhood/Theorem41.lean` (choice-free constructions). The
+remaining IV–VIII items are inventoried below; some fixed-point and domain-equation material is also
+*separately* explored in the `Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`,
+`InverseLimits.lean`, `Theorem212.lean`), not yet keyed to the PRG-19 numbering.
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
-| **Theorem 4.1** | Theorem | 1653 | every approximable `f:D→D` has a **least** fixed point `fix(f)=⊔ₙ fⁿ(⊥)` | — |
-| **Theorem 4.2** | Theorem | 1711 | the fixed-point operator `fix:(D→D)→D` is itself approximable; `fix(f)=⊔ₙ fⁿ(⊥)` | — |
-| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | — |
-| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | — |
-| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | — |
-| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | — |
+| **Theorem 4.1** | Theorem | 1653 | every approximable `f:D→D` has a **least** fixed point `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixElement`, `toElementMap_fixElement`, `fixElement_le_of_toElementMap_le`) |
+| **Theorem 4.2** | Theorem | 1711 | the fixed-point operator `fix:(D→D)→D` is itself approximable; `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixMap`, `fixMap_fixed`, `fixMap_least`, `fixMap_eq_iSup`, `fixMap_unique`) |
+| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | **Pass** (`Example43.lean`: flat domain `N`, `natElem`, the strict-lift combinator `constLiftN`, `succMap`/`predMap`/`zeroMap` with their value equations) |
+| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | **Pass** (`Example44.lean`: nested-or-disjoint system `C`, `strElem`/`strBot`, successors `consMap b` with `consMap_strElem`/`consMap_strBot`, fixed-point element `a = 01a`; `tail`/`empty`/`zero`/`one` left as Ex 4.19 per Scott) |
+| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | **Pass** (`Theorem46.lean`: `PeanoModel`) |
+| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | **Pass** (`Theorem46.lean`: `peano_models_isomorphic`, via the least-fixed-point graph `Graph` and `exists_unique_right`/`exists_unique_left`) |
 | **Exercise 4.7** | Exercise | 2199 | `a⊑f(a)` ⟹ is there a fixed point `x=f(x)` with `a⊑x`? | — |
 | **Exercise 4.8** | Exercise | 2205 | `f:D→D`, `S⊆\|D\|` closure conditions for fixed points | — |
 | **Exercise 4.9** | Exercise | 2221 | an approximable operator (least fixed point over a family) | — |
@@ -1425,12 +1426,9 @@ the PRG-19 numbering.
 
 ### 4.2.VI Lecture VI — *Introduction to domain equations* (transcribed; formalization deferred)
 
-*OCR note:* the source text of Lecture VI is scrambled around pages 108–111. `Example 6.1`
-(line 3214) is not bold-tagged; **the statement of Theorem 6.15 is missing** (only its proof
-fragment survives at ≈3971–3991, and it is referenced at lines 3997, 4834, 4842, 4846); the proof of
-Theorem 6.14 is truncated (cut at ≈3928); and Exercises 6.17–6.20 are **duplicated** — a misplaced
-copy at 3933–3967 (spliced into the 6.14/6.15 proofs) and the correct copy at 4043–4065, with
-Theorem 6.16 (3995) sitting between the two copies. Rows below follow the source labels.
+*OCR note:* `Example 6.1` (line 3214) is not bold-tagged. Scott labels item **6.15** as
+**Lemma 6.15** (3952) but later calls it **Theorem 6.15** (4863) — same result, original typo.
+(Pages 108–111 were re-OCR'd to fix an earlier page-order scramble.)
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
@@ -1448,12 +1446,12 @@ Theorem 6.16 (3995) sitting between the two copies. Rows below follow the source
 | **Proposition 6.12** | Proposition | 3823 | `D◁E` ⟹ a projection pair `i,j` | — |
 | **Definition 6.13** | Definition | 3845 | a functor *monotone / continuous on domains* | — |
 | **Theorem 6.14** | Theorem | 3857 | (main) continuous monotone `T` with a generating set `Γ` ⟹ solution `D≅T(D)` | — |
-| *Theorem 6.15* | Theorem | (proof ≈3971–3991) | **statement missing in OCR**; from its proof + uses (3997/4834/4842/4846): finitary projection's fixed-point set gives `D≅D'◁E` | — |
-| **Theorem 6.16** | Theorem | 3995 | initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E≅T(E)` | — |
-| **Exercise 6.17** | Exercise | 3933 / 4043 | algebras for which `C` is initial | — |
-| **Exercise 6.18** | Exercise | 3935 / 4045 | `D^∞` (Ex 3.16) as an initial algebra / domain-equation solution | — |
-| **Exercise 6.19** | Exercise | 3943 / 4053 | sum & product on the category of strict maps | — |
-| **Exercise 6.20** | Exercise | 3955 / 4065 | the `tok(D)` function on systems | — |
+| **Lemma 6.15** | Lemma | 3952 | projection pair `i,j` with `j∘i=I_D`, `i∘j⊑I_E` ⟹ `D⊴E` (converse to 6.12) | — |
+| **Theorem 6.16** | Theorem | 4010 | initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E≅T(E)` | — |
+| **Exercise 6.17** | Exercise | 4072 | algebras for which `C` is initial | — |
+| **Exercise 6.18** | Exercise | 4074 | `D^∞` (Ex 3.16) as an initial algebra / domain-equation solution | — |
+| **Exercise 6.19** | Exercise | 4082 | sum & product on the category of strict maps | — |
+| **Exercise 6.20** | Exercise | 4094 | the `tok(D)` function on systems | — |
 | **Exercise 6.21** | Exercise | 4081 | functors generated by the operations | — |
 | **Exercise 6.22** | Exercise | 4093 | comment on given domain equations | — |
 | **Exercise 6.23** | Exercise | 4107 | the initial solution to a domain equation | — |
@@ -1640,22 +1638,26 @@ with Lean formalization deferred:
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
 | II (approximable mappings) | §4.2.II | 22 | **22** |
 | III (products, sums, function spaces) | §4.2.III | 29 | **29** |
-| IV (fixed points and recursion) | §4.2.IV | 25 | — |
+| IV (fixed points and recursion) | §4.2.IV | 25 | **6** (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6) |
 | V (typed λ-calculus) | §4.2.V | 16 | — |
 | VI (domain equations) | §4.2.VI | 29 | — |
 | VII (computability) | §4.2.VII | 24 | — |
 | VIII (universal domain) | §4.2.VIII | 27 | — |
-| **Total PRG-19 I–VIII** | | **215** | **94** |
+| **Total PRG-19 I–VIII** | | **215** | **100** |
 
 The Lecture III **spine** (Def 3.1 → Thm 3.13) is complete and choice-free, and **all Lecture III
 exercises (3.14–3.28) are now formalized** (`Exercise316`/`317`/`324Iter`/`324Distrib`/`325`/`327`
 completing the set).
 
-**Lectures IV–VIII** are now fully **transcribed and inventoried** (§4.2.IV–VIII) but **not yet
-formalized**; the fixed-point and domain-equation material is explored separately in the
+**Lectures IV–VIII** are fully **transcribed and inventoried** (§4.2.IV–VIII); formalization keyed
+to PRG-19 numbering has now **begun in Lecture IV** with the Fixed-point Theorem **4.1** and the
+approximability of `fix` **4.2** (`Theorem41.lean`), the natural-number domain `N` (**Example 4.3**,
+`Example43.lean`), the binary-sequence domain `C` (**Example 4.4**, `Example44.lean`), and the
+Peano-model material **Definition 4.5 + Theorem 4.6** (`Theorem46.lean`). The remaining IV–VIII
+items are not yet formalized; the domain-equation material is also explored separately in the
 `Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`), not yet
 keyed to the PRG-19 numbering. Lean roots for the formalized spine: `Approximable.lean` (§2),
-`Product.lean` + `FunctionSpace.lean` (§3).
+`Product.lean` + `FunctionSpace.lean` (§3), `Theorem41.lean` (§4 fixed points).
 
 
 ### 4.5 Selected proof notes
