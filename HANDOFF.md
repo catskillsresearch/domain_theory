@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2, Prop 5.3/5.4, Ex 5.7/5.9/5.11/5.12); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.9/5.11/5.12); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,7 +7,9 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3038 jobs).
+- **`lake build Domain` is green, zero `sorry`s** (≈3056 jobs). **Theorem 5.6 is now complete
+  end-to-end**: `Theorem56Full.lean` proves *every partial recursive function is λ-definable*
+  (`partrec_lamDef`) against Mathlib's `Nat.Partrec'`, plus Scott's 1-ary corollary `partrec_one`.
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
   Lecture III is now **complete end-to-end**: the spine (Def 3.1 → Thm 3.13) *and* every §3 exercise
   (3.14–3.28).
@@ -57,13 +59,51 @@ building a separate λ-syntax.
   `Wop(w) = λx.cond(p x, w(f x), x)`: recursion `whileMap_rec`, the three unfoldings
   `whileMap_true/false/bot`, and leastness `whileMap_least`. `cond` from Exercise 3.26, so the data
   inherits `Classical.choice` only through the truth domain `T` (Example 1.2), exactly as `cond` does.
+- **Theorem 5.6** (`Theorem56.lean`) — recursive functions are λ-definable, formalised as the
+  constructive heart of Scott's proof over `N` (Example 4.3) and `cond` (Exercise 3.26):
+  - **strict starting functions** `λx.cond(zero x, x, x)`: `strictId` (`strictId_natElem`/`_bot`) and
+    `strictProj₀` (strict in *both* args: `strictProj₀_natElem`/`_bot_left`/`_bot_right`);
+  - **primitive recursion** `primRec f g = !k λx,y.cond(zero x, f y, g(pred x, y, k(pred x, y)))`
+    with the scheme equations `primRec_zero` (`h̄(0,m)=f m`), `primRec_succ`
+    (`h̄(n+1,m)=g(n,m,h̄(n,m))`), `primRec_bot` (strict);
+  - **μ-scheme** `muRec f = !g λx,y.cond(zero(f(x,y)), x, g(succ x, y))`, `muMap = λy.ḡ(0,y)`, with
+    `muRec_found`/`muRec_step`/`muRec_bot` and the **capstone** `muMap_eq_least` (least zero of
+    `f(·,m)` ⟹ `μ(m) = n₀`, via the `muRec_climb` run-of-positives induction).
+  Helper `T_bot_eq : T.bot = botElt` bridges `zeroMap_bot` (lands in `T.bot`) and `cond_bot` (phrased
+  with `Example23.botElt`) since `bot` is not reducible. All `cond`-based maps inherit
+  `Classical.choice` structurally from `T`, as `cond`/`zeroMap` already do.
+- **Theorem 5.6 — the FULL meta-theorem** (`Theorem56Full.lean`, **done, no `sorry`**) — *every
+  partial recursive function is λ-definable*, wired against Mathlib's arity-aware inductive predicates
+  `Nat.Primrec'`/`Nat.Partrec'` (over `List.Vector ℕ n`), whose constructors are exactly Scott's
+  generation grammar.
+  - **Universal argument domain** `𝒩 := iterSys N` (`N^∞`, Exercise 3.16): a `k`-ary function is one
+    map `φ : 𝒩 → N` depending only on coordinates `0..k-1`. Builders `optElem`/`argElem`/`vecElem`,
+    `ArgLike`, components through `push` (`component_push_zero/succ`).
+  - **Spec** `LamDef φ f` (very strict): `defined` (value on totals), `undef` (`⊥` where `f↑`),
+    `strict` (`⊥` on any arg-like input with a `⊥` in coords `0..n-1`). Strictifier
+    `guard1`/`strictGuardN` (Scott's `cond(zero ·,·,·)` device) makes `strict` automatic via the
+    **master constructor** `lamDef_of_inner`.
+  - **Primrec' closure** `primrec_lamDef`: `zero`/`succ`/`get` (base), `lamDef_(prim)comp` via
+    `tupleMap` + `mem_mOfFn`, and `lamDef_prec` (the `recOp`/`recMap` fixed point with `recMap_eval`
+    by induction on the recursion variable).
+  - **Partrec' closure** `partrec_lamDef`: `prim` reuses `primrec_lamDef`; `comp` reuses
+    `lamDef_comp`; `rfind` is the μ-search `searchMap = fix(findOp)` started at counter `0` by
+    `findMap`, with `searchMap_step_found/next`, the `searchMap_climb` capstone (least zero ⟹ value),
+    and the **divergence** lemma `searchMap_diverge` — the one genuinely hard step: push evaluation
+    through the directed sup `fix = ⊔ₙ Sⁿ(⊥)` (Thm 4.2(iii) `fixElement_eq_iSupDirected` +
+    continuity `toElementMap_iSupDirected` via `evalAt`), then show every approximant is `⊥` along the
+    no-zero trace (`iterVal_bot`, with helper `toApproxMap_bot`).
+  - **Scott's 1-ary corollary** `partrec_one`: any partial recursive `h : ℕ →. ℕ` is denoted by a
+    single `τ : N → N` correct on values, divergent where `h↑`, and strict (`oneArg` inject + the
+    three `LamDef` clauses). Axiom profile `[propext, Classical.choice, Quot.sound]` — identical to the
+    `Theorem56` baseline (choice enters only via the flat-domain `zeroMap`/`cond` primitives and
+    Mathlib's `Nat.rfind`; all combinator *data* is choice-free).
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Theorem 5.6 (partial recursive
-⟹ λ-definable; needs a recursion-theory bridge), Exercise 5.8 (combinatory completeness), Exercise
-5.10 (smash product `D₀⊗D₁` + strict function space — a new neighbourhood-system construction),
-Exercise 5.13 (one-one `num:N×N→N`), Exercise 5.14 (`fun`/`graph`), Exercise 5.15 (free-semigroup
-domain), Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond` on `C` plus a
-continuity/approximation argument for `neg(neg x)=x`).
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.8 (combinatory
+completeness), Exercise 5.10 (smash product `D₀⊗D₁` + strict function space — a new
+neighbourhood-system construction), Exercise 5.13 (one-one `num:N×N→N`), Exercise 5.14
+(`fun`/`graph`), Exercise 5.15 (free-semigroup domain), Exercise 5.16 (`neg`/`merge` on `C` — needs
+`tail`/tests/`cond` on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
 
 ### Lecture IV §4 completed (most recent work)
 
