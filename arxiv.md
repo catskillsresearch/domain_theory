@@ -28,7 +28,7 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **79** numbered results / exercises are **Pass** (zero `sorry`s, zero
+correction is complete; **94** numbered results / exercises are **Pass** (zero `sorry`s, zero
 Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** and **all of Lecture II** (Def 2.1,
 Prop 2.2, Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, the isomorphism Theorem 2.7, and
 Exercises 2.8–2.22) are now formalized. Lecture II completed this session: 2.13 (approximable =
@@ -1201,10 +1201,11 @@ Footprint so far: `[propext, Classical.choice, Quot.sound]`.
 ## 4. Part II — Scott 1981 PRG-19 (§1 foundations: live)
 
 **Source:** Scott, *Lectures on a Mathematical Theory of Computation*, Technical Monograph
-PRG-19, Oxford (May 1981), Lectures I–III. Vision OCR draft:
-`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (now transcribed through **Lecture III**,
-≈1960 lines — all of Lecture I, II and III). The Goal List in §4.2 below is the **complete Lecture
-I (§1)** inventory; Lectures II (§2) and III (§3) are OCR'd and awaiting their own Goal Lists.
+PRG-19, Oxford (May 1981), Lectures I–VIII. Vision OCR draft:
+`[sources/PRG19_vision.md](sources/PRG19_vision.md)` (now **fully transcribed**, all eight
+lectures, ≈5340 lines). The Goal Lists in §4.2 below are **complete inventories** for every lecture:
+Lectures I–III are formalized (Pass), and Lectures IV–VIII (§4.2.IV–VIII) are inventoried with
+formalization deferred (Lean column `—`).
 
 **Constructivity:** the **§1 core is constructive.** Scott deliberately works with *partial*
 filters so the basic theory needs no maximal-filter existence (Zorn/choice); the **classical
@@ -1364,9 +1365,168 @@ is Pass.**
 | **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Pass** (`Exercise327.lean`) |
 | **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Pass** (`Exercise328.lean`) |
 
-**Beyond Lecture III — OCR started, Goal List pending:** Lecture IV (*Fixed points and recursion*,
-from line 1646) is partially transcribed (Theorems 4.1–4.2, Examples 4.3–4.4, Def 4.5, Thm 4.6, …);
-rows will be added as the inventory pass continues.
+### 4.2.IV Lecture IV — *Fixed points and recursion* (transcribed; formalization deferred)
+
+The full PRG-19 text (Lectures I–VIII) is now transcribed in `sources/PRG19_vision.md`. The Lean
+**spine** of the formalization targets Lectures I–III (complete); Lectures IV–VIII are inventoried
+below for completeness. Their **Lean** column is `—` (not yet formalized) — the fixed-point and
+domain-equation material is *separately* explored in the `Domain/ContinuousLattice/*` track
+(e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`, `Theorem212.lean`) but is not yet keyed to
+the PRG-19 numbering.
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Theorem 4.1** | Theorem | 1653 | every approximable `f:D→D` has a **least** fixed point `fix(f)=⊔ₙ fⁿ(⊥)` | — |
+| **Theorem 4.2** | Theorem | 1711 | the fixed-point operator `fix:(D→D)→D` is itself approximable; `fix(f)=⊔ₙ fⁿ(⊥)` | — |
+| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | — |
+| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | — |
+| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | — |
+| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | — |
+| **Exercise 4.7** | Exercise | 2199 | `a⊑f(a)` ⟹ is there a fixed point `x=f(x)` with `a⊑x`? | — |
+| **Exercise 4.8** | Exercise | 2205 | `f:D→D`, `S⊆\|D\|` closure conditions for fixed points | — |
+| **Exercise 4.9** | Exercise | 2221 | an approximable operator (least fixed point over a family) | — |
+| **Exercise 4.10** | Exercise | 2235 | construct the relativized domain `Dₐ` (elements above `a`) | — |
+| **Exercise 4.11** | Exercise | 2245 | (Plotkin) `fix` uniquely determined by general conditions on `D⇝F_D` | — |
+| **Exercise 4.12** | Exercise | 2255 | need `f` have a *maximum* fixed point? example with many fixed points | — |
+| **Exercise 4.13** | Exercise | 2257 | eliminate the apparent circularity between 4.1 and 4.6 | — |
+| **Exercise 4.14** | Exercise | 2279 | need monotone `f:PA→PA` have a maximum fixed point? | — |
+| **Exercise 4.15** | Exercise | 2281 | (set theorists) monotone `f:\|D\|→\|D\|` has a *maximal* fixed point (Zorn) | — |
+| **Exercise 4.16** | Exercise | 2289 | (fixed-point nuts) the *optimal* fixed point | — |
+| **Exercise 4.17** | Exercise | 2301 | (algebraists) semigroup `⟨S,1,·⟩`, `PS` a domain; least `x` | — |
+| **Exercise 4.18** | Exercise | 2317 | verify the assertions about `N`, `F` in Example 4.3 | — |
+| **Exercise 4.19** | Exercise | 2319 | verify Example 4.4; `one:C→T` from the rest by a fixed-point equation | — |
+| **Exercise 4.20** | Exercise | 2321 | `fix(f∘g)=f(fix(g∘f))` | — |
+| **Exercise 4.21** | Exercise | 2327 | `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication | — |
+| **Exercise 4.22** | Exercise | 2343 | `N*` satisfying (i)(ii) ⟹ subset `N` satisfying (i)(ii)(iii)? | — |
+| **Exercise 4.23** | Exercise | 2347 | (Eilenberg) unique fixed point under an approximation `aₙ` scheme | — |
+| **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | — |
+| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | — |
+
+### 4.2.V Lecture V — *Typed λ-calculus* (transcribed; formalization deferred)
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | — |
+| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | — |
+| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise | — |
+| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | — |
+| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | — |
+| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | — |
+| **Exercise 5.7** | Exercise | 3001 | find definitions of various combinators | — |
+| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinators ↔ `λ`-expressions via `σ(τ)` only | — |
+| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | — |
+| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
+| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators | — |
+| **Exercise 5.12** | Exercise | 3067 | a combinator on `D` by least fixed point | — |
+| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |
+| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
+| **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |
+| **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | — |
+
+### 4.2.VI Lecture VI — *Introduction to domain equations* (transcribed; formalization deferred)
+
+*OCR note:* the source text of Lecture VI is scrambled around pages 108–111. `Example 6.1`
+(line 3214) is not bold-tagged; **the statement of Theorem 6.15 is missing** (only its proof
+fragment survives at ≈3971–3991, and it is referenced at lines 3997, 4834, 4842, 4846); the proof of
+Theorem 6.14 is truncated (cut at ≈3928); and Exercises 6.17–6.20 are **duplicated** — a misplaced
+copy at 3933–3967 (spliced into the 6.14/6.15 proofs) and the correct copy at 4043–4065, with
+Theorem 6.16 (3995) sitting between the two copies. Rows below follow the source labels.
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | — |
+| **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | — |
+| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | — |
+| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | — |
+| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | — |
+| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | — |
+| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | — |
+| **Definition 6.8** | Definition | 3761 | a functor *continuous on maps* | — |
+| **Theorem 6.9** | Theorem | 3771 | continuous `T` with `D≅T(D)` ⟹ a homomorphism `D→E` to any `T`-algebra | — |
+| **Definition 6.10** | Definition | 3795 | the subsystem relation `D ◁ E` | — |
+| **Proposition 6.11** | Proposition | 3813 | the subsystems of `E` form a domain | — |
+| **Proposition 6.12** | Proposition | 3823 | `D◁E` ⟹ a projection pair `i,j` | — |
+| **Definition 6.13** | Definition | 3845 | a functor *monotone / continuous on domains* | — |
+| **Theorem 6.14** | Theorem | 3857 | (main) continuous monotone `T` with a generating set `Γ` ⟹ solution `D≅T(D)` | — |
+| *Theorem 6.15* | Theorem | (proof ≈3971–3991) | **statement missing in OCR**; from its proof + uses (3997/4834/4842/4846): finitary projection's fixed-point set gives `D≅D'◁E` | — |
+| **Theorem 6.16** | Theorem | 3995 | initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E≅T(E)` | — |
+| **Exercise 6.17** | Exercise | 3933 / 4043 | algebras for which `C` is initial | — |
+| **Exercise 6.18** | Exercise | 3935 / 4045 | `D^∞` (Ex 3.16) as an initial algebra / domain-equation solution | — |
+| **Exercise 6.19** | Exercise | 3943 / 4053 | sum & product on the category of strict maps | — |
+| **Exercise 6.20** | Exercise | 3955 / 4065 | the `tok(D)` function on systems | — |
+| **Exercise 6.21** | Exercise | 4081 | functors generated by the operations | — |
+| **Exercise 6.22** | Exercise | 4093 | comment on given domain equations | — |
+| **Exercise 6.23** | Exercise | 4107 | the initial solution to a domain equation | — |
+| **Exercise 6.24** | Exercise | 4127 | existence of domains satisfying given equations | — |
+| **Exercise 6.25** | Exercise | 4141 | projection-pair `g,h` identities on elements | — |
+| **Exercise 6.26** | Exercise | 4153 | definitions on systems as in 6.19 | — |
+| **Exercise 6.27** | Exercise | 4165 | which subsystem relationships hold | — |
+| **Exercise 6.28** | Exercise | 4173 | (Plotkin) finite systems `D,E` | — |
+| **Exercise 6.29** | Exercise | 4181 | generalize `+`, `×` to infinitary operations | — |
+
+### 4.2.VII Lecture VII — *Computability in effectively given domains* (transcribed; formalization deferred)
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Definition 7.1** | Definition | 4209 | a *computable presentation* of a neighbourhood system | — |
+| **Definition 7.2** | Definition | 4237 | *computable map* between recursively presented domains | — |
+| **Proposition 7.3** | Proposition | 4271 | identity is computable; computable maps compose | — |
+| **Theorem 7.4** | Theorem | 4277 | `D₀+D₁` and `D₀×D₁` are effectively given if `D₀,D₁` are | — |
+| **Theorem 7.5** | Theorem | 4327 | `(D₀→D₁)` is effectively given; `eval`/`curry` computable; computable elements = computable maps | — |
+| **Theorem 7.6** | Theorem | 4377 | `fix:(D→D)→D` is computable on effectively given `D` | — |
+| **Proposition 7.7** | Proposition | 4399 | `D^§` is effectively given; the Example 6.1 combinators are computable | — |
+| **Example 7.8** | Example | 4443 | the powerset `PN` is effectively given | — |
+| **Definition 7.9** | Definition | 4461 | the power domain `PD` | — |
+| **Proposition 7.10** | Proposition | 4483 | `PD` is a neighbourhood system, effectively given if `D` is | — |
+| **Definition 7.11** | Definition | 4523 | finite-element joins `{x₀,…,x_{n-1}}` in the power domain | — |
+| **Proposition 7.12** | Proposition | 4529 | the union mapping on the power domain | — |
+| **Exercise 7.13** | Exercise | 4575 | effectively given domain ↔ an `INCL(n,m)` relation on integers | — |
+| **Exercise 7.14** | Exercise | 4597 | (recursion theorists) r.e. facts after Def 7.2; computable elements | — |
+| **Exercise 7.15** | Exercise | 4609 | finish 7.4 for `D₀⊗D₁`, `D₀⊕D₁`, `D^∞` | — |
+| **Exercise 7.16** | Exercise | 4611 | `curry` as a neighbourhood relation: recursive or r.e.? | — |
+| **Exercise 7.17** | Exercise | 4613 | finish 7.7 for `D^§`; strict `g:D^§→E` | — |
+| **Exercise 7.18** | Exercise | 4621 | define *effective isomorphism*; effective `Tok ≅` | — |
+| **Exercise 7.19** | Exercise | 4629 | `D↦PD` is a functor | — |
+| **Exercise 7.20** | Exercise | 4641 | a combinator of given type | — |
+| **Exercise 7.21** | Exercise | 4655 | a non-trivial combinator of given type? | — |
+| **Exercise 7.22** | Exercise | 4673 | (algebraists) a domain by least fixed point over `{0,1}*` | — |
+| **Exercise 7.23** | Exercise | 4693 | finish `PN` (Ex 7.8); `fun`/`graph` computable | — |
+| **Exercise 7.24** | Exercise | 4705 | (LUCID, Ashcroft–Wadge) stream operators | — |
+
+### 4.2.VIII Lecture VIII — *Retracts of the universal domain* (transcribed; formalization deferred)
+
+*OCR note:* item 8.4 is labelled `EXAMPLES 8.4` (plural, line 4773) — present, not missing; `7.9` is
+mis-typed `DEFINITION 7.9..` (double period, line 4461).
+
+| Item | Type | Lines | Statement | Lean |
+| ---- | ---- | ----- | --------- | ---- |
+| **Definition 8.1** | Definition | 4735 | a *retraction* `a:E→E` with `a∘a=a` | — |
+| **Proposition 8.2** | Proposition | 4737 | `D◁E` induces a retraction `a:E→E` | — |
+| **Definition 8.3** | Definition | 4767 | a *projection* (retraction with `a⊑I`) | — |
+| **Examples 8.4** | Examples | 4773 | the two-element system `O={{0},{0,1}}` arises from a retraction on any non-trivial `D` | — |
+| **Theorem 8.5** | Theorem | 4820 | equivalent characterizations of an approximable retraction `a:E→E` | — |
+| **Theorem 8.6** | Theorem | 4856 | the domain of retracts of `E` | — |
+| **Definition 8.7** | Definition | 4894 | the universal domain `U` over the rationals `Q` | — |
+| **Theorem 8.8** | Theorem | 4909 | `U` is universal: every countable system `D ◁ U` | — |
+| **Definition 8.9** | Definition | 4994 | fixed computable projection pairs `i_+,j_+,i_×,j_×,i_→,j_→` for `U` | — |
+| **Proposition 8.10** | Proposition | 5006 | `a+b`, `a×b`, `a→b` are projections (finitary if `a,b` are) | — |
+| **Exercise 8.11** | Exercise | 5103 | a neighbourhood system over the rationals `Q` | — |
+| **Exercise 8.12** | Exercise | 5113 | generalize `2X+1` to sets | — |
+| **Exercise 8.13** | Exercise | 5119 | (logicians) `U ≅` filters of the free Boolean algebra on `ℵ₀` generators | — |
+| **Exercise 8.14** | Exercise | 5125 | *closure operators* (`I⊑a`); fixed-point set finitary | — |
+| **Exercise 8.15** | Exercise | 5127 | `{X∣X◁D}` effectively presented if `D` is | — |
+| **Exercise 8.16** | Exercise | 5129 | finitary projections `a:E→E` | — |
+| **Exercise 8.17** | Exercise | 5139 | projection pairs for `U+U`, `U×U`, `U→U`; a universal `V≠U` | — |
+| **Exercise 8.18** | Exercise | 5143 | establish the unproved cases of 8.10 | — |
+| **Exercise 8.19** | Exercise | 5145 | consequences of two known facts | — |
+| **Exercise 8.20** | Exercise | 5151 | `D ⊴ D+D`; what about other constructs? | — |
+| **Exercise 8.21** | Exercise | 5157 | a computable operator `λa.a^§` on finitary projections | — |
+| **Exercise 8.22** | Exercise | 5161 | which of two relations holds | — |
+| **Exercise 8.23** | Exercise | 5173 | construct `T` as a computable operator `(U→U)→(U→U)` | — |
+| **Exercise 8.24** | Exercise | 5185 | binary constructs `S,T` ⟹ a pair of effectively presented domains | — |
+| **Exercise 8.25** | Exercise | 5190 | non-trivial solutions of a domain equation | — |
+| **Exercise 8.26** | Exercise | 5212 | untyped/typed `λ`-calculus translated into `U` via projections | — |
+| **Exercise 8.27** | Exercise | 5233 | (Donahue) — | — |
 
 ### 4.3 §1 dependency (parsed so far)
 
@@ -1467,27 +1627,35 @@ flowchart TD
 
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
-| Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
+| Vision / OCR | **Lectures I–VIII** fully transcribed (`sources/PRG19_vision.md`, ≈5340 lines) |
 | Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`ApproximableExercises.lean`**, **`Example23.lean`**, **`Example24.lean`**, **`Exercise216.lean`**, **`Exercise213.lean`**, **`Exercise214.lean`**, **`Exercise215.lean`**, **`Exercise218.lean`**, **`Exercise220.lean`**, **`Exercise221.lean`**, **`Exercise222.lean`**, **`Product.lean`**, **`FunctionSpace.lean`**) |
 | Report card  | **94 Pass** — all of Lecture I (43), all of Lecture II (22), and **all of Lecture III (29)**: the product + function-space spine (Def 3.1 → Thm 3.13) *and* every §3 exercise (3.14–3.28, including `𝒟^∞`, the `B ◁ T^∞` retract, the 3.24 isos/mapping relationships, open sets as a domain, and the Ex 2.22 re-proof) |
 
-**Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
-**complete inventories** of PRG-19 Lectures I–III:
+**Goal List coverage.** §4.2 and §4.2.II–VIII are now **complete inventories** of *all eight*
+PRG-19 lectures. Lectures I–III are fully formalized (94 Pass); Lectures IV–VIII are inventoried
+with Lean formalization deferred:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
 | II (approximable mappings) | §4.2.II | 22 | **22** |
 | III (products, sums, function spaces) | §4.2.III | 29 | **29** |
-| **Total PRG-19 I–III** | | **94** | **94** |
+| IV (fixed points and recursion) | §4.2.IV | 25 | — |
+| V (typed λ-calculus) | §4.2.V | 16 | — |
+| VI (domain equations) | §4.2.VI | 29 | — |
+| VII (computability) | §4.2.VII | 24 | — |
+| VIII (universal domain) | §4.2.VIII | 27 | — |
+| **Total PRG-19 I–VIII** | | **215** | **94** |
 
 The Lecture III **spine** (Def 3.1 → Thm 3.13) is complete and choice-free, and **all Lecture III
 exercises (3.14–3.28) are now formalized** (`Exercise316`/`317`/`324Iter`/`324Distrib`/`325`/`327`
 completing the set).
 
-**Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
-inventoried. Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
-`Domain/Neighborhood/Product.lean` + `Domain/Neighborhood/FunctionSpace.lean` (§3).
+**Lectures IV–VIII** are now fully **transcribed and inventoried** (§4.2.IV–VIII) but **not yet
+formalized**; the fixed-point and domain-equation material is explored separately in the
+`Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`), not yet
+keyed to the PRG-19 numbering. Lean roots for the formalized spine: `Approximable.lean` (§2),
+`Product.lean` + `FunctionSpace.lean` (§3).
 
 
 ### 4.5 Selected proof notes
