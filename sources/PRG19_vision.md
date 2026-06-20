@@ -2512,3 +2512,533 @@ $$
 $$
 
 The first should be immediately clear; while the second is particularly *instructive*. What is being illustrated is that the $\lambda$ - notation can
+
+<!-- page 76 -->
+
+be *iterated*. The distinction being drawn is between
+
+$$
+\lambda x_0, x_1, \dots, x_{n-1} . \tau \quad \text{and} \quad \lambda x_0 \lambda x_1 \dots \lambda x_{n-1} . \tau .
+$$
+
+The first has type
+
+$$
+((D_0 \times D_1 \times \dots \times D_{n-1}) \to D_n);
+$$
+
+while the second has type
+
+$$
+(D_0 \to (D_1 \to (\dots (D_{n-1} \to D_n) \dots))).
+$$
+
+This is related also to the true equation
+
+$$
+\mathrm{curry} (\lambda x, y . \tau) = \lambda x \lambda y . \tau ,
+$$
+
+which shows that there are operators relating to the two notations. The first is the *multivariate* form; the second is the *curried* form.
+
+Here is another true equation
+
+$$
+\mathrm{fix} = \mathrm{fix} (\lambda F \lambda f . f(F(f))),
+$$
+
+where the fix on the left has type $((D \to D) \to D)$ and that on the right type
+
+$$
+((((D \to D) \to D) \to ((D \to D) \to D)) \to ((D \to D) \to D)).
+$$
+
+This is the content of Exercise 4.9. (This also shows why type superscripts are tiresome.)
+
+The combination
+
+$$
+\mathrm{fix} (\lambda x . \tau)
+$$
+
+occurs so often, that from time to time we abbreviate it as
+
+$$
+! x . \tau ,
+$$
+
+but remember it only makes sense if $x$ and $\tau$ have the *same* type. For example in 4.3 we could have written
+
+$$
+\sigma = ! f \lambda n . \mathrm{cond} (\mathrm{zero}(n), 0, f(\mathrm{pred}(n)) + \mathrm{pred}(n))
+$$
+
+and read this as
+
+> "$\sigma$ is the least (recursively defined) function $f$ whose value at $n$ is cond $(\dots)$."
+
+We note that in the so-called "body" of the expression inside the
+
+<!-- page 77 -->
+
+cond-part the variable $f$ occurs again. That is just the point! This is a *recursive definition*; it is made into an *explicit* definition by invoking the least fixed-point operator.
+
+In a $\lambda$-expression, $\lambda x, y, z . \tau$, say, the variables $x, y, z$ are being *bound* in $\tau$; but $\tau$ may have other variables that are nowhere bound in $\tau$ and these remain *free variables* of the whole expression. Bound variables are *dummy variables* and may be rewritten by other variables; thus
+
+$$\lambda x . \tau = \lambda y . \tau [ y / x ]$$
+
+is a true equation *PROVIDED* the variable $y$ does not occur in $\tau$. In the equation the notation $\tau [ y / x ]$ means the result of *substituting* (*rewriting*) the variable $y$ for the variable $x$ throughout the term $\tau$. We can also write $\tau [ \sigma / x ]$ for substituting a whole term $\sigma$ for a variable in the other term.
+
+We have already spoken of "true equations", but how do we know that these curious equations are meaningful at all? They are, but this is something that has to be proved.
+
+**THEOREM 5.1.** Every typed $\lambda$-term $\tau$ defines an approximable function of its free variables.
+
+*Proof:* We argue by an induction on the complexity of $\tau$; there will only be a few cases to consider since the "syntax" of $\lambda$-terms is limited — even though terms can be of any length.
+
+If $\tau$ is a variable or a constant there is nothing to prove. We already know that
+
+$$x \mapsto x \qquad \text{and} \qquad x \mapsto k$$
+
+are approximable functions.
+
+Suppose $\tau$ has the form
+
+$$\langle \sigma_0, \dots, \sigma_{n-1} \rangle .$$
+
+Then the $\sigma_i$ are less complex terms, and so we can assume — as our induction hypothesis — that they define approximable functions of the free variables. Having said this, we just apply the already
+
+<!-- page 78 -->
+
+proved 3.4 to conclude (after a suitable generalization to the multivariate case) that $\tau$, which takes on tuples as values, also defines an approximable function.
+
+Next, suppose $\tau$ has the form
+
+$$\sigma_0(\sigma_1),$$
+
+where we are sure that the types of all the terms match properly. Again we can assume the $\sigma_i$ to be well behaved. But the values we seek can also be written as
+
+$$\mathrm{eval}(\sigma_0, \sigma_1).$$
+
+Since eval is approximable by 3.11, we just have to invoke an instance of 3.7 to gain the desired conclusion.
+
+Finally, suppose that $\tau$ has the form
+
+$$\lambda x . \sigma.$$
+
+By a judicious choice of the order of the variables in $\sigma$ (including $x$), we can assume that $\sigma$ defines an approximable function
+
+$$g : D_0 \times \cdots \times D_{n-1} \times D_n \to D'$$
+
+where $D'$ is the type of $\sigma$, $D_n$ is the type of $x$, and $D_0, \dots, D_{n-1}$ are the types of the remaining free variables of $\sigma$. We apply 3.12 and obtain an approximable function
+
+$$\mathrm{curry}(g) : D_0 \times \cdots \times D_{n-1} \to (D_n \to D').$$
+
+But, this is just exactly the function defined by $\tau$.
+
+We leave as an exercise the more general case of a term $\tau$ of the form
+
+$$\lambda x_0, \dots, x_{k-1} . \sigma,$$
+
+which has a string of bound variables. $\square$
+
+We can now say more precisely what it means to call $\sigma = \tau$ a "true equation". This means that, if we employ the method of the proof of 5.1, the two terms define the *same function* of the free variables. For example,
+
+<!-- page 79 -->
+
+$$\lambda x . \tau = \lambda y . \tau [y / x]$$
+
+is true, provided $y$ does not occur free in the term $\tau$, since the systematic generation of the function defined by $\lambda x . \tau$ does not depend on what the variable $x$ *looks like* but only on its *position* in the term $\tau$. Some other obviously desirable rules for generating true equations are stated in the exercises. But one rule is so basic that we state it here in full generality.
+
+**THEOREM 5.2.** For suitably typed $\lambda$-terms the following equation is true:
+
+$$(\lambda x_0, \ldots, x_{n-1} \cdot \tau)(\sigma_0, \ldots, \sigma_{n-1}) = \tau [\sigma_0 / x_0, \ldots, \sigma_{n-1} / x_{n-1}].$$
+
+*Proof:* It will be sufficient to carry out the proof for $n = 1$. The proof proceeds by induction on the complexity of the term $\tau$.
+
+In case $\tau$ is a *constant* $k$, the result reads
+
+$$(\lambda x . k)(\sigma) = k,$$
+
+and this is a true equation.
+
+In case $\tau$ is a *variable* (in particular, the variable $x$), the result reads
+
+$$(\lambda x . x)(\sigma) = \sigma,$$
+
+and again this is a true equation.
+
+In case $\tau$ is a *tuple* (say, $\langle \tau_0, \tau_1 \rangle$) the result reads
+
+$$(\lambda x . \langle \tau_0, \tau_1 \rangle)(\sigma) = \langle \tau_0 [\sigma / x], \tau_1 [\sigma / x] \rangle .$$
+
+This is true, because the left-hand side can be transformed by the true equation
+
+$$(\lambda x . \langle \tau_0, \tau_1 \rangle)(\sigma) = \langle (\lambda x . \tau_0)(\sigma), (\lambda x . \tau_1)(\sigma) \rangle;$$
+
+and then we apply the inductive assumption for $\tau_0$ and for $\tau_1$.
+
+In case $\tau$ is an *application*, we want (supposing the term is $\tau_0 (\tau_1)$),
+
+$$(\lambda x . \tau_0 (\tau_1))(\sigma) = \tau_0 [\sigma / x] (\tau_1 [\sigma / x]) .$$
+
+We can proceed as in the last case, noting that the left-hand side equals
+
+<!-- page 80 -->
+
+$$
+\mathrm{eval}\ ((\lambda x . \langle \tau_0 , \tau_1 \rangle)\ (\sigma))\ .
+$$
+
+In case $\tau$ is an *abstract* (say, $\lambda y . \tau_0$), we want
+
+$$
+(\lambda x . \lambda y . \tau_0)\ (\sigma) = \lambda y . \tau_0 [\sigma / x]
+$$
+
+*PROVIDED* the variable $y$ is not free in $\sigma$. For this we require the true equation
+
+$$
+(\lambda x . \lambda y . \tau)\ (\sigma) = \lambda y . (\lambda x . \tau)\ (\sigma)\ .
+$$
+
+We argue for this by letting $g$ be the function of $n + 2$ free variables defined by $\tau$. Then, by 5.1, the $\lambda$-term $\lambda x . \lambda y . \tau$ defines the function $\mathrm{curry}\ (\mathrm{curry}\ (g))$ of $n$ arguments. We can call this function $h$ for the moment. We can write
+
+$$
+h(v)\ (\sigma)\ (y) = g(v, \sigma, y)\ ,
+$$
+
+where $v$ is a list of arguments. But, with an appropriate combinator $\mathrm{inv}$, which applied to $g$ inverts the order of the last two arguments, we can write
+
+$$
+h(v)\ (\sigma)\ (y) = \mathrm{curry}\ (\mathrm{inv}\ (g))\ (v, y)\ (\sigma)\ .
+$$
+
+But, $\mathrm{curry}\ (\mathrm{inv}\ (g))$ is just the function defined by $(\lambda x . \tau)$. So what we have proved as true is
+
+$$
+(\lambda x . \lambda y . \tau)\ (\sigma)\ (y) = (\lambda x . \tau)\ (\sigma)\ .
+$$
+
+But if $y$ is not free in $\alpha$ and
+
+$$
+\alpha(y) = \beta
+$$
+
+is true, then so is
+
+$$
+\alpha = \lambda y . \beta\ .
+$$
+
+This completes the proof. $\square$
+
+We note that if $\tau'$ is the term $\lambda x, y . \tau$, then $\tau'(x, y)$ means the same as $\tau$. This gives a convenient way of indicating free variables: we just write $\sigma(x, y)$ — where $x, y$ are not free in $\sigma$ — and this will have the same values as any term $\tau$ which does involve the extra free variables $x$ and $y$. We use this notational device in the next theorem.
+
+<!-- page 81 -->
+
+**PROPOSITION 5.3.** The least fixed point of $\lambda x, y.\ \langle \tau(x, y), \sigma(x, y) \rangle$ is the pair with coordinates
+
+$! x.\ \tau(x,\ ! y.\ \sigma(x, y))$ and
+
+$! y.\ \sigma(! x.\ \tau(x, y), y)$.
+
+**Proof:** (We are assuming that $x$ and $y$ are not free in $\tau$ and $\sigma$.) The purpose of the fixed-point search is to find the least solution of the pair of equations $x = \tau(x, y)$ and $y = \sigma(x, y)$. In other words, we are generalizing the fixed-point equation from one to two variables—and, of course, we could go much further to any number of variables. To this end, let
+
+$y_* = ! y.\ \sigma(! x.\ \tau(x, y), y)$, and
+
+$x_* = ! x.\ \tau(x, y_*)$.
+
+Then
+
+$x_* = \tau(x_*, y_*)$,
+
+and
+
+$y_* = \sigma(! x.\ \tau(x, y_*), y_*)$
+
+$= \sigma(x_*, y_*)$.
+
+This proves that $\langle x_*, y_* \rangle$ is one fixed-point pair.
+
+Suppose, then, that $\langle x_0, y_0 \rangle$ is the least solution. (Why does a least solution have to exist? Hint: Consider a suitable mapping of type $D_0 \times D_1 \to D_0 \times D_1$, where $D_0$ is the type of $x$ and $D_1$ the type of $y$.) Then we know $x_0 = \tau(x_0, y_0)$ and $y_0 = \sigma(x_0, y_0)$, and also $x_0 \sqsubseteq x_*$ and $y_0 \sqsubseteq y_*$. But from
+
+$\tau(x_0, y_0) \sqsubseteq x_0$,
+
+it follows that
+
+$! x.\ \tau(x, y_0) \sqsubseteq x_0$.
+
+<!-- page 82 -->
+
+Consequently,
+
+$$\sigma(! x . \tau(x, y_0), y_0) \sqsubseteq \sigma(x_0, y_0) \sqsubseteq y_0.$$
+
+By the fixed-point definition of $y_*$, we have $y_* \sqsubseteq y_0$, so $y_* = y_0$; whence,
+
+$$x_* = ! x . \tau(x, y_*) = ! x . \tau(x, y_0) \sqsubseteq x_0.$$
+
+So also $x_* = x_0$. $\square$ We have the right formula for $y_0$, and a similar argument gives $x_0$.
+
+The purpose of giving the above proof was to illustrate the use of the least fixed-point operator in proofs. We have such true principles as:
+
+$$! x . \tau(x) = \tau(! x . \tau(x));$$
+
+and
+
+$$\tau(y) \sqsubseteq y \text{ implies } ! x . \tau(x) \sqsubseteq y,$$
+
+provided, of course, that $x$ is not free in $\tau$. These, together with the monotonicity of all the functions, were just the methods used in the above proof. Here is another example.
+
+**PROPOSITION 5.4.** Let $x$, $y$, and $\tau(x, y)$ be of the same type $D$ and let $g$ be of type $(D \to D)$, then the equation
+
+$$\lambda x . ! y . \tau(x, y) = ! g . \lambda x . \tau(x, g(x))$$
+
+is true.
+
+*Proof :* Let $f$ be the function on the left-hand side. We can write
+
+$$f(x) = ! y . \tau(x, y) = \tau(x, f(x)).$$
+
+Therefore
+
+$$f = \lambda x . \tau(x, f(x)),$$
+
+and it follows that
+
+$$g_0 = ! g . \lambda x . \tau(x, g(x)) \sqsubseteq f.$$
+
+Then we have at once, by definition of $g_0$,
+
+$$g_0(x) = \tau(x, g_0(x)),$$
+
+for any given $x$. But by definition of $f$ we find
+
+$$f(x) = ! y . \tau(x, y) \sqsubseteq g_0(x).$$
+
+<!-- page 83 -->
+
+As this holds for all $x$, then $f \sqsubseteq g_0$ follows. So the equation is true. $\square$
+
+The last proof is instructive as it uses equations and inclusions between functions. In particular we have just made use of the principle:
+
+> if $\tau \sqsubseteq \sigma$ holds for all values of $x$,  
+> then $\lambda x . \tau \sqsubseteq \lambda x . \sigma$ holds.
+
+This is another form of Theorem 3.13(i).
+
+**TABLE 5.5.** In the displayed table we give a summary of uses of the $\lambda$-notation to define various combinators. We have mentioned some of these equations before, and there are some combinators here we have not mentioned before — their meanings, however, should be clear.
+
+$$
+\begin{aligned}
+P_0 &= \lambda x, y . x \\
+P_1 &= \lambda x, y . y \\
+\mathrm{pair} &= \lambda x \lambda y . \langle x, y \rangle \\
+\mathrm{n\text{-}tuple} &= \lambda x_0 \lambda x_1 \ldots \lambda x_{n-1} . \langle x_0, x_1, \ldots, x_{n-1} \rangle \\
+\mathrm{diag} &= \lambda x . \langle x, x \rangle \\
+\mathrm{funpair} &= \lambda f \lambda g \lambda x . \langle f(x), g(x) \rangle \\
+\mathrm{proj}_i^n &= \lambda x_0, x_1, \ldots, x_{n-1} . x_i \\
+\mathrm{inv}_{i,j}^n &= \lambda x_0, \ldots, x_i, \ldots, x_j, \ldots, x_{n-1} . \langle x_0, \ldots, x_j, \ldots, x_i, \ldots, x_{n-1} \rangle
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\mathrm{eval} &= \lambda f, x . f(x) \\
+\mathrm{curry} &= \lambda g \lambda x \lambda y . g(x, y) \\
+\mathrm{comp} &= \lambda g, f \lambda x . g(f(x)) \\
+\mathrm{const} &= \lambda k \lambda x . k \\
+\mathrm{fix} &= \lambda f ! x . f(x)
+\end{aligned}
+$$
+
+**A TABLE OF COMBINATORS**
+
+<!-- page 84 -->
+
+It is important to note that since we have not typed the variables, these equations are ambiguous: they only become precise when the types are specified. It follows, therefore, that what we find in the table are *schemes* for combinators; there are actually infinitely many distinct combinators corresponding to any one equation depending on how the variables have types chosen for them. Clearly it is better to imagine this variety of combinators than it is to try to notate them with type superscripts.
+
+One interest of combinators is that it is often possible to write expressions without variables — if enough combinators are used. This is sometimes useful, but it can become clumsy. On the other hand, if the same combination occurs over and over, it is sometimes useful to give it a name. This is what we do with, say, *composition* where
+
+$$
+\mathrm{comp}\ (g, f) = g \circ f.
+$$
+
+On the one side we have the prefix notation, and on the other, the more common infix notation. With either notation the variable seen in $\lambda x.\ g(f(x))$ has been got rid of. The choice between equivalent notations ought to be based on a desire for readability. $\square$
+
+The reader will have noted that there are some combinators not appearing in Table 5.5. The reason is that combinators like $\mathrm{cond}$, $\mathrm{succ}$, $\mathrm{pred}$, $\mathrm{zero}$, $0$ cannot be defined in the pure $\lambda$-notation but are specific to domains like $T$ and $\mathbf{N}$; we, thus, have to regard them as primitive. But once they are in hand, a very large number of other functions can be defined from these combined with $\lambda$-expressions. The next theorem gives an indication of the possibilities.
+
+**THEOREM 5.6.** For every partial recursive function $h : \mathbf{N} \to \mathbf{N}$, there is a $\lambda$-term $\tau$ of type $(\mathbf{N} \to \mathbf{N})$ such that the only constants occurring in $\tau$ are
+
+$$
+\mathrm{cond},\ \mathrm{succ},\ \mathrm{pred},\ \mathrm{zero},\ 0
+$$
+
+and where if $h(n) = m$, then
+
+$$
+\tau(n) = m
+$$
+
+<!-- page 85 -->
+
+is true; and if $h(n)$ is undefined, then
+
+$$
+\tau(n) = \bot
+$$
+
+is true. The equation $\tau(\bot) = \bot$ is also true.
+
+*Proof :* We have only formulated the theorem for functions of one variable — but to give the proof, it is convenient to pass through functions of any number of (integer) variables. We shall also have to recall the precise definition of the notion of partial recursive function.
+
+It is also convenient to work with (*very*)*strict* functions
+
+$$
+f : \mathbf{N}^k \to \mathbf{N}.
+$$
+
+These are functions such that if $n_0, \ldots, n_{k-1} \in \mathbf{N}$ and $n_i = \bot$ for at least one $i < k$, then
+
+$$
+f(n_0, \ldots, n_{k-1}) = \bot.
+$$
+
+It is easy to check that compositions of strict functions are strict. It is also easy to see that any *partial* function
+
+$$
+g : \mathbf{N}^k \to \mathbf{N}
+$$
+
+extends to a strict (*approximable*) function
+
+$$
+\bar{g} : \mathbf{N}^k \to \mathbf{N},
+$$
+
+which takes the same values as $g$ as long as $g$ is defined; otherwise $\bar{g}$ takes the value $\bot$. What we want to show for *partial recursive* $g$ is that the corresponding $\bar{g}$ is defined by a $\lambda$ - expression.
+
+In the first place we have to check that *primitive recursive* functions have $\lambda$ - definitions in this sense. We recall that *primitive recursive* functions are generated from certain elementary *starting* functions by multi-variate composition and the scheme of primitive recrusion. The *starting* functions are the constant function with value zero and the "identity" or "projection" functions. For example, $g(n_0, n_1, n_2) = n_1$ for all $n_0, n_1, n_2 \in \mathbf{N}$ is one of the *starting* functions. Now we cannot just use the $\lambda$-term
+
+$$
+\lambda x_0, x_1, x_2 . x_1
+$$
+
+to represent $\bar{g}$, because the function so defined is not strict. But any function in $\mathbf{N}^k \to \mathbf{N}$ can be cut down to a strict function by a simple device. Consider
+
+<!-- page 86 -->
+
+$$
+\lambda x.\ \mathrm{cond}(\mathrm{zero}(x), x, x)
+$$
+
+with $x$ of type $\mathbf{N}$. This is the strict version of the identity function of one argument. The strict projection function of two arguments can be defined by
+
+$$
+\lambda x_0, x_1.\ \mathrm{cond}(\mathrm{zero}(x_1), x_0, x_0).
+$$
+
+The one of three arguments by:
+
+$$
+\lambda x_0, x_1, x_2.\ \mathrm{cond}(\mathrm{zero}(x_0), \mathrm{cond}(\mathrm{zero}(x_2), x_1, x_1), \mathrm{cond}(\mathrm{zero}(x_2), x_1, x_1)).
+$$
+
+This is not done very elegantly, and the reader can find for himself a general solution based on perhaps a better notation for the required compositions of functions.
+
+As we remarked, strict functions are closed under substitution, and any substitution of a batch of functions into another function can be given by a $\lambda$-term, if the various functions can themselves be so defined. It only remains to $\lambda$-define functions obtained by primitive recursion. Thus, suppose, for the sake of argument, that
+
+$$
+\bar{f} : \mathbf{N} \to \mathbf{N} \qquad \text{and} \qquad \bar{g} : \mathbf{N}^3 \to \mathbf{N}
+$$
+
+are given as total functions with $\bar{f}$ and $\bar{g}$ being $\lambda$-definable. From them, we obtain by primitive recursion $\bar{h} : \mathbf{N}^2 \to \mathbf{N}$ where
+
+$$
+\bar{h}(0, m) = \bar{f}(m),
+$$
+
+$$
+\bar{h}(n+1, m) = \bar{g}(n, m, \bar{h}(n, m))
+$$
+
+for all $n, m \in \mathbf{N}$. The $\lambda$-term defining $\bar{h}$ is
+
+$$
+!k\ \lambda x, y.\ \mathrm{cond}(\mathrm{zero}(x), \bar{f}(y), \bar{g}(\mathrm{pred}(x), y, k(\mathrm{pred}(x), y))).
+$$
+
+Here we have had to use the fixed-point operator on a variable $k$ of type $(\mathbf{N}^2 \to \mathbf{N})$. The variables $x, y$ are of type $\mathbf{N}$ and the $\mathrm{cond}$-construction puts the two traditional equations into two clauses of one expression. It is easy to see that the fixed-point function *is* strict and is nothing more than $\bar{h}$.
+
+That completes the representation of *primitive recursive* functions. To obtain the *partial recursive* functions, the idea is to use the so-called $\mu$-scheme (least number operator) and, further, to close up under substitution. We need only treat the $\mu$-scheme. Suppose, by way of example, $f(n, m)$ is given as a
+
+<!-- page 87 -->
+
+primitive recursive function. We then define $h$ (generally, a partial function) by
+
+$$h(m) = \text{the least } n \text{ where } f(n,m) = 0.$$
+
+This is often written
+
+$$h(m) = \mu n.\, f(n,m) = 0.$$
+
+Supposing, as we may, $\bar{f}$ is $\lambda$-definable, we introduce first
+
+$$\bar{g} = !g\,\lambda x, y.\, \text{cond}(\text{zero}(\bar{f}(x,y)), x, g(\text{succ}(x), y)).$$
+
+Then $\bar{h} = \lambda y.\, \bar{g}(0,y)$. This is easily seen to be strict. Also easy to see is that if $h(m)$ is defined, then $\bar{g}(0,m) = h(m)$. But, if $h(m)$ is not defined, it takes some argument to make sure that the least fixed-point construction forces $\bar{g}(0,m) = \bot$. However, the argument is not very difficult. $\square$
+
+What is *not* said in 5.6 is that every $\lambda$-term defines a partial recursive function. This is true (with suitable control over the constants and types in the expression), but the proof requires a full analysis of computability properties of domain constructions. This is the topic of Lecture VII.
+
+It should be remarked that the types of variables needed for the proof of 5.6 never get very high. In fact, types like $N$, $N^k$, and $(N^k \to N)$ were the only ones needed (with perhaps $T$ thrown in also).
+
+Recursion on $N$ was the topic of 5.6; further examples of recursion on other domains are included in the exercises.
+
+## EXERCISES
+
+**EXERCISE 5.7.** Find definitions of
+
+$$\lambda x, y.\, \tau \quad \text{and} \quad \sigma(x, y)$$
+
+which use only $\lambda v$ with one variable and applications only to one argument at a time. Note that use must be made of the combinators $p_0$, $p_1$, pair. Generalize the result to functions of many variables.
+
+<!-- page 88 -->
+
+**EXERCISE 5.8.** (For combinator nuts.) Table 5.5 was meant to show how combinators could be defined in terms of $\lambda$-expressions. Can the tables be turned to show that with enough combinators available, every $\lambda$-expression can be defined by combining combinators, using $\sigma(\tau)$ as the *only* mode of combination?
+
+**EXERCISE 5.9.** Suppose that $f, g : \mathcal{D} \to \mathcal{D}$ are approximable and $f \circ g = g \circ f$. Show that $f$ and $g$ have a *least common fixed point* $x = f(x) = g(x)$. (Hint: Refer back to Exercise 4.20.) If in addition $f(\bot) = g(\bot)$, show that $\mathrm{fix}(f) = \mathrm{fix}(g)$. In particular, will $\mathrm{fix}(f) = \mathrm{fix}(f^2)$? What if we only assume $f \circ g = g^2 \circ f$?
+
+**EXERCISE 5.10.** Suppose $\mathcal{D}_0$ and $\mathcal{D}_1$ are neighbourhood systems over disjoint sets $\Delta_0$ and $\Delta_1$. Define the *smash product* $\mathcal{D}_0 \otimes \mathcal{D}_1$ with neighbourhoods
+
+$$
+\{\Delta_0 \cup \Delta_1\} \cup \{X \cup Y \mid X \in \mathcal{D}_0 \setminus \{\Delta_0\} \text{ and } Y \in \mathcal{D}_1 \setminus \{\Delta_1\}\}.
+$$
+
+Show that this *is* a neighbourhood system. Define $(\mathcal{D}_0 \to_\bot \mathcal{D}_1)$ so that $|\mathcal{D}_0 \to_\bot \mathcal{D}_1|$ consists exactly of the *strict functions*. By introducing appropriate combinators, show that
+
+$$
+(\mathcal{D}_0 \to_\bot (\mathcal{D}_1 \to_\bot \mathcal{D}_2)) \quad \text{and} \quad ((\mathcal{D}_0 \otimes \mathcal{D}_1) \to_\bot \mathcal{D}_2)
+$$
+
+are isomorphic.
+
+**EXERCISE 5.11.** For any domain $\mathcal{D}$ we may regard $\mathcal{D}^\infty$ as consisting of (bottomless) *stacks* of elements of $\mathcal{D}$. With this image in mind, define appropriate combinators with the obvious meanings:
+
+$$
+\mathrm{head} : \mathcal{D}^\infty \to \mathcal{D};\quad
+\mathrm{tail} : \mathcal{D}^\infty \to \mathcal{D}^\infty;\quad
+\mathrm{push} : \mathcal{D} \times \mathcal{D}^\infty \to \mathcal{D}^\infty.
+$$
+
+Using the fixed-point theorem argue that there is a combinator
+
+$$
+\mathrm{diag} : \mathcal{D} \to \mathcal{D}^\infty
+$$
+
+where for all $x \in |\mathcal{D}|$ we have
+
+$$
+\mathrm{diag}(x) = \langle x \rangle_{n=0}^\infty.
+$$
