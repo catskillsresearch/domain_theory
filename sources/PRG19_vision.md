@@ -3884,3 +3884,301 @@ T(\mathcal{D}) &= T\!\left(\bigcup_{n=0}^{\infty} T^n(\{\Gamma\})\right) \\
 &= \mathcal{D}.
 \end{aligned}
 $$
+
+<!-- page 108 -->
+
+Thus, not only is $\mathcal{D}$ a $T$-algebra, but the isomorphism we get for $\mathcal{D}$ and $T(\mathcal{D})$ is just the identity mapping. We know by 6.9 that homomorphisms exist; what remains to show is that homomorphism from $\mathcal{D}$ are unique. As in the examples, we will show in effect they are determined uniquely on the finite elements of $\mathcal{D}$.
+
+Since each $T^n(\{\Gamma\}) \triangleleft \mathcal{D}$, there are projection mappings $i_n : T^n(\{\Gamma\}) \to \mathcal{D}$ and $j_n : \mathcal{D} \to T^n(\{\Gamma\})$.
+
+Define $\rho_n : \mathcal{D} \to \mathcal{D}$ by $\rho_n = i_n \circ j_n$. Projection pairs are always pairs of strict mappings (Why?), and so are in the category. By assumption and 6.13, the functor $T$ preserves these maps, so we have
+
+$$
+T(\rho_n) = T(i_n) \circ T(j_n) = i_{n+1} \circ j_{n+1} = \rho_{n+1}.
+$$
+
+As a neighbourhood relation $\rho_n$ can be characterized by :
+
+$$
+X \rho_n Y \quad \text{iff} \quad \exists z \in T^n(\{\Gamma\}).\; X \subseteq z \subseteq Y.
+$$
+
+We thus see that $\rho_n \subseteq \rho_{n+1}$ and
+
+$$
+\bigcup_{n=0}^{\infty} \rho_n = I_{\mathcal{D}}.
+$$
+
+Now suppose $k : T(E) \to E$ is any $T$-algebra and $h : \mathcal{D} \to E$ is a homomorphism. The mapping will satisfy the fixed-point equation
+
+$$
+h = k \circ T(h),
+$$
+
+where no other mappings need be written in because $\mathcal{D} = T(\mathcal{D})$ and so
+
+$$
+T(h) : \mathcal{D} \to T(E).
+$$
+
+We wish to show that $h$ really is the least fixed point of this equation.
+
+Define $h_n = h \circ \rho_n : \mathcal{D} \to E$. For $n = 0$, the map $\rho_0$ is the trivial map where $\rho_0(x) = \bot_{\mathcal{D}}$ for all $x \in |\mathcal{D}|$. But $h$ must be strict, so $h_0(x) = \bot_E$ for all $x \in |\mathcal{D}|$; that is, $h_0$ is the least element of $|\mathcal{D} \to_\bot E|$. Now calculate :
+
+<!-- page 109 -->
+
+# EXERCISES
+
+**EXERCISE 6.17.** What are the algebras for which $C$ is initial? If $A$ of 6.2 is a generalization of $B$, what is the corresponding generalization of $C$? Prove that it exists and explain what are the algebras involved.
+
+**EXERCISE 6.18.** With reference back to Exercise 3.16 discuss the construction of $\mathcal{D}^\infty$ as an initial algebra and as a solution to the domain equation
+
+$$
+\mathcal{D}^\infty \cong \mathcal{D} \times \mathcal{D}^\infty .
+$$
+
+(I do not know whether all solutions must be of the form $\mathcal{D}^\infty \times E$.)
+
+**EXERCISE 6.19.** For the sake of uniformity restrict attention to systems $\mathcal{D}$ on sets $\Delta \subseteq \{0,1\}^*$, where $\Lambda \in \Delta$ and $\emptyset \notin \mathcal{D}$, and to the category of strict maps. Define sum and product by:
+
+$$
+\mathcal{D}_0 + \mathcal{D}_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in \mathcal{D}_0\} \cup \{1Y \mid Y \in \mathcal{D}_1\},
+$$
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 = \{\{\Lambda\} \cup 0X \cup 1Y \mid X \in \mathcal{D}_0 \text{ and } Y \in \mathcal{D}_1\}.
+$$
+
+Are these correct up to isomorphism? Now generate all constructs $T(X)$ formed by the constants (that is, $T(X) = \mathcal{D}$ for a fixed $\mathcal{D}$), by the identity ($T(X) = X$), and by sums and products ($T_0(X) + T_1(X)$, etc.). Show that these are all functors, continuous on maps, and monotone and continuous on domains.
+
+**EXERCISE 6.20.** For any system $\mathcal{D}$ let $\mathrm{tok}(\mathcal{D})$ be the underlying set of tokens, so that $\mathcal{D}$ is a system over $\mathrm{tok}(\mathcal{D})$. For the category of Exercise 6.19 show that the function
+
+$$
+\lambda \Gamma.\, \mathrm{tok}(T(\{\Gamma\}))
+$$
+
+is continuous on the domain $\{\Gamma \subseteq \{0,1\}^* \mid \Lambda \in \Gamma\}$, where $T$ is any of the functors generated in 6.19. Conclude that there must exist a set
+
+$$
+\Gamma = \mathrm{tok}(T(\{\Gamma\})),
+$$
+
+so that $\{\Gamma\} \triangleleft T(\{\Gamma\})$, and so 6.14 applies.
+
+<!-- page 110 -->
+
+$$\uparrow X = j \circ i(\uparrow X) = \bigcup \{ j(\uparrow Y) \mid Y \in i(\uparrow X) \}.$$
+
+But then, since $X \in \uparrow X$, we find $X \in j(\uparrow Y)$ for some $Y \in i(\uparrow X)$. This implies
+
+$$\uparrow X \subseteq j(\uparrow Y); \text{ and so } i(\uparrow X) \subseteq i \circ j(\uparrow Y) \subseteq \uparrow Y.$$
+
+Since $\uparrow Y \subseteq i(\uparrow X)$ in any case, we conclude $i(\uparrow X) = \uparrow Y$. This proves finite elements are mapped to finite elements.
+
+What of $\Delta$; that is, what is $i(\uparrow \Delta)$? We find, supposing $E$ to be a neighbourhood system over a set $\Delta'$, that since $\uparrow \Delta \subseteq j(\uparrow \Delta')$, then $i(\uparrow \Delta) \subseteq \uparrow \Delta'$ and so $i(\uparrow \Delta) = \uparrow \Delta'$. This means that $\Delta$ corresponds to $\Delta'$. So we have established that $\mathcal{D}$ is in an inclusion preserving one-one correspondence with a subset $\mathcal{D}'$ of $E$ where $\Delta' \in \mathcal{D}'$. But it remains to show that $\mathcal{D}'$ is a neighbourhood system and that $\mathcal{D}' \triangleleft E$ holds. All we really have to show is that $\mathcal{D}'$ is closed under intersection whenever the intersection belongs to $E$.
+
+Suppose $Y', Z' \in \mathcal{D}'$ and $Y' \cap Z' \in E$. Let $X' = Y' \cap Z'$. We have, for suitable $Y, Z \in \mathcal{D}$,
+
+$$i(\uparrow Y) = \uparrow Y', \text{ and so } \uparrow Y = j(\uparrow Y'); \text{ and}$$
+$$i(\uparrow Z) = \uparrow Z', \text{ and so } \uparrow Z = j(\uparrow Z').$$
+
+But $\uparrow Y' \subseteq \uparrow X'$ and $j(\uparrow Y') \subseteq j(\uparrow X')$; thus $Y \in j(\uparrow X')$. For similar reasons $Z \in j(\uparrow X')$. But then $X = Y \cap Z \in j(\uparrow X')$, and therefore $Y \cap Z \in \mathcal{D}$. (The element $j(\uparrow X')$ must be a filter.) Notice, however, that
+
+$$\uparrow Y \subseteq \uparrow X, \text{ and so } \uparrow Y' \subseteq i(\uparrow X); \text{ and}$$
+$$\uparrow Z \subseteq \uparrow X, \text{ and so } \uparrow Z' \subseteq i(\uparrow X).$$
+
+It follows that $Y' \cap Z' = X' \in i(\uparrow X)$. On the other hand we already knew $X \in j(\uparrow X')$, which implies $i(\uparrow X) \subseteq \uparrow X'$. We may thus conclude that $i(\uparrow X) = \uparrow X'$. In other words $X' \in \mathcal{D}'$. $\square$
+
+<!-- page 111 -->
+
+**THEOREM 6.16.** If on the category of domains and strict approximable maps the functor $T$ is continuous on maps, and if $D$ is an initial $T$-algebra, then for any system $E \cong T(E)$ we have $D \trianglelefteq E$.
+
+**Proof:** There is a homomorphism $h : D \to E$. By 6.9 there is a homomorphism $g : E \to D$. Now $g \circ h : D \to D$ is also a homomorphism, so $g \circ h = I_D$ because $D$ is initial. In view of 6.15, all we have to prove now is that $h \circ g \sqsubseteq I_E$.
+
+Let the maps $i : T(D) \to D$ and $j : D \to T(D)$ give the isomorphism for $D$, and let $u : T(E) \to E$ and $v : E \to T(E)$ do the same for $E$. By the proof of 6.9 we know
+
+$$g = i \circ T(g) \circ v \quad \text{and} \quad h = u \circ T(h) \circ j$$
+
+and each of these maps is the least fixed point of its respective equation. Let
+
+$$g_0 = \bot_{E \to D} \quad \text{and} \quad h_0 = \bot_{D \to E}$$
+
+and define by recursion
+
+$$g_{n+1} = i \circ T(g_n) \circ v \quad \text{and} \quad h_{n+1} = u \circ T(h_n) \circ j.$$
+
+By the fixed-point calculation
+
+$$g = \bigcup_{n=0}^{\infty} g_n \quad \text{and} \quad h = \bigcup_{n=0}^{\infty} h_n.$$
+
+Now we see that
+
+$$h_0 \circ g_0 = \bot_{E \to E}$$
+
+and for each $n$ that
+
+$$
+\begin{aligned}
+h_{n+1} \circ g_{n+1} &= u \circ T(h_n) \circ j \circ i \circ T(g_n) \circ v \\
+&= u \circ T(h_n) \circ T(g_n) \circ v \\
+&= u \circ T(h_n \circ g_n) \circ v.
+\end{aligned}
+$$
+
+But this means that
+
+$$h \circ g = \bigcup_{n=0}^{\infty} (h_n \circ g_n)$$
+
+is the least fixed point for the equation
+
+$$k = u \circ T(k) \circ v.$$
+
+But $I_E$ is one of the fixed points; whence $h \circ g \sqsubseteq I_E$ must follow. $\square$
+
+<!-- page 112 -->
+
+# EXERCISES
+
+**EXERCISE 6.17.** What are the algebras for which $C$ is initial? If $A$ of 6.2 is a generalization of $B$, what is the corresponding generalization of $C$? Prove that it exists and explain what are the algebras involved.
+
+**EXERCISE 6.18.** With reference back to Exercise 3.16 discuss the construction of $\mathcal{D}^\infty$ as an initial algebra and as a solution to the domain equation
+
+$$
+\mathcal{D}^\infty \cong \mathcal{D} \times \mathcal{D}^\infty .
+$$
+
+(I do not know whether all solutions must be of the form $\mathcal{D}^\infty \times E$.)
+
+**EXERCISE 6.19.** For the sake of uniformity restrict attention to systems $\mathcal{D}$ on sets $\Delta \subseteq \{0,1\}^*$, where $\Lambda \in \Delta$ and $\emptyset \notin \mathcal{D}$, and to the category of strict maps. Define sum and product by:
+
+$$
+\mathcal{D}_0 + \mathcal{D}_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in \mathcal{D}_0\} \cup \{1Y \mid Y \in \mathcal{D}_1\},
+$$
+
+$$
+\mathcal{D}_0 \times \mathcal{D}_1 = \{\{\Lambda\} \cup 0X \cup 1Y \mid X \in \mathcal{D}_0 \text{ and } Y \in \mathcal{D}_1\}.
+$$
+
+Are these correct up to isomorphism? Now generate all constructs $T(X)$ formed by the constants (that is, $T(X) = \mathcal{D}$ for a fixed $\mathcal{D}$), by the identity ($T(X) = X$), and by sums and products ($T_0(X) + T_1(X)$, etc.). Show that these are all functors, continuous on maps, and monotone and continuous on domains.
+
+**EXERCISE 6.20.** For any system $\mathcal{D}$ let $\mathrm{tok}(\mathcal{D})$ be the underlying set of tokens, so that $\mathcal{D}$ is a system over $\mathrm{tok}(\mathcal{D})$. For the category of Exercise 6.19 show that the function
+
+$$
+\lambda \Gamma.\, \mathrm{tok}(T(\{\Gamma\}))
+$$
+
+is continuous on the domain $\{\Gamma \subseteq \{0,1\}^* \mid \Lambda \in \Gamma\}$, where $T$ is any of the functors generated in 6.19. Conclude that there must exist a set
+
+$$
+\Gamma = \mathrm{tok}(T(\{\Gamma\})),
+$$
+
+so that $\{\Gamma\} \triangleleft T(\{\Gamma\})$, and so 6.14 applies.
+
+<!-- page 113 -->
+
+**EXERCISE 6.21.** Do the same as 6.19 and 6.20 when the functors are also allowed to be generated by the operations:
+
+$$
+D_0 \oplus D_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{0X \mid X \in D_0 \setminus \{\Delta_0\}\} \cup \{1Y \mid Y \in D_1 \setminus \{\Delta_1\}\},
+$$
+
+$$
+D_0 \otimes D_1 = \{\{\Lambda\} \cup 0\Delta_0 \cup 1\Delta_1\} \cup \{\{\Lambda\} \cup 0X \cup 1Y \mid X \in D_0 \setminus \{\Delta_0\} \text{ and } Y \in D_1 \setminus \{\Delta_1\}\}.
+$$
+
+Generalize all of $+$, $\times$, $\oplus$, $\otimes$ to combinations of several terms, not just the binary sums and products.
+
+**EXERCISE 6.22.** Comment on these domain equations:
+
+$$
+N \cong \{\{0\}, \{0, \Lambda\}\} \oplus N,
+$$
+
+$$
+M \cong \{\{\Lambda\}\} + M,
+$$
+
+$$
+N^* \cong N \oplus (N \otimes N^*).
+$$
+
+**EXERCISE 6.23.** Construe the initial solution to
+
+$$
+\mathit{Exp} \cong N \oplus ((\mathit{Exp} \times \mathit{Exp}) + (\mathit{Exp} \times \mathit{Exp}))
+$$
+
+as a “syntactical domain” of expressions generated from infinitely many “variables” by means of two binary “operation symbols”. Given an algebra $D$ with two operations
+
+$$
+u : D \times D \to D \quad \text{and} \quad v : D \times D \to D,
+$$
+
+show how any strict map $s : N \to D$ determines a unique map
+
+$$
+\mathit{val}(s) : \mathit{Exp} \to D
+$$
+
+that can be regarded as the “evaluation of an expression”.
+
+**EXERCISE 6.24.** Show that there must exist domains satisfying:
+
+$$
+D \cong D + (D \times E), \quad \text{and}
+$$
+
+$$
+E \cong D + E,
+$$
+
+by using a double fixed-point method. First decide what the underlying set of tokens should be, and then define $D$ and $E$ by simultaneous fixed points. (Syntactical domains as in 6.23 may very well require several simultaneous equations.)
+
+<!-- page 114 -->
+
+**EXERCISE 6.25.** For a projection pair $g : \mathcal{D} \to \mathcal{E}$ and $h : \mathcal{E} \to \mathcal{D}$ show that for $x \in |\mathcal{D}|$ and $y \in |\mathcal{E}|$ we have:
+
+$$g(x) \sqsubseteq y \text{ iff } x \sqsubseteq h(y).$$
+
+Thus, conclude that:
+
+$$h(y) = \bigsqcup \{x \in |\mathcal{D}| \mid g(x) \sqsubseteq y\}, \quad \text{and}$$
+
+$$g(x) = \bigsqcap \{y \in |\mathcal{E}| \mid x \sqsubseteq h(y)\},$$
+
+for all $x \in |\mathcal{D}|$ and $y \in |\mathcal{E}|$. So each of the functions determines the other. In the first equation check that the set on the right is directed, and in the second equation that the set on the right is non empty. Prove also that $g$ maps consistent sets to consistent sets and preserves $\bigsqcup$ (not just directed unions).
+
+**EXERCISE 6.26.** For systems $\mathcal{D}$ as in 6.19 define
+
+$$\mathcal{D}_\perp = \{ \{\Lambda\} \cup 0\Delta \} \cup \{ 0X \mid X \in \mathcal{D} \}.$$
+
+Describe the construct in terms of elements. Is this a suitable functor? Prove that
+
+$$\mathcal{D}_\perp \oplus \mathcal{E}_\perp \cong \mathcal{D} + \mathcal{E}.$$
+
+What is
+
+$$\mathcal{D}_\perp \otimes \mathcal{E}_\perp \cong \ ??$$
+
+**EXERCISE 6.27.** Which of the following relationships are true:
+
+$$(\mathcal{D} \otimes \mathcal{E}) \trianglelefteq (\mathcal{D} \times \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \times \mathcal{E} \ ;$$
+
+$$(\mathcal{D} \oplus \mathcal{E}) \trianglelefteq (\mathcal{D} + \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \oplus \mathcal{E} \ ;$$
+
+$$(\mathcal{D} \to_\perp \mathcal{E}) \trianglelefteq (\mathcal{D} \to \mathcal{E}) \ ; \quad \mathcal{D} \trianglelefteq \mathcal{D} \otimes \mathcal{E} \ ?$$
+
+**EXERCISE 6.28.** (Suggested by G. Plotkin). Show that if $\mathcal{D}$ and $\mathcal{E}$ are *finite* systems and
+
+$$\mathcal{D} \trianglelefteq \mathcal{E} \trianglelefteq \mathcal{D} \ ,$$
+
+then $\mathcal{D} \cong \mathcal{E}$. Need the same be true of infinite systems?
+
+<!-- page 115 -->
+
+**EXERCISE 6.29.** Generalize $+$ and $\times$ to infinitary operations on domains:
+
+$$\sum_{n=0}^{\infty} D_n \quad \text{and} \quad \prod_{n=0}^{\infty} D_n.$$
+
+Would a similar generalization be possible for $\oplus$ and $\otimes$?
