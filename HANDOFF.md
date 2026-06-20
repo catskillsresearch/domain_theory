@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19) Lecture III §3: remaining Exercises 3.16, 3.17, 3.25, 3.26, 3.27
+# Handoff — Scott 1981 (PRG-19) Lecture III §3: ALL exercises complete
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -6,14 +6,29 @@ Computation* (PRG-19) in:
 `/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`, Lean toolchain per `lean-toolchain`.
 
 **Status:** Lecture I (43), Lecture II (22), and the Lecture III §3 *spine* (Def 3.1 → Thm 3.13, 15)
-are COMPLETE and green. **Eleven of the §3 exercises are done** (3.14, 3.15, 3.18, 3.19, 3.20, 3.21,
-3.22, 3.23, 3.24(i), 3.26, 3.28). **3.26 is now COMPLETE** in `Exercise326.lean` (the conditional
-`cond : T × D × D → D` with `cond_true/false/bot` and the elementwise characterization
-`cond_toElementMap_mem`) and `Exercise326Sum.lean` (the sum-valued `condSum : T × D₀ × D₁ → D₀ + D₁`
-built by composition through `cond` on the sum, and the discriminator `whichMap : D₀ + D₁ → T` with
-Scott's identity `cond_which : cond(which x, in₀(out₀ x), in₁(out₁ x)) = x`). **Four exercises
-remain: 3.16, 3.17, 3.25, 3.27** (plus the missing sub-parts 3.24(ii)(iii)(iv)). `lake build Domain`
-is green, zero `sorry`s.
+are COMPLETE and green. **ALL §3 exercises (3.14–3.28) are now done.** The previously-remaining five
+were completed:
+
+- **3.16** (`Exercise316.lean`) — the infinite iterate `𝒟^∞` over `ℕ × Δ` via fibers + cofinite-`Δ`
+  bound: `iterSys` is a system, `iterSeqEquiv : |𝒟^∞| ≃o (ℕ → |𝒟|)`, and `𝒟^∞ ≅ 𝒟 × 𝒟^∞`
+  (`iter_isomorphic`); plus `component`, `ofSeq`, `projN`.
+- **3.17** (`Exercise317.lean`) — `B` is a **retract** of `T^∞`: section `f : B → T^∞`, retraction
+  `g : T^∞ → B`, with `gf_eq_id : g ∘ f = I_B`, `fg_le_id : f ∘ g ⊑ I_{T^∞}`, and `f_injective`
+  (one-one). Encoding `encSet σ` pins copy `i` to `bitNbhd σ[i]`; the key lemma
+  `prefix_of_encSet_subset` uses non-emptiness of `T`-neighbourhoods.
+- **3.24(ii)** (`Exercise324Iter.lean`) — `(𝒟₀→𝒟₁^∞) ≅ (𝒟₀→𝒟₁)^∞` (`funIter_isomorphic`), via
+  `mapOfSeq` and a local `piCongrOrderIso`.
+- **3.24(iii)(iv)** (`Exercise324Distrib.lean`) — established as canonical **mapping relationships**
+  (not isomorphisms, due to the separated-sum bottom): `copair : (D₀+D₁)→D₂` with the section/retract
+  packaging `copairProj`, plus the distribution map `distribMap` for (iii).
+- **3.25** (`Exercise325.lean`) — the open subsets of `|𝒟|` form a domain: `openIso` matches opens to
+  approximable maps `𝒟 → 𝒪` (Sierpiński), then `funSpaceEquiv` (Thm 3.10) gives
+  `opensReprIso : {U // IsOpen U} ≃o |𝒟 → 𝒪|`.
+- **3.27** (`Exercise327.lean`) — alternate proof that `(D₀→D₁)` is a domain via the Ex 2.22
+  representation theorem: the family `C` of graphs of approximable maps is closed under non-empty
+  intersections (`meetMap`) and directed unions (`joinMap`), giving `funSpaceReprIso`.
+
+`lake build Domain` is green, zero `sorry`s.
 
 *Note on choice for 3.26:* `cond`/`condSum`/`whichMap` report `Classical.choice` in their axiom
 audit, but this is inherited structurally from the truth domain `T = Example12.neighborhoodSystem`

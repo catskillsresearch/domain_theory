@@ -56,6 +56,12 @@ import Domain.Neighborhood.Exercise321
 import Domain.Neighborhood.Exercise322
 import Domain.Neighborhood.Exercise323
 import Domain.Neighborhood.Exercise324
+import Domain.Neighborhood.Exercise316
+import Domain.Neighborhood.Exercise317
+import Domain.Neighborhood.Exercise324Iter
+import Domain.Neighborhood.Exercise324Distrib
+import Domain.Neighborhood.Exercise325
+import Domain.Neighborhood.Exercise327
 import Domain.Neighborhood.Exercise326
 import Domain.Neighborhood.Exercise326Sum
 import Domain.Neighborhood.Exercise328
