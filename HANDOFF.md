@@ -18,8 +18,8 @@ Computation* (PRG-19) in:
   Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) are the most recent work — see below.
 - **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
   ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. Lecture IV rows
-  4.1/4.2/4.3/4.4/4.5/4.6 **and Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20** are now **Pass**; the
-  rest of §4 (**4.9, 4.11, 4.13–4.17, 4.19, 4.21–4.25**) and V–VIII are still `—`. Pages
+  4.1/4.2/4.3/4.4/4.5/4.6 **and Exercises 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.13, 4.14, 4.15, 4.16,
+  4.17, 4.18, 4.19, 4.20** are now **Pass**; the rest of §4 (**4.21–4.25**) and V–VIII are still `—`. Pages
   108–111 were re-OCR'd to fix a page-order scramble (Thm 6.14 tail, Lemma 6.15, Thm 6.16,
   Exercises 6.17–6.20 now in correct order).
 
@@ -113,29 +113,38 @@ The Goal Lists are in `arxiv.md`:
 
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
-| IV  | §4.2.IV   | 25 | Fixed points & recursion (12/25 done; remaining: 4.9, 4.11, 4.13–4.17, 4.19, 4.21–4.25) | 1647–2382 |
+| IV  | §4.2.IV   | 25 | Fixed points & recursion (20/25 done; remaining: 4.21–4.25) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive | 2383–3207 |
 | VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
 **Done so far in §4:** Theorems 4.1/4.2 (`Theorem41.lean`), Examples 4.3/4.4 (`Example43.lean`,
-`Example44.lean`), Definition 4.5 + Theorem 4.6 (`Theorem46.lean`), and Exercises **4.7, 4.8, 4.10,
-4.12, 4.18, 4.20** (`Exercise407/408/410/412/418/420.lean`) — see the two "most recent work"
-sections above.
+`Example44.lean`), Definition 4.5 + Theorem 4.6 (`Theorem46.lean`), and Exercises **4.7, 4.8, 4.9,
+4.10, 4.11, 4.12, 4.13, 4.14, 4.15, 4.16, 4.17, 4.18, 4.19, 4.20**
+(`Exercise407/408/409/410/411/412/413/414/415/416/417/418/419/420.lean`).
+
+**Most recent batch (4.9, 4.11, 4.13–4.17, 4.19):**
+- **4.9** (`Exercise409.lean`) — `bigPsi = curry(eval∘⟨π_G,eval⟩) : E→E` (E=(D→D)→D), the operator
+  `Ψ(θ)(f)=f(θ(f))` (`bigPsi_apply`); `fix_eq_fixElement_bigPsi : fix = fix(Ψ)` from `bigPsi_fix` +
+  `bigPsi_least`. Operator data choice-free; equalities go through `ext_of_toElementMap`/`funSpaceEquiv`.
+- **4.11** (`Exercise411.lean`) — Plotkin uniqueness. `fixElement_uniform` (fix satisfies (iii) via
+  `h(fⁿ⊥)=fⁿ⊥` + directed-union preservation); `fix_unique_of_uniform` applies (iii) along the
+  inclusion `inclMap : Dₐ↪D` and Ex 4.10's unique fixed point of `f'`. `inclMap` choice-free.
+- **4.13** (`Exercise413.lean`) — `monoFix = ⋂{x∣f(x)⊑x}` (monotone least fixed point, choice-free);
+  `exists_unique_nat_rec` / `nat_iterate_unique` (primitive recursion, kills the 4.1↔4.6 circularity).
+- **4.14** (`Exercise414.lean`) — Knaster–Tarski `gfpSet`/`lfpSet` on `PA`, choice-free.
+- **4.15** (`Exercise415.lean`) — `exists_maximal_fixedPoint` (Zorn on post-fixed points) +
+  `exists_least_fixedPoint`. Classical.
+- **4.16** (`Exercise416.lean`) — `f_sInf_le : f(⋂S)⊑⋂S`; `optimalFix` below/consistent with every
+  fixed point in `S`. Data choice-free.
+- **4.17** (`Exercise417.lean`) — `lfpSet_eq_closure` (least solution = `Submonoid.closure {a,b}`);
+  `fixedPoint_not_unique` (`Set.univ` also fixed).
+- **4.19** (`Exercise419.lean`) — Peano axioms for `{0,1}*`; reusable head-test `liftC`; `empty`/`zero`/
+  `one : C→T`; `one_def_strElem`/`one_def_strBot` define `one` from `empty`,`zero`,`cond` (`oneDef`
+  inherits only the accepted structural `Classical.choice` from `cond`/`T`).
 
 **Remaining §4 exercises (arxiv.md §4.2.IV, source lines per row):**
-- **4.9** (line 2221) — the approximable operator `Ψ(θ)(f)=f(θ(f))` with `fix` its least fixed point.
-  Higher-order (over `(D→D)→D`); will need `funSpace`/`curry`/`eval` plumbing. Harder.
-- **4.11** (2245, Plotkin) — `fix` uniquely determined by general conditions on `D⇝F_D`; the hint uses
-  **4.7** (now available) and **4.10** (now available), so this is a natural next pick.
-- **4.13** (2256) — eliminate the 4.1↔4.6 circularity; part (1) is a clean *intersection*
-  (greatest-lower-bound) construction of the least fixed point using only monotonicity (`f(a)⊑a` ⟹
-  `fix f = ⋂{x∣f(x)⊑x}`), realizable with `Exercise118.sInf`/`Theorem111.iInter`. Good standalone.
-- **4.12/4.14/4.15/4.16** — maximum/maximal/optimal fixed points (4.15/4.16 need Zorn, classical).
-- **4.17** (2300, algebraists) — `PS` (powerset of a monoid) least solution of `x={1}∪{a,b}∪x·x`.
-- **4.19** (2319) — verify Example 4.4; `tail`, `empty`/`zero`/`one : C→T`, and `one` from the rest by
-  a fixed-point equation (Scott's "left to the reader"). Builds on `Example44.lean`.
 - **4.21** (2326) — `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication.
 - **4.22** (2342) — subset of `N*` satisfying Peano (i)(ii)(iii) via a least fixed point in `PN*`.
 - **4.23** (2346, Eilenberg) — unique fixed point under an approximation scheme `aₙ`.

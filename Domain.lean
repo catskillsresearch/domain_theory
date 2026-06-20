@@ -71,8 +71,16 @@ import Domain.Neighborhood.Example44
 import Domain.Neighborhood.Theorem46
 import Domain.Neighborhood.Exercise407
 import Domain.Neighborhood.Exercise408
+import Domain.Neighborhood.Exercise409
 import Domain.Neighborhood.Exercise410
+import Domain.Neighborhood.Exercise411
 import Domain.Neighborhood.Exercise412
+import Domain.Neighborhood.Exercise413
+import Domain.Neighborhood.Exercise414
+import Domain.Neighborhood.Exercise415
+import Domain.Neighborhood.Exercise416
+import Domain.Neighborhood.Exercise417
 import Domain.Neighborhood.Exercise418
+import Domain.Neighborhood.Exercise419
 import Domain.Neighborhood.Exercise420
 import Domain.InfoSys
