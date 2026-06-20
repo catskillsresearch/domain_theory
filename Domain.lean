@@ -28,4 +28,9 @@ import Domain.Neighborhood.Exercise119
 import Domain.Neighborhood.Exercise120
 import Domain.Neighborhood.Exercise121
 import Domain.Neighborhood.Exercise122
+import Domain.Neighborhood.Exercise123
+import Domain.Neighborhood.Exercise124
+import Domain.Neighborhood.Exercise125
+import Domain.Neighborhood.Exercise126
+import Domain.Neighborhood.Exercise127
 import Domain.InfoSys

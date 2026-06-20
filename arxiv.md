@@ -28,8 +28,8 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **38** numbered results / exercises are **Pass** (zero `sorry`s, zero
-Stuck), with the remaining Lecture-I exercises **1.23–1.27** inventoried but **Not Yet**.
+correction is complete; **43** numbered results / exercises are **Pass** (zero `sorry`s, zero
+Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27) is now formalized**.
 **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -168,10 +168,10 @@ Scott's four section titles within Part I:
 | §4  | **Inverse limits**      | `InverseLimits.lean` (4.1, 4.2 done)                                                                    |
 
 
-### 3.1 Report card (38 tracked results)
+### 3.1 Report card (43 tracked results)
 
 **Pass** = full numbered statement proved, sorry-free. **Stuck** = partial. **Not Yet** = no
-full deliverable. Score: **38 Pass · 0 Stuck · 0 Not Yet**.
+full deliverable. Score: **43 Pass · 0 Stuck · 0 Not Yet**.
 
 Theorem 4.4 is split into four subgoals **(a)–(d)** so each can be tackled in its own session.
 Session prompt: `HANDOFF-Theorem-4.4.md`.
@@ -1187,11 +1187,11 @@ every numbered item and exercise below has its statement transcribed.)
 | **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}` (`upSet`, ≠ `principal`); `powerSystem`, `powerSystem_isPositive`; `\|𝒟\|≅\|𝒟'\|` via `toPower`/`ofPower`/`powerIso`, `isomorphic_powerSystem`; tokens ↔ finite elements one-one (`toPower_principal`) (`Exercise120.lean`) | **Pass** |
 | **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) `{[X]}` over `\|𝒟\|` is *positive* (`tokenSystem_isPositive`) and *complete* (`IsComplete`, `tokenSystem_complete`: every filter fixed by a unique point `ofToken y`; `tokenSystem_toToken_bijective`); consistency `{Xᵢ∣i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅` (`consistent_iff_iInter_bracket_nonempty`) (`Exercise121.lean`) | **Pass** |
 | **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
-| **Exercise 1.23** | Exercise | 509–525 | countable `D` + decidable consistency ⟹ the greedy sequence `Yₙ` is a total element; all filters sequence-determined | **Not Yet** |
-| **Exercise 1.24** | Exercise | 527–529 | (set theorists) AC ⟹ every partial element extends to a total one; equivalent to AC? (union of a chain of filters is a filter) — **classical** | **Not Yet** |
-| **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` an ordinal, `𝒟 =` non-empty final segments; describe `\|𝒟\|`; are all elements finite? | **Not Yet** |
-| **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A`, `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}`; system; `\|𝒟\| ≅` ideals of `A` under `⊆` | **Not Yet** |
-| **Exercise 1.27** | Exercise | 541–547 | *bounded* `X⊆\|𝒟\|` (`⊔X` = least upper bound); `{U,V}` consistent in `𝒟` ⟺ `{↑U,↑V}` bounded; `X` bounded ⟺ every finite subset bounded (uses 1.18) | **Not Yet** |
+| **Exercise 1.23** | Exercise | 509–525 | countable system (`enum`/`henum`/`hsurj`) + `[DecidablePred V.mem]` ⟹ greedy sequence `Yₙ`/`acc` gives a **total** element: `greedyElement`, `greedyElement_isTotal` (choice-free, `Y_prefix_consistent`); every filter is sequence-determined `filters_sequence_determined` (classical) (`Exercise123.lean`) | **Pass** |
+| **Exercise 1.24** | Exercise | 527–529 | (set theorists) the union of a non-empty **chain** of filters is a filter — `chainUnion` (`inter_mem` via `IsChain.total`), `le_chainUnion`; **with Zorn** every element extends to a total one `exists_total_ge` (`zorn_le_nonempty_Ici₀`, `IsMax = IsTotal`) — **classical** (`Exercise124.lean`) | **Pass** |
+| **Exercise 1.25** | Exercise | 531 | (set theorists) `Δ` linearly+well-ordered, `𝒟 =` non-empty upper sets (`finalSegmentSystem`); `\|𝒟\| ≅ {non-empty lower sets}` under `⊆` — `finalSegmentClassify` (`lowerSetOf`/`ofLowerSet`); top element `topElement` is the unique total element (`topElement_isTotal`, `eq_topElement_of_isTotal`); with no maximum it is *not* finite/principal (`topElement_not_principal_of_noMax`) (`Exercise125.lean`) | **Pass** |
+| **Exercise 1.26** | Exercise | 533–539 | (algebraists) commutative ring `A` (`[DecidableEq A]`), `Δ =` finite `F⊆A`, `I(F)={G ∣ F⊆⟨G⟩}` (`IFamily`, `IFamily_inter`); `ringSystem`; `\|𝒟\| ≅` ideals of `A` under `⊆` — `ringIso` (`idealOf`/`ofIdeal` mutually inverse) (`Exercise126.lean`) | **Pass** |
+| **Exercise 1.27** | Exercise | 541–547 | *bounded* `X⊆\|𝒟\|` (`Bounded`, `sSup` = `sInf` of `upperBounds`, `le_sSup`/`sSup_le`); `{U,W}` consistent in `𝒟` ⟺ `{↑U,↑W}` bounded `consistent_pair_iff_bounded` (choice-free); `X` bounded ⟺ every finite subset bounded `bounded_iff_finite_bounded` (uses 1.18) (`Exercise127.lean`) | **Pass** |
 
 **Lecture I is fully inventoried above** (Def 1.1 → Exercise 1.27). Scott's "Exercise 1.1"
 forward-reference (line 281) is an OCR garble for **Exercise 1.12** (the only exercise
@@ -1367,18 +1367,18 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`) |
-| Report card  | **38 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.21**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I (1.23–1.27) queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**) |
+| Report card  | **43 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.27**, Factoids 1.4a/1.5a/1.5b) — **all of Lecture I formalized** |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
 **complete inventories** of PRG-19 Lectures I–III:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
-| I (domains by neighbourhoods) | §4.2 | 40 | **38** |
+| I (domains by neighbourhoods) | §4.2 | 43 | **43** |
 | II (approximable mappings) | §4.2.II | 22 | 0 |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **90** | **38** |
+| **Total PRG-19 I–III** | | **93** | **43** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
