@@ -3551,3 +3551,336 @@ a = \pm \langle a_0, a_1, \ldots, a_{n-1} \rangle,
 $$
 
 where $+$ is chosen if $a$ is on the right, and $-$ if on the left. As a tree diagram $a$ might look like this for $n = 3$:
+
+<!-- page 100 -->
+
+```
+                         a  +
+                        / | \
+                       + a₁− +
+                      /|\ /|\ /|\
+                     + − − + + a₁₂− − + −
+                    etc. etc. etc.
+```
+
+That is, $a$ is an infinite ternary tree with $+$ or $-$ labels at each node. If each node (subtree) is truly infinite, the element is *total*; if $\perp$ is ever encountered, it is only *partial*; if every branch ends with $\perp$, the tree is a *finite element* of $|A|$.
+
+What can be done with such trees? Let $\sigma \in \{0, 1, \ldots, n-1\}^*$ be a finite sequence of "digits" each less than $n$. We let $\Sigma = \{0, 1, \ldots, n-1\}$. We can define for $a \in |A|$ the operation $\sigma \mapsto a\sigma$ by recursion on $\sigma$:
+
+$$
+a \Lambda = a, \text{ and}
+$$
+
+$$
+a i \sigma = (a_i) \sigma.
+$$
+
+The $a\sigma$ are just the *subtrees* of $a$ with $\sigma$ as a *selector*. We also have a map
+
+$$
+\mathrm{pos} : A \to T
+$$
+
+where
+
+$$
+\mathrm{pos}(+\langle a_0, a_1, \ldots, a_{n-1} \rangle) = \mathrm{true}, \text{ and}
+$$
+
+$$
+\mathrm{pos}(-\langle a_0, a_1, \ldots, a_{n-1} \rangle) = \mathrm{false}.
+$$
+
+We say that a (total) tree $a$ is *eventually periodic* iff the set $\{a\sigma \mid \sigma \in \Sigma^*\}$ is finite. The result is that the "language"
+
+$$
+L_a = \{\sigma \in \Sigma^* \mid \mathrm{pos}(a\sigma) = \mathrm{true}\}
+$$
+
+corresponding to an eventually periodic tree is always a *regular event* of automata theory, and every such language has this form. In fact, $a$ just represents the initial state of an automaton, and $a\sigma$ represents the state after "reading" a tape $\sigma$. $\square$
+
+<!-- page 101 -->
+
+In order to formulate more generally the idea of a domain equation and initial algebra, we must introduce a small amount of the terminology of category theory. To be as specific as possible, think of systems $D$ over sets $\Delta \subseteq \Sigma^*$ with $\Sigma = \{0, 1\}$, say. They form quite an interesting category with respect to the approximable maps $f : D \to D'$. Recall that to be a category of "domains" and "maps" all that is required is an associative composition $g \circ f$ of maps with identity maps $I : D \to D$ for each domain of the category. And this we certainly have for the systems indicated. And there are many other categories waiting around: for instance, restrict systems to those where $\emptyset \notin D$. This is not much of a restriction, as every system is isomorphic to one like this. Or restrict the maps to being the strict maps $f : D \to D'$ where $f(\bot_D) = \bot_{D'}$. This is an essentially different, though related category. We shall find many others.
+
+What examples 6.1 and 6.2 suggest is the notion of a construct which makes new domains out of old. For example, with $D$ fixed, 6.1 suggests for any domain $X$ over $\Gamma \subseteq \Sigma^*$ a domain
+
+$$
+T(X) = D + (X \times X).
+$$
+
+More specifically (converting from $\Sigma = \{0, 1, 2\}$ to $\Sigma = \{0, 1\}$) we could write
+
+$$
+T(X) = \{\Gamma'\} \cup \{0X \mid X \in D\} \cup \{10X \cup 11Y \mid X, Y \in X\},
+$$
+
+where we have $\Gamma' = 0\Delta \cup 10\Gamma \cup 11\Gamma$. (By the way, here we definitely want to assume $\emptyset \notin D$ and $\emptyset \notin X$ and to get $\emptyset \notin T(X)$.) This construct is an example of a *functor*, a notion that can be defined abstractly on any category.
+
+**DEFINITION 6.3.** A *functor* on a category (into itself) associates with every domain $X$ in the category another domain $T(X)$ and to every map
+
+$$
+f : X \to Y
+$$
+
+another map
+
+$$
+T(f) : T(X) \to T(Y)
+$$
+
+<!-- page 102 -->
+
+in such a way that identity maps and compositions are preserved:
+
+$$
+T(I_X) = I_{T(X)}, \text{ and}
+$$
+
+$$
+T(g \circ f) = T(g) \circ T(f),
+$$
+
+whenever $f : X \to Y$ and $g : Y \to Z$. $\square$
+
+In the example from 6.1 we have not checked how the special **T** is a functor. The hint is that whenever $f : X \to Y$, then there is a map
+
+$$
+f \times f : X \times X \to Y \times Y.
+$$
+
+But there is also a map
+
+$$
+I_D + f \times f : D + (X \times X) \to D + (Y \times Y)
+$$
+
+and this suggests the definition of $T(f)$. The details are left to the exercises. Note that the map $T(f)$ just suggested is always strict, so **T** is a functor also for the category of strict maps.
+
+One good reason for a little of the category-theoretic language is that the next definition becomes very neat indeed.
+
+**DEFINITION 6.4.** A ***T*-algebra** is a domain $E$ in the category together with a map
+
+$$
+k : T(E) \to E.
+$$
+
+If $m : T(F) \to F$ is another ***T*-algebra**, then a *homomorphism* is a map $h : E \to F$ in the category such that the diagram
+
+$$
+\begin{array}{ccc}
+T(E) & \xrightarrow{k} & E \\
+\downarrow^{T(h)} & & \downarrow^{h} \\
+T(F) & \xrightarrow{m} & F
+\end{array}
+$$
+
+commutes; that is, the equation
+
+$$
+h \circ k = m \circ T(h)
+$$
+
+holds. $\square$
+
+<!-- page 103 -->
+
+In our example from 6.1 a $T$-algebra is a *strict* map
+
+$$k : D + (E \times E) \to E.$$
+
+But such strict maps are in a one-one correspondence with pairs of (not necessarily strict) maps
+
+$$n : D \to E \quad \text{and} \quad p : E \times E \to E.$$
+
+And the structure $\langle E, n, p \rangle$ is what we called a tree algebra. Definition 6.4 just makes this abstract. The reader should also work out the details showing that 6.4's definition of homomorphism is just what we ought to expect.
+
+Note that the $T$-algebras and homomorphisms form a category. (Why?) The following definition is so abstract that it could be given for any category.
+
+**DEFINITION 6.5.** A $T$-algebra is *initial* if and only if there is a unique homomorphism from it into any other $T$-algebra. $\square$
+
+The word "other" here is not meant to imply "distinct". For an initial algebra there is one and only one homomorphism into itself: the identity map. As we already indicated in 6.1 it is a general fact that the next proposition holds.
+
+**PROPOSITION 6.6.** Any two initial $T$-algebras are uniquely isomorphic. $\square$
+
+Slightly more interesting is the behaviour of $T$ on initial algebras.
+
+**PROPOSITION 6.7.** If $i : T(D) \to D$ is an initial $T$-algebra, then so is $T(i) : T^2(D) \to T(D)$ and $i$ is the isomorphism from $T(D)$ to $D$.
+
+**Proof:** Clearly since $T$ is a functor, the map $T(i)$ has the right mapping character to make $T(D)$ a $T$-algebra. Since $D$ is initial, we have a commuting diagram:
+
+<!-- page 104 -->
+
+$$
+\begin{array}{ccc}
+T(D) & \xrightarrow{i} & D \\
+\downarrow^{T(j)} & & \downarrow^{j} \\
+T^2(D) & \xrightarrow{T(i)} & T(D)
+\end{array}
+$$
+
+But we also have the trivial diagram:
+
+$$
+\begin{array}{ccc}
+T^2(D) & \xrightarrow{T(i)} & T(D) \\
+\downarrow^{T(i)} & & \downarrow^{i} \\
+T(D) & \xrightarrow{i} & D
+\end{array}
+$$
+
+It follows that $i \circ j$ is a homomorphism, so
+
+$$
+i \circ j = I_D.
+$$
+
+But then because $T$ is a functor we find:
+
+$$
+T(i) \circ T(j) = I_{T(D)},
+$$
+
+and, since $j$ is a homomorphism, we have
+
+$$
+j \circ i = I_{T(D)}.
+$$
+
+This shows that $i$ is an isomorphism. $\square$
+
+From 6.7 we see that if we are going to have initial algebras at all we have to satisfy the domain equation
+
+$$
+D \cong T(D).
+$$
+
+But generally that is not enough to assure that $D$ is initial. There is a condition that our functors satisfy, however, which guarantees the existence of homomorphisms.
+
+**DEFINITION 6.8.** On the category of domains and strict approximable maps a functor $T$ is *continuous on maps* if for any systems $D$ and $E$ the induced mapping
+
+$$
+\lambda f.\, T(f) : (D \to_\bot E) \to (T(D) \to_\bot T(E))
+$$
+
+is approximable.
+
+<!-- page 105 -->
+
+**THEOREM 6.9.** If the functor $T$ is continuous on maps and if $D \cong T(D)$, so in particular $D$ is a $T$-algebra, then for any $T$-algebra $k : T(E) \to E$ there is a homomorphism $h : D \to E$.
+
+*Proof:* Let $i : T(D) \to D$ make $D$ a $T$-algebra, where $j : D \to T(D)$ is the inverse so that $i$ is an isomorphism of domains. Suppose that $k : T(E) \to E$ is any $T$-algebra. A homomorphism $h : D \to E$ would satisfy
+
+$$
+h \circ i = k \circ T(h).
+$$
+
+Rewrite this equation as
+
+$$
+h = k \circ T(h) \circ j.
+$$
+
+In the domain of strict maps $(D \to E)$ this is a fixed-point equation for an approximable map
+
+$$
+\lambda h.\, k \circ T(h) \circ j
+$$
+
+by our assumption on $T$. Thus, the desired homomorphism exists. $\square$
+
+The final question we have to answer is why in our category the minimal $D$ exist. The reason is that the functors $T$ that we have in mind possess further continuity properties on domains. This is conveniently expressed in terms of a notion of "subdomain".
+
+**DEFINITION 6.10.** For two neighbourhood systems $D$ and $E$ we write
+
+$$
+D \triangleleft E
+$$
+
+to mean that these are neighbourhood systems over the same set of tokens $\Delta$ and not only is $D \subseteq E$ but whenever $X, Y \in D$ and $X \cap Y \in E$, then $X \cap Y \in D$. $\square$
+
+For the subdomain relation $D \triangleleft E$ to hold, $D$ has to be a smaller family of neighbourhoods, but the notion of consistency in $D$ also has to be the same as in $E$. Note that if $D_0 \triangleleft E$ and $D_1 \triangleleft E$ then
+
+<!-- page 106 -->
+
+$$
+D_0 \triangleleft D_1 \text{ iff } D_0 \subseteq D_1.
+$$
+
+It is also easy to prove that the union of a directed family of subdomains of $E$ is again a subdomain. As a consequence of this remark we have:
+
+**PROPOSITION 6.11.** For a given neighbourhood system $E$, the set of subsystems
+
+$$
+\{D \mid D \triangleleft E\}
+$$
+
+forms a domain in its own right. $\square$
+
+The subdomain relationship implies a mapping relationship between the domains.
+
+**PROPOSITION 6.12.** If $D \triangleleft E$, then there exists a projection pair of approximable mappings:
+
+$$
+i : D \to E \quad \text{and} \quad j : E \to D
+$$
+
+where $j \circ i = I_D$ and $i \circ j \subseteq I_E$, which are determined as element-wise functions by these equations:
+
+$$
+i(x) = \{Y \in E \mid \exists X \in x.\, X \subseteq Y\},
+$$
+
+and
+
+$$
+j(y) = y \cap D,
+$$
+
+for all $x \in |D|$ and $y \in |E|$. $\square$
+
+The proof is left for the exercises.
+
+**DEFINITION 6.13.** A functor $T$ is *monotone on domains* iff whenever $D \triangleleft E$, then not only do we have $T(D) \triangleleft T(E)$ but the projection pair $i, j$ of 6.12 is mapped to the same kind of projection pair $T(i), T(j)$. A monotone functor is *continuous on domains* iff whenever $E$ is a domain, then the mapping
+
+$$
+\lambda D.\, T(D) : \{D \mid D \triangleleft E\} \to \{D' \mid D' \triangleleft T(E)\}
+$$
+
+is approximable. $\square$
+
+<!-- page 107 -->
+
+We can now state an existence theorem that covers in fairly wide generality the examples of this lecture.
+
+**THEOREM 6.14.** If the functor $T$ is continuous on maps and monotone and continuous on domains, and if there is a set $\Gamma$ such that
+
+$$\{\Gamma\} \triangleleft T(\{\Gamma\}),$$
+
+then there exists an initial $T$-algebra.
+
+**Proof:** We proceed as in the proof of the fixed-point theorem by iterating the functor. The assumption about $\Gamma$ means that, as a neighbourhood system, $T(\{\Gamma\})$ is a system over the same set $\Gamma$. Thus, if we iterate $T$ to form $T^n(\{\Gamma\})$, all these systems are over $\Gamma$ and indeed
+
+$$T^n(\{\Gamma\}) \triangleleft T^{n+1}(\{\Gamma\})$$
+
+for all $n$. We can thus introduce
+
+$$\mathcal{D} = \bigcup_{n=0}^{\infty} T^n(\{\Gamma\}),$$
+
+and it is easy to check that $\mathcal{D}$ is a system over $\Gamma$ and
+
+$$T^n(\{\Gamma\}) \triangleleft \mathcal{D}$$
+
+holds for all $n$. But then we have for all $n$:
+
+$$T^n(\{\Gamma\}) \triangleleft T^{n+1}(\{\Gamma\}) \triangleleft T(\mathcal{D}),$$
+
+which implies $\mathcal{D} \triangleleft T(\mathcal{D})$. But $T$ is continuous on domains, so
+
+$$
+\begin{aligned}
+T(\mathcal{D}) &= T\!\left(\bigcup_{n=0}^{\infty} T^n(\{\Gamma\})\right) \\
+&= \bigcup_{n=0}^{\infty} T^{n+1}(\{\Gamma\}) \\
+&= \mathcal{D}.
+\end{aligned}
+$$
