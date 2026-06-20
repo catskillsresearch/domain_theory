@@ -28,7 +28,7 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **78** numbered results / exercises are **Pass** (zero `sorry`s, zero
+correction is complete; **79** numbered results / exercises are **Pass** (zero `sorry`s, zero
 Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** and **all of Lecture II** (Def 2.1,
 Prop 2.2, Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, the isomorphism Theorem 2.7, and
 Exercises 2.8–2.22) are now formalized. Lecture II completed this session: 2.13 (approximable =
@@ -63,6 +63,88 @@ the four parts as independent publications. Parts I–III follow Scott's histori
 theorems (§2.2) showing the three presentations coincide. Part I's internal §1–§4
 dependency structure (injective spaces → continuous lattices → function spaces → inverse
 limits) is spelled out in §3.
+
+**Why this formalization is hard: Scott's topological lineage.** A working hypothesis of this
+project is that the chief obstacle to mechanizing Scott's notes is not Lean but *prerequisite
+mathematical culture*. Scott's lecture notes — especially the 1972 *Continuous Lattices* — read
+with a level of topological maturity that leaves most modern computer scientists dizzy, because
+Scott did **not** treat topology as a standalone tool grafted onto computation. He treated it as a
+natural extension of logic and algebra. The typical computer-science reader has never been trained
+in point-set topology *as a pure discipline in its own right*, and so meets these notes missing the
+very reflexes they silently assume. The striking fact — and the key to the difficulty — is that
+Scott himself had **no formal, conventional graduate training in topology either**. His deep
+topological expertise developed *organically* out of his foundational training in mathematical
+logic, algebra, and set theory: first as an undergraduate under **Alfred Tarski** at UC Berkeley
+(1950–1954), then during his doctoral studies at Princeton [Plo20], [Sco22]. Rather than approaching
+topology as a geometric discipline, he came to it sideways, recognizing the deep structural bridges
+between order theory, non-classical logic, and mathematical space.
+
+One piece of explicitly topological schooling did anchor this: as a Berkeley undergraduate Scott
+studied general topology directly under **John L. Kelley**, who during exactly those years was
+drafting his field-defining textbook *General Topology* (1955) [Kel55]. Kelley's rigorous,
+comprehensive framework standardized point-set topology, and in particular popularized the use of
+**filters and nets** (rather than sequences) to describe convergence in arbitrary spaces, taking a
+foundation-up, non-metric view entirely comfortable with **non-Hausdorff** spaces. Both fingerprints
+are all over domain theory: Scott's domains are presented through filters of neighborhoods, and their
+natural topology is **`T₀` but not `T₁`/`T₂`** — asymmetric, with "points" standing for *states of
+information* rather than geometric locations. These are precisely the `T₀`/`T₁` separation axioms
+required by computer-science domains, and precisely the corner of topology that mainstream curricula,
+fixated on Hausdorff spaces and open balls, skip entirely.
+
+The deeper, organizing influence was **Tarski**, whose graduate courses Scott took as an
+undergraduate and who introduced him to **lattice theory, Boolean algebras, and the Tarski
+Fixed-Point Theorem**. Tarski assigned Scott to study Marshall Stone's seminal paper representing
+Boolean algebras as topological spaces [Sto36], seeding a lifelong interest in the interplay of
+algebra and topology [Man18]. Compounded by the algebraic formulation of **intuitionistic and modal
+logics** — which model truth values by the open sets of a topological space rather than by classical
+binary `{true, false}` — this produced the governing slogan of Scott's career: every Boolean algebra
+*is* the space of its ultrafilters, intuitionistic logic *is* the lattice of opens, and therefore
+**Topology = Posets + Logic**. This is the lens the present formalization must keep in focus. Where
+the typical computer scientist imagines topology as geometry (metrics, balls, distance), Scott means
+the **specialization order**: the open sets *are* the observable properties, and the order of
+information *is* the topology. Concretely, the Lean work below lives or dies on translating fluently
+between the `TopologicalSpace` and `PartialOrder` typeclasses via the **Scott topology**, and
+mathlib's `Topology.Order` hierarchy (specialization order, sober spaces, the filter machinery
+descended from exactly Kelley's approach) is the principal bridge we lean on.
+
+This lineage is not antiquarian decoration: the same lens generated the very structures we are
+formalizing. The **Scott topology** inverts standard point-set practice, acting on posets/domains
+where a set is *Scott-open* exactly when it names a property verifiable from a finite approximation;
+**domain theory** recasts computation through continuous functions on such spaces and so furnished
+the first rigorous model of the untyped λ-calculus; and the **pointless-topology** thread —
+*Continuous Lattices* proving that injective `T₀` spaces are equivalent to continuous lattices
+[Sco72], [GHKLMS03], together with Scott's continuing advocacy of "Geometry Without Points" [Sco23]
+— is exactly the order-theoretic distillation of topology that the later presentations exploit. It is
+also the explanation for *why* the 1972 layer demands classical, topology-heavy machinery while the
+later 1981/1982 layers can be made progressively more elementary and constructive — the arc this
+monograph sets out to make precise.
+
+**A conjecture about the descent (1972 → 1981 → 1982).** This lineage suggests a reading of *why*
+Scott reformulated the same theory three times that is more sociological than mathematical. The
+standard story treats the descent as Scott gradually finding "better" foundations. We offer a
+complementary speculation: the simplification was at least partly **tactical, a problem of
+adoption rather than of comfort**. Scott was entirely at home in the topology-sophisticated 1972
+continuous-lattice formulation — that was, after all, his native dialect under Kelley and Tarski.
+But to *sell* domain theory to the very audience that most needed it — topology-naive computer
+science practitioners — he was arguably compelled to strip out the heavy general-topology
+prerequisites and to recast the constructions in a form that leans far less on classical, point-set
+machinery. The 1981 neighborhood systems replace the lattice-of-opens with concrete filters of
+neighborhoods; the 1982 information systems go further, reducing the data to finite consistency and
+entailment on tokens. Read this way, the trajectory is a deliberate lowering of the entry barrier:
+each step trades topological sophistication for combinatorial transparency that a logician or
+programmer can manipulate without a course in general topology.
+
+A striking corollary, and one this formalization is positioned to make objective, is that the
+descent is also a descent in **logical strength** — toward presentations that are *constructive* in
+the technical sense of avoiding the law of the excluded middle (and, in Lean's terms, of not
+invoking `Classical.choice`). The 1972 layer is unavoidably classical; the 1981 §1 core is already
+choice-free for its foundational constructions; the 1982 information systems are fully constructive.
+We do not claim Scott consciously pursued intuitionistic constructivity as a goal — only that
+making the presentation palatable to topology-naive practitioners and making it constructive turn
+out to be **the same move**, because the topological apparatus he was removing is exactly where the
+non-constructive (excluded-middle, choice, maximal-filter) steps lived. The `#print axioms` audits
+throughout this monograph (§1.2) are, in effect, an empirical test of that conjecture: they let us
+measure, theorem by theorem, how much classical content each presentation actually requires.
 
 ### 1.1 Contribution (overall)
 
@@ -1276,7 +1358,7 @@ is Pass.**
 | **Exercise 3.23** | Exercise | 1564 | (category theorists) domains + approximable maps form a cartesian closed category (3.11, 3.12) | **Pass** (`Exercise323.lean`) |
 | **Exercise 3.24** | Exercise | 1566–1576 | more function-space isomorphisms: `(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)` | **Pass (i)** (`Exercise324.lean`) |
 | **Exercise 3.25** | Exercise | 1578 | (topologists) open subsets of `\|D\|` form a domain (uses 3.10, Exercises 1.21 & 2.13) | **Not Yet** |
-| **Exercise 3.26** | Exercise | 1580–1620 | conditional `cond:T×D×D→D` (`cond(true,x,y)=x`, etc.); sum variant; `which:D₀+D₁→T` | **Not Yet** |
+| **Exercise 3.26** | Exercise | 1580–1620 | conditional `cond:T×D×D→D` (`cond(true,x,y)=x`, etc.); sum variant `condSum:T×D₀×D₁→D₀+D₁`; `which:D₀+D₁→T` with `cond(which x,in₀ out₀ x,in₁ out₁ x)=x` | **Pass** (`Exercise326.lean`, `Exercise326Sum.lean`) |
 | **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Not Yet** |
 | **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Pass** (`Exercise328.lean`) |
 
@@ -2109,7 +2191,18 @@ Monograph PRG-19, Oxford University Computing Laboratory, May 1981.
 - **[Sco82]** D. Scott. *Domains for Denotational Semantics*. ICALP 1982, LNCS 140.
 - **[Win93]** G. Winskel. *The Formal Semantics of Programming Languages*. MIT Press, 1993.
 - **[AJ94]** S. Abramsky and A. Jung. *Domain Theory*. Handbook of Logic in Computer Science, Vol. 3.
-- **[GHKLMS03]** G. Gierz et al. *Continuous Lattices and Domains*. Cambridge, 2003.
+- **[GHKLMS03]** G. Gierz, K. H. Hofmann, K. Keimel, J. D. Lawson, M. Mislove, and D. S. Scott.
+*Continuous Lattices and Domains*. Cambridge University Press, 2003.
+- **[Kel55]** J. L. Kelley. *General Topology*. D. Van Nostrand Company, 1955.
+- **[Sto36]** M. H. Stone. *The Theory of Representations for Boolean Algebras*. Transactions of the
+American Mathematical Society, 40(1):37–111, 1936.
+- **[Man18]** P. Mancosu. *The Origin of the Group in Logic and the Methodology of Science*. Journal
+of Humanistic Mathematics, 8(1):371–413, 2018.
+- **[Plo20]** G. Plotkin. *Dana Scott Turing Award Interview (Transcript)*. A.M. Turing Award Oral
+History Project, ACM, 2020.
+- **[Sco22]** D. S. Scott. *An Interview with Dana Scott*. Communications of the ACM, 65(8), 2022.
+- **[Sco23]** D. S. Scott. *70 Years of Hiding Algebra*. Logic and the Methodology of Science
+Seminar, UC Berkeley, 2023.
 - **[DT26]** Catskills Research. *domain_theory* (this work).
 [https://github.com/catskillsresearch/domain_theory](https://github.com/catskillsresearch/domain_theory).
 - **[COPE24]** Committee on Publication Ethics (COPE). *Authorship and AI tools: COPE
