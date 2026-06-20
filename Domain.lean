@@ -69,4 +69,10 @@ import Domain.Neighborhood.Theorem41
 import Domain.Neighborhood.Example43
 import Domain.Neighborhood.Example44
 import Domain.Neighborhood.Theorem46
+import Domain.Neighborhood.Exercise407
+import Domain.Neighborhood.Exercise408
+import Domain.Neighborhood.Exercise410
+import Domain.Neighborhood.Exercise412
+import Domain.Neighborhood.Exercise418
+import Domain.Neighborhood.Exercise420
 import Domain.InfoSys

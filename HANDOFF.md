@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–III COMPLETE; IV §4 spine done (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6); IV–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–III COMPLETE; IV §4 spine + 6 exercises done (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6; Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20); IV–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,7 +7,7 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3016 jobs).
+- **`lake build Domain` is green, zero `sorry`s** (≈3025 jobs).
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
   Lecture III is now **complete end-to-end**: the spine (Def 3.1 → Thm 3.13) *and* every §3 exercise
   (3.14–3.28).
@@ -18,9 +18,10 @@ Computation* (PRG-19) in:
   Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) are the most recent work — see below.
 - **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
   ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. Lecture IV rows
-  4.1/4.2/4.3/4.4/4.5/4.6 are now **Pass**; the rest (4.7–4.25, V–VIII) are still `—`. Pages
+  4.1/4.2/4.3/4.4/4.5/4.6 **and Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20** are now **Pass**; the
+  rest of §4 (**4.9, 4.11, 4.13–4.17, 4.19, 4.21–4.25**) and V–VIII are still `—`. Pages
   108–111 were re-OCR'd to fix a page-order scramble (Thm 6.14 tail, Lemma 6.15, Thm 6.16,
-  Exercises 6.17–6.20 now in correct order). The §4 exercises (4.7–4.25) are the next frontier.
+  Exercises 6.17–6.20 now in correct order).
 
 ### Lecture IV §4 completed (most recent work)
 
@@ -48,6 +49,37 @@ Computation* (PRG-19) in:
   impossible constructor. Everything is choice-free except the final packaging of the bijection
   `M ≃ N` (which must pull `Classical.choice` from a functional+total relation — a Dedekind/
   recursion theorem).
+
+### Lecture IV §4 exercises completed (most recent work)
+
+All six build alone and pass the audit; the full `Domain` build is green. Each is one module
+`Domain/Neighborhood/Exercise<NN>.lean`, imported from `Domain.lean`.
+
+- **Exercise 4.7** (`Exercise407.lean`) — *a fixed point above `a` when `a ⊑ f(a)`*. `iterFrom f a n
+  = fⁿ(a)`; `fixAbove f ha = ⊔ₙ fⁿ(a)` (`iSupDirected`), with `fixAbove_isFixed` (continuity
+  `toElementMap_iSupDirected`), `le_fixAbove`, `fixAbove_least`. **Pitfall (re)learned:**
+  `monotone_nat_of_le_succ` pulls `Classical.choice` — for a choice-free *data* construction, prove
+  the chain monotone by hand via induction on `n ≤ m` (`iterFrom_mono`, mirroring `rel_master_mono`).
+  All `[propext, Quot.sound]`.
+- **Exercise 4.8** (`Exercise408.lean`) — *fixed-point induction*. `fix_induction (P ⊥; P x→P(f x);
+  closure under monotone-chain sups `supChain`) ⟹ P(fix f)`, via `fixElement_eq_supChain` +
+  `iterElem_zero`/`iterElem_succ`. Corollary `fix_induction_eq` for `S={x∣a(x)=b(x)}`
+  (`a(⊥)=b(⊥)`, `f∘a=a∘f`, `f∘b=b∘f` ⟹ `a(fix f)=b(fix f)`). Choice-free.
+- **Exercise 4.10** (`Exercise410.lean`) — *the relativized domain `Dₐ`*. `relSystem a` (neighbourhoods
+  = members of the filter `a`); `relIso : |Dₐ| ≃o {x∣x⊑a}` from `embed`/`restrict` (note the `V.mem X`
+  guard in `embed`). When `f(a)=a`: `relMap f ha : Dₐ→Dₐ` restricts `f` (codomain check via
+  `↑X⊑a ⟹ Y∈f(↑X)⊑f(a)=a`), agreeing by `relMap_toElementMap_embed`. `f'` over `D_{fix f}` has a
+  **unique** fixed point (`relMap_unique_fixed`, from `fixElement_below_unique`). Choice-free.
+- **Exercise 4.12** (`Exercise412.lean`) — *no maximum fixed point*. `I_T` on Example 1.2 has 3 fixed
+  points; the two total ones are incomparable (`elemZero_not_le_elemOne` + converse) so
+  `no_greatest_fixedPoint`. Classical only through Example 1.2's finite classification.
+- **Exercise 4.18** (`Exercise418.lean`) — *the assertions about `N`*. `element_classification` (`|N|`
+  is `⊥` + the numerals `n̂` — flat; classical), plus choice-free Peano facts `natElem_injective`,
+  `succMap_injective`, `natElem_zero_ne_succ`/`zero_ne_succMap`. (`pred∘succ=id` already in
+  `Example43`.)
+- **Exercise 4.20** (`Exercise420.lean`) — *`fix(f∘g)=f(fix(g∘f))`*. The rolling rule
+  `fixElement_comp_comm`, pure element-level algebra (`toElementMap_comp`, `toElementMap_fixElement`,
+  `fixElement_le_of_toElementMap_le`, `toElementMap_mono`). Choice-free.
 
 ### Lecture III exercises completed (earlier work)
 
@@ -81,24 +113,39 @@ The Goal Lists are in `arxiv.md`:
 
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
-| IV  | §4.2.IV   | 25 | Fixed points & recursion (`fix` ✓ 4.1/4.2; `N`, Peano models next) | 1647–2382 |
+| IV  | §4.2.IV   | 25 | Fixed points & recursion (12/25 done; remaining: 4.9, 4.11, 4.13–4.17, 4.19, 4.21–4.25) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive | 2383–3207 |
 | VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
 **Done so far in §4:** Theorems 4.1/4.2 (`Theorem41.lean`), Examples 4.3/4.4 (`Example43.lean`,
-`Example44.lean`), and Definition 4.5 + Theorem 4.6 (`Theorem46.lean`) — see the "most recent work"
-section above.
+`Example44.lean`), Definition 4.5 + Theorem 4.6 (`Theorem46.lean`), and Exercises **4.7, 4.8, 4.10,
+4.12, 4.18, 4.20** (`Exercise407/408/410/412/418/420.lean`) — see the two "most recent work"
+sections above.
 
-**Suggested next target: the §4 exercises 4.7–4.25** (arxiv.md §4.2.IV rows, lines 2199–2373). Good
-early ones: **4.20** `fix(f∘g)=f(fix(g∘f))` (pure `fixMap`/`comp` algebra), **4.10** the relativized
-domain `Dₐ`, **4.7/4.8** fixed points above `a`/over a closure family. **4.18** "verify the
-assertions about `N`, `F` in Example 4.3" and **4.19** "verify Example 4.4; `tail`, `empty`/`zero`/
-`one`, `one:C→T` by a fixed-point equation" build directly on `Example43.lean`/`Example44.lean`
-(the `tail` map and the three `C → T` tests are the substantive part Scott left to the reader). The
-`Domain/Neighborhood` API has the rest (`funSpace`, `eval`, `comp`, `Element` sups via
-`sSupMaps`/directed joins, the `Exercise316` infinite iterate `𝒟^∞`).
+**Remaining §4 exercises (arxiv.md §4.2.IV, source lines per row):**
+- **4.9** (line 2221) — the approximable operator `Ψ(θ)(f)=f(θ(f))` with `fix` its least fixed point.
+  Higher-order (over `(D→D)→D`); will need `funSpace`/`curry`/`eval` plumbing. Harder.
+- **4.11** (2245, Plotkin) — `fix` uniquely determined by general conditions on `D⇝F_D`; the hint uses
+  **4.7** (now available) and **4.10** (now available), so this is a natural next pick.
+- **4.13** (2256) — eliminate the 4.1↔4.6 circularity; part (1) is a clean *intersection*
+  (greatest-lower-bound) construction of the least fixed point using only monotonicity (`f(a)⊑a` ⟹
+  `fix f = ⋂{x∣f(x)⊑x}`), realizable with `Exercise118.sInf`/`Theorem111.iInter`. Good standalone.
+- **4.12/4.14/4.15/4.16** — maximum/maximal/optimal fixed points (4.15/4.16 need Zorn, classical).
+- **4.17** (2300, algebraists) — `PS` (powerset of a monoid) least solution of `x={1}∪{a,b}∪x·x`.
+- **4.19** (2319) — verify Example 4.4; `tail`, `empty`/`zero`/`one : C→T`, and `one` from the rest by
+  a fixed-point equation (Scott's "left to the reader"). Builds on `Example44.lean`.
+- **4.21** (2326) — `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication.
+- **4.22** (2342) — subset of `N*` satisfying Peano (i)(ii)(iii) via a least fixed point in `PN*`.
+- **4.23** (2346, Eilenberg) — unique fixed point under an approximation scheme `aₙ`.
+- **4.24** (2358, set theorists) — Schröder–Bernstein via Tarski's fixed point (mostly orthogonal to
+  the neighbourhood framework; mathlib has `Function.Embedding.schroeder_bernstein`).
+- **4.25** (2372) — the system `C₁` over `{1}*` analogous to `N`; maps between `N`, `C₁`, `C₂`.
+
+Reusable API for these: `funSpace`, `eval`, `comp`, `Element` sups via `sSupMaps`/`iSupDirected`,
+the `Exercise316` infinite iterate `𝒟^∞`, and the new 4.7/4.8/4.10 building blocks
+(`fixAbove`, `fix_induction`, `relSystem`/`relIso`/`relMap`).
 
 **OCR anomalies to be aware of (documented in arxiv.md notes):**
 - Lecture V: "Table 5.5" is a combinator table, not a numbered theorem.
@@ -230,6 +277,11 @@ lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
 ---
 
 ## Pitfalls learned (don't relearn)
+- **`monotone_nat_of_le_succ` pulls `Classical.choice`** (so does `Monotone` packaging through it).
+  For a *choice-free* directed-sup data construction (e.g. `Exercise407.fixAbove`), prove the chain
+  `n ≤ m ⟹ sₙ ⊑ sₘ` by hand: a one-step lemma `sₙ ⊑ sₙ₊₁` (induction on `n`) + induction on `n ≤ m`
+  (`induction hnm with | refl | step`), exactly as `Theorem41.rel_master_mono` does. The
+  directedness witness fed to `iSupDirected` is then `⟨max i j, …, …⟩`.
 - **`ᴰ` in identifiers fails to parse.** Notation `≅ᴰ` is fine; names must use `D`.
 - **`simpa`/`simp` can pull `Classical.choice`** into a construction. In choice-free lemmas use
   explicit term-mode or `simp only [...]`. `Set.image_mono`/`image_subset` were choice-y — unfold and
