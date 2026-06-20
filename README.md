@@ -1,3 +1,4 @@
+[![CI](https://github.com/catskillsresearch/domain_theory/actions/workflows/build.yml/badge.svg)](https://github.com/catskillsresearch/domain_theory/actions/workflows/build.yml)
 # domain_theory
 
 A **Lean 4** formalization of Dana Scott's domain theory via **Scott Information
