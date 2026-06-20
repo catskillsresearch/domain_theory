@@ -28,13 +28,16 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **65** numbered results / exercises are **Pass** (zero `sorry`s, zero
+correction is complete; **78** numbered results / exercises are **Pass** (zero `sorry`s, zero
 Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** and **all of Lecture II** (Def 2.1,
 Prop 2.2, Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, the isomorphism Theorem 2.7, and
 Exercises 2.8–2.22) are now formalized. Lecture II completed this session: 2.13 (approximable =
 continuous), 2.14 (`φ` of an iso), 2.15 (Sierpiński/opens), 2.18 (spacing map), 2.20 (powerset
 domain), 2.21 (system `C`/juxtaposition), 2.22 (abstract representation theorem). **Lecture III (§3)
-— products, sums, function spaces — is the next workstream** and is **Not Yet**.
+— products, sums, function spaces — has its full spine (Def 3.1 → Thm 3.13(i)) formalized:** the
+product `prodEquiv`, the function space `funSpaceEquiv` (Thm 3.10), the least map of Prop 3.9, and
+the cartesian-closed structure `eval`/`curry`/`curryEquiv` (Thm 3.11–3.12), all choice-free. The
+remaining §3 work is Thm 3.13(ii)(iii) (pointwise bounded sups) and Exercises 3.14–3.28.
 **Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
@@ -1238,24 +1241,28 @@ is Pass.**
 
 ### 4.2.III Lecture III (§3) Goal List — domain constructs (complete inventory)
 
-**Lean target (planned):** `Domain/Neighborhood/Constructions.lean` (not yet created). All rows
-**Not Yet**.
+**Lean target:** `Domain/Neighborhood/Product.lean` (§3.1–3.7) and
+`Domain/Neighborhood/FunctionSpace.lean` (§3.8–3.13) — **live**. The product and function-space
+**spine (Def 3.1 → Thm 3.13(i)) is now complete**; every construction is choice-free
+(`#print axioms ⊆ {propext, Quot.sound}`). Remaining: Thm 3.13(ii)(iii) (pointwise bounded sups)
+and the exercises 3.14–3.28.
 
 | Scott (PRG-19 §3) | Kind | Text (vision) | Lean target | Status |
 | ----------------- | ---- | ------------- | ----------- | ------ |
-| **Def 3.1** | Definition | 939–951 | product system `𝒟₀×𝒟₁={X∪Y}`; element pairing `⟨x,y⟩={X∪Y∣X∈x,Y∈y}` (disjoint `Δ₀,Δ₁`) | **Not Yet** |
-| **Prop 3.2** | Proposition | 953–999 | `𝒟₀×𝒟₁` is a nbhd system; `⟨x,y⟩⊑⟨x',y'⟩ ⟺ x⊑x'∧y⊑y'`; bijection `\|𝒟₀×𝒟₁\|≅\|𝒟₀\|×\|𝒟₁\|` | **Not Yet** |
-| **Def 3.3** | Definition | 1003–1027 | projections `p₀,p₁`; paired map `⟨f,g⟩`; multivariate `f:D₂→D₀×D₁` | **Not Yet** |
-| **Prop 3.4** | Proposition | 1031–1047 | `p₀,p₁,⟨f,g⟩` approximable; `pᵢ∘⟨f,g⟩=f/g`; `h=⟨p₀∘h,p₁∘h⟩`; `⟨f,g⟩(w)=⟨f(w),g(w)⟩` | **Not Yet** |
-| **Theorem 3.5** | Theorem | 1081–1112 | `f:\|D₀×D₁\|→\|D₂\|` approximable ⟺ approximable in each argument separately (uses Lemma 3.6) | **Not Yet** |
-| **Lemma 3.6** | Lemma | 1089–1093 | constant map `b:\|D₀\|→\|D₁\|` (`b(x)=b`) from approximable relation `X b Y ⟺ Y∈b` | **Not Yet** |
-| **Prop 3.7** | Proposition | 1124–1158 | approximable multivariate functions closed under substitution (composition + projections) | **Not Yet** |
-| **Def 3.8** | Definition | 1164–1170 | function space `(D₀→D₁)`: tokens = approximable maps; nbhds `⋂[Xᵢ,Yᵢ]` with `[X,Y]={f∣X f Y}` | **Not Yet** |
-| **Prop 3.9** | Proposition | 1176–1266 | `{[Xᵢ,Yᵢ]}` consistent in `(D₀→D₁)` ⟺ `{Xᵢ}` consistent ⟹ `{Yᵢ}` consistent; finite elements characterized | **Not Yet** |
-| **Theorem 3.10** | Theorem | 1268–1282 | `(D₀→D₁)` *complete*: filters ↔ approximable maps bijectively (inclusion-preserving) | **Not Yet** |
-| **Theorem 3.11** | Theorem | 1286–1318 | evaluation `eval:(D₁→D₂)×D₁→D₂` approximable; `eval(f,x)=f(x)` | **Not Yet** |
-| **Theorem 3.12** | Theorem | 1322–1381 | curry `curry(g):D₀→(D₁→D₂)`; `curry(g)(x)(y)=g(x,y)`; `eval∘⟨curry(g)∘p₀,p₁⟩=g`; adjunction with `eval` | **Not Yet** |
-| **Theorem 3.13** | Theorem | 1385–1399 | `f⊑g ⟺ ∀x, f(x)⊑g(x)`; boundedness & `⊔` on function space are pointwise | **Not Yet** |
+| **Def 3.1** | Definition | 939–951 | `prod`, `prodNbhd` (`Sum.inl '' X ∪ Sum.inr '' Y`), element pairing `pair`, `Element.fst/snd` (`Product.lean`) | **Pass** |
+| **Prop 3.2** | Proposition | 953–999 | `prod` is a nbhd system; `prodEquiv : \|𝒟₀×𝒟₁\|≃o\|𝒟₀\|×\|𝒟₁\|`; `pair_le_pair_iff` (`Product.lean`) | **Pass** |
+| **Def 3.3** | Definition | 1003–1027 | projections `proj₀`, `proj₁`; paired map `paired`; multivariate via `prod` (`Product.lean`) | **Pass** |
+| **Prop 3.4** | Proposition | 1031–1047 | `proj₀/proj₁/paired` approximable; `proj_comp_paired`; `toElementMap_paired_apply` (`⟨f,g⟩(w)=⟨f(w),g(w)⟩`) (`Product.lean`) | **Pass** |
+| **Theorem 3.5** | Theorem | 1081–1112 | `toMap₂`/`ofMap₂`/`map₂Equiv`: `ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂` (joint ⟺ separate) (`Product.lean`) | **Pass** |
+| **Lemma 3.6** | Lemma | 1089–1093 | constant map `constMap`; `toElementMap_constMap` (`Product.lean`) | **Pass** |
+| **Prop 3.7** | Proposition | 1124–1158 | `substitution_toElementMap`: multivariate functions closed under substitution (`Product.lean`) | **Pass** |
+| **Def 3.8** | Definition | 1164–1170 | `step` (`[X,Y]={f∣X f Y}`), `stepFun`, `funSpace`; algebra `step_inter_right`/`step_subset`/`step_master_eq`/`step_mem` (`FunctionSpace.lean`) | **Pass** |
+| **Prop 3.9** | Proposition | 1176–1266 | `interYs`, `leastMap` (cond. (ii) `X f₀ Y ⟺ ⋂{Yᵢ∣X⊆Xᵢ}⊆Y`), `leastMap_mem_stepFun`, `leastMap_le` (minimal element), `stepFun_subset_step_iff` (remark after 3.9) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.10** | Theorem | 1268–1282 | `funSpaceEquiv : \|𝒟₀→𝒟₁\|≃o ApproximableMap V₀ V₁` (`toApproxMap`/`toFilter`); completeness, inclusion-preserving (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.11** | Theorem | 1286–1318 | `eval : ApproximableMap₂ (funSpace V₁ V₂) V₁ V₂`, `evalMap`; `evalMap_apply` (`eval(f,x)=f(x)`) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.12** | Theorem | 1322–1381 | `curry`, `uncurry`; `toElementMap_curry_apply`; `uncurry_curry`/`curry_uncurry`; `eval_comp_curry`/`curry_eval_comp`; `curryEquiv` (adjunction) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.13(i)** | Theorem | 1385–1399 | `le_iff_toElementMap_le` (`f⊑g ⟺ ∀x, f(x)⊑g(x)`) (`FunctionSpace.lean`) | **Pass** |
+| **Theorem 3.13(ii)(iii)** | Theorem | 1385–1399 | boundedness & `⊔` on function space are pointwise (needs bounded-`sSup` infra) | **Not Yet** |
 | **Exercise 3.14** | Exercise | 1405–1429 | tagged product `0Δ₀∪1Δ₁` (disjointness unnecessary); `diag:D→D×D`; `n`-fold products | **Not Yet** |
 | **Exercise 3.15** | Exercise | 1431–1439 | product isomorphisms: commutativity, associativity, empty product, functoriality | **Not Yet** |
 | **Exercise 3.16** | Exercise | 1443–1466 | `𝒟^∞` over `Δ^∞`; `𝒟^∞≅𝒟×𝒟^∞`; elements = infinite sequences of `\|𝒟\|` elements | **Not Yet** |
@@ -1376,8 +1383,8 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`ApproximableExercises.lean`**, **`Example23.lean`**, **`Example24.lean`**, **`Exercise216.lean`**, **`Exercise213.lean`**, **`Exercise214.lean`**, **`Exercise215.lean`**, **`Exercise218.lean`**, **`Exercise220.lean`**, **`Exercise221.lean`**, **`Exercise222.lean`**) |
-| Report card  | **43 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.27**, Factoids 1.4a/1.5a/1.5b) — **all of Lecture I formalized** |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`ApproximableExercises.lean`**, **`Example23.lean`**, **`Example24.lean`**, **`Exercise216.lean`**, **`Exercise213.lean`**, **`Exercise214.lean`**, **`Exercise215.lean`**, **`Exercise218.lean`**, **`Exercise220.lean`**, **`Exercise221.lean`**, **`Exercise222.lean`**, **`Product.lean`**, **`FunctionSpace.lean`**) |
+| Report card  | **78 Pass** — all of Lecture I (43), all of Lecture II (22), and the Lecture III product + function-space spine (13: Def 3.1, Prop 3.2, Def 3.3, Prop 3.4, Thm 3.5, Lemma 3.6, Prop 3.7, Def 3.8, Prop 3.9, Thm 3.10, Thm 3.11, Thm 3.12, Thm 3.13(i)) |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
 **complete inventories** of PRG-19 Lectures I–III:
@@ -1386,12 +1393,15 @@ flowchart TD
 | ------- | - | ---- | ---- |
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
 | II (approximable mappings) | §4.2.II | 22 | **22** |
-| III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **93** | **65** |
+| III (products, sums, function spaces) | §4.2.III | 29 | **13** |
+| **Total PRG-19 I–III** | | **94** | **78** |
+
+The Lecture III **spine** (Def 3.1 → Thm 3.13(i)) is complete and choice-free; the remaining
+Lecture III rows are Thm 3.13(ii)(iii) (pointwise bounded sups) and Exercises 3.14–3.28.
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
-inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
-`Domain/Neighborhood/Constructions.lean` (§3).
+inventoried. Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
+`Domain/Neighborhood/Product.lean` + `Domain/Neighborhood/FunctionSpace.lean` (§3).
 
 
 ### 4.5 Selected proof notes
@@ -1873,6 +1883,45 @@ explicit `include … in` before each declaration that uses them only in its pro
 **Axiom-footprint summary (Lecture II exercises, this session).** Choice-free
 (`[propext, Quot.sound]`): **2.13**, **2.18**, **2.21**. Classical (`Classical.choice` present and
 documented as intrinsic): **2.14**, **2.15**, **2.20**, **2.22**. No `sorry`/`admit` anywhere.
+
+#### Lecture III §3 — the product (`Product.lean`)
+
+The product `𝒟₀ × 𝒟₁` is modelled on the **disjoint-union token type** `α ⊕ β`, the faithful Lean
+reading of Scott's "disjoint `Δ₀, Δ₁`". A product neighbourhood is `prodNbhd X Y = Sum.inl '' X ∪
+Sum.inr '' Y`; the key algebra (`prodNbhd_inter`, `prodNbhd_subset_iff`, and crucially
+`prodNbhd_injective`) is proved through the **preimage characterizations** `inl_preimage_prodNbhd`
+/ `inr_preimage_prodNbhd` rather than `Set.Subset.antisymm`, which keeps `prodNbhd_injective` — and
+hence the order-iso `prodEquiv : |𝒟₀×𝒟₁| ≃o |𝒟₀|×|𝒟₁|` — **choice-free**. The element projections
+`Element.fst`/`Element.snd` recover their `inter_mem` from the product element's `inter_mem` composed
+with `prodNbhd_injective` (no fabricated witnesses, again avoiding choice). Theorem 3.5 is the
+bridge `map₂Equiv : ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂` (the payoff of the
+Ex 2.19 `ApproximableMap₂` work), and Prop 3.7 is `substitution_toElementMap`. Footprint of all
+constructions: `[propext, Quot.sound]`.
+
+#### Lecture III §3 — the function space (`FunctionSpace.lean`)
+
+Tokens of `(𝒟₀ → 𝒟₁)` are approximable maps; a neighbourhood is a finite intersection of **step
+sets** `step X Y = {f ∣ X f Y}`, modelled by a `List (Set α × Set β)` via `stepFun L`, and the
+system is **positive** (neighbourhoods are required non-empty — exactly what makes a filter's
+induced relation intersective). The crux **Theorem 3.10** is `funSpaceEquiv : |𝒟₀→𝒟₁| ≃o
+ApproximableMap V₀ V₁`, with `toApproxMap φ` (`X φ̂ Y ↔ [X,Y] ∈ φ`) and `toFilter f`
+(`f̂ = {F ∣ f ∈ F}`); the "generation" lemma `mem_stepFun_iff` (a filter contains `⋂[Xᵢ,Yᵢ]` iff it
+contains each `[Xᵢ,Yᵢ]`) does the heavy lifting on both inverse legs. **Proposition 3.9** is the
+least map: `interYs Δ₁ L X` is Scott's `⋂{Yᵢ ∣ X ⊆ Xᵢ}` taken inside `Δ₁` (so the empty
+intersection is `Δ₁`, per convention 1.1a), and `leastMap` realises condition (ii) `X f₀ Y ↔
+interYs Δ₁ L X ⊆ Y`. `leastMap_mem_stepFun` places it in the neighbourhood; `rel_interYs` (a list
+induction with a `by_cases X ⊆ Xᵢ` step) shows any `f` in the neighbourhood relates `X` to the whole
+`interYs`, whence `leastMap_le` (minimality) and `stepFun_subset_step_iff` (the remark after 3.9,
+the form used to check `curry` is monotone). **Theorems 3.11/3.12** give `eval`
+(`ApproximableMap₂ (funSpace V₁ V₂) V₁ V₂`, with `evalMap_apply : eval(f,x)=f(x)`), and `curry` /
+`uncurry` with the round-trips `uncurry_curry` / `curry_uncurry` and the CCC adjunction
+`eval_comp_curry` / `curry_eval_comp`, packaged as the order-iso `curryEquiv`. **Theorem 3.13(i)** is
+`le_iff_toElementMap_le`. Every *construction* (`funSpace`, `funSpaceEquiv`, `eval`, `curry`,
+`curryEquiv`, `leastMap`, `interYs`) is `[propext, Quot.sound]`; the equational identities proved by
+the elementwise extensionality `ext_of_toElementMap` or the `X ⊆ Xᵢ` case split (`leastMap_le`,
+`stepFun_subset_step_iff`, `eval_comp_curry`, `curry_eval_comp`) carry `Classical.choice` as a
+documented *proof*-level step. **Deferred:** Theorem 3.13(ii)(iii) (pointwise bounded sups) needs
+bounded-`sSup` infrastructure for `Element` not yet in the codebase.
 
 ---
 

@@ -5,15 +5,38 @@ Computation* (Technical Monograph PRG-19) in:
 
 `/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`.
 
-**Lecture I is COMPLETE (43 Pass).** **Lecture II is COMPLETE (22 Pass)** (`lake build Domain`
-green, zero `sorry`s). **This session: begin Lecture III (§3) — the domain constructions:** products
-(Def 3.1–Prop 3.4), separate continuity (Thm 3.5 / Lemma 3.6), substitution (Prop 3.7), the
-**function space** `(𝒟₀→𝒟₁)` (Def 3.8–Thm 3.13), and Exercises 3.14–3.28. Current total: **65 Pass**;
-Lecture III is **28 rows, all Not Yet** (`arxiv.md §4.2.III`).
+**Lecture I is COMPLETE (43 Pass).** **Lecture II is COMPLETE (22 Pass).** **The Lecture III (§3)
+spine is COMPLETE (13 Pass): Def 3.1 → Theorem 3.13(i)** (`lake build Domain` green, zero `sorry`s).
+Current total: **78 Pass**. **This session's remaining Lecture III work:** Theorem 3.13(ii)(iii)
+(pointwise bounded sups) and Exercises 3.14–3.28 (`arxiv.md §4.2.III`).
 
 ---
 
-## What just landed (Lecture II — now complete)
+## What just landed (Lecture III §3 — the cartesian-closed spine)
+
+| Result | Module | Key Lean names |
+| ------ | ------ | -------------- |
+| **Def 3.1 / Prop 3.2** (product) | `Product.lean` | `prod`, `prodNbhd` (`Sum.inl '' X ∪ Sum.inr '' Y`), `prodNbhd_inter`/`_subset_iff`/`_injective` (choice-free), `pair`, `Element.fst`/`snd`, `pair_le_pair_iff`, `prodEquiv : |𝒟₀×𝒟₁|≃o|𝒟₀|×|𝒟₁|` |
+| **Def 3.3 / Prop 3.4** (proj/pair) | `Product.lean` | `proj₀`/`proj₁`, `paired`, `proj_comp_paired`, `toElementMap_paired_apply` (`⟨f,g⟩(w)=⟨f(w),g(w)⟩`) |
+| **Thm 3.5 / Lemma 3.6** (joint⟺separate) | `Product.lean` | `constMap`, `toElementMap_constMap`, `toMap₂`/`ofMap₂`/`map₂Equiv` (`ApproximableMap (prod V₀ V₁) V₂ ≃ ApproximableMap₂ V₀ V₁ V₂`) |
+| **Prop 3.7** (substitution) | `Product.lean` | `substitution_toElementMap` |
+| **Def 3.8** (function space) | `FunctionSpace.lean` | `step`/`stepFun`/`funSpace`; `step_inter_right`/`step_subset`/`step_master_eq`/`step_mem`; `mem_stepFun_iff` |
+| **Prop 3.9** (least map) | `FunctionSpace.lean` | `interYs`, `leastMap` (cond. (ii)), `leastMap_mem_stepFun`, `rel_interYs`, `leastMap_le` (minimality), `stepFun_subset_step_iff` (remark after 3.9) |
+| **Thm 3.10** (completeness, the crux) | `FunctionSpace.lean` | `toApproxMap`/`toFilter`, `funSpaceEquiv : |𝒟₀→𝒟₁|≃o ApproximableMap V₀ V₁` |
+| **Thm 3.11** (eval) | `FunctionSpace.lean` | `eval` (`ApproximableMap₂`), `evalMap`, `evalMap_apply` (`eval(f,x)=f(x)`) |
+| **Thm 3.12** (curry) | `FunctionSpace.lean` | `curry`/`uncurry`, `toElementMap_curry_apply`, `uncurry_curry`/`curry_uncurry`, `eval_comp_curry`/`curry_eval_comp`, `curryEquiv` (adjunction `≃o`) |
+| **Thm 3.13(i)** (pointwise order) | `FunctionSpace.lean` | `le_iff_toElementMap_le` (`f⊑g ⟺ ∀x f(x)⊑g(x)`) |
+
+**Axiom audit (Lecture III spine).** Every *construction* is choice-free `[propext, Quot.sound]`:
+`prod`, `prodEquiv`, `proj₀`, `paired`, `map₂Equiv`, `funSpace`, `funSpaceEquiv`, `eval`, `curry`,
+`curryEquiv`, `leastMap`, `interYs`. The few equational identities proved by elementwise
+extensionality (`ext_of_toElementMap`) or the `X⊆Xᵢ` case split (`leastMap_le`,
+`stepFun_subset_step_iff`, `eval_comp_curry`, `curry_eval_comp`) pull in `Classical.choice` — these
+are documented classical *proof* steps, not constructions.
+
+---
+
+## What landed earlier (Lecture II — complete)
 
 | Result | Module | Key Lean names |
 | ------ | ------ | -------------- |
@@ -47,111 +70,26 @@ Classical (`Classical.choice`, documented as intrinsic): 2.14, 2.15, 2.20, 2.22.
 
 ---
 
-## Recommended order and dependencies
+## Remaining spine work — Theorem 3.13(ii)(iii) (vision 1385–1399)
 
-The core spine (3.1 → 3.13) builds the cartesian-closed structure; do it in order, then the exercises.
+The spine **Def 3.1 → Thm 3.13(i)** is done (see the table above). What is left of the spine:
 
-```
-Def 3.1 / Prop 3.2  (product system 𝒟₀×𝒟₁; ⟨x,y⟩; |𝒟₀×𝒟₁| ≅ |𝒟₀|×|𝒟₁|)   ← foundation
-Def 3.3 / Prop 3.4  (projections p₀,p₁; pairing ⟨f,g⟩; pᵢ∘⟨f,g⟩=f/g)
-Lemma 3.6           (constant maps) ─┐
-Theorem 3.5         (joint ⟺ separate approximability)  ← uses Lemma 3.6
-Prop 3.7            (substitution / multivariate composition closed)
-Def 3.8             (function space (𝒟₀→𝒟₁): tokens = approximable maps; nbhds ⋂[Xᵢ,Yᵢ])
-Prop 3.9            (consistency of [Xᵢ,Yᵢ] families; finite elements)
-Theorem 3.10        (function space complete: filters ↔ approximable maps)   ← the crux
-Theorem 3.11        (eval approximable; eval(f,x)=f(x))
-Theorem 3.12        (curry; eval∘⟨curry g∘p₀,p₁⟩=g — the CCC adjunction)
-Theorem 3.13        (f⊑g ⟺ ∀x f(x)⊑g(x); pointwise ⊔)
-Exercises 3.14–3.28 (tagged products, 𝒟^∞, sums 𝒟₀+𝒟₁, functoriality, CCC, fix, …)
-```
+**Theorem 3.13(ii)(iii):** for `F ⊆ |𝒟₀→𝒟₁|`, `F` is bounded iff `{f(x) ∣ f∈F}` is bounded in
+`|𝒟₁|` for each `x`; and then `(⊔F)(x) = ⊔{f(x) ∣ f∈F}` (the sup is pointwise). Scott's proof
+preserves directed unions (cf. 2.9, 2.11).
 
-| Order | Result | New module (suggested) | Depends on |
-| ----- | ------ | ---------------------- | ---------- |
-| 1 | **Def 3.1 / Prop 3.2** | `Product.lean` | `Basic.lean` (`NeighborhoodSystem`, `Element`, `≃o`) |
-| 2 | **Def 3.3 / Prop 3.4** | `Product.lean` | `Approximable.lean` (`comp`/`idMap`), `ApproximableMap₂` |
-| 3 | **Lemma 3.6 + Theorem 3.5** | `Product.lean` | Prop 3.2, `ApproximableMap₂` (Ex 2.19) |
-| 4 | **Prop 3.7** | `Product.lean` | Prop 3.4, `comp_assoc` |
-| 5 | **Def 3.8 / Prop 3.9 / Thm 3.10** | `FunctionSpace.lean` | `Approximable.lean` (maps as tokens), `Theorem110/111` |
-| 6 | **Thm 3.11 / 3.12 / 3.13** | `FunctionSpace.lean` | Thm 3.10, Product, `sSupDirected` |
-| 7 | **Ex 3.14–3.28** | `Construction3xx.lean` (one per exercise) | the spine above + Ex 2.22 (for 3.27), 2.13/1.21 (3.25) |
+**Why it is deferred:** this needs **bounded-`sSup` infrastructure for `Element`** that does not yet
+exist. The codebase has `sSupDirected` (directed families, `Approximable.lean`) and
+`Bounded`/`sSup` for a *pair* (`Exercise127.lean`), but not the least upper bound of an arbitrary
+**bounded** subset of `Element` (bounded-complete sups). The cleanest route:
 
-Add every new file to `Domain.lean`.
-
----
-
-## Spine-by-spine deliverables
-
-### Def 3.1 / Prop 3.2 — the product system (vision 939–999)
-
-**Scott:** with disjoint `Δ₀,Δ₁`, `𝒟₀×𝒟₁` has neighbourhoods `X ∪ Y` (`X∈𝒟₀, Y∈𝒟₁`), and element
-pairing `⟨x,y⟩ = {X∪Y ∣ X∈x, Y∈y}`. Prove it is a neighbourhood system, that `⟨x,y⟩⊑⟨x',y'⟩ ⟺
-x⊑x' ∧ y⊑y'`, and the order-iso `|𝒟₀×𝒟₁| ≅ |𝒟₀|×|𝒟₁|`.
-
-**Lean targets (`Product.lean`):**
-
-| Target | Content |
-| ------ | ------- |
-| `prod (V₀ V₁) : NeighborhoodSystem (α ⊕ β)` | use `Sum` for disjointness; token `α⊕β`, `master = inl⁻¹? …` — neighbourhoods are `(inl '' X) ∪ (inr '' Y)`. `inter_mem` from the two factors' `inter_mem`. |
-| `pair (x y) : (prod V₀ V₁).Element` | `⟨x,y⟩`; `mk`-style filter. |
-| `pair_le_pair_iff` | `⟨x,y⟩ ⊑ ⟨x',y'⟩ ↔ x ⊑ x' ∧ y ⊑ y'`. |
-| `prodEquiv : (prod V₀ V₁).Element ≃o V₀.Element × V₁.Element` | the iso; `fst`/`snd` are the components. |
-
-**Pitfall:** the disjoint-union token type is the cleanest model of Scott's "disjoint `Δ₀,Δ₁`".
-Mathlib's product order on `V₀.Element × V₁.Element` is componentwise — match it exactly.
-
-### Def 3.3 / Prop 3.4 — projections and pairing (vision 1003–1047)
-
-**Scott:** projections `p₀,p₁`, paired map `⟨f,g⟩`; `pᵢ` and `⟨f,g⟩` approximable;
-`pᵢ∘⟨f,g⟩ = f/g`; `h = ⟨p₀∘h, p₁∘h⟩`; `⟨f,g⟩(w) = ⟨f(w),g(w)⟩`.
-
-**Lean targets:** `proj₀`/`proj₁ : ApproximableMap (prod V₀ V₁) Vᵢ`, `paired (f g) :
-ApproximableMap W (prod V₀ V₁)`, then `proj₀_comp_paired`, `proj₁_comp_paired`,
-`paired_proj` (`⟨p₀∘h,p₁∘h⟩=h`), and `toElementMap_paired` (`⟨f,g⟩(w)=⟨f(w),g(w)⟩`). Reuse
-`comp`/`comp_assoc` from `Approximable.lean`.
-
-### Lemma 3.6 + Theorem 3.5 — separate vs. joint approximability (vision 1081–1112)
-
-**Scott:** constant maps are approximable (`X b Y ⟺ Y∈b`); `f:|D₀×D₁|→|D₂|` is approximable iff it
-is approximable separately in each argument.
-
-**Lean targets:** `constMap (b) : ApproximableMap V₀ V₁` + `toElementMap_constMap`; then
-`approximable_iff_separately` linking `ApproximableMap (prod V₀ V₁) V₂` to `ApproximableMap₂ V₀ V₁ V₂`
-(you already have `ApproximableMap₂` from Ex 2.19 — this theorem is the bridge `ApproximableMap (prod …)
-≃ ApproximableMap₂`). Likely the **payoff** that justifies the Ex 2.19 work.
-
-### Prop 3.7 — substitution closed (vision 1124–1158)
-
-Multivariate approximable functions are closed under substitution (composition + projections). Mostly
-`comp`/`paired`/`proj` bookkeeping once 3.4 is in place.
-
-### Def 3.8 / Prop 3.9 / Theorem 3.10 — the function space (vision 1164–1282)
-
-**Scott (the heart of §3):** `(𝒟₀→𝒟₁)` has *tokens = approximable maps* (really the step functions
-`[X,Y]`), neighbourhoods `⋂ᵢ [Xᵢ,Yᵢ]` where `[X,Y] = {f ∣ X f Y}`. Prop 3.9 characterizes when a
-family `{[Xᵢ,Yᵢ]}` is consistent (`{Xᵢ}` consistent ⟹ `{Yᵢ}` consistent). **Theorem 3.10:** the
-function space is *complete* and its elements (filters) correspond bijectively, inclusion-preservingly,
-to approximable maps `𝒟₀→𝒟₁`.
-
-**Lean targets (`FunctionSpace.lean`):**
-
-| Target | Content |
-| ------ | ------- |
-| `step (X Y) : Set (ApproximableMap V₀ V₁)` (the `[X,Y]`) | `{f ∣ f.rel X Y}`; neighbourhoods = finite `⋂`. Decide the token type — likely `Σ X Y, …` step-function data or a `Set` of `(X,Y)` pairs. |
-| `funSpace V₀ V₁ : NeighborhoodSystem …` | the system; `inter_mem` via Prop 3.9 consistency. |
-| `consistent_step_iff` (Prop 3.9) | `{[Xᵢ,Yᵢ]}` consistent ⟺ (`{Xᵢ}` consistent ⟹ `{Yᵢ}` consistent). |
-| `funSpaceEquiv : (funSpace V₀ V₁).Element ≃o ApproximableMap V₀ V₁` (Thm 3.10) | the bijection; **inclusion-preserving**. This is the technical crux — budget the most time here. |
-
-**Pitfall:** mirror `Domain/ContinuousLattice/FunctionSpaceTower.lean` (the continuous-lattice analogue)
-for proof structure, but the *token* model is Scott's neighbourhood-system one. The order on
-`ApproximableMap` is `rel`-inclusion; `funSpaceEquiv` must be an `≃o` for that order.
-
-### Theorem 3.11 / 3.12 / 3.13 — eval, curry, pointwise order (vision 1286–1399)
-
-`eval : (𝒟₁→𝒟₂)×𝒟₁ → 𝒟₂` approximable with `eval(f,x)=f(x)` (3.11); `curry(g):𝒟₀→(𝒟₁→𝒟₂)` with the
-adjunction `eval∘⟨curry g∘p₀, p₁⟩ = g` (3.12); `f⊑g ⟺ ∀x f(x)⊑g(x)`, bounded sups pointwise (3.13).
-Together these give the **cartesian-closed category** (Ex 3.23). Use `ApproximableMap₂` for `eval`,
-`toElementMap₂`, and the product `paired`/`proj` from step 2.
+1. Build `NeighborhoodSystem.sSupBounded (S : Set V.Element) (hbdd : ∃ u, ∀ s∈S, s ≤ u) : V.Element`
+   — e.g. the filter generated by `⋃ S` (its up-closure under finite meets, which the bound keeps a
+   neighbourhood), with `le_sSupBounded`/`sSupBounded_le`. Verify it is choice-free.
+2. Define `⊔F` on maps via `funSpaceEquiv` (transport the `Element` sup), or directly as the map
+   with relation `X (⊔F) Y ↔ Y ∈ sSupBounded {f(↑X) ∣ f∈F}`.
+3. (ii) is then `le_iff_toElementMap_le` (Thm 3.13(i), done) applied pointwise; (iii) is
+   `toElementMap_sSup_apply`.
 
 ---
 
@@ -196,18 +134,17 @@ Together these give the **cartesian-closed category** (Ex 3.23). Use `Approximab
 
 ## Workflow
 
-1. Read `sources/PRG19_vision.md` lines **939–1642** (Def 3.1 → Ex 3.28). The §4.2.III inventory in
-   `arxiv.md` has the exact vision line ranges per row.
-2. Build the product first: `Product.lean` — Def 3.1/Prop 3.2 (system + `prodEquiv`), then Def 3.3/
-   Prop 3.4 (`proj`/`paired`), Lemma 3.6 (`constMap`), Theorem 3.5 (`approximable_iff_separately`),
-   Prop 3.7.
-3. Build the function space: `FunctionSpace.lean` — Def 3.8 (`funSpace`), Prop 3.9
-   (`consistent_step_iff`), **Theorem 3.10** (`funSpaceEquiv`, the crux), then eval/curry/pointwise
-   (Thm 3.11/3.12/3.13).
-4. Then the exercises 3.14–3.28, one module each (`Construction3xx.lean` or grouped sensibly).
-5. Add each file to `Domain.lean`; keep `lake build Domain` green; `#print axioms` scratch audit
+1. Read `sources/PRG19_vision.md` lines **1385–1642** (Thm 3.13 + Ex 3.14–3.28). The §4.2.III
+   inventory in `arxiv.md` has the exact vision line ranges per row.
+2. **Theorem 3.13(ii)(iii):** build the bounded-`sSup` infrastructure for `Element` (see "Remaining
+   spine work" above), then `(⊔F)(x) = ⊔{f(x)}` via `funSpaceEquiv` and `le_iff_toElementMap_le`.
+3. Then the exercises 3.14–3.28, one module each (`Construction3xx.lean` or grouped sensibly).
+   `Product.lean`/`FunctionSpace.lean` already provide the products, sums-precursors, `eval`,
+   `curry`, `leastMap`, etc. Note 3.28 = `leastMap`'s elementwise formula `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}`,
+   which connects directly to the already-built `leastMap`/`interYs`.
+4. Add each file to `Domain.lean`; keep `lake build Domain` green; `#print axioms` scratch audit
    (delete the scratch file after).
-6. Update `arxiv.md`: §4.2.III rows → **Pass**; §4.4 tally (Lecture III count, total); report-card
+5. Update `arxiv.md`: §4.2.III rows → **Pass**; §4.4 tally (Lecture III count, total); report-card
    module list; §4.5 proof notes. Update this `HANDOFF.md` for whatever remains (Lecture IV is
    partially OCR'd from line 1646 but not yet inventoried).
 
@@ -217,12 +154,14 @@ Together these give the **cartesian-closed category** (Ex 3.23). Use `Approximab
 
 | File | Role |
 | ---- | ---- |
-| `sources/PRG19_vision.md` | **Primary source** — Def 3.1 @939, Prop 3.2 @953, Def 3.3 @1003, Prop 3.4 @1031, Thm 3.5 @1081, Lemma 3.6 @1089, Prop 3.7 @1124, Def 3.8 @1164, Prop 3.9 @1176, Thm 3.10 @1268, Thm 3.11 @1286, Thm 3.12 @1322, Thm 3.13 @1385, Ex 3.14–3.28 @1405–1642 |
-| `arxiv.md §4.2.III` | full Lecture III inventory (line ranges + Lean-target sketches), all rows **Not Yet** |
+| `sources/PRG19_vision.md` | **Primary source** — Thm 3.13 @1385, Ex 3.14–3.28 @1405–1642 (spine Def 3.1–Thm 3.12 already formalized) |
+| `arxiv.md §4.2.III` | full Lecture III inventory; spine rows **Pass**, Thm 3.13(ii)(iii) + Ex 3.14–3.28 **Not Yet** |
+| `Domain/Neighborhood/Product.lean` | **§3.1–3.7** — `prod`/`prodEquiv`, `proj`/`paired`, `constMap`, `map₂Equiv`, `substitution_toElementMap` |
+| `Domain/Neighborhood/FunctionSpace.lean` | **§3.8–3.13(i)** — `funSpace`/`funSpaceEquiv`, `leastMap`, `eval`/`evalMap`, `curry`/`uncurry`/`curryEquiv`, `le_iff_toElementMap_le` |
 | `Domain/Neighborhood/Approximable.lean` | `ApproximableMap`, `comp`, `ofIso`, `sSupDirected` |
 | `Domain/Neighborhood/ApproximableExercises.lean` | `ApproximableMap₂` (Ex 2.19) — central to products/eval |
-| `Domain/ContinuousLattice/FunctionSpaceTower.lean` | structural reference for the function-space completeness theorem (3.10) |
-| `Domain.lean` | add `Product`, `FunctionSpace`, `Construction3xx` imports |
+| `Domain.lean` | already imports `Product`, `FunctionSpace`; add `Construction3xx` imports for the exercises |
 
-When the §3 spine (3.1–3.13) lands, the cartesian-closed-category structure of domains is formalized;
-the exercises then fill in sums, infinite products, `fix`, and the categorical statements.
+The §3 **spine (3.1 → 3.13(i)) is formalized**, so the cartesian-closed-category structure of
+domains (`eval`, `curry`, `curryEquiv`) is in place. The exercises then fill in sums, infinite
+products, `fix`, and the categorical statements; Thm 3.13(ii)(iii) needs bounded-`sSup` infra.

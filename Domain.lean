@@ -45,4 +45,6 @@ import Domain.Neighborhood.Exercise218
 import Domain.Neighborhood.Exercise220
 import Domain.Neighborhood.Exercise221
 import Domain.Neighborhood.Exercise222
+import Domain.Neighborhood.Product
+import Domain.Neighborhood.FunctionSpace
 import Domain.InfoSys
