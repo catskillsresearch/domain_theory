@@ -3042,3 +3042,512 @@ where for all $x \in |\mathcal{D}|$ we have
 $$
 \mathrm{diag}(x) = \langle x \rangle_{n=0}^\infty.
 $$
+
+<!-- page 89 -->
+
+(Hint: Try a recursive definition, say
+
+$$
+\mathrm{diag}(x) = \mathrm{push}(x, \mathrm{diag}(x)),
+$$
+
+but be sure to prove *all* terms of $\mathrm{diag}(x)$ equal $x$.) Also introduce by an appropriate recursion a combinator
+
+$$
+\mathrm{map} : (D \to D)^\infty \times D \to D^\infty
+$$
+
+where for elements of the suitable types:
+
+$$
+\mathrm{map}(\langle f_n \rangle_{n=0}^\infty, x) = \langle f_n(x) \rangle_{n=0}^\infty.
+$$
+
+**EXERCISE 5.12.** On any domain $D$ introduce (as a least fixed point) a combinator
+
+$$
+\mathrm{while} : (D \to T) \times (D \to D) \to (D \to D)
+$$
+
+by the recursion
+
+$$
+\mathrm{while}(p, f)(x) = \mathrm{cond}(p(x), \mathrm{while}(p, f)(f(x)), x).
+$$
+
+Prove that
+
+$$
+\mathrm{while}(p, \mathrm{while}(p, f)) = \mathrm{while}(p, f).
+$$
+
+Show how $\mathrm{while}$ could have been used to obtain the least number operator mentioned in the proof of 5.6. Generalize the idea to define a combinator
+
+$$
+\mathrm{find} : D^\infty \times (D \to T) \to D
+$$
+
+with the meaning "find the first term of the sequence (if any) which satisfies the given precicate."
+
+**EXERCISE 5.13.** Prove the existence of a one-one function $\mathrm{num} : \mathbf{N} \times \mathbf{N} \to \mathbf{N}$ such that
+
+$$
+\mathrm{num}(0, 0) = 0;
+$$
+
+$$
+\mathrm{num}(n, m+1) = \mathrm{num}(n+1, m) + 1;
+$$
+
+$$
+\mathrm{num}(n+1, 0) = \mathrm{num}(0, n) + 1.
+$$
+
+Draw a picture (i.e. an infinite matrix) for the function and find a closed form for its values, if possible. Use the function to prove the isomorphism of the domains
+
+$$
+P\mathbf{N},\ P(\mathbf{N} \times \mathbf{N}),\ P\mathbf{N} \times P\mathbf{N}.
+$$
+
+<!-- page 90 -->
+
+**EXERCISE 5.14.** Show that there are approximable mappings
+
+$$
+\mathrm{graph} : (P\mathbf{N} \to P\mathbf{N}) \to P\mathbf{N} \quad \text{and} \quad \mathrm{fun} : P\mathbf{N} \to (P\mathbf{N} \to P\mathbf{N}),
+$$
+
+where we have
+
+$$
+\mathrm{fun} \circ \mathrm{graph} = \lambda f.\, f, \quad \text{and} \quad \mathrm{graph} \circ \mathrm{fun} \supseteq \lambda x.\, x.
+$$
+
+(Hint: Using the notation
+
+$$
+[n_0, n_1, \ldots, n_k] = \mathrm{num}(n_0, [n_1, \ldots, n_k])
+$$
+
+two such combinators can be given by formulae
+
+$$
+\mathrm{fun}(u)(x) = \{m \mid \exists n_0, \ldots, n_{k-1} \in x.\ [n_0+1, \ldots, n_{k-1}+1, 0, m] \in u\}
+$$
+
+$$
+\mathrm{graph}(f) = \{[n_0+1, \ldots, n_{k-1}+1, 0, m] \mid m \in f(\{n_0, \ldots, n_{k-1}\})\}
+$$
+
+where $k$ is variable — meaning all finite sequences are to be considered.)
+
+**EXERCISE 5.15.** (For algebraists.) We can regard $\langle \{0,1\}^*, \Lambda, \cdot \rangle$ as the free semigroup on two generators $0$ and $1$. The powerset $P\{0,1\}^*$ is taken as a domain as in Exercise 4.17. For "words" $e \in \{0,1\}^*$ define
+
+$$
+e^* = \{\Lambda, e, e^2, e^3, \ldots, e^n, \ldots\}.
+$$
+
+Show that the least fixed point of
+
+$$
+z = \{e\} \cdot z \cup \{e'\}
+$$
+
+in $P\{0,1\}^*$ is $z = e^* \cdot \{e'\}$.
+
+Show further (as suggested by David Park) that the least solution of
+
+$$
+\begin{aligned}
+x &= a \cdot x \cup b \cdot y \cup c, \\
+y &= b \cdot x \cup a \cdot y \cup d
+\end{aligned}
+$$
+
+has
+
+$$
+x = (a \cup b \cdot a^* \cdot b)^* \cdot (c \cup b \cdot a^* \cdot d),
+$$
+
+where the $\{\cdot\}$ has been dropped off $\{a\}$, $\{b\}$ etc., and where the $^*$-notation has been extended to the whole domain, so that $z^* = \Lambda \cup z^* \cdot z$.
+
+(Hint: Apply 5.3.)
+
+<!-- page 91 -->
+
+**EXERCISE 5.16.** Return to the discussion of Example 4.4 and the construction of the domain of finite and infinite binary sequences. Give a fixed-point definition of $\mathrm{neg} : C \to C$, where
+
+$$
+\mathrm{neg}(0x) = 1\,\mathrm{neg}(x); \qquad \mathrm{neg}(1x) = 0\,\mathrm{neg}(x).
+$$
+
+Prove that $\mathrm{neg}(\mathrm{neg}(x)) = x$ for all $x \in |C|$. Also define $\mathrm{merge} : C \times C \to C$, where for $\epsilon, \delta \in \{0, 1\}$ we have:
+
+$$
+\mathrm{merge}(\epsilon x, \delta y) = \epsilon\,\delta\,\mathrm{merge}(x, y).
+$$
+
+(Note: There may be a little trouble with $\mathrm{merge}(x, y)$ when $x$ is finite and total and $y$ is infinite—you have to decide what you want in e.g. $\mathrm{merge}(\Lambda, y)$.) Prove that
+
+$$
+\mathrm{merge}(x, x) = d(x),
+$$
+
+in the notation of 4.4. Consider also the infinite non-periodic sequence
+
+$$
+t = 0\,\mathrm{merge}(\mathrm{neg}(t), \mathrm{tail}(t)).
+$$
+
+Prove that the $n^{\mathrm{th}}$ digit of $t$ is the sum mod 2 of the digits of the number $n$ written in the binary scale (a suggestion of J. Lambek). Show also that $t \neq u\,a\,a\,a\,v$ where $a$ is any finite sequence $\neq \Lambda$, and where $u$ is finite.
+
+<!-- page 92 -->
+
+# LECTURE VI
+
+<u>INTRODUCTION TO DOMAIN EQUATIONS</u>
+
+The major reason for introducing the theory of domains is to have a notion of *computability* incorporating both finite and infinite elements. In our many examples already explored we have seen how functions (functionals, operators, combinators) can be defined on domains; owing to the property of *approximability (continuity)* of these functions, we have also seen how they can be "calculated" by finite approximation. In this lecture further examples of domains will be constructed -- especially domains having infinite elements, which can be introduced in a variety of ways giving rise to interesting structural possibilities. The next lecture then treats a precise notion of *computability* appropriate to these domains; while the last lecture opens up new methods of domain construction.
+
+EXAMPLE 6.1. Let $D$ be fixed as a given domain. We are now familiar with a useful construct like $D \times D$ whose elements are ordered pairs $\langle x, y \rangle$ of elements $x, y$ of $D$. The question is: can this construct be iterated? The answer is obviously yes, since $D \times (D \times D)$ and $(D \times D) \times (D \times D)$ and so on can be formed with elements $\langle x, \langle y, z \rangle \rangle$ and $\langle \langle u, v \rangle, \langle x, y \rangle \rangle$ and the like. But the real question is: can the construct be iterated *indefinitely*? AND can the results be collected together into a *single* domain? The answer is yes, but it requires a bit of work to get it right. The method to be introduced will be open to many variations, so more than one answer is possible, giving non-isomorphic domains.
+
+In order to collect all the iterates into one large domain we give ourselves first a very big domain inside of which the desired family of neighbourhoods will be found. There are many ways to make this choice, and we are fixing on one that will keep the notation simple. We have often used binary sequences for examples and constructions, but for this example let us use
+
+<!-- page 93 -->
+
+ternary sequences. Let $\Sigma = \{0, 1, 2\}$ and let $\Sigma^*$ be all finite sequences from this three-letter alphabet. We will select subsets of $\Sigma^*$ for our neighbourhoods. As $\Sigma^*$ is countably infinite, it is without much loss of generality to assume that $\mathcal{D}$ is a neighbourhood system over $\Delta$, where we take $\Delta \subseteq \Sigma^*$. Also without loss of generality we can assume $\emptyset \notin \mathcal{D}$. (Why?)
+
+We wish to find another set $\Gamma \subseteq \Sigma^*$ to be the set of tokens for the new domain. After we find it, we will still have to say just which $X \subseteq \Gamma$ are appropriate for the structure we want.
+
+The totality $\{X \mid X \subseteq \Sigma^*\}$ is, as a powerset, isomorphic to the set of elements of a domain: a point we have remarked several times. So, by the Fixed-Point Theorem we know there is a set $\Gamma \subseteq \Sigma^*$ where
+
+$$
+\Gamma = 0\Delta \cup 1\Gamma \cup 2\Gamma.
+$$
+
+In fact $\Gamma = \{1, 2\}^* 0\Delta$, because we can say:
+
+$$
+\{1, 2\}^* = \{\Lambda\} \cup 1\{1, 2\}^* \cup 2\{1, 2\}^*.
+$$
+
+The domain we are looking for will be found as a domain $\mathcal{D}^{\S}$ over $\Gamma$. The reason for splitting $\Gamma$ up, as shown in the equation above, is to ensure that if $X, Y \in \mathcal{D}^{\S}$ are two neighbourhoods in the system $\mathcal{D}^{\S}$, then $1X \cup 2Y$ has a chance of being also in $\mathcal{D}^{\S}$ because
+
+$$
+1X \cup 2Y \subseteq \Gamma.
+$$
+
+This will make $\mathcal{D}^{\S} \times \mathcal{D}^{\S}$ isomorphic to a part of $\mathcal{D}^{\S}$. If we make $\mathcal{D}$ also isomorphic to a part of $\mathcal{D}^{\S}$, then all the iterated products will be contained in $\mathcal{D}^{\S}$.
+
+What is a neighbourhood system? Just a set of sets. But $\mathcal{P}\mathcal{P}\Sigma^*$ is a domain (as a power set) and because $\Gamma \subseteq \Sigma^*$, we find
+
+$$
+\mathcal{D}^{\S} \in \mathcal{P}\mathcal{P}\Sigma^*
+$$
+
+as an element. But elements of domains can often be defined by fixed-point equations. Indeed we will introduce $\mathcal{D}^{\S}$ this way:
+
+$$
+\mathcal{D}^{\S} = \{\Gamma\} \cup \{0X \mid X \in \mathcal{D}\} \cup \{1X \cup 2Y \mid X, Y \in \mathcal{D}^{\S}\}.
+$$
+
+The reader should stop to think why $\mathcal{D}^{\S}$ can be immediately seen to exist by writing such an equation. Of course another way to describe $\mathcal{D}^{\S}$ is to say it is the least family of sets containing (i) the set $\Gamma$, (ii) the sets $0X$ for $X$ in the given system $\mathcal{D}$, and (iii) sets $1X \cup 2Y$ whenever it already contains $X$ and $Y$ (closure
+
+<!-- page 94 -->
+
+under a set-forming operation). By saying "least" we mean (iv) nothing else belongs to $\mathcal{D}^{\S}$ except as allowed by (i)–(iii); this makes the truth of the equation for $\mathcal{D}^{\S}$ clear. So $\mathcal{D}^{\S}$ exists as a family of sets, but what good is it?
+
+By our construction of $\Gamma$, all the sets we put into $\mathcal{D}^{\S}$ are subsets of $\Gamma$ (why?); so $\mathcal{D}^{\S}$ has a chance of being a system over $\Gamma$ if we can check the closure under intersection. So suppose $Z \subseteq X \cap Y$ where $Z, X, Y \in \mathcal{D}^{\S}$; we want to show $X \cap Y \in \mathcal{D}^{\S}$. We argue by induction on the number of steps required to put $X$ and $Y$ into $\mathcal{D}^{\S}$ by (i)–(iii). There are several cases.
+
+If $X = \Gamma$ or $Y = \Gamma$, there is nothing to prove, because both sets are subsets of $\Gamma$. We note that $\emptyset \notin \mathcal{D}^{\S}$, because (i)–(iii) cannot introduce $\emptyset$ as a member of $\mathcal{D}^{\S}$. So, if $X = 0A$ for $A \in \mathcal{D}$, then $Y$ must have this form also (if it is not $\Gamma$), because
+
+$$
+0A \cap (1B \cup 2C) = \emptyset.
+$$
+
+(That is, if $Y$ had the form (iii), then $Z = \emptyset$ would be a consequence, which is impossible.) Thus, if $X = 0A$ for $A \in \mathcal{D}$, then $Y = 0B$ for some $B \in \mathcal{D}$. But by the same reasoning $Z = 0C$ for some $C \in \mathcal{D}$ also. But the relationship $0C \subseteq 0A \cap 0B$ is equivalent to $C \subseteq A \cap B$. We see, therefore, that $A \cap B \in \mathcal{D}$, and so
+
+$$
+X \cap Y = 0A \cap 0B = 0(A \cap B)
+$$
+
+must belong to $\mathcal{D}^{\S}$.
+
+The final case has $X, Y, Z$ all of the form (iii):
+
+$$
+X = 1A_1 \cup 2A_2,
+$$
+
+$$
+Y = 1B_1 \cup 2B_2, \text{ and}
+$$
+
+$$
+Z = 1C_1 \cup 2C_2.
+$$
+
+We can think of the $A_i$ and $B_i$ put into $\mathcal{D}^{\S}$ earlier and the intersection result as being already established for them. But the relationship $Z \subseteq X \cap Y$ is equivalent to $C_i \subseteq A_i \cap B_i$ for $i = 1, 2$. Therefore $A_i \cap B_i \in \mathcal{D}^{\S}$, and so does
+
+$$
+X \cap Y = (1A_1 \cup 2A_2) \cap (1B_1 \cup 2B_2) = 1(A_1 \cap B_1) \cup 2(A_2 \cap B_2).
+$$
+
+<!-- page 95 -->
+
+We have now seen that $D^\S$ is a neighbourhood system, but why was it constructed that way? The reason is simply this isomorphism (or domain equation):
+
+$$
+D^\S \cong D + (D^\S \times D^\S),
+$$
+
+as can be seen by reference to the equation for $D^\S$ and the definitions of $+$ and $\times$. What are the elements of $D^\S$? There is always
+
+$$
+\bot = \{\Gamma\}.
+$$
+
+Next if $x \in |D|$ we define
+
+$$
+x^\S = \{\Gamma\} \cup \{0 X \mid X \in x\}.
+$$
+
+That gives an isomorphic injection
+
+$$
+\lambda x.\, x^\S : D \to D^\S.
+$$
+
+Then for $x, y \in |D^\S|$ we can define
+
+$$
+\langle x, y \rangle = \{\Gamma\} \cup \{1X \cup 2Y \mid X \in x \text{ and } Y \in y\}.
+$$
+
+We have another isomorphic injection
+
+$$
+\lambda x, y.\, \langle x, y \rangle : D^\S \times D^\S \to D^\S.
+$$
+
+Indeed by looking at the neighbourhood definition of $D^\S$ we conclude that the *finite* elements of $D^\S$ are exactly those that are either of the form (i) $\bot$, or (ii) $a^\S$, where $a$ is finite in $|D|$, or (iii) $\langle a, b \rangle$, where $a$ and $b$ are previously obtained finite elements of $|D^\S|$.
+
+Suppose $a, \ldots, f$ are finite in $|D|$. We can picture the element
+
+$$
+u = \langle \langle a^\S, \langle \langle b^\S, c^\S \rangle, d^\S \rangle \rangle, \langle e^\S, f^\S \rangle \rangle
+$$
+
+in $|D^\S|$ as a tree:
+
+```
+              u
+             /   \
+            /     \
+           ·       ·
+          / \     / \
+         a   ·   e   f
+            / \
+           ·   d
+          / \
+         b   c
+
+<!-- page 96 -->
+
+Note that the tree has binary branching with the elements of $|D|$ at the ends of the branches. Any such tree could be given a notation as an element of $|D^{\S}|$. The finite elements of $|D^{\S}|$ correspond exactly to such finite trees.
+
+What of the infinite elements of $|D^{\S}|$? Are there infinite trees? Let $a, b \in |D^{\S}|$ be any elements of $|D^{\S}|$. Since pairing is an approximable mapping, we can solve the fixed-point equation
+
+$$
+v = \langle a, \langle b, v \rangle \rangle.
+$$
+
+In pictures we can diagram $v$ roughly as:
+
+```
+        v
+         \
+          · — a
+           \
+            · — b
+             \
+              · — a
+               \
+                · — b
+                 \
+                  · — a
+                   \
+                    · — b
+                     \
+                      · — a
+                       \
+                        ··· etc.
+```
+
+The word is “roughly” here, since if $a$ or $b$ were not in the $|D|$ part of $|D^{\S}|$, then in the diagram the letters “a” and “b” should be replaced by the corresponding tree diagrams for $a$ and $b$.
+
+Suppose that $a$ and $b$ are finite. Then we can easily see that the infinite tree $v$ is the limit of the following sequence of finite trees:
+
+$$
+v_0 = \bot,
+$$
+
+$$
+v_{n+1} = \langle a, \langle b, v_n \rangle \rangle,
+$$
+
+and
+
+$$
+v = \bigcup_{n=0}^{\infty} v_n.
+$$
+
+<!-- page 97 -->
+
+The reader should think how to explain from tree diagrams the approximation relation $v_n \sqsubseteq v$ and more general such relationships.
+
+We could call $D^\S$ a tree algebra over $D$. There may be others. A general one is a structure of the form
+
+$$
+\langle E, \text{in}, \text{pair} \rangle,
+$$
+
+where
+
+$$
+\text{in} : D \to E, \text{ and}
+$$
+
+$$
+\text{pair} : E \times E \to E.
+$$
+
+The algebra
+
+$$
+\langle D^\S, \lambda x.\, x^\S, \lambda x, y.\, \langle x, y \rangle \rangle,
+$$
+
+however, is a very special one: it is "minimal" among all tree algebras over $D$ in a sense we shall have to make precise.
+
+To do this think of how $E$ and $D^\S$ can differ. In view of the isomorphism that $D^\S$ satisfies, the injection of $D$ and the pairing are one-one, so no "information" is lost by these mappings. The same may not at all be true of $E$, but it is reasonable to think that at least we can define an approximable mapping $g : D^\S \to E$ where
+
+$$
+(1) \quad g(\bot) = \bot_E,
+$$
+
+$$
+(2) \quad g(x^\S) = \text{in}(x), \text{ for } x \in |D|, \text{ and}
+$$
+
+$$
+(3) \quad g(\langle x, y \rangle) = \text{pair}(g(x), g(y)), \text{ for } x, y \in |D^\S|.
+$$
+
+By what we said earlier, $g$ will be uniquely determined by (1)–(3), because these equations tell us exactly how to calculate $g$ on all finite elements of $|D^\S|$. An approximable mapping is always determined by its action on the finite elements. But why does $g$ exist?
+
+It would not be too hard to give an inductive construction of $g$ as a neighbourhood relation, but a fixed-point equation is easier to write down for the same purpose. We need, though, to have the inverse ("predecessor") functions:
+
+<!-- page 98 -->
+
+$$
+\text{out} : D^\S \to D
+$$
+
+$$
+\text{proj}_i : D^\S \to D^\S, \text{ for } i = 0, 1,
+$$
+
+where
+
+$$
+\text{out}(x^\S) = x,
+$$
+
+$$
+\text{proj}_0(\langle x, y \rangle) = x, \text{ and}
+$$
+
+$$
+\text{proj}_1(\langle x, y \rangle) = y.
+$$
+
+We also need
+
+$$
+\text{atom} : D^\S \to T,
+$$
+
+where
+
+$$
+\text{atom}(x^\S) = \mathrm{true}, \text{ and}
+$$
+
+$$
+\text{atom}(\langle x, y \rangle) = \mathrm{false}.
+$$
+
+We can then write
+
+$$
+g(x) = \text{cond}\bigl(\text{atom}(x),\, \text{in}(\text{out}(x)),\, \text{pair}(g(\text{proj}_0(x)),\, g(\text{proj}_1(x)))\bigr).
+$$
+
+This $g$ exists by fixed-point theory, and it satisfies (1)–(3) by what we know about the structure of $|D^\S|$. As we said, $g$ is unique because the values on finite elements are fixed.
+
+In algebraic language $g$ is a *homomorphism* of tree algebras; and $D^\S$ is called an *initial algebra*, because for any tree algebra $E$ there is a unique homomorphism $g : D^\S \to E$. We note at once that any two initial algebras are isomorphic. For if $D^*$ were another, there would exist homomorphisms in both directions between $D^\S$ and $D^*$. But the compositions of homomorphisms are again homomorphisms, and in the case of $D^\S$ if we go from $D^\S$ to $D^*$ and back to $D^\S$, the result must be the identity. The reason is that the identity can be the only homomorphism of an initial algebra into itself. We thus have a precise meaning of the minimal character of $D^\S$. But note it still took a construction to show that the domain $D^\S$ exists. $\square$
+
+<!-- page 99 -->
+
+**EXAMPLE 6.2.** Our staple examples $B$ and $C$ satisfy “domain equations” in the form of isomorphisms as we have previously seen. Indeed
+
+$$
+B \cong B + B, \text{ and}
+$$
+
+$$
+C \cong \{\{\Lambda\}\} + C + C,
+$$
+
+where if we liked we could construct both systems over $\{0,1\}^*$ and have:
+
+$$
+B = \{\{0,1\}^*\} \cup \{0X \mid X \in B\} \cup \{1X \mid X \in B\}, \text{ and}
+$$
+
+$$
+C = \{\{0,1\}^*\} \cup \{\{\Lambda\}\} \cup \{0X \mid X \in C\} \cup \{1X \mid X \in C\}.
+$$
+
+We leave to the exercises the explanations of what kinds of algebras $B$ and $C$ are and why they are initial. Here we want to propose a simple, yet interesting generalization of $B$.
+
+Consider this domain equation:
+
+$$
+A \cong A^n + A^n,
+$$
+
+where $A^n$ stands for the $n$-fold cartesian power of $A$. We can, with the aid of some encoding solve this equation as a neighbourhood system over $\{0,1\}^*$ as follows:
+
+$$
+A = \{\{0,1\}^*\} \cup \bigcup_{i=0,1} \left\{ i \bigcup_{j < n} 1^j 0 X_j \mid X_j \in A \text{ for all } j < n \right\}.
+$$
+
+For instance, if $n = 3$, then a typical neighbourhood in $A$ is something like
+
+$$
+00X_0 \cup 010X_1 \cup 0110X_2,
+$$
+
+where $X_0, X_1, X_2 \in A$. The first ‘0’ could also be a ‘1’ in front of each of the terms.
+
+In words, an element of $A$ (other than $\bot$) is an $n$-tuple of elements of $A$: but there are two separate copies of these, the left one and the right one. We can write for $a \in |A|$
+
+$$
+a = \pm \langle a_0, a_1, \ldots, a_{n-1} \rangle,
+$$
+
+where $+$ is chosen if $a$ is on the right, and $-$ if on the left. As a tree diagram $a$ might look like this for $n = 3$:
