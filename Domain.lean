@@ -21,5 +21,11 @@ import Domain.Neighborhood.Exercise112
 import Domain.Neighborhood.Exercise113
 import Domain.Neighborhood.Exercise114
 import Domain.Neighborhood.Exercise115
+import Domain.Neighborhood.Exercise116
+import Domain.Neighborhood.Exercise117
+import Domain.Neighborhood.Exercise118
+import Domain.Neighborhood.Exercise119
+import Domain.Neighborhood.Exercise120
+import Domain.Neighborhood.Exercise121
 import Domain.Neighborhood.Exercise122
 import Domain.InfoSys

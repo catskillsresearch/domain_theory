@@ -88,6 +88,39 @@ def NeighborhoodSystem.ofNestedOrDisjoint {α : Type*} (mem : Set α → Prop) (
       rw [h] at hZsub
       rwa [← Set.subset_empty_iff.mp hZsub]
 
+/-- **Exercise 1.19 (Scott 1981, PRG-19) — positivity, condition (ii′).** A neighbourhood
+system is *positive* when Scott's (ii) is strengthened to the biconditional **(ii′)**: for
+`X, Y ∈ 𝒟`, the intersection `X ∩ Y` is a neighbourhood **iff** it is non-empty. -/
+def NeighborhoodSystem.IsPositive {α : Type*} (V : NeighborhoodSystem α) : Prop :=
+  ∀ ⦃X Y : Set α⦄, V.mem X → V.mem Y → (V.mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)
+
+/-- **Exercise 1.19 — a positive system is a neighbourhood system.** Scott: "*prove that a
+positive neighbourhood system is indeed a neighbourhood system*". From the raw data — (i)
+`Δ ∈ 𝒟`, `𝒟 ⊆ 𝒫(Δ)`, and the positivity axiom (ii′) — condition (ii) follows: a consistency
+witness `Z ⊆ X ∩ Y` with `Z ∈ 𝒟` is itself non-empty (apply (ii′) to `Z ∩ Z = Z`), so
+`X ∩ Y ⊇ Z` is non-empty, whence `X ∩ Y ∈ 𝒟` by (ii′). Choice-free. -/
+def NeighborhoodSystem.ofPositive {α : Type*} (mem : Set α → Prop) (master : Set α)
+    (master_mem : mem master) (sub_master : ∀ {X : Set α}, mem X → X ⊆ master)
+    (pos : ∀ ⦃X Y : Set α⦄, mem X → mem Y → (mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)) :
+    NeighborhoodSystem α where
+  mem := mem
+  master := master
+  master_mem := master_mem
+  sub_master := sub_master
+  inter_mem := by
+    intro X Y Z hX hY hZ hZsub
+    have hZZ : mem (Z ∩ Z) := by rwa [Set.inter_self]
+    have hZne : (Z ∩ Z).Nonempty := (pos hZ hZ).mp hZZ
+    rw [Set.inter_self] at hZne
+    exact (pos hX hY).mpr (hZne.mono hZsub)
+
+/-- The system built by `ofPositive` is indeed positive. -/
+theorem NeighborhoodSystem.ofPositive_isPositive {α : Type*} (mem : Set α → Prop)
+    (master : Set α) (master_mem : mem master) (sub_master : ∀ {X : Set α}, mem X → X ⊆ master)
+    (pos : ∀ ⦃X Y : Set α⦄, mem X → mem Y → (mem (X ∩ Y) ↔ (X ∩ Y).Nonempty)) :
+    (NeighborhoodSystem.ofPositive mem master master_mem sub_master pos).IsPositive :=
+  pos
+
 namespace NeighborhoodSystem
 
 variable {α : Type*} (V : NeighborhoodSystem α)
@@ -193,6 +226,31 @@ theorem Element.ext {x y : V.Element} (h : ∀ X, x.mem X ↔ y.mem X) : x = y :
   have hmem : xmem = ymem := funext fun X => propext (h X)
   subst hmem
   rfl
+
+/-- A filter (`Element`) is closed under the finite intersection `⋂_{i<n} Xᵢ`: if every factor
+`Xᵢ` (`i < n`) lies in the filter `x`, so does `interUpTo X n`. Used in Exercises 1.18 and 1.21.
+Base case `x.master_mem`; inductive step one `x.inter_mem`. -/
+theorem Element.mem_interUpTo {α : Type*} {V : NeighborhoodSystem α} (x : V.Element)
+    (X : ℕ → Set α) :
+    ∀ {n : ℕ}, (∀ i, i < n → x.mem (X i)) → x.mem (V.interUpTo X n) := by
+  intro n
+  induction n with
+  | zero => intro _; exact x.master_mem
+  | succ n ih =>
+    intro h
+    rw [interUpTo_succ]
+    exact x.inter_mem (ih (fun i hi => h i (Nat.lt_succ_of_lt hi))) (h n (Nat.lt_succ_self n))
+
+/-- Membership of the finite intersection in a filter, as a biconditional (given all factors
+are neighbourhoods). `→` is upward closure along `interUpTo X n ⊆ Xᵢ` (`interUpTo_subset`); `←`
+is `Element.mem_interUpTo`. -/
+theorem Element.mem_interUpTo_iff {α : Type*} {V : NeighborhoodSystem α} (x : V.Element)
+    (X : ℕ → Set α) {n : ℕ} (hX : ∀ i, i < n → V.mem (X i)) :
+    x.mem (V.interUpTo X n) ↔ ∀ i, i < n → x.mem (X i) := by
+  constructor
+  · intro h i hi
+    exact x.up_mem h (hX i hi) (V.interUpTo_subset X hi)
+  · exact x.mem_interUpTo X
 
 /-- Elements are ordered by inclusion of their membership predicates (Scott's approximation
 order, Definition 1.8). -/

@@ -28,8 +28,9 @@ finite combinatorics (1982) → synthesis (Part IV). The formalization makes thi
 via mathlib dependency footprints and `#print axioms` audits.
 
 **STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **20 / 34** tracked numbered results are **Pass**, **6 Stuck**,
-**8 Not Yet** (zero `sorry`s). **Parts II–III** are stubbed; **Part IV** lists planned
+correction is complete; **38** numbered results / exercises are **Pass** (zero `sorry`s, zero
+Stuck), with the remaining Lecture-I exercises **1.23–1.27** inventoried but **Not Yet**.
+**Parts II–III** are stubbed; **Part IV** lists planned
 bridge theorems only. **Part III** is the **fully constructive** target
 (`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
 **classical** (see §1.2).
@@ -1179,12 +1180,12 @@ every numbered item and exercise below has its statement transcribed.)
 | **Exercise 1.13** | Exercise | 449 | assertions about `B` = `ExampleB.lean`; this file adds the **limit nodes**: `branch p = ⋃ₙ (p↾n)⊥` (via Thm 1.11 `iUnion`), `branch_mem_iff`, `branchSeq_le_branch`, and `branch_isTotal` (each infinite path is a total/maximal element) (`Exercise113.lean`) | **Pass** |
 | **Exercise 1.14** | Exercise | 451 | `Δ=ℕ`, `𝒟 =` finite non-empty subsets `∪ {Δ}`; `neighborhoodSystem` (manual `inter_mem`, not nested-or-disjoint); finite elts `fin h=↑X`; total elts = singletons `singleton_isTotal` (`↑{n}` maximal) (`Exercise114.lean`) | **Pass** |
 | **Exercise 1.15** | Exercise | 453 | two infinite finite-element domains: `flat` (`{ℕ}∪{{n}}`, fully classified: `flat_classify`, `flat_atom_maximal`, `flat_no_three_chain`, `flat_no_infinite_chain`, `flat_all_finite`) and `stem` (`{ℕ,{0,1}}∪{{n}}`, `stem_three_chain`); `not_isomorphic` (3-chain transports under `≃o`) (`Exercise115.lean`) | **Pass** |
-| **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆`; other `∩`-closed systems | **Not Yet** |
-| **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `{X ∣ t∈X}` is a filter; total elements | **Not Yet** |
-| **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (every finite subset consistent); pairwise-but-not-jointly example; least filter `⊇C`; `⋂` of filters is a filter | **Not Yet** |
-| **Exercise 1.19** | Exercise | 463–465 | *positive* nbhd system (ii′: `X∩Y≠∅ ⟺ X∩Y∈𝒟`); positive ⟹ system; a non-positive example (Hoare) | **Not Yet** |
-| **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}`; `𝒟'` positive; `\|𝒟\|≅\|𝒟'\|`; tokens ↔ finite elements one-one | **Not Yet** |
-| **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) the system `{[X]}` over `\|𝒟\|` is *positive* and *complete* (every filter *fixed* by a unique point); consistency `{Xᵢ ∣ i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅`; **needs Theorem 1.10** | **Not Yet** |
+| **Exercise 1.16** | Exercise | 457 | `Δ=ℕ`, `𝒟 =` cofinite subsets; `\|𝒟\| ≅ 𝒫(ℕ)` under `⊆` — `cofiniteSystem`, `ofExcluded`/`toExcluded`, `cofiniteIso` (excluded-point set), `mem_compl_of_finite` (`⋂_{n∈F}{n}ᶜ=Fᶜ`); total elt `ofExcluded ℕ` (`ofExcluded_univ_isTotal`); second `∩`-closed `fullSystem` (`Exercise116.lean`, `Cofinite` ns) | **Pass** |
+| **Exercise 1.17** | Exercise | 459 | `Δ=ℝ`, `𝒟 =` rational open intervals `∪ {Δ}`; `ratIntervalSystem` (`inter_mem'` via `Ioo_inter_Ioo`+`max`/`min`), `filterAt t={X∣t∈X}` is a filter, `filterAt_injective` (`ℝ ↪ \|𝒟\|`); full total-elt classification documented as out-of-scope (`Exercise117.lean`, `RatInterval` ns) | **Pass** |
+| **Exercise 1.18** | Exercise | 461 | consistent `C⊆𝒟` (`FinitelyConsistent`); pairwise-but-not-jointly `triSys`/`family` (`family_pairwise_nonempty`, `not_finitelyConsistent`); `leastFilter` `⊇C` (`subset_leastFilter`/`leastFilter_le`, via `interUpTo_appendSeq`); `sInf` of a non-empty family of filters is a filter (`sInf_le`/`le_sInf`) (`Exercise118.lean`) | **Pass** |
+| **Exercise 1.19** | Exercise | 463–465 | *positive* nbhd system (ii′: `X∩Y≠∅ ⟺ X∩Y∈𝒟`) — `IsPositive`, `ofPositive` (positive ⟹ system, in `Basic.lean`); positive `positiveExample`; non-positive `notPositiveSystem` (`{Δ,{0,1},{1,2}}`, intersection `{1}∉𝒟`; smaller than Hoare's `ℕ×ℕ`) `not_isPositive` (`Exercise119.lean`) | **Pass** |
+| **Exercise 1.20** | Exercise | 467–479 | `Δ'=𝒟`, `𝒟'={↑X}` with `↑X={Y∈𝒟 ∣ Y⊆X}` (`upSet`, ≠ `principal`); `powerSystem`, `powerSystem_isPositive`; `\|𝒟\|≅\|𝒟'\|` via `toPower`/`ofPower`/`powerIso`, `isomorphic_powerSystem`; tokens ↔ finite elements one-one (`toPower_principal`) (`Exercise120.lean`) | **Pass** |
+| **Exercise 1.21** | Exercise | 481–485 | (detail Thm 1.10) `{[X]}` over `\|𝒟\|` is *positive* (`tokenSystem_isPositive`) and *complete* (`IsComplete`, `tokenSystem_complete`: every filter fixed by a unique point `ofToken y`; `tokenSystem_toToken_bijective`); consistency `{Xᵢ∣i<n}` ⟺ `⋂_{i<n}[Xᵢ]≠∅` (`consistent_iff_iInter_bracket_nonempty`) (`Exercise121.lean`) | **Pass** |
 | **Exercise 1.22** | Exercise | 487–507 | (for topologists) the `[X]` topologize `\|𝒟\|`; open sets `=` (i) `⊑`-upper `∧` (ii) basic-nbhd; `⊑` `=` specialization order — `basicOpen`, `instTopologicalSpaceElement`, `isOpen_basicOpen`, `isOpen_iff_upper_basic`, `le_iff_isOpen_imp`, `specializes_iff_le` | **Pass** |
 | **Exercise 1.23** | Exercise | 509–525 | countable `D` + decidable consistency ⟹ the greedy sequence `Yₙ` is a total element; all filters sequence-determined | **Not Yet** |
 | **Exercise 1.24** | Exercise | 527–529 | (set theorists) AC ⟹ every partial element extends to a total one; equivalent to AC? (union of a chain of filters is a filter) — **classical** | **Not Yet** |
@@ -1296,6 +1297,12 @@ flowchart TD
   E113["Exercise 1.13 B limit nodes · branch total ✓"]
   E114["Exercise 1.14 ℕ finite subsets · singletons total ✓"]
   E115["Exercise 1.15 flat ≇ stem (no/has 3-chain) ✓"]
+  E119["Exercise 1.19 IsPositive · ofPositive · non-positive example ✓"]
+  E118["Exercise 1.18 FinitelyConsistent · sInf · leastFilter ✓"]
+  E120["Exercise 1.20 powerSystem ↑X · powerIso ✓"]
+  E121["Exercise 1.21 tokenSystem positive+complete · consistency↔⋂[X] ✓"]
+  E116["Exercise 1.16 cofiniteSystem ≅ 𝒫(ℕ) ✓"]
+  E117["Exercise 1.17 ratIntervalSystem · filterAt ✓"]
 
   D11 --> F11a
   D11 --> F11b
@@ -1340,6 +1347,18 @@ flowchart TD
   F14a --> E115
   D19 --> E115
   D18b --> E115
+  D11 --> E119
+  E119 --> E120
+  E119 --> E121
+  D19 --> E120
+  D17 --> E120
+  T110 --> E121
+  T11c --> E121
+  T11c --> E118
+  T111 --> E118
+  D19 --> E116
+  D18b --> E116
+  D16 --> E117
 ```
 
 ### 4.4 Status
@@ -1348,18 +1367,18 @@ flowchart TD
 | Block        | Status                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–III** transcribed (`sources/PRG19_vision.md`, ≈1960 lines) |
-| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, `Exercise122.lean`) |
-| Report card  | **32 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.15**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I queued |
+| Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`) |
+| Report card  | **38 Pass** (Def 1.1, Factoids 1.1a/1.1b, Theorem 1.1c, Def 1.6, Def 1.7, Factoids 1.7a/1.7b, Def 1.8 order, Def 1.8 ⊥/total, Factoids 1.8a/1.8b, Examples 1.2–1.5, **Example 1.B**, **Exercises 1.B-sys/1.B-elt**, **Factoids 1.B-mono/1.B-lim**, **Def 1.9**, **Theorem 1.10**, **Theorem 1.11**, **Exercises 1.12–1.21**, Factoids 1.4a/1.5a/1.5b, Exercise 1.22) · rest of Lecture I (1.23–1.27) queued |
 
 **Goal List coverage.** §4.2 (Lecture I), §4.2.II (Lecture II), and §4.2.III (Lecture III) are now
 **complete inventories** of PRG-19 Lectures I–III:
 
 | Lecture | § | Rows | Pass |
 | ------- | - | ---- | ---- |
-| I (domains by neighbourhoods) | §4.2 | 40 | **32** |
+| I (domains by neighbourhoods) | §4.2 | 40 | **38** |
 | II (approximable mappings) | §4.2.II | 22 | 0 |
 | III (products, sums, function spaces) | §4.2.III | 28 | 0 |
-| **Total PRG-19 I–III** | | **90** | **32** |
+| **Total PRG-19 I–III** | | **90** | **38** |
 
 **Lecture IV** (*Fixed points and recursion*) is partially OCR'd (from line 1646) but not yet
 inventoried. Planned Lean roots: `Domain/Neighborhood/Approximable.lean` (§2),
@@ -1652,6 +1671,87 @@ stem and so contains the strict 3-chain `⊥ ⊏ ↑{0,1} ⊏ ↑{0}` (`stem_thr
 transport that 3-chain into `flat`, which has none — so `not_isomorphic : ¬ (flat ≅ᴰ stem)`. The
 classifications use `Classical.choice` (deciding whether an element contains an atom); the
 constructions and the 3-chain transfer are otherwise elementary.
+
+#### Exercise 1.19 (positive neighbourhood systems) — `IsPositive`, `ofPositive` (`Basic.lean`), `notPositiveSystem` (`Exercise119.lean`)
+
+Scott's *positive* systems replace condition (ii) by the biconditional **(ii′)**:
+`X ∩ Y ∈ 𝒟 ⟺ X ∩ Y ≠ ∅` for `X, Y ∈ 𝒟`. `IsPositive V` is this predicate; `ofPositive`
+*builds* a `NeighborhoodSystem` from the data `(Δ ∈ 𝒟, 𝒟 ⊆ 𝒫(Δ), (ii′))`, discharging (ii):
+a consistency witness `Z ⊆ X ∩ Y` with `Z ∈ 𝒟` is non-empty (apply (ii′) to `Z ∩ Z = Z`), so
+`X ∩ Y ⊇ Z` is non-empty, hence `X ∩ Y ∈ 𝒟`. Choice-free (`[propext, Quot.sound]`).
+For the *non-positive* example, note Scott's fork (Example 1.2) is actually **positive** (disjoint
+neighbourhoods have *empty* intersection, and (ii′) is then `False ↔ False`). We instead use the
+minimal `notPositiveSystem` over `{0,1,2}` with `𝒟 = {Δ, {0,1}, {1,2}}`: it is a genuine system
+(the lone overlapping pair has intersection `{1}`, which has **no** witness in `𝒟`, so (ii) never
+fires) but `not_isPositive` holds since `{1} ≠ ∅` yet `{1} ∉ 𝒟`. A small stand-in for Hoare's
+`ℕ × ℕ` example. The finite construction uses `Classical.choice` only through `simp`/`fin_cases`
+(as do the other concrete finite systems, e.g. Example 1.2).
+
+#### Exercise 1.20 (the power system `𝒟' = {↑X}`) — `upSet`, `powerSystem`, `powerIso` (`Exercise120.lean`)
+
+`Δ' = 𝒟`, `𝒟' = {↑X ∣ X ∈ 𝒟}` with `↑X = upSet X = {Y ∈ 𝒟 ∣ Y ⊆ X}` — the *up-set inside `𝒟`*,
+**not** Definition 1.7's principal filter (down-set). Note `X ↦ ↑X` is inclusion-*preserving*
+(`upSet_subset_iff`) and one-one on `𝒟` (`upSet_injective`), with the set identity
+`↑X ∩ ↑Y = ↑(X∩Y)` (`upSet_inter`). `powerSystem` is a `NeighborhoodSystem (Set α)` and is
+**positive** (`powerSystem_isPositive`): `↑X ∩ ↑Y` is a neighbourhood iff non-empty, since a shared
+`Z` gives `Z ⊆ X ∩ Y ∈ 𝒟`. The isomorphism mirrors Theorem 1.10 exactly: `toPower x = {↑W ∣ W∈x}`,
+`ofPower y = {W ∣ ↑W ∈ y}`, mutually inverse and order-reflecting (`powerIso : |𝒟| ≃o |𝒟'|`,
+`isomorphic_powerSystem`). `toPower_principal` shows the iso carries the finite element `↑X` to the
+finite element generated by the token `↑X`, so tokens of `𝒟'` ↔ finite elements one-one. Choice-free.
+
+#### Exercise 1.21 (Theorem 1.10 in detail: positive + complete) — `tokenSystem_isPositive`, `IsComplete`, `tokenSystem_complete` (`Exercise121.lean`)
+
+Two corollaries of Theorem 1.10's `{[X]}` system over `|𝒟|`. **Positive**
+(`tokenSystem_isPositive`): `[X] ∩ [Y] = [X∩Y]` (`bracket_inter`) is a neighbourhood iff non-empty,
+since a common filter `x ∈ [X]∩[Y]` gives `X∩Y ∈ 𝒟` via `x.sub (x.inter_mem …)` and conversely
+`[W] ∋ ↑W`. **Complete** (`IsComplete V' := ∀ y, ∃! point b, ∀ S ∈ 𝒟', y∋S ↔ b∈S`):
+`tokenSystem_complete` shows every filter `y` of `{[X]}` is fixed by the unique point `ofToken y`
+(`[W] ∈ y ↔ ofToken y ∈ [W]`), uniqueness by `Element.ext` through the brackets — the
+`by_cases V.mem W` step pulls in `Classical.choice`. `tokenSystem_toToken_bijective` repackages
+`tokenIso` as the token↔element bijection. Finally `consistent_iff_iInter_bracket_nonempty` is the
+finite Theorem 1.10(2): `⟨Xᵢ⟩` consistent `⟺ ⋂_{i<n}[Xᵢ] ≠ ∅`, combining Theorem 1.1c
+(`consistent_iff_interUpTo_mem`) with `[⋂] ≠ ∅ ⟺ ⋂ ∈ 𝒟` (`bracket_nonempty_iff`) and
+`Element.mem_interUpTo`.
+
+#### Exercise 1.18 (consistent subsets; least filter; `⋂` of filters) — `FinitelyConsistent`, `sInf`, `leastFilter` (`Exercise118.lean`)
+
+`FinitelyConsistent C` says every finite sequence drawn from `C ⊆ 𝒟` is `Consistent` (Scott: every
+finite subset consistent). **Pairwise ⇏ jointly**: over the all-non-empty-subsets system `triSys`
+on `{0,1,2}`, the family `{A,B,Cc} = {{0,1},{1,2},{0,2}}` is pairwise consistent
+(`family_pairwise_nonempty`, each pair meets) but not consistent (`not_finitelyConsistent`):
+`A∩B∩Cc = ∅`, so its triple has empty `interUpTo` and no non-empty witness.
+**`sInf F hF`** (intersection of a *non-empty* family of filters, `{X ∣ ∀ x∈F, X∈x}`) is a filter and
+the greatest lower bound (`sInf_le`, `le_sInf`); non-emptiness of `F` supplies the `sub` witness.
+**`leastFilter C`** `= {Y ∈ 𝒟 ∣ ⋂_{i<n} Xᵢ ⊆ Y for some finite ⟨Xᵢ⟩ from C}`. The filter's `∩`-law
+concatenates two finite sequences via `appendSeq` and the identity
+`interUpTo (X1 ⧺ X2) (n1+n2) = interUpTo X1 n1 ∩ interUpTo X2 n2` (`interUpTo_appendSeq`), keeping the
+combined intersection in `𝒟` by `FinitelyConsistent`. `subset_leastFilter` (`C ⊆` it) and
+`leastFilter_le` (any filter `⊇ C` contains it) make it the least. Core choice-free.
+
+#### Exercise 1.16 (cofinite subsets of `ℕ`; `|𝒟| ≅ 𝒫(ℕ)`) — `cofiniteSystem`, `cofiniteIso` (`Exercise116.lean`, `Cofinite` ns)
+
+`𝒟 =` cofinite subsets of `ℕ` (`Xᶜ` finite), closed under all finite `∩` since
+`(X∩Y)ᶜ = Xᶜ ∪ Yᶜ`. The order-iso `cofiniteIso : |𝒟| ≃o (Set ℕ, ⊆)` sends a filter `x` to its
+**excluded-point set** `toExcluded x = {n ∣ {n}ᶜ ∈ x}`; the inverse `ofExcluded E = {Y cofinite ∣
+Yᶜ ⊆ E}` is a filter for **every** `E ⊆ ℕ`. The crux is the reconstruction lemma
+`mem_compl_of_finite`: for finite `F` whose single-deletions `{n}ᶜ` all lie in `x`, the intersection
+`⋂_{n∈F}{n}ᶜ = Fᶜ` lies in `x` (filter `∩`-closure, by `Set.Finite.induction_on`). The unique total
+element is `ofExcluded ℕ` (= all of `𝒟`, the top, `ofExcluded_univ_isTotal`), matching the greatest
+`ℕ ∈ 𝒫(ℕ)`. `fullSystem` (all subsets) is the requested second `∩`-closed system (not positive: `∅`
+is a neighbourhood). `Set.Finite` reasoning is classical; the constructions `cofiniteSystem`,
+`ofExcluded` are `[propext, Quot.sound]` modulo that.
+
+#### Exercise 1.17 (rational open intervals on `ℝ`) — `ratIntervalSystem`, `filterAt` (`Exercise117.lean`, `RatInterval` ns)
+
+The first **uncountable** `Δ`: `𝒟 =` non-empty open intervals `(a,b)` with `a,b ∈ ℚ`, plus `Δ = ℝ`.
+The system law reduces to `inter_mem'`: two neighbourhoods meeting at a point intersect in a
+rational interval, via `Set.Ioo_inter_Ioo` (`(a,b)∩(c,d) = (max a c, min b d)`) and `Rat.cast_max`/
+`Rat.cast_min`. For each `t : ℝ`, `filterAt t = {X ∈ 𝒟 ∣ t ∈ X}` is a filter (`∩`-closure uses `t`
+itself as the shared point). `filterAt_injective` (rational density via `exists_rat_btwn`) shows
+`ℝ ↪ |𝒟|`. Scott's full classification of the *total* elements — for rational `t` the right-endpoint
+intervals yield a *second* total element at `t` — needs more real analysis and is documented as
+out-of-scope; the system, point-filters and their injectivity are delivered. Real-number reasoning is
+classical.
 
 #### Exercise 1.22 (the topology on `|𝒟|`) — `basicOpen`, `instTopologicalSpaceElement`, … (`Exercise122.lean`)
 
