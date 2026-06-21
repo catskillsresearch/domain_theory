@@ -17,10 +17,12 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** Proposition 6.11 (the subsystems `{D ∣ D ◁ E}` form a domain) → Prop 6.12
-(`D ◁ E` ⟹ a projection pair `i, j`) → Def 6.13 (monotone/continuous on domains) → the existence
-Theorem 6.14. **Definition 6.10 is now DONE** (`Definition610.lean`, the subsystem relation `D ◁ E`)
-— see the checkpoint at the end of this file. **Theorem 6.9 is also DONE** (`Theorem69.lean`).
+**Next concrete target:** Proposition 6.12 (`D ◁ E` ⟹ a projection pair `i, j` with `j∘i=I_D`,
+`i∘j⊆I_E`, where `i(x)={Y∈E ∣ ∃X∈x, X⊆Y}`, `j(y)=y∩D`) → Def 6.13 (monotone/continuous on domains)
+→ the existence Theorem 6.14. **Proposition 6.11 is now DONE** (`Proposition611.lean`, the subsystems
+`{D ∣ D ◁ E}` form a domain) and **Definition 6.10 is DONE** (`Definition610.lean`, the subsystem
+relation `D ◁ E`) — see the checkpoints at the end of this file. **Theorem 6.9 is also DONE**
+(`Theorem69.lean`).
 
 ## Where things stand
 
@@ -615,7 +617,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**10/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**11/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -875,3 +877,40 @@ with `D ≅ T(D)` admits a homomorphism `D → E` into any (strict) `T`-algebra 
 - **Next:** Proposition 6.11 (the directed-union remark ⟹ `{D ∣ D ◁ E}` forms a domain), then
   Proposition 6.12 (the projection pair `i(x)={Y∈E ∣ ∃X∈x, X⊆Y}`, `j(y)=y∩D`, with `j∘i=I_D`,
   `i∘j⊆I_E`), Def 6.13 (monotone/continuous on domains), and the existence Theorem 6.14.
+
+## Checkpoint 2026-06-21 — Proposition 6.11 (the subsystems of `E` form a domain) DONE
+
+`Domain/Neighborhood/Proposition611.lean` formalizes **Proposition 6.11**: for a neighbourhood
+system `E`, the set of subsystems `{D ∣ D ◁ E}`, ordered by the subdomain relation `◁`, *forms a
+domain in its own right*. Capstone:
+`subsystemReprIso (E) : {D // D ◁ E} ≃o (reprSystem (subFam E) …).Element`.
+
+- **Route.** Scott derives this as a one-line corollary of the directed-union remark, "as a
+  consequence of this remark". We use the project's **abstract representation theorem** (Exercise
+  2.22, `Exercise222.reprIso`) — the same "forms a domain" route as Ex 3.25 (open sets) / Ex 3.27
+  (function space). A subsystem `D ◁ E` is *determined by* its neighbourhood-family `{X ∣ D.mem X}`
+  (by `NeighborhoodSystem.ext` + the standing `D.master = E.master`), so the poset is represented by
+  `subFam E = {{X ∣ D.mem X} ∣ D ◁ E} ⊆ 𝒫(𝒫(Δ))` ordered by `⊆`.
+- **`subIso : {D // D ◁ E} ≃o {𝒮 // 𝒮 ∈ subFam E}`.** Forward `D ↦ {X ∣ D.mem X}`, inverse `ofMem`
+  (rebuild the system from `𝒮`: `mem := (· ∈ 𝒮)`, `master := E.master`, proofs from `subFam`
+  membership). Order is preserved *and reflected* by Scott's remark
+  `Subsystem.subsystem_iff_subset_of_common` (`◁` between subsystems-of-`E` = `⊆` of their
+  neighbourhood-families). A `PartialOrder {D // D ◁ E}` instance (`subPartialOrder`) gives the
+  `◁`-order (refl/trans/antisymm from Definition 6.10's API).
+- **The two Exercise 2.22 hypotheses.** `subFam E` is closed under **non-empty intersections**
+  (`subFam_sInter_mem`: the intersection subdomain `interSys`, nbhds = the *common* nbhds) and
+  **directed unions** (`subFam_sUnion_mem`: the union subdomain `unionSys` — Scott's remark;
+  directedness is used *exactly* to verify closure under consistent intersection). Both `interSys`
+  and `unionSys` are full `NeighborhoodSystem`s with `master := E.master`; their inter-closure goes
+  through `E.inter_mem` + `inter_closed` (so the `inter_mem` only needs `X,Y` in a *single* member,
+  not the witness `Z` — `Z` only supplies `E.mem (X∩Y)`). Reusable extraction lemmas
+  `subFam_master_mem`/`subFam_mem_E`/`subFam_inter_closed` (Definition 6.10's data out of `subFam`
+  membership) keep the system proofs short.
+- **Choice.** The combinatorial core is **choice-free**: `subFam`, `interSys`, `unionSys` depend on
+  *no* axioms; `subFam_sInter_mem`/`subFam_sUnion_mem`/`subIso` on `[propext, Quot.sound]`. The final
+  `subsystemReprIso` reports `[propext, Classical.choice, Quot.sound]`, the `Classical.choice`
+  entering **solely** through Exercise 2.22's `reprIso` (the documented "for set theorists"
+  exercise — `hne.choose` for the bottom token + finite-set induction), exactly as Ex 3.27. Wired
+  into `Domain.lean`; full `lake build Domain` green (3079 jobs, zero `sorry`).
+- **Next:** Proposition 6.12 (`D ◁ E` ⟹ the projection pair `i, j`), Def 6.13 (monotone/continuous
+  on domains), then the existence Theorem 6.14.
