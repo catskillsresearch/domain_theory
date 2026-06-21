@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13/5.14); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13/5.14/5.15); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -160,48 +160,29 @@ building a separate λ-syntax.
   *mentioning* such an `IsApprox` is choice-tainted. Phrase monotonicity as an explicit
   `∀ ⦃x x'⦄, x ⊆ x' → f x ⊆ f x'` (`⊆` = `Set.Subset`, defeq to `≤` but instance-free) to stay
   choice-free.
+- **Exercise 5.15** (`Exercise515.lean`) — the **free-semigroup powerset + Arden's lemma**. Works in
+  the **Kleene algebra** `(Set S, ∪, ·, ∅, {1})` for *any* monoid `S` (`open Pointwise`). `star z = ⋃ₙ zⁿ`
+  is defined by an explicit recursion `kpow` (not `⋃`) with `star_eq : z* = Λ ∪ z·z*`. The engine is
+  **Arden's lemma** `arden : lfpSet (λw. z·w ∪ v) = z*·v` (least solution of `w = z·w ∪ v`), proved
+  *without* `Monotone`: the `⊆` half is `lfpSet_least` applied to the fixed point `star_mul_isFixed`,
+  the `⊇` half is `star_mul_subset_prefixed` (induction `zⁿ·v ⊆ w₀` into the lfp intersection).
+  **(1)** `part1`: `lfpSet (λz.{e}·z ∪ {e'}) = star{e}·{e'}`, with `mem_star_singleton` showing
+  `star{e} = e* = {Λ,e,e²,…}`; specialised to `S = FreeMonoid Bool = {0,1}*` (`part1_freeMonoid`).
+  **(2)** David Park: the explicit `parkX = (a ∪ b·a*·b)*·(c ∪ b·a*·d)`, `parkY = a*·(b·x₀ ∪ d)`
+  *solve* the system (`park_solves`, via `star_mul_isFixed` + Kleene-algebra `simp`) and are *below*
+  every solution (`park_least`, Gaussian elimination: solve the 2nd eq for `y` by `arden`, substitute,
+  apply `arden` again) — i.e. the **least** solution. **Fully choice-free** (`[propext, Quot.sound]`).
+  **Major pitfall (this toolchain):** Mathlib's `Set`-level `mul_assoc`/`Set.union_mul`/`Set.mul_union`/
+  `Set.singleton_mul_singleton`, the order lemmas `Set.subset_iUnion`/`Set.iUnion_subset`, `Set`-power
+  (`pow_succ'` on `Set`), `Submonoid.mem_powers_iff`, and `Monotone`-over-`Set` **all pull
+  `Classical.choice`** (they route through `Set.image2`/`CompleteLattice` choice machinery). The
+  *membership* iffs (`Set.mem_mul`/`mem_union`/`mem_one`/`mem_singleton_iff`) and *element-level*
+  monoid lemmas are choice-free. So reprove the needed Kleene slice (`smul_assoc`/`sunion_mul`/
+  `smul_union`) by membership `ext`, define `star` by recursion, and avoid `Monotone`/`⋃`-order
+  lemmas/`Submonoid.powers` entirely.
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.15 (free-semigroup domain — part 1 `z=e*·{e'}`
-is a clean `lfpSet` exercise, but part 2 is David Park's simultaneous regular-expression least
-solution = Arden's-lemma star-algebra), Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond`
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond`
 on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
-
-### Exercise 5.15 — formalization plan (free-semigroup powerset + Arden's lemma)
-
-**Statement.** In `P{0,1}*` (powerset of the free monoid, modelled as `(Set (FreeMonoid Bool), ⊆)`;
-use `FreeMonoid Bool` so pointwise `·` is `Set.mul` from `open Pointwise`):
-(1) the least fixed point of `z = {e}·z ∪ {e'}` is `e*·{e'}`, where `e* = {Λ,e,e²,…}`;
-(2) (David Park) the least solution of the pair `x = a·x ∪ b·y ∪ c`, `y = b·x ∪ a·y ∪ d` is
-`x = (a ∪ b·a*·b)*·(c ∪ b·a*·d)`, with `z* = Λ ∪ z*·z` extended to the whole domain.
-Suggested module `Exercise515.lean`, `import Domain.Neighborhood.Exercise414` (reuse `lfpSet`).
-Reuse 4.17's `open Pointwise`/`Submonoid` style. Model `e* = (Submonoid.powers e : Set _)`; the
-general star `z*` (z a *set*) is `(Submonoid.closure z : Set _)`? — **no**, Scott's `z*` is
-`Λ ∪ z*·z = ⋃ₙ zⁿ` (the submonoid generated *as a set product*, i.e. `lfpSet (λw. {1} ∪ w·z)` =
-`⋃ₙ zⁿ`); define `star z := lfpSet (fun w => {1} ∪ w * z)` and prove `star_unfold`/`star_eq_iUnion`.
-
-**Central reusable lemma — Arden's lemma.** Prove once and reuse for *both* parts:
-
-  `arden : lfpSet (fun w => z * w ∪ v) = star z * v`,
-
-i.e. the least solution of `w = z·w ∪ v` is `z*·v`. Proof mirrors 5.13/4.17 style:
-- `star z * v` is a fixed point: `z·(z*·v) ∪ v = (z·z*)·v ∪ v = (z·z* ∪ {1})·v = z*·v` using
-  `star_unfold' : z* = {1} ∪ z·z*` (left-unfold) + `Set.add_mul`/`mul_assoc` on `Set.mul`;
-- least: any prefixed `w₀` (`z·w₀ ∪ v ⊆ w₀`) contains `v` and is closed under `z·(–)`, so
-  `zⁿ·v ⊆ w₀` for all `n` (induction), hence `z*·v = ⋃ₙ zⁿ·v ⊆ w₀`.
-Then **part (1)** is `arden` with `z = {e}`, `v = {e'}` (and `{e}* = e*` since `{e}ⁿ = {eⁿ}`).
-
-**Part (2) via Arden + Bekić (Prop 5.3).** Solve the simultaneous system by substitution:
-- eliminate `y`: treat the 2nd equation as `y = a·y ∪ (b·x ∪ d)`; by `arden`, `y = a*·(b·x ∪ d)`;
-- substitute into the 1st: `x = a·x ∪ b·(a*·(b·x ∪ d)) ∪ c = (a ∪ b·a*·b)·x ∪ (c ∪ b·a*·d)`;
-- by `arden` again, `x = (a ∪ b·a*·b)*·(c ∪ b·a*·d)`. ∎
-Use **Proposition 5.3 (`Proposition53.lean`, Bekić)** to justify that the coordinatewise least
-fixed point of the pair equals the result of this sequential elimination (the hint "Apply 5.3"); the
-real work is the `Set.mul`/`star` distributive algebra (`star_unfold`, `mul_union`, `union_mul`,
-`mul_assoc`, `iUnion` manipulations). **Difficulty:** part (1) ≈ 4.17-level; part (2) is a genuine
-Kleene-algebra calculation — budget accordingly.
-
-**Choice discipline.** `lfpSet`/`star`/`arden` are choice-free (4.14 inheritance + `Set.mul` algebra);
-keep the `iUnion`/induction proofs free of `simpa`-induced choice.
 
 ### Exercise 5.16 — formalization plan (`neg`/`merge` on `C`; the Thue–Morse sequence)
 
