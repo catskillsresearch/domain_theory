@@ -25,6 +25,39 @@ Propositions 6.6 and 6.7 are developed here as well.
 All definitions and lemmas are constructive and **choice-free**
 (`#print axioms ⊆ {propext, Quot.sound}`); the underlying composition laws are the project's
 `idMap_comp`/`comp_idMap`/`comp_assoc` (Theorem 2.5).
+
+## Why a bespoke `Category` rather than Mathlib's `CategoryTheory.Category`?
+
+Mathlib *does* have a fully developed category theory: `CategoryTheory.Category` (structurally
+identical to the class below — separate object/morphism universes, `Hom`, `id`, `comp`, and the three
+laws), functors `C ⥤ D`, `Iso`, `CategoryTheory.Endofunctor.Algebra`/`Algebra.Hom` with the category
+of algebras, `Limits.IsInitial`, and even Lambek's lemma as `Endofunctor.Algebra.Initial.strInv` /
+`left_inv` / `right_inv`. So Mathlib is *expressive enough* to state every one of Definitions 6.3–6.5
+(and Propositions 6.6–6.7) verbatim — it is not a question of missing vocabulary.
+
+It is nonetheless the wrong tool *here*, and the reason is this project's headline invariant, not
+taste. The trade-off was checked empirically:
+
+* The bare instance is fine: a `Category DomainObj` built on `ApproximableMap` (Theorem 2.5 laws)
+  is **choice-free**, `#print axioms = [propext, Quot.sound]`.
+* But the *only reason* to import Mathlib's hierarchy is to reuse its downstream content — functor
+  algebras and the initial-algebra fixed-point theorem — and that content is **choice-bound**:
+  `Mathlib.CategoryTheory.Endofunctor.Algebra.Initial.left_inv` (the inverse half of Lambek's lemma,
+  i.e. Scott's Proposition 6.7) reports `[propext, Classical.choice, Quot.sound]`, because Mathlib's
+  `IsInitial` rides on the `Limits` framework.
+* By contrast, the project's own `initialIso` (Proposition 6.6) and `lambek` (Proposition 6.7), built
+  on the class below, depend on **no axioms whatsoever** (`#print axioms` reports *"does not depend on
+  any axioms"*).
+
+So adopting Mathlib would force one of two losing choices: (a) consume its initial-algebra API and
+thereby inject `Classical.choice` into the project's flagship Lecture VI results, breaking the
+`#print axioms ⊆ {propext, Quot.sound}` discipline that is the whole point; or (b) take only the bare
+class and re-prove 6.6–6.7 by hand anyway — paying a heavy transitive import and the `≫`
+(diagrammatic, "`f` then `g`") vs `⊚` (Scott's "`g` after `f`") convention clash for no reusable
+content. Since Scott asks only for "a small amount of the terminology of category theory", the
+~50-line self-contained class below supplies exactly that vocabulary while keeping every proof
+constructive and choice-free. The Mathlib `Category` is therefore *usable but counterproductive* for
+this development, and is deliberately not used.
 -/
 
 namespace Domain.Neighborhood
