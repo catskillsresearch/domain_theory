@@ -24,10 +24,13 @@ alphabet `A : Type [DecidableEq A]` — domain `Cn A` of finite/infinite `A`-seq
 `Tsig(X)=𝟙+Σ_{a:A}X` (`sumSig`/`sumMapSig`/`Tsig`), iso `Cn_domain_equation : Cn A ≅ᴰ 𝟙+Σ_a Cn A`,
 and **initiality `CnisInitial : IsInitial Cnalg`**; instantiating `A := Fin (n+1)` gives Scott's `Cₙ`
 (`Cfin_domain_equation`, `CfinIsInitial`), and `n=1` (`Fin 2 ≃ Bool`) recovers the binary case. See
-the dated checkpoint at the end of this file. Other open Lecture VI items: **Exercise 6.18** (`D`<sup>∞</sup> as an initial algebra),
+the dated checkpoint at the end of this file. **Exercise 6.18 is COMPLETE** (`Exercise618.lean`,
+`iterIsInitial : IsInitial (iterAlg Dom)` — `𝒟^∞` is the initial algebra of `T(X)=𝒟×X`, the
+domain-equation half being Exercise 3.16's `iter_isomorphic`; see the dated checkpoint at the end).
+Other open Lecture VI items:
 **Exercise 6.19** (sum & product on the category of strict maps). **Theorem 6.16 is COMPLETE** (`Theorem616.lean`,
-`trianglelefteq_of_isInitial`). Other open Lecture VI items: **Exercise 6.18** (`D`<sup>∞</sup> as an initial
-algebra), **Exercise 6.19** (sum & product on the category of strict maps). **Lemma 6.15 is COMPLETE**
+`trianglelefteq_of_isInitial`). Other open Lecture VI items:
+**Exercise 6.19** (sum & product on the category of strict maps). **Lemma 6.15 is COMPLETE**
 (`Lemma615.lean`, the converse of Prop 6.12: a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E`
 between systems over *possibly different* token types ⟹ `D ⊴ E`). **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
 `Theorem614.lean`). `key_rho`, the `gₙ=g∘ρₙ` recursion,
@@ -1343,3 +1346,39 @@ initial because every finite/infinite `A`-sequence is the unique `f`-word over `
 **Axioms:** data (`Cn`, `sumSig`, `sumMapSig`, `Tsig`, `ccEquiv`, `Cnalg`, `Cn_domain_equation`) is
 `[propext, Quot.sound]` (choice-free); the Prop-level `descAlgHom`/`CnisInitial`/`CfinIsInitial`
 inherit `Classical.choice` only from the foundational map-extensionality, exactly as in part 1.
+
+## Checkpoint — Exercise 6.18 (`𝒟^∞` as an initial algebra) COMPLETE (2026-06-21)
+
+`Domain/Neighborhood/Exercise618.lean` builds green (`lake build Domain` ✓, 3087 jobs), zero `sorry`,
+wired into `Domain.lean`. Exercise 6.18 asks to discuss `𝒟^∞` (Exercise 3.16) **as an initial algebra**
+and **as a solution of the domain equation `𝒟^∞ ≅ 𝒟 × 𝒟^∞`**.
+
+**Domain-equation half** is already Exercise 3.16 (`iter_isomorphic`, `iterProdIso`). This module
+supplies the **initial-algebra half** for the product endofunctor `T(X) = 𝒟 × X` over a fixed `∅`-free
+domain `𝒟`, in the bespoke `StrictDomainObj` category (Exercise 6.17), where `IsInitial` is Scott's
+universal property among strict algebras. (Theorem 6.14's same-carrier colimit tower does **not**
+apply: `T(X)=𝒟×X` grows the token set `ℕ×Δ`, so `𝒟^∞` is built directly à la Exercise 3.16.)
+
+**What was built (namespace `Domain.Neighborhood.Exercise618`):**
+- **Element helpers.** `prod_nonempty`/`iterSys_nonempty` (`∅`-freeness preserved); the head/tail
+  reading `iterProdIso_apply` and its inverse "cons" `iterProdIso_symm_pair` (`consSeq`); bottom
+  computations `iterBot_eq`, `component_bot`, `pair_bot`.
+- **Structure maps.** `jmap = ofIso iterProdIso`, `imap = ofIso iterProdIso⁻¹` (the algebra map),
+  `isStrict_imap`, `jmap_comp_imap : j∘i = I`.
+- **Existence.** Operator `descOp k f = k∘(id×f)∘j`, descent chain `descSeq` (`h₀=⊥`,
+  `hₙ₊₁=descOp k hₙ`), and **`descMap = iSupMap descSeq` (choice-free data)**. `descMap_fix`
+  (`descMap = descOp descMap`, via continuity of `k` over directed unions), `descMap_strict`, and the
+  homomorphism square **`descMap_comm : descMap∘i = k∘T(descMap)`** (from `descMap_fix` + `j∘i=I`).
+- **Uniqueness.** Truncation chain `ρₙ = descSeq imap` with closed form
+  `rho_apply : ρₙ(z) = ⟨z₀,…,z_{n-1},⊥,…⟩` and **`iSupRho_eq_id : ⋃ₙ ρₙ = I`** (cofinite-`Δ`
+  structure of `𝒟^∞`). `g`-independence (`gcomp_rho_zero`, `gcomp_rho_succ`) gives
+  **`comm_unique`**: any two strict homomorphisms into `(E,k)` agree on every truncation, hence are
+  equal.
+- **Categorical packaging.** `isStrict_prodMap`; `prodObj`/`prodMapHom`/**`prodFunctor Dom`** (the
+  endofunctor `T(X)=𝒟×X`); `iterObj`/**`iterAlg Dom`** (`(𝒟^∞, i)`); `descAlgHom`; and
+  **`iterIsInitial Dom : IsInitial (iterAlg Dom)`** — `𝒟^∞` is the initial `T`-algebra.
+
+**Axioms:** the data map **`descMap` is choice-free `[propext, Quot.sound]`**; the Prop-level
+`descMap_comm`/`comm_unique`/`iSupRho_eq_id`/`iterIsInitial` inherit `Classical.choice` only from the
+foundational directed-suprema membership lemmas — exactly the same precedent as Exercise 6.17's
+`CisInitial` (`#print axioms CisInitial = [propext, Classical.choice, Quot.sound]`).
