@@ -1419,7 +1419,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁`, the *strict function space* `D₀→⊥D₁`, and the adjunction `(D₀⊗D₁)→⊥D₂ ≃ D₀→⊥(D₁→⊥D₂)` | `Exercise510.lean` |
 | **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | `Exercise511.lean` |
 | **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | `Exercise512.lean` |
-| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |
+| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | Pass (`Exercise513.lean`) |
 | **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
 | **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |
 | **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | — |

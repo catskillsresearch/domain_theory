@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.11/5.12); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -131,10 +131,26 @@ building a separate λ-syntax.
     `smashPair_bot_left`/`_right`); `Classical.choice` enters only the `smashCurryEquiv` *proof* via
     the genuinely-classical `X=Δ₀?`/`Y=Δ₁?` boundary case split.
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.13 (one-one
-`num:N×N→N`), Exercise 5.14 (`fun`/`graph`), Exercise 5.15 (free-semigroup domain), Exercise 5.16
-(`neg`/`merge` on `C` — needs `tail`/tests/`cond` on `C` plus a continuity/approximation argument for
-`neg(neg x)=x`).
+- **Exercise 5.13** (`Exercise513.lean`) — the one-one pairing `num : N × N → N`. `num n m =
+  (n+m)(n+m+1)/2 + m` (Cantor's diagonal enumeration via triangular numbers `tri`), verifying Scott's
+  three recurrences (`num_zero_zero`, `num_succ_right`, `num_succ_left`) and one-one-ness
+  (`num_injective`). In fact a **bijection** `numEquiv : ℕ × ℕ ≃ ℕ`, built **choice-free** from an
+  explicit inverse `unnum` (iterate the diagonal walk `nextCell` from `(0,0)`; `numP_nextCell`,
+  `numP_unnum`, then `unnum_numP` by injectivity). Power-set domains modelled as `(Set A, ⊆)` (per
+  Exercise 4.17); the generic order-iso `setCongr : (α ≃ β) → (Set α ≃o Set β)` (choice-free — proves
+  `map_rel_iff'` by hand to avoid the choice-y `Set.image_subset_image_iff`) gives the three
+  isomorphisms `PN_orderIso_PNN` (`P N ≅ P(N×N)` via `numEquiv`), `PN_orderIso_prod`
+  (`P N ≅ P N × P N` via `Equiv.natSumNatEquivNat` + Mathlib's `Set.sumEquiv`), and
+  `PNN_orderIso_prod`. **Fully choice-free** (`[propext, Quot.sound]`). **Pitfall:**
+  `Nat.even_mul_succ_self` is proved by `grind` (pulls `Classical.choice`) — proved `2 ∣ k(k+1)` by
+  hand (`two_dvd_mul_succ`) to keep `tri`/`num`/`numEquiv` choice-free.
+
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.14 (`fun`/`graph` —
+the Scott **graph model**: needs a `Pω` domain of approximable maps + finite-set encoding via `num`,
+with `fun∘graph = id`, `graph∘fun ⊇ id`), Exercise 5.15 (free-semigroup domain — part 1 `z=e*·{e'}`
+is a clean `lfpSet` exercise, but part 2 is David Park's simultaneous regular-expression least
+solution = Arden's-lemma star-algebra), Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond`
+on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
 
 ### Lecture IV §4 completed (most recent work)
 
