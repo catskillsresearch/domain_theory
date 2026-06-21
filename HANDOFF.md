@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -24,7 +24,8 @@ Computation* (PRG-19) in:
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
   *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
   (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); **Lecture VI's
-  categorical spine (Defs 6.3–6.5, Props 6.6–6.7) is now Pass**; the rest of VI and VII–VIII are `—`.
+  Example 6.1 (the tree algebra `D^§` + the domain equation `D^§ ≅ D + (D^§×D^§)`) and categorical
+  spine (Defs 6.3–6.5, Props 6.6–6.7) are now Pass**; the rest of VI and VII–VIII are `—`.
   Pages 108–111 were re-OCR'd to fix a page-order scramble
   (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
 
@@ -65,12 +66,45 @@ LHS pattern (implicit object-args of `⊚` elaborate differently); use the equat
 a `calc` instead. (4) `(tStr A).str` is *defeq* but not *syntactically* `T.map A.str` — bridge with a
 `rfl` `calc` step or `show`.
 
-**What's NOT done in VI (good stopping point):** Example 6.1 (the `D^§` tree algebra and the domain
-equation `D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B`,`C`,`A` as equation solutions), and everything from
-Definition 6.8 onward (functors continuous on maps, Theorem 6.9, the subsystem relation `D◁E` and its
-lattice 6.10–6.12, monotone/continuous functors 6.13, the existence Theorem 6.14, Lemma 6.15, Theorem
-6.16, and Exercises 6.17–6.29) — these need substantial new domain-theoretic machinery (continuous
-functors, the subsystem lattice, projection pairs, and the iterated-functor colimit construction).
+### Lecture VI — Example 6.1, the tree algebra `D^§` and its domain equation (most recent work)
+
+**`Example61.lean` — DONE, fully choice-free `[propext, Quot.sound]`** (even the equation iso and the
+order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D^§` over a fixed domain `D`:
+- **Tokens** `Γ = {1,2}* 0 Δ` modelled as `List Bool × α` (`true=1`, `false=2`), master
+  `Gamma D = {t ∣ t.2 ∈ Δ}`. Three set embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`,
+  `embPair P Q = 1P ∪ 2Q` (set-builder, *not* `Set.image` — membership lemmas are `Iff.rfl`), with a
+  tight intersection/subset/injectivity/disjointness API (`embPair_inter`, `embPair_subset`,
+  `embZero_inter_embPair`, `embPair_injective`, …).
+- **The system** `Dsharp D hD` (`hD : ∀ X, 𝒟.mem X → X.Nonempty` = Scott's standing `∅∉𝒟`). Its `mem`
+  is the inductive `MemS D` (least family with `Γ`, `0X`, `1P∪2Q`). The crux **`memS_inter`** is
+  Scott's "induction on the number of steps to put `X`,`Y` into `𝒟^§`": cross cases collapse to `∅`,
+  killed by `memS_nonempty` (every member non-empty, the only use of `hD`); the `0A∩0B` case uses
+  `𝒟`'s own closure, the `(1P∪2Q)∩(1P'∪2Q')` case recurses. Inversions `memS_embZero_inv`/
+  `memS_embPair_inv` recover the constructor from the shape (the `generalize … cases` idiom).
+- **The domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD)
+  (Dsharp D hD)) hD (prod_dsharp_nonempty D hD)` — i.e. `D^§ ≅ D + (D^§ × D^§)` against the project's
+  `+` (Ex 3.18) and `×` (Def 3.1). Built as the explicit order-iso `dsharpEquiv` from the filter maps
+  `toS` (forward) / `fromS` (inverse), inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`. The
+  three-way branch (⊥ / `0`-branch / pair-branch) is forced by non-emptiness; sum-side inversions
+  `sum_mem_inj₀_inv`/`sum_mem_inj₁_inv` and the helper iffs `toS_mem_inj₀`/`toS_mem_inj₁`/
+  `fromS_mem_embZero`/`fromS_mem_embPair` keep the inverse-law proofs short.
+- **Injections** `inSharp` (`x^§ = {Γ}∪{0X∣X∈x}`, `inSharp_le_iff`) and `pairSharp`
+  (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`) — Scott's *isomorphic injections*
+  `λx.x^§ : D→D^§` and `λx,y.⟨x,y⟩ : D^§×D^§→D^§`; `⊥ = {Γ}` is the system's own `bot`.
+- **Pitfalls (re)learned:** (1) section `variable`s used *only in a proof body* (e.g. `hD` in the
+  `≠`-shape lemmas whose statement mentions only `D`) are **not** auto-included — add `include hD`.
+  (2) `Set.notMem_empty` (not `not_mem_empty`). (3) feeding a member `(p',a)∈P` to `hP : P ⊆ Gamma D`
+  when the goal is `(p,a)∈Gamma D` fails elaboration order (it unifies `?x` from the goal) — bind
+  `have h := hP …; exact h` so the membership is elaborated first and `exact` closes by defeq.
+
+**What's NOT done in VI (good stopping point):** Example 6.2 (`B`,`C`,`A` as equation solutions), the
+*initial-algebra/homomorphism* `g : D^§ → E` part of Example 6.1 (the `out`/`proj`/`atom` predecessors
+and the fixed-point `g` — connects `D^§` to the 6.4 `T`-algebra spine, but needs the `cond`-style
+recursion over `D^§`), and everything from Definition 6.8 onward (functors continuous on maps, Theorem
+6.9, the subsystem relation `D◁E` and its lattice 6.10–6.12, monotone/continuous functors 6.13, the
+existence Theorem 6.14, Lemma 6.15, Theorem 6.16, and Exercises 6.17–6.29) — these need substantial new
+domain-theoretic machinery (continuous functors, the subsystem lattice, projection pairs, and the
+iterated-functor colimit construction).
 
 ### Lecture V §5 completed (most recent work)
 
@@ -460,7 +494,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**5/29: Defs 6.3–6.5, Props 6.6–6.7 — categorical spine**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**6/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Defs 6.3–6.5, Props 6.6–6.7 — categorical spine**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
