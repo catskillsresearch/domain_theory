@@ -17,13 +17,15 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.17 is IN PROGRESS** (`Exercise617.lean`): the categorical
-scaffold — bespoke `∅`-free category `StrictDomainObj`, the endofunctor `Tc = 𝟙+X+X` with full
-functoriality, and `C` as a `Tc`-algebra `Calg` — is COMPLETE, green and choice-free (see the last
-checkpoint at the end of this file). **What remains is the initiality layer**: the unique homomorphism
-`desc : C→E` (via `Exercise419.liftC`), the AlgHom square (reduces to `desc(x)=k(Tc(desc)(toCC x))`),
-uniqueness (prefix induction) ⟹ `IsInitial Calg`, then the generalization `Cₙ`. The final checkpoint
-spells out the exact lemmas/plan. **Theorem 6.16 is COMPLETE** (`Theorem616.lean`,
+**Next concrete target:** **Exercise 6.17 is COMPLETE — both parts** (`Exercise617.lean`,
+`Exercise617Gen.lean`). Part 1: `CisInitial : IsInitial Calg`, `C` is the initial `T`-algebra for
+`T(X)=𝟙+X+X`. Part 2 (`Exercise617Gen.lean`): the development is generalized over an arbitrary
+alphabet `A : Type [DecidableEq A]` — domain `Cn A` of finite/infinite `A`-sequences, endofunctor
+`Tsig(X)=𝟙+Σ_{a:A}X` (`sumSig`/`sumMapSig`/`Tsig`), iso `Cn_domain_equation : Cn A ≅ᴰ 𝟙+Σ_a Cn A`,
+and **initiality `CnisInitial : IsInitial Cnalg`**; instantiating `A := Fin (n+1)` gives Scott's `Cₙ`
+(`Cfin_domain_equation`, `CfinIsInitial`), and `n=1` (`Fin 2 ≃ Bool`) recovers the binary case. See
+the dated checkpoint at the end of this file. Other open Lecture VI items: **Exercise 6.18** (`D^∞` as an initial algebra),
+**Exercise 6.19** (sum & product on the category of strict maps). **Theorem 6.16 is COMPLETE** (`Theorem616.lean`,
 `trianglelefteq_of_isInitial`). Other open Lecture VI items: **Exercise 6.18** (`D^∞` as an initial
 algebra), **Exercise 6.19** (sum & product on the category of strict maps). **Lemma 6.15 is COMPLETE**
 (`Lemma615.lean`, the converse of Prop 6.12: a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E`
@@ -1260,3 +1262,84 @@ on `sumMap3`/`sumMap3_id`/`sumMap3_comp`/`isStrict_sumMap3`/`Tc`/`Calg`/`cStr`):
 **Reusables for step 1–2:** `liftC`/`liftC_strBot`/`liftC_strElem` (`Exercise419`), `toElementMap_ofIso`,
 `Example62C.{toCC,fromCC,ccEquiv, toCC_mem_j0/j1/j2, fromCC_mem_nil/embF/embT, memC_cases}`,
 `Example44.{consMap, strElem, strBot, embBit_*}`.
+
+---
+
+## Checkpoint — Exercise 6.17 part 1 (initiality) COMPLETE (2026-06-21)
+
+`Exercise617.lean` builds green, zero `sorry`. **`CisInitial : IsInitial Calg`** — `C` is the initial
+`T`-algebra for `T(X)=𝟙+X+X`. The plan above was executed with one simplification: the AlgHom square is
+*not* proved by `memC_cases` on a general element (that fails for infinite `x`), but by showing
+`descMap = M` for `M := (k ⊚ T(desc)) ⊚ ofIso ccEquiv` via **`map_ext_C`** (agreement on every finite
+`strBot σ`/`strElem σ`), which then yields the square by iso-cancellation.
+
+**What was built (in `Exercise617.lean`, namespace `Domain.Neighborhood` / section `Initial`):**
+- **Separated-sum element injections** `sinj0/sinj1/sinj2 : Vᵢ.Element → (sum3 …).Element` with
+  `sinjᵢ_mem_jᵢ` (membership iff), monotonicity `sinj1_mono`/`sinj2_mono`, and the **action of the
+  three-way sum map** `sumMap3_sinj0/1/2` (`(f₀+f₁+f₂)(injᵢ x) = injᵢ(fᵢ x)`).
+- **C-side bridges** (`namespace Example62C`): `ccEquiv_apply` (`ccEquiv x = toCC x`),
+  `consMap_mem_embBit` (`(b·z).mem(bX) ↔ z.mem X`), the cross-tag/terminator emptiness lemmas, and the
+  headline **`toCC_consMap : toCC(b·z) = condᵇ (inj₂ z)(inj₁ z)`** and **`toCC_strElem_nil : toCC Λ̂ = inj₀ ⊤`**.
+- **`descMap : C→E`** via `liftC` with `descVal z` (head-recursion `z`, `b::σ ↦ f_b(descVal z σ)`),
+  `e := descE = k(inj₀ ⊤)`, `f_b := descF b = k∘cond_b(inj₂,inj₁)`. Monotonicity helpers `descF_mono`,
+  `descVal_mono_z`, `descVal_append` ⟹ `hcone`/`hsing`. `descMap_strict` (uses `C_bot_eq_strBot_nil`).
+- **`genKey`/`genKey0`/`genKeyBot`** — the one-step computation `k(T(g)(toCC(b·w))) = f_b(g w)` (and the
+  `Λ̂`/`⊥` analogues) for an arbitrary `g`; `ccEquiv_symm_comp`/`ccEquiv_comp_symm` (iso cancellation).
+- **`rec_determines`** (any `g` solving the recursion `g = (k⊚T(g))⊚ofIso ccEquiv` equals `descMap`, by
+  induction on σ + `genKey` + `map_ext_C`), **`descMap_satisfiesRec`**, **`descComm`** (the square),
+  **`descAlgHom`**, **`descAlgHom_uniq`**, and **`CisInitial`**.
+
+**The algebras (answer to part 1):** a `Tc`-algebra `k:𝟙+E+E→E` is exactly a domain `E` with a point
+`e` and two strict unary ops `f₀,f₁`; `C` is initial since every finite/infinite binary string is the
+unique `f`-word, `desc(b₀b₁… ) = f_{b₀}(f_{b₁}(…))` over `e`/`⊥`.
+
+**Axiom audit:** data is choice-free — `descMap`, `Calg`, `Tc`, `sumMap3`, `sinjᵢ` are
+`[propext, Quot.sound]`. The Prop obligations `descComm`, `descAlgHom_uniq`, `CisInitial` are
+`[propext, Classical.choice, Quot.sound]`; the choice comes **only** from the project's foundational
+map-extensionality `ApproximableMap.ext_of_toElementMap`/`eq_of_toElementMap_principal` (choice-bound
+because nbhd-membership is not decidable), shared by every map-equality result in the repo — genuinely
+unavoidable, permitted by the choice rule for Prop-level results.
+
+**Gotcha for future edits:** `rw` of lemmas whose statement carries explicit `sum3`/`sumMap3` nonempty
+proof args (`genKey`, `ccEquiv_symm_comp`) often fails to match syntactically even when display-equal;
+use `exact`/`erw` (defeq-aware) instead — see the `exact h.symm` / `erw [ccEquiv_symm_comp]` sites.
+
+**Remaining (part 2):** generalization `Cₙ` (n-ary sequences `Cₙ ≅ 𝟙 + n·Cₙ`; algebras = point + `n`
+strict unary ops). Conceptually answered; Lean formalization deferred pending a scope decision (it
+duplicates the binary development for arbitrary `n`).
+
+## Checkpoint — Exercise 6.17 part 2 (generalization to `Cₙ`) COMPLETE (2026-06-21)
+
+`Exercise617Gen.lean` builds green (`lake build Domain` ✓, ≈3086 jobs), zero `sorry`. The binary
+Example 6.2 development is generalized over an **arbitrary alphabet** `A : Type` `[DecidableEq A]`,
+answering part 2 in full Lean.
+
+**What was built (in `Exercise617Gen.lean`, namespace `Domain.Neighborhood.Exercise617Gen`):**
+- **Generic domain.** `Strn A := List A`; cones `coneN`/`memCn`; `Cn A : NeighborhoodSystem (Strn A)`
+  of finite-or-infinite `A`-sequences; `strBotN`/`strElemN` elements; `prependN`; and the prepend map
+  `consMapN a : Cn A → Cn A`. (Direct generalization of Example 6.2's `Bool`-indexed `C`/`consMap`.)
+- **`A`-indexed separated sum.** `SigTok A β := Option (Unit ⊕ A×β)` token type with injections
+  `jU`/`jc a`, master `masterSig`, system **`sumSig A V h`** (`h : ∀ X, V.mem X → X.Nonempty`, since the
+  separated sum needs `∅∉𝒟`), element-injections `sinjU`/`sinjC a`, and the functorial map
+  **`sumMapSig f = id + Σ_a f`** with `isStrict_sumMapSig`, `sumMapSig_id`/`_comp`. This packages as the
+  endofunctor **`Tsig(X) = 𝟙 + Σ_{a:A} X : Endofunctor StrictDomainObj`** on the same bespoke `∅`-free
+  category reused from part 1.
+- **Domain equation.** `embA a` (generic `embBit`), `toCC`/`fromCC`, and the order-iso
+  **`ccEquiv : (Cn A).Element ≃o (CCn A).Element`** with `CCn A = sumSig A (Cn A) Cn_nonempty`; packaged
+  as `Cn_domain_equation : Cn A ≅ᴰ CCn A` and the algebra `Cnalg = (Cnobj, cnStr)`,
+  `cnStr = ofIso ccEquiv.symm`. `[Inhabited A]` supplies the non-emptiness witnesses
+  (`singleton_nil_ne_univ`, `embA_ne`) that were concrete (`true ≠ false`) in the binary case.
+- **Initiality.** Same recursion skeleton as part 1: `liftCn` (choice-free head-recursion
+  `φ(Λ)=e`, `φ(a·x)=f_a(φ x)`, `f_a = k∘sinjC a`), `map_ext_Cn` (C-extensionality), one-step `genKey`,
+  `rec_determines`, giving `descAlgHom : AlgHom Cnalg B` and `descAlgHom_uniq`, hence
+  **`CnisInitial : IsInitial Cnalg`**.
+- **Instantiation.** `A := Fin (n+1)` recovers Scott's `Cₙ`: `Cfin_domain_equation`
+  (`Cn (Fin (n+1)) ≅ᴰ 𝟙 + (n+1)·Cₙ`) and `CfinIsInitial`. `n=1` (`Fin 2 ≃ Bool`) reproduces Example 6.2.
+
+**The algebras (part-2 answer):** a `Tsig`-algebra `k : 𝟙 + Σ_a E → E` is a domain `E` with a
+distinguished point `e = k(jU)` and **`A`-many strict unary operations** `f_a = k∘sinjC a`; `Cn A` is
+initial because every finite/infinite `A`-sequence is the unique `f`-word over `e`/`⊥`.
+
+**Axioms:** data (`Cn`, `sumSig`, `sumMapSig`, `Tsig`, `ccEquiv`, `Cnalg`, `Cn_domain_equation`) is
+`[propext, Quot.sound]` (choice-free); the Prop-level `descAlgHom`/`CnisInitial`/`CfinIsInitial`
+inherit `Classical.choice` only from the foundational map-extensionality, exactly as in part 1.
