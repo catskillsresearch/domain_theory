@@ -98,6 +98,7 @@ import Domain.Neighborhood.Theorem56Full
 import Domain.Neighborhood.Exercise507
 import Domain.Neighborhood.Exercise508
 import Domain.Neighborhood.Exercise509
+import Domain.Neighborhood.Exercise510
 import Domain.Neighborhood.Exercise511
 import Domain.Neighborhood.Exercise512
 import Domain.InfoSys

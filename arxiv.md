@@ -1416,7 +1416,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 5.7** | Exercise | 3001 | multi-variable `λ`/application from one-variable forms (`p₀`,`p₁`,`pair`) | `Exercise507.lean` |
 | **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinatory completeness: bracket abstraction (`I`/`K`/`S`) eliminates `λ`, `σ(τ)` only | `Exercise508.lean` |
 | **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | `Exercise509.lean` |
-| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
+| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁`, the *strict function space* `D₀→⊥D₁`, and the adjunction `(D₀⊗D₁)→⊥D₂ ≃ D₀→⊥(D₁→⊥D₂)` | `Exercise510.lean` |
 | **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | `Exercise511.lean` |
 | **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | `Exercise512.lean` |
 | **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |

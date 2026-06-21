@@ -112,11 +112,29 @@ building a separate λ-syntax.
     `Theorem56` baseline (choice enters only via the flat-domain `zeroMap`/`cond` primitives and
     Mathlib's `Nat.rfind`; all combinator *data* is choice-free).
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.10 (smash product
-`D₀⊗D₁` + strict function space — a new
-neighbourhood-system construction), Exercise 5.13 (one-one `num:N×N→N`), Exercise 5.14
-(`fun`/`graph`), Exercise 5.15 (free-semigroup domain), Exercise 5.16 (`neg`/`merge` on `C` — needs
-`tail`/tests/`cond` on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
+- **Exercise 5.10** (`Exercise510.lean`) — the **smash product** `D₀⊗D₁`, the **strict function
+  space** `D₀→⊥D₁`, and the **adjunction** between them. Three pieces:
+  - `smash V₀ V₁ : NeighborhoodSystem (α ⊕ β)` — neighbourhoods are the master `Δ₀∪Δ₁` together with
+    the *proper* product nbhds `X∪Y` (both factors `≠` their masters); the strict pairing
+    `smashPair x y` collapses to `⊥` whenever a coordinate is `⊥` (`smashPair_eq_bot_iff`), realising
+    Scott's bottom-gluing. Key `inter_mem` case: two proper nbhds with a consistency witness `Z`
+    force `Z` proper (`inter_ne_master_*`).
+  - `strictFun V₀ V₁ : NeighborhoodSystem (StrictMap V₀ V₁)` — tokens are the **strict** approximable
+    maps (`IsStrict f ↔ f(⊥)=⊥`), nbhds are non-empty finite intersections of step sets `sstep`.
+    `strictFunEquiv : |D₀→⊥D₁| ≃o StrictMap` is the strict mirror of Theorem 3.10; strictness is
+    automatic because `[Δ₀,Y]` with `Y≠Δ₁` is empty, hence never a nbhd.
+  - `smashCurryEquiv : StrictMap (smash V₀ V₁) V₂ ≃o StrictMap V₀ (strictFun V₁ V₂)` — the adjunction,
+    via `smashCurryMap`/`smashUncurryMap` and the decisive computation `section_uncurry_rel`
+    (`g(⟨x,y⟩⊗) = curry⊥(g)(x)(y)`, with boundary collapse handled by strictness). **Axioms:** all
+    *data* (`smash`, `strictFun`, `smashCurryMap`, `smashUncurryMap`) and `strictFunEquiv` are
+    choice-free `[propext, Quot.sound]` (the `⊥`-collapse uses one-directional choice-free lemmas
+    `smashPair_bot_left`/`_right`); `Classical.choice` enters only the `smashCurryEquiv` *proof* via
+    the genuinely-classical `X=Δ₀?`/`Y=Δ₁?` boundary case split.
+
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.13 (one-one
+`num:N×N→N`), Exercise 5.14 (`fun`/`graph`), Exercise 5.15 (free-semigroup domain), Exercise 5.16
+(`neg`/`merge` on `C` — needs `tail`/tests/`cond` on `C` plus a continuity/approximation argument for
+`neg(neg x)=x`).
 
 ### Lecture IV §4 completed (most recent work)
 
