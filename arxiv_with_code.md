@@ -79,7 +79,7 @@ domain), 2.21 (system `C`/juxtaposition), 2.22 (abstract representation theorem)
 product `prodEquiv`, the function space `funSpaceEquiv` (Thm 3.10), the least map of Prop 3.9, the
 cartesian-closed structure `eval`/`curry`/`curryEquiv` (Thm 3.11–3.12), and the pointwise
 boundedness/sups of Thm 3.13(ii)(iii) (`sSupMaps`), all choice-free. **All §3 exercises (3.14–3.28)
-are now formalized**, including the infinite iterate `𝒟^∞` (3.16), the retract `B ◁ T^∞` (3.17), the
+are now formalized**, including the infinite iterate `𝒟`<sup>∞</sup> (3.16), the retract B ◁ T<sup>∞</sup> (3.17), the
 function-space isos/mapping relationships (3.24), open sets as a domain (3.25), and the abstract
 Ex 2.22 re-proof of the function-space domain (3.27).
 **Parts II–III** are stubbed; **Part IV** lists planned
@@ -433,7 +433,7 @@ flowchart TD
   SPCL["sierpinskiPower_isContinuousLattice"]
   SCPP["scottTopology_sierpinskiPower (Scott = product)"]
   IDEM["idemFix_isContinuousLattice (fixed-pt lattice is CL)"]
-  C16["corollary_1_6 (injective = retract of 𝕆^I)"]
+  C16["corollary_1_6 (injective = retract of 𝕆ᴵ)"]
   T212b["theorem_2_12_backward (injective ⟹ CL)"]
   T212["theorem_2_12 (equivalence)"]
   MIL["CoarserThanScottTopology"]
@@ -1346,7 +1346,7 @@ is Pass.**
 | **Def 2.1** | Definition | 563–569 | `ApproximableMap`: relation `rel⊆𝒟₀×𝒟₁` (`rel_dom`/`rel_cod`) with (i) `master_rel`, (ii) `inter_right`, (iii) `mono`; relation-extensionality `ext` (`Approximable.lean`) | **Pass** |
 | **Prop 2.2** | Proposition | 581–605 | `toElementMap` (`f(x)={Y∣∃X∈x, X f Y}`, all of 2.1 used), `mem_toElementMap`, `rel_iff_mem_principal` (`X f Y ⟺ Y∈f(↑X)`), `toElementMap_mono`, `ext_of_toElementMap` (2.2(iv)) (`Approximable.lean`) | **Pass** |
 | **Example 2.3** | Example | 615–654 | `parityMap : B → T`: parity of 0's before first 1 via scanner `scan`/`valElt` (`scan_append` stability ⟹ `mono`); `T`=two-token domain of Ex 1.2 (`Example23.lean`) | **Pass** |
-| **Example 2.4** | Example | 658–673 | `runMap : B → B`: eliminate first run of 1's via state machine `out`/`del`; `out_mono` (prefix-monotone) ⟹ `mono`; total `1^∞` → partial `⊥` (`Example24.lean`, choice-free) | **Pass** |
+| **Example 2.4** | Example | 658–673 | `runMap : B → B`: eliminate first run of 1's via state machine `out`/`del`; `out_mono` (prefix-monotone) ⟹ `mono`; total `1`<sup>∞</sup> → partial `⊥` (`Example24.lean`, choice-free) | **Pass** |
 | **Theorem 2.5** | Theorem | 677–720 | category of nbhd systems + approximable maps: identity `idMap` (`X I_D Y ⟺ X⊆Y`), composition `comp g f` (`X g∘f Z ⟺ ∃Y, X f Y ∧ Y g Z`), laws `idMap_comp`/`comp_idMap`/`comp_assoc` (`Approximable.lean`) | **Pass** |
 | **Prop 2.6** | Proposition | 726–732 | elementwise functor: `toElementMap_idMap` (`I_D(x)=x`), `toElementMap_comp` (`(g∘f)(x)=g(f(x))`) — concrete category of sets & functions (`Approximable.lean`) | **Pass** |
 | **Theorem 2.7** | Theorem | 738–760 | every domain iso `e:\|𝒟₀\|≃o\|𝒟₁\|` comes from an approximable map `ofIso e` (`toElementMap_ofIso`: `(ofIso e)(x)=e(x)`; `exists_approximable_of_iso`); finite→finite `exists_principal_eq_apply_principal` via directed union `sSupDirected` (`Approximable.lean`, choice-free) | **Pass** |
@@ -1392,15 +1392,15 @@ is Pass.**
 | **Theorem 3.13(iii)** | Theorem | 1385–1399 | `sSupMaps` + `toElementMap_sSupMaps` (`(⊔F)(x) = ⊔{f(x)}`) (`FunctionSpace.lean`) | **Pass** |
 | **Exercise 3.14** | Exercise | 1405–1429 | tagged product `0Δ₀∪1Δ₁` (disjointness unnecessary); `diag:D→D×D`; `n`-fold products | **Pass** (`Exercise314.lean`) |
 | **Exercise 3.15** | Exercise | 1431–1439 | product isomorphisms: commutativity, associativity, empty product, functoriality | **Pass** (`Exercise315.lean`) |
-| **Exercise 3.16** | Exercise | 1443–1466 | `𝒟^∞` over `Δ^∞`; `𝒟^∞≅𝒟×𝒟^∞`; elements = infinite sequences of `\|𝒟\|` elements | **Pass** (`Exercise316.lean`) |
-| **Exercise 3.17** | Exercise | 1468–1486 | `B→T^∞` and `T^∞→B` approximable; section/retraction; iso questions | **Pass** (`Exercise317.lean`) |
+| **Exercise 3.16** | Exercise | 1443–1466 | `𝒟`<sup>∞</sup> over `Δ`<sup>∞</sup>; 𝒟<sup>∞</sup>≅𝒟×𝒟<sup>∞</sup>; elements = infinite sequences of `\|𝒟\|` elements | **Pass** (`Exercise316.lean`) |
+| **Exercise 3.17** | Exercise | 1468–1486 | B→T<sup>∞</sup> and T<sup>∞</sup>→B approximable; section/retraction; iso questions | **Pass** (`Exercise317.lean`) |
 | **Exercise 3.18** | Exercise | 1490–1506 | *sum* system `𝒟₀+𝒟₁`; injections `inᵢ`, projections `outᵢ`; `outᵢ∘inᵢ=I`; `n`-term sums | **Pass** (`Exercise318.lean`) |
 | **Exercise 3.19** | Exercise | 1508–1532 | functorial `f×g` and `f+g` on products/sums; `f×g=⟨f∘p₀,g∘p₁⟩`; `outᵢ∘(f+g)∘inᵢ=f/g` | **Pass** (`Exercise319.lean`, `Exercise319Sum.lean`) |
 | **Exercise 3.20** | Exercise | 1536 | (category theorists) `+` and `×` are functors; `×` is the categorical product | **Pass** (`Exercise319.lean`) |
 | **Exercise 3.21** | Exercise | 1538 | `[Y,Z]` in `(D₁→D₂)` uniquely determines `Y,Z` when `Z≠Δ₂`; edge case `Z=Δ₂` | **Pass** (`Exercise321.lean`) |
 | **Exercise 3.22** | Exercise | 1540–1560 | composition `comp:(D₁→D₂)×(D₀→D₁)→(D₀→D₂)` approximable; `comp(g,f)=g∘f`; from `eval`+`curry` | **Pass** (`Exercise322.lean`) |
 | **Exercise 3.23** | Exercise | 1564 | (category theorists) domains + approximable maps form a cartesian closed category (3.11, 3.12) | **Pass** (`Exercise323.lean`) |
-| **Exercise 3.24** | Exercise | 1566–1576 | more function-space isos: (i) `(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)`, (ii) `(D₀→D₁^∞)≅(D₀→D₁)^∞`; (iii)(iv) as canonical mapping relationships (separated-sum bottom obstructs iso) | **Pass** (`Exercise324.lean`, `Exercise324Iter.lean`, `Exercise324Distrib.lean`) |
+| **Exercise 3.24** | Exercise | 1566–1576 | more function-space isos: (i) `(D₀→D₁×D₂)≅(D₀→D₁)×(D₀→D₂)`, (ii) (D₀→D₁<sup>∞</sup>)≅(D₀→D₁)<sup>∞</sup>; (iii)(iv) as canonical mapping relationships (separated-sum bottom obstructs iso) | **Pass** (`Exercise324.lean`, `Exercise324Iter.lean`, `Exercise324Distrib.lean`) |
 | **Exercise 3.25** | Exercise | 1578 | (topologists) open subsets of `\|D\|` form a domain (uses 3.10, Exercises 1.21 & 2.13) | **Pass** (`Exercise325.lean`) |
 | **Exercise 3.26** | Exercise | 1580–1620 | conditional `cond:T×D×D→D` (`cond(true,x,y)=x`, etc.); sum variant `condSum:T×D₀×D₁→D₀+D₁`; `which:D₀+D₁→T` with `cond(which x,in₀ out₀ x,in₁ out₁ x)=x` | **Pass** (`Exercise326.lean`, `Exercise326Sum.lean`) |
 | **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Pass** (`Exercise327.lean`) |
@@ -1442,7 +1442,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 4.22** | Exercise | 2343 | `N*` satisfying (i)(ii) ⟹ subset `N` satisfying (i)(ii)(iii)? | **Pass** (`Exercise422.lean`: `nats = lfpSet ({0}∪x⁺)`, `zero_mem_nats`/`succ_mem_nats`/`nats_induction`; `peanoSub : PeanoModel {m // m ∈ nats}` (all three axioms) ⟹ `exists_peano_submodel`; existence via the axiom of infinity `natPeano`) |
 | **Exercise 4.23** | Exercise | 2347 | (Eilenberg) unique fixed point under an approximation `aₙ` scheme | **Pass** (`Exercise423.lean`: `f_unique_fixedPoint` — `fix f` is the unique fixed point under the scheme `aₙ` ((i) `a₀=⊥`, (ii)+(iii) pointwise `IsLUB`, (iv) `aₙ₊₁∘f=aₙ₊₁∘f∘aₙ`); choice-free) |
 | **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | **Pass** (`Exercise424.lean`: Tarski set `sbSet = lfpSet ((A−g B)∪g(f X))` (choice-free), bijection `sbFun` with `sbFun_injective`/`sbFun_surjective` ⟹ `schroeder_bernstein` + `schroeder_bernstein_equiv : A ≃ B`; classical) |
-| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | **Pass** (`Exercise425.lean`: nested-or-disjoint `C1` over `{1}* ≅ ℕ` (tails + singletons), `oneElem`/`oneBot`, successor `consMap` (`consMap_oneElem`/`_oneBot`), the infinite fixed point `infElt = 1^∞` (`infElt_eq`) distinguishing non-flat `C₁` from flat `N`, and the relating map `relateNToC1 : N → C₁`; data choice-free) |
+| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | **Pass** (`Exercise425.lean`: nested-or-disjoint `C1` over `{1}* ≅ ℕ` (tails + singletons), `oneElem`/`oneBot`, successor `consMap` (`consMap_oneElem`/`_oneBot`), the infinite fixed point infElt = 1<sup>∞</sup> (`infElt_eq`) distinguishing non-flat `C₁` from flat `N`, and the relating map `relateNToC1 : N → C₁`; data choice-free) |
 
 ### 4.2.V Lecture V — *Typed λ-calculus* (core + Exercises 5.7–5.16 formalized — **Lecture V exercises complete**)
 
@@ -1453,12 +1453,12 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise (Bekić) | **Pass** (`Proposition53.lean`) |
 | **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | **Pass** (`Proposition54.lean`) |
 | *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | **Pass** (`Table55.lean`) |
-| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | **Pass** (`Theorem56.lean`: constructions — strict starting fns, primitive recursion, μ-scheme) **+ `Theorem56Full.lean`: the full closure `partrec_lamDef` wired against Mathlib `Nat.Primrec'`/`Nat.Partrec'` on the universal arg domain `𝒩=N^∞`, with rfind divergence via the directed-sup continuity, and Scott's 1-ary corollary `partrec_one`** |
+| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | **Pass** (`Theorem56.lean`: constructions — strict starting fns, primitive recursion, μ-scheme) **+ `Theorem56Full.lean`: the full closure `partrec_lamDef` wired against Mathlib `Nat.Primrec'`/`Nat.Partrec'` on the universal arg domain 𝒩=N<sup>∞</sup>, with rfind divergence via the directed-sup continuity, and Scott's 1-ary corollary `partrec_one`** |
 | **Exercise 5.7** | Exercise | 3001 | multi-variable `λ`/application from one-variable forms (`p₀`,`p₁`,`pair`) | **Pass** (`Exercise507.lean`) |
 | **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinatory completeness: bracket abstraction (`I`/`K`/`S`) eliminates `λ`, `σ(τ)` only | **Pass** (`Exercise508.lean`) |
 | **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | **Pass** (`Exercise509.lean`) |
 | **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁`, the *strict function space* `D₀→⊥D₁`, and the adjunction `(D₀⊗D₁)→⊥D₂ ≃ D₀→⊥(D₁→⊥D₂)` | **Pass** (`Exercise510.lean`) |
-| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | **Pass** (`Exercise511.lean`) |
+| **Exercise 5.11** | Exercise | 3027 | `D`<sup>∞</sup> as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | **Pass** (`Exercise511.lean`) |
 | **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | **Pass** (`Exercise512.lean`) |
 | **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | **Pass** (`Exercise513.lean`: `num n m=(n+m)(n+m+1)/2+m` (Cantor diagonal), the three recurrences + `num_injective`, the bijection `numEquiv:ℕ×ℕ≃ℕ` (choice-free inverse `unnum`); power-set domains as `(Set·,⊆)`, `setCongr` order-iso ⟹ `P N≅P(N×N)`, `P N≅P N×P N`, `P(N×N)≅P N×P N`; choice-free) |
 | **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | **Pass** (`Exercise514.lean`: the Scott `Pω` graph model. The tag `tag [n₀…n_{k-1}] m = [n₀+1,…,n_{k-1}+1,0,m]` from 5.13's `num` is a bijection `(List ℕ)×ℕ≃ℕ` (`tag_injective`; `tag_surjective` by strong induction, decreasing via `num_succ_left_gt`). With `Fun u x={m∣∃ns⊆x, tag ns m∈u}`, `Graph f={tag ns m∣m∈f(entries ns)}` and `IsApprox` (monotone + finite-approx): `Fun_Graph` (`fun∘graph=λf.f` for continuous `f`), `id_le_Graph_Fun` (`graph∘fun⊇λx.x`), `Fun_isApprox` (every `Fun u` is approximable); `Pω=(Set ℕ,⊆)` per 4.17/5.13; choice-free) |
@@ -1473,7 +1473,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
-| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | **Pass** (`Example61.lean`: the *tree algebra* `D^§` over a fixed domain `D` and Scott's domain equation `D^§ ≅ D + (D^§ × D^§)`. Tokens live in `Γ = {1,2}* 0 Δ`, modelled as `List Bool × α` with master `Γ = {t ∣ t.2 ∈ Δ}` (`true=1`, `false=2`); the three neighbourhood embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`, `embPair P Q = 1P ∪ 2Q` with their intersection/subset/injectivity/disjointness API. `MemS D` is the inductive least family containing (i) `Γ`, (ii) `0X` for `X∈𝒟`, (iii) `1P∪2Q` for `P,Q∈𝒟^§`; **`memS_inter`** is Scott's central closure-under-consistent-intersection proof by induction on the derivation (cross cases `0A∩(1P∪2Q)=∅` discharged via non-emptiness `memS_nonempty`, needing the standing `∅∉𝒟` as `hD`). `Dsharp D hD` packages the system. The **domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD) (Dsharp D hD)) …` is built as the explicit order-iso `dsharpEquiv` (forward `toS`/inverse `fromS` filter maps, the inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`), routed through the project's `+` (Ex 3.18) and `×` (Def 3.1) with the shape-inversion lemmas `memS_embZero_inv`/`memS_embPair_inv`/`sum_mem_inj₀_inv`/`sum_mem_inj₁_inv`. Also the isomorphic injections `inSharp` (`x^§ = {Γ}∪{0X∣X∈x}`, `inSharp_le_iff`) and `pairSharp` (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`); `⊥ = {Γ}` is the system's own `bot`. **Fully choice-free** `[propext, Quot.sound]` — even the equation iso and order-injection lemmas) |
+| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D`<sup>∞</sup>-style construct) | **Pass** (`Example61.lean`: the *tree algebra* `D`<sup>§</sup> over a fixed domain `D` and Scott's domain equation D<sup>§</sup> ≅ D + (D<sup>§</sup> × D<sup>§</sup>). Tokens live in `Γ = {1,2}* 0 Δ`, modelled as `List Bool × α` with master `Γ = {t ∣ t.2 ∈ Δ}` (`true=1`, `false=2`); the three neighbourhood embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`, `embPair P Q = 1P ∪ 2Q` with their intersection/subset/injectivity/disjointness API. `MemS D` is the inductive least family containing (i) `Γ`, (ii) `0X` for `X∈𝒟`, (iii) `1P∪2Q` for P,Q∈𝒟<sup>§</sup>; **`memS_inter`** is Scott's central closure-under-consistent-intersection proof by induction on the derivation (cross cases `0A∩(1P∪2Q)=∅` discharged via non-emptiness `memS_nonempty`, needing the standing `∅∉𝒟` as `hD`). `Dsharp D hD` packages the system. The **domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD) (Dsharp D hD)) …` is built as the explicit order-iso `dsharpEquiv` (forward `toS`/inverse `fromS` filter maps, the inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`), routed through the project's `+` (Ex 3.18) and `×` (Def 3.1) with the shape-inversion lemmas `memS_embZero_inv`/`memS_embPair_inv`/`sum_mem_inj₀_inv`/`sum_mem_inj₁_inv`. Also the isomorphic injections `inSharp` (x<sup>§</sup> = {Γ}∪{0X∣X∈x}, `inSharp_le_iff`) and `pairSharp` (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`); `⊥ = {Γ}` is the system's own `bot`. **Fully choice-free** `[propext, Quot.sound]` — even the equation iso and order-injection lemmas) |
 | **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | — |
 | **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | **Pass** (`Definition63.lean`) |
 | **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | **Pass** (`Definition63.lean`) |
@@ -1490,7 +1490,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Lemma 6.15** | Lemma | 3952 | projection pair `i,j` with `j∘i=I_D`, `i∘j⊑I_E` ⟹ `D⊴E` (converse to 6.12) | — |
 | **Theorem 6.16** | Theorem | 4010 | initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E≅T(E)` | — |
 | **Exercise 6.17** | Exercise | 4072 | algebras for which `C` is initial | — |
-| **Exercise 6.18** | Exercise | 4074 | `D^∞` (Ex 3.16) as an initial algebra / domain-equation solution | — |
+| **Exercise 6.18** | Exercise | 4074 | `D`<sup>∞</sup> (Ex 3.16) as an initial algebra / domain-equation solution | — |
 | **Exercise 6.19** | Exercise | 4082 | sum & product on the category of strict maps | — |
 | **Exercise 6.20** | Exercise | 4094 | the `tok(D)` function on systems | — |
 | **Exercise 6.21** | Exercise | 4081 | functors generated by the operations | — |
@@ -1513,7 +1513,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Theorem 7.4** | Theorem | 4277 | `D₀+D₁` and `D₀×D₁` are effectively given if `D₀,D₁` are | — |
 | **Theorem 7.5** | Theorem | 4327 | `(D₀→D₁)` is effectively given; `eval`/`curry` computable; computable elements = computable maps | — |
 | **Theorem 7.6** | Theorem | 4377 | `fix:(D→D)→D` is computable on effectively given `D` | — |
-| **Proposition 7.7** | Proposition | 4399 | `D^§` is effectively given; the Example 6.1 combinators are computable | — |
+| **Proposition 7.7** | Proposition | 4399 | `D`<sup>§</sup> is effectively given; the Example 6.1 combinators are computable | — |
 | **Example 7.8** | Example | 4443 | the powerset `PN` is effectively given | — |
 | **Definition 7.9** | Definition | 4461 | the power domain `PD` | — |
 | **Proposition 7.10** | Proposition | 4483 | `PD` is a neighbourhood system, effectively given if `D` is | — |
@@ -1521,9 +1521,9 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Proposition 7.12** | Proposition | 4529 | the union mapping on the power domain | — |
 | **Exercise 7.13** | Exercise | 4575 | effectively given domain ↔ an `INCL(n,m)` relation on integers | — |
 | **Exercise 7.14** | Exercise | 4597 | (recursion theorists) r.e. facts after Def 7.2; computable elements | — |
-| **Exercise 7.15** | Exercise | 4609 | finish 7.4 for `D₀⊗D₁`, `D₀⊕D₁`, `D^∞` | — |
+| **Exercise 7.15** | Exercise | 4609 | finish 7.4 for `D₀⊗D₁`, `D₀⊕D₁`, `D`<sup>∞</sup> | — |
 | **Exercise 7.16** | Exercise | 4611 | `curry` as a neighbourhood relation: recursive or r.e.? | — |
-| **Exercise 7.17** | Exercise | 4613 | finish 7.7 for `D^§`; strict `g:D^§→E` | — |
+| **Exercise 7.17** | Exercise | 4613 | finish 7.7 for `D`<sup>§</sup>; strict g:D<sup>§</sup>→E | — |
 | **Exercise 7.18** | Exercise | 4621 | define *effective isomorphism*; effective `Tok ≅` | — |
 | **Exercise 7.19** | Exercise | 4629 | `D↦PD` is a functor | — |
 | **Exercise 7.20** | Exercise | 4641 | a combinator of given type | — |
@@ -1559,7 +1559,7 @@ mis-typed `DEFINITION 7.9..` (double period, line 4461).
 | **Exercise 8.18** | Exercise | 5143 | establish the unproved cases of 8.10 | — |
 | **Exercise 8.19** | Exercise | 5145 | consequences of two known facts | — |
 | **Exercise 8.20** | Exercise | 5151 | `D ⊴ D+D`; what about other constructs? | — |
-| **Exercise 8.21** | Exercise | 5157 | a computable operator `λa.a^§` on finitary projections | — |
+| **Exercise 8.21** | Exercise | 5157 | a computable operator λa.a<sup>§</sup> on finitary projections | — |
 | **Exercise 8.22** | Exercise | 5161 | which of two relations holds | — |
 | **Exercise 8.23** | Exercise | 5173 | construct `T` as a computable operator `(U→U)→(U→U)` | — |
 | **Exercise 8.24** | Exercise | 5185 | binary constructs `S,T` ⟹ a pair of effectively presented domains | — |
@@ -1668,7 +1668,7 @@ flowchart TD
 | ------------ | ----------------------------------------------------------------- |
 | Vision / OCR | **Lectures I–VIII** fully transcribed (`sources/PRG19_vision.md`, ≈5340 lines) |
 | Lean module  | **Live** (`Domain/Neighborhood/Basic.lean`, `Example12.lean`, `Example13.lean`, `Example14.lean`, `Example15.lean`, `ExampleB.lean`, `Theorem110.lean`, `Theorem111.lean`, `Exercise112.lean`, `Exercise113.lean`, `Exercise114.lean`, `Exercise115.lean`, **`Exercise116.lean`**, **`Exercise117.lean`**, **`Exercise118.lean`**, **`Exercise119.lean`**, **`Exercise120.lean`**, **`Exercise121.lean`**, `Exercise122.lean`, **`Exercise123.lean`**, **`Exercise124.lean`**, **`Exercise125.lean`**, **`Exercise126.lean`**, **`Exercise127.lean`**, **`Approximable.lean`**, **`ApproximableExercises.lean`**, **`Example23.lean`**, **`Example24.lean`**, **`Exercise216.lean`**, **`Exercise213.lean`**, **`Exercise214.lean`**, **`Exercise215.lean`**, **`Exercise218.lean`**, **`Exercise220.lean`**, **`Exercise221.lean`**, **`Exercise222.lean`**, **`Product.lean`**, **`FunctionSpace.lean`**) |
-| Report card  | **94 Pass** — all of Lecture I (43), all of Lecture II (22), and **all of Lecture III (29)**: the product + function-space spine (Def 3.1 → Thm 3.13) *and* every §3 exercise (3.14–3.28, including `𝒟^∞`, the `B ◁ T^∞` retract, the 3.24 isos/mapping relationships, open sets as a domain, and the Ex 2.22 re-proof) |
+| Report card  | **94 Pass** — all of Lecture I (43), all of Lecture II (22), and **all of Lecture III (29)**: the product + function-space spine (Def 3.1 → Thm 3.13) *and* every §3 exercise (3.14–3.28, including `𝒟`<sup>∞</sup>, the B ◁ T<sup>∞</sup> retract, the 3.24 isos/mapping relationships, open sets as a domain, and the Ex 2.22 re-proof) |
 
 **Goal List coverage.** §4.2 and §4.2.II–VIII are now **complete inventories** of *all eight*
 PRG-19 lectures. Lectures I–III are fully formalized (94 Pass); Lectures IV–VIII are inventoried
@@ -5746,8 +5746,8 @@ This file supplies the **backward** direction. The argument (Scott 1972, §2) is
   (`sierpinskiPower_isContinuousLattice`, `scottTopology_sierpinskiPower`);
 * a retract of a continuous lattice is a continuous lattice (Proposition 2.10).
 
-The retraction `r : 𝕆^I → D` with section `s : D → 𝕆^I` makes `e := s ∘ r` a Scott-continuous
-idempotent on `𝕆^I`, whose fixed-point set is a continuous lattice (Proposition 2.10) and is
+The retraction r : 𝕆<sup>I</sup> → D with section s : D → 𝕆<sup>I</sup> makes `e := s ∘ r` a Scott-continuous
+idempotent on `𝕆`<sup>I</sup>, whose fixed-point set is a continuous lattice (Proposition 2.10) and is
 homeomorphic to `D`. Hence every injective space is homeomorphic to a continuous lattice under
 its Scott topology.
 
@@ -5898,9 +5898,9 @@ universe u
 /-- **Scott 1972, Theorem 2.12 (backward direction).** Every injective `T₀`-space is homeomorphic
 to a continuous lattice equipped with its Scott topology.
 
-The injective space `D` is a retract of a power `𝕆^I = (I → Prop)` of the Sierpiński space
-(Corollary 1.6). Writing `s : D → 𝕆^I` for the embedding and `r : 𝕆^I → D` for the retraction,
-`e := s ∘ r` is a Scott-continuous idempotent on `𝕆^I` (its topology is its Scott topology by
+The injective space `D` is a retract of a power 𝕆<sup>I</sup> = (I → Prop) of the Sierpiński space
+(Corollary 1.6). Writing s : D → 𝕆<sup>I</sup> for the embedding and r : 𝕆<sup>I</sup> → D for the retraction,
+`e := s ∘ r` is a Scott-continuous idempotent on `𝕆`<sup>I</sup> (its topology is its Scott topology by
 `scottTopology_sierpinskiPower`). The fixed-point set `IdemFix e` is therefore a continuous lattice
 (`idemFix_isContinuousLattice`, via Proposition 2.10), and `d ↦ s d` is a homeomorphism `D ≃ₜ
 IdemFix e` with inverse the retraction. -/
@@ -5927,7 +5927,7 @@ theorem theorem_2_12_backward {D : Type u} [TopologicalSpace D] [T0Space D]
     IdemFix.completeLattice hidem (preservesDirectedSup_monotone hsc),
     idemFix_isContinuousLattice hidem hsc hL, ?_⟩
   -- The Scott topology of `IdemFix e` equals the subspace topology it inherits as a subtype of the
-  -- Sierpiński power: both are `induced Subtype.val` of the (Scott = product) topology of `𝕆^I`.
+  -- Sierpiński power: both are `induced Subtype.val` of the (Scott = product) topology of `𝕆`<sup>I</sup>.
   have heq : (@scottTopologicalSpace (IdemFix (fun x => R.section' (R.retraction x)))
       (IdemFix.completeLattice hidem (preservesDirectedSup_monotone hsc)))
       = instTopologicalSpaceSubtype := by

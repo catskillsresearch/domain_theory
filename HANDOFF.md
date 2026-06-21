@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -24,9 +24,9 @@ alphabet `A : Type [DecidableEq A]` — domain `Cn A` of finite/infinite `A`-seq
 `Tsig(X)=𝟙+Σ_{a:A}X` (`sumSig`/`sumMapSig`/`Tsig`), iso `Cn_domain_equation : Cn A ≅ᴰ 𝟙+Σ_a Cn A`,
 and **initiality `CnisInitial : IsInitial Cnalg`**; instantiating `A := Fin (n+1)` gives Scott's `Cₙ`
 (`Cfin_domain_equation`, `CfinIsInitial`), and `n=1` (`Fin 2 ≃ Bool`) recovers the binary case. See
-the dated checkpoint at the end of this file. Other open Lecture VI items: **Exercise 6.18** (`D^∞` as an initial algebra),
+the dated checkpoint at the end of this file. Other open Lecture VI items: **Exercise 6.18** (`D`<sup>∞</sup> as an initial algebra),
 **Exercise 6.19** (sum & product on the category of strict maps). **Theorem 6.16 is COMPLETE** (`Theorem616.lean`,
-`trianglelefteq_of_isInitial`). Other open Lecture VI items: **Exercise 6.18** (`D^∞` as an initial
+`trianglelefteq_of_isInitial`). Other open Lecture VI items: **Exercise 6.18** (`D`<sup>∞</sup> as an initial
 algebra), **Exercise 6.19** (sum & product on the category of strict maps). **Lemma 6.15 is COMPLETE**
 (`Lemma615.lean`, the converse of Prop 6.12: a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E`
 between systems over *possibly different* token types ⟹ `D ⊴ E`). **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
@@ -60,7 +60,7 @@ also DONE.
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
   *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
   (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); **Lecture VI's
-  Example 6.1 (the tree algebra `D^§` + the domain equation `D^§ ≅ D + (D^§×D^§)`), Example 6.2
+  Example 6.1 (the tree algebra `D`<sup>§</sup> + the domain equation D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2
   (the concrete equations `B ≅ B + B` and `C ≅ {{Λ}} + C + C`, the generalization `A ≅ Aⁿ + Aⁿ`, and
   the eventually-periodic-tree ↔ regular-event aside via Myhill–Nerode), and categorical
   spine (Defs 6.3–6.5, Props 6.6–6.7) and Definition 6.8 (continuous on maps) are now Pass**; the rest of VI and VII–VIII are `—`.
@@ -139,10 +139,10 @@ LHS pattern (implicit object-args of `⊚` elaborate differently); use the equat
 a `calc` instead. (4) `(tStr A).str` is *defeq* but not *syntactically* `T.map A.str` — bridge with a
 `rfl` `calc` step or `show`.
 
-### Lecture VI — Example 6.1, the tree algebra `D^§` and its domain equation (most recent work)
+### Lecture VI — Example 6.1, the tree algebra `D`<sup>§</sup> and its domain equation (most recent work)
 
 **`Example61.lean` — DONE, fully choice-free `[propext, Quot.sound]`** (even the equation iso and the
-order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D^§` over a fixed domain `D`:
+order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D`<sup>§</sup> over a fixed domain `D`:
 - **Tokens** `Γ = {1,2}* 0 Δ` modelled as `List Bool × α` (`true=1`, `false=2`), master
   `Gamma D = {t ∣ t.2 ∈ Δ}`. Three set embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`,
   `embPair P Q = 1P ∪ 2Q` (set-builder, *not* `Set.image` — membership lemmas are `Iff.rfl`), with a
@@ -150,20 +150,20 @@ order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D^§` over a 
   `embZero_inter_embPair`, `embPair_injective`, …).
 - **The system** `Dsharp D hD` (`hD : ∀ X, 𝒟.mem X → X.Nonempty` = Scott's standing `∅∉𝒟`). Its `mem`
   is the inductive `MemS D` (least family with `Γ`, `0X`, `1P∪2Q`). The crux **`memS_inter`** is
-  Scott's "induction on the number of steps to put `X`,`Y` into `𝒟^§`": cross cases collapse to `∅`,
+  Scott's "induction on the number of steps to put `X`,`Y` into `𝒟`<sup>§</sup>": cross cases collapse to `∅`,
   killed by `memS_nonempty` (every member non-empty, the only use of `hD`); the `0A∩0B` case uses
   `𝒟`'s own closure, the `(1P∪2Q)∩(1P'∪2Q')` case recurses. Inversions `memS_embZero_inv`/
   `memS_embPair_inv` recover the constructor from the shape (the `generalize … cases` idiom).
 - **The domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD)
-  (Dsharp D hD)) hD (prod_dsharp_nonempty D hD)` — i.e. `D^§ ≅ D + (D^§ × D^§)` against the project's
+  (Dsharp D hD)) hD (prod_dsharp_nonempty D hD)` — i.e. D<sup>§</sup> ≅ D + (D<sup>§</sup> × D<sup>§</sup>) against the project's
   `+` (Ex 3.18) and `×` (Def 3.1). Built as the explicit order-iso `dsharpEquiv` from the filter maps
   `toS` (forward) / `fromS` (inverse), inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`. The
   three-way branch (⊥ / `0`-branch / pair-branch) is forced by non-emptiness; sum-side inversions
   `sum_mem_inj₀_inv`/`sum_mem_inj₁_inv` and the helper iffs `toS_mem_inj₀`/`toS_mem_inj₁`/
   `fromS_mem_embZero`/`fromS_mem_embPair` keep the inverse-law proofs short.
-- **Injections** `inSharp` (`x^§ = {Γ}∪{0X∣X∈x}`, `inSharp_le_iff`) and `pairSharp`
+- **Injections** `inSharp` (x<sup>§</sup> = {Γ}∪{0X∣X∈x}, `inSharp_le_iff`) and `pairSharp`
   (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`) — Scott's *isomorphic injections*
-  `λx.x^§ : D→D^§` and `λx,y.⟨x,y⟩ : D^§×D^§→D^§`; `⊥ = {Γ}` is the system's own `bot`.
+  λx.x<sup>§</sup> : D→D<sup>§</sup> and λx,y.⟨x,y⟩ : D<sup>§</sup>×D<sup>§</sup>→D<sup>§</sup>; `⊥ = {Γ}` is the system's own `bot`.
 - **Pitfalls (re)learned:** (1) section `variable`s used *only in a proof body* (e.g. `hD` in the
   `≠`-shape lemmas whose statement mentions only `D`) are **not** auto-included — add `include hD`.
   (2) `Set.notMem_empty` (not `not_mem_empty`). (3) feeding a member `(p',a)∈P` to `hP : P ⊆ Gamma D`
@@ -171,9 +171,9 @@ order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D^§` over a 
   `have h := hP …; exact h` so the membership is elaborated first and `exact` closes by defeq.
 
 **What's NOT done in VI (good stopping point):** the
-*initial-algebra/homomorphism* `g : D^§ → E` part of Example 6.1 (the `out`/`proj`/`atom` predecessors
-and the fixed-point `g` — connects `D^§` to the 6.4 `T`-algebra spine, but needs the `cond`-style
-recursion over `D^§`), and everything from Definition 6.8 onward (functors continuous on maps, Theorem
+*initial-algebra/homomorphism* g : D<sup>§</sup> → E part of Example 6.1 (the `out`/`proj`/`atom` predecessors
+and the fixed-point `g` — connects `D`<sup>§</sup> to the 6.4 `T`-algebra spine, but needs the `cond`-style
+recursion over `D`<sup>§</sup>), and everything from Definition 6.8 onward (functors continuous on maps, Theorem
 6.9, the subsystem relation `D◁E` and its lattice 6.10–6.12, monotone/continuous functors 6.13, the
 existence Theorem 6.14, Lemma 6.15, Theorem 6.16, and Exercises 6.17–6.29) — these need substantial new
 domain-theoretic machinery (continuous functors, the subsystem lattice, projection pairs, and the
@@ -284,7 +284,7 @@ building a separate λ-syntax.
   term differences); prove via `have h := toElementMap_curry_apply …; … ; exact h` (defeq) instead.
 - **Exercise 5.9** (`Exercise509.lean`) — commuting `f∘g=g∘f` ⟹ least common fixed point;
   `f(⊥)=g(⊥) ⟹ fix f = fix g`; `fix f = fix f²`.
-- **Exercise 5.11** (`Exercise511.lean`) — `D^∞ = iterSys D` as stacks: `head`/`tail`/`push` from
+- **Exercise 5.11** (`Exercise511.lean`) — D<sup>∞</sup> = iterSys D as stacks: `head`/`tail`/`push` from
   `iterProdIso` with the stack laws (`head_push`, `tail_push`, `push_head_tail`); `diag` by the
   recursion `diag x = push(x,diag x)` with **all components `= x`** (`component_diag`); and `map` by
   recursion with `component_map` (`map(⟨fₙ⟩,x)ₙ = fₙ(x)`). **Fully choice-free** (`[propext,
@@ -310,7 +310,7 @@ building a separate λ-syntax.
   partial recursive function is λ-definable*, wired against Mathlib's arity-aware inductive predicates
   `Nat.Primrec'`/`Nat.Partrec'` (over `List.Vector ℕ n`), whose constructors are exactly Scott's
   generation grammar.
-  - **Universal argument domain** `𝒩 := iterSys N` (`N^∞`, Exercise 3.16): a `k`-ary function is one
+  - **Universal argument domain** `𝒩 := iterSys N` (`N`<sup>∞</sup>, Exercise 3.16): a `k`-ary function is one
     map `φ : 𝒩 → N` depending only on coordinates `0..k-1`. Builders `optElem`/`argElem`/`vecElem`,
     `ArgLike`, components through `push` (`component_push_zero/succ`).
   - **Spec** `LamDef φ f` (very strict): `defined` (value on totals), `undef` (`⊥` where `f↑`),
@@ -602,13 +602,13 @@ All six build alone and pass the audit; the full `Domain` build is green. Each i
 
 ### Lecture III exercises completed (earlier work)
 
-- **3.16** (`Exercise316.lean`) — the infinite iterate `𝒟^∞` over `ℕ × Δ` via fibers + cofinite-`Δ`
-  bound: `iterSys` is a system, `iterSeqEquiv : |𝒟^∞| ≃o (ℕ → |𝒟|)`, and `𝒟^∞ ≅ 𝒟 × 𝒟^∞`
+- **3.16** (`Exercise316.lean`) — the infinite iterate `𝒟`<sup>∞</sup> over `ℕ × Δ` via fibers + cofinite-`Δ`
+  bound: `iterSys` is a system, iterSeqEquiv : |𝒟<sup>∞</sup>| ≃o (ℕ → |𝒟|), and 𝒟<sup>∞</sup> ≅ 𝒟 × 𝒟<sup>∞</sup>
   (`iter_isomorphic`); plus `component`, `ofSeq`, `projN`.
-- **3.17** (`Exercise317.lean`) — `B` is a **retract** of `T^∞`: section `f : B → T^∞`, retraction
-  `g : T^∞ → B`, with `gf_eq_id : g ∘ f = I_B`, `fg_le_id : f ∘ g ⊑ I_{T^∞}`, and `f_injective`.
+- **3.17** (`Exercise317.lean`) — `B` is a **retract** of `T`<sup>∞</sup>: section f : B → T<sup>∞</sup>, retraction
+  g : T<sup>∞</sup> → B, with `gf_eq_id : g ∘ f = I_B`, fg_le_id : f ∘ g ⊑ I_{T<sup>∞</sup>}, and `f_injective`.
   Encoding `encSet σ` pins copy `i` to `bitNbhd σ[i]`; key lemma `prefix_of_encSet_subset`.
-- **3.24(ii)** (`Exercise324Iter.lean`) — `(𝒟₀→𝒟₁^∞) ≅ (𝒟₀→𝒟₁)^∞` (`funIter_isomorphic`), via
+- **3.24(ii)** (`Exercise324Iter.lean`) — (𝒟₀→𝒟₁<sup>∞</sup>) ≅ (𝒟₀→𝒟₁)<sup>∞</sup> (`funIter_isomorphic`), via
   `mapOfSeq` and a local `piCongrOrderIso`.
 - **3.24(iii)(iv)** (`Exercise324Distrib.lean`) — canonical **mapping relationships** (not isos, due
   to the separated-sum bottom): `copair : (D₀+D₁)→D₂` with section/retract packaging `copairProj`,
@@ -634,7 +634,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**14/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains), Thm 6.14 **existence half** (the colimit `𝒟=⋃ₙTⁿ({Γ})`, `T(𝒟)=𝒟`, the algebra, homomorphism existence via 6.9, and the `⋃ₙρₙ=I_𝒟` chain; **uniqueness/initiality still TODO** — the `T(ρₙ)=ρₙ₊₁` HEq lemma) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions + the iterated-functor colimit solution + Lemma 6.15 (projection pair ⟹ `D⊴E`, the converse of 6.12)**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**14/29: Example 6.1 (D<sup>§</sup>≅D+(D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains), Thm 6.14 **existence half** (the colimit `𝒟=⋃ₙTⁿ({Γ})`, `T(𝒟)=𝒟`, the algebra, homomorphism existence via 6.9, and the `⋃ₙρₙ=I_𝒟` chain; **uniqueness/initiality still TODO** — the `T(ρₙ)=ρₙ₊₁` HEq lemma) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions + the iterated-functor colimit solution + Lemma 6.15 (projection pair ⟹ `D⊴E`, the converse of 6.12)**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -683,7 +683,7 @@ The Goal Lists are in `arxiv.md`:
 - **4.25** (`Exercise425.lean`) — the unary domain `C₁` over `{1}* ≅ ℕ`. Nested-or-disjoint `C1`
   (tails `tail n = {m∣n≤m}` + singletons `{n}`); elements `oneElem n = 1ⁿ`, `oneBot n = 1ⁿ⊥`;
   successor `consMap` (shift, `consMap_oneElem`/`_oneBot`). Key point of the exercise: `C₁` is
-  *non-flat* — the successor has an infinite fixed point `infElt = 1^∞` (`infElt_eq`) absent from the
+  *non-flat* — the successor has an infinite fixed point infElt = 1<sup>∞</sup> (`infElt_eq`) absent from the
   flat `N` — so `C₁` (= unary analogue of `C₂`) is **not** analogous to `N`. Relating map
   `relateNToC1 : N → C₁` (`n̂ ↦ 1ⁿ`, strict) via `Example43.constLiftN`. Data choice-free.
 
@@ -779,11 +779,11 @@ lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
   non-lex products** — use these.
 
 ### Infinite iterate (`Exercise316.lean`) — for Lecture IV/VI recursion work
-- `iterSys V : NeighborhoodSystem (ℕ × α)` (the `𝒟^∞`), `component n`, `ofSeq`, `projN`,
+- `iterSys V : NeighborhoodSystem (ℕ × α)` (the `𝒟`<sup>∞</sup>), `component n`, `ofSeq`, `projN`,
   `iterSeqEquiv : |iterSys V| ≃o (ℕ → V.Element)`, `iter_isomorphic : iterSys V ≅ᴰ prod V (iterSys V)`.
 
 ### Fixed points (`Theorem41.lean`) — Lecture IV §4, Theorems 4.1 & 4.2
-- `f.iterMap n` (`fⁿ`, `f⁰=idMap`, `f^{n+1}=f.comp (fⁿ)`); `iterMap_mono_map`, `iter_comm`,
+- `f.iterMap n` (`fⁿ`, `f⁰=idMap`, f<sup>n+1</sup>=f.comp (fⁿ)); `iterMap_mono_map`, `iter_comm`,
   `rel_master_mono` (extend `Δ fⁿ X` chains).
 - `f.fixElement : V.Element` (least fixed point `{X ∣ ∃ n, Δ fⁿ X}`); `toElementMap_fixElement`
   (`f(x)=x`), `fixElement_le_of_toElementMap_le` (least pre-fixed), `fixElement_mono`.
