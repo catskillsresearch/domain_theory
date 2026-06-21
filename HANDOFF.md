@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.9/5.11/5.12); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.11/5.12); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -48,6 +48,19 @@ building a separate λ-syntax.
 - **Exercise 5.7** (`Exercise507.lean`) — multi-variable λ/application from one-variable forms:
   surjective pairing `⟨p₀ z,p₁ z⟩=z`, `uncurry_apply` / `app_two_args` (apply one arg at a time),
   `lam_two_vars` (= `curry`), and the three-variable generalisation `curry₃`.
+- **Exercise 5.8** (`Exercise508.lean`) — **combinatory completeness** (bracket abstraction). The
+  combinators `I = idMap`, `K = curry(p₀)`, `S = curry(curry(eval∘…))` as elements (`Ielem`/`Kelem`/
+  `Selem`) with value equations `I(x)=x`, `K(c)(x)=c`, `S(F)(G)(x)=F(x)(G(x)`. An intrinsically-typed
+  syntax `Poly X A` of λ-bodies with one free variable (`var`/`con`/`app`) and a variable-free
+  combinator syntax `CL A` (`con`/`app` — application is the *only* mode of combination). `bracket :
+  Poly X A → CL (X.arrow A)` is `[x]x=I`, `[x]c=K c`, `[x](f a)=S([x]f)([x]a)`, and the capstone
+  `bracket_spec` proves `(bracket t).denote` denotes exactly `λx.t` — turning Table 5.5 around.
+  Domains bundled as `Dom` over `Type` (covers `N`/`T`/`C`); fully choice-free (`[propext,
+  Quot.sound]`). **Pitfall:** bundling universe-polymorphic systems (`NeighborhoodSystem`/
+  `ApproximableMap`) into a `Type u`-polymorphic `Dom` produced unsolvable `max u u` universe
+  constraints in the inductives — monomorphise `Dom` to `Type 0`. Also `rw [toElementMap_curry_apply]`
+  can fail to match a `toApproxMap`-wrapped curry even when displayed identically (elaboration-order
+  term differences); prove via `have h := toElementMap_curry_apply …; … ; exact h` (defeq) instead.
 - **Exercise 5.9** (`Exercise509.lean`) — commuting `f∘g=g∘f` ⟹ least common fixed point;
   `f(⊥)=g(⊥) ⟹ fix f = fix g`; `fix f = fix f²`.
 - **Exercise 5.11** (`Exercise511.lean`) — `D^∞ = iterSys D` as stacks: `head`/`tail`/`push` from
@@ -99,8 +112,8 @@ building a separate λ-syntax.
     `Theorem56` baseline (choice enters only via the flat-domain `zeroMap`/`cond` primitives and
     Mathlib's `Nat.rfind`; all combinator *data* is choice-free).
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.8 (combinatory
-completeness), Exercise 5.10 (smash product `D₀⊗D₁` + strict function space — a new
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.10 (smash product
+`D₀⊗D₁` + strict function space — a new
 neighbourhood-system construction), Exercise 5.13 (one-one `num:N×N→N`), Exercise 5.14
 (`fun`/`graph`), Exercise 5.15 (free-semigroup domain), Exercise 5.16 (`neg`/`merge` on `C` — needs
 `tail`/tests/`cond` on `C` plus a continuity/approximation argument for `neg(neg x)=x`).

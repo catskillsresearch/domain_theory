@@ -1414,7 +1414,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | `Table55.lean` |
 | **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | `Theorem56.lean` (constructions: strict starting fns, primitive recursion, μ-scheme) **+ `Theorem56Full.lean`: the full closure `partrec_lamDef` wired against Mathlib `Nat.Primrec'`/`Nat.Partrec'` on the universal arg domain `𝒩=N^∞`, with rfind divergence via the directed-sup continuity, and Scott's 1-ary corollary `partrec_one`** |
 | **Exercise 5.7** | Exercise | 3001 | multi-variable `λ`/application from one-variable forms (`p₀`,`p₁`,`pair`) | `Exercise507.lean` |
-| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinators ↔ `λ`-expressions via `σ(τ)` only | — |
+| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinatory completeness: bracket abstraction (`I`/`K`/`S`) eliminates `λ`, `σ(τ)` only | `Exercise508.lean` |
 | **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | `Exercise509.lean` |
 | **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
 | **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | `Exercise511.lean` |
