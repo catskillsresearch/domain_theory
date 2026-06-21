@@ -104,4 +104,5 @@ import Domain.Neighborhood.Exercise512
 import Domain.Neighborhood.Exercise513
 import Domain.Neighborhood.Exercise514
 import Domain.Neighborhood.Exercise515
+import Domain.Neighborhood.Exercise516
 import Domain.InfoSys
