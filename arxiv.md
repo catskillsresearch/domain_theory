@@ -1403,7 +1403,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | **Pass** (`Exercise424.lean`: Tarski set `sbSet = lfpSet ((A−g B)∪g(f X))` (choice-free), bijection `sbFun` with `sbFun_injective`/`sbFun_surjective` ⟹ `schroeder_bernstein` + `schroeder_bernstein_equiv : A ≃ B`; classical) |
 | **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | **Pass** (`Exercise425.lean`: nested-or-disjoint `C1` over `{1}* ≅ ℕ` (tails + singletons), `oneElem`/`oneBot`, successor `consMap` (`consMap_oneElem`/`_oneBot`), the infinite fixed point `infElt = 1^∞` (`infElt_eq`) distinguishing non-flat `C₁` from flat `N`, and the relating map `relateNToC1 : N → C₁`; data choice-free) |
 
-### 4.2.V Lecture V — *Typed λ-calculus* (core + Exercises 5.7–5.13 formalized; 5.14–5.16 remain)
+### 4.2.V Lecture V — *Typed λ-calculus* (core + Exercises 5.7–5.14 formalized; 5.15–5.16 remain)
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
@@ -1420,7 +1420,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | **Pass** (`Exercise511.lean`) |
 | **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | **Pass** (`Exercise512.lean`) |
 | **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | **Pass** (`Exercise513.lean`: `num n m=(n+m)(n+m+1)/2+m` (Cantor diagonal), the three recurrences + `num_injective`, the bijection `numEquiv:ℕ×ℕ≃ℕ` (choice-free inverse `unnum`); power-set domains as `(Set·,⊆)`, `setCongr` order-iso ⟹ `P N≅P(N×N)`, `P N≅P N×P N`, `P(N×N)≅P N×P N`; choice-free) |
-| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
+| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | **Pass** (`Exercise514.lean`: the Scott `Pω` graph model. The tag `tag [n₀…n_{k-1}] m = [n₀+1,…,n_{k-1}+1,0,m]` from 5.13's `num` is a bijection `(List ℕ)×ℕ≃ℕ` (`tag_injective`; `tag_surjective` by strong induction, decreasing via `num_succ_left_gt`). With `Fun u x={m∣∃ns⊆x, tag ns m∈u}`, `Graph f={tag ns m∣m∈f(entries ns)}` and `IsApprox` (monotone + finite-approx): `Fun_Graph` (`fun∘graph=λf.f` for continuous `f`), `id_le_Graph_Fun` (`graph∘fun⊇λx.x`), `Fun_isApprox` (every `Fun u` is approximable); `Pω=(Set ℕ,⊆)` per 4.17/5.13; choice-free) |
 | **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |
 | **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | — |
 
