@@ -1424,7 +1424,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | **Pass** (`Exercise515.lean`: powerset Kleene algebra `(Set S,∪,·,∅,{1})` for any monoid `S`. `star z=⋃ₙ zⁿ` (recursive `kpow`, `star_eq: z*=Λ∪z·z*`). **Arden's lemma** `arden: lfpSet(λw.z·w∪v)=z*·v` (no `Monotone`). (1) `part1`: `lfpSet(λz.{e}·z∪{e'})=star{e}·{e'}` with `mem_star_singleton` (`e*={Λ,e,e²,…}`), specialised to `FreeMonoid Bool` (`part1_freeMonoid`). (2) David Park: `parkX=(a∪b·a*·b)*·(c∪b·a*·d)`, `parkY=a*·(b·x₀∪d)` — `park_solves` (solve the system) + `park_least` (below every solution = least), by Gaussian elimination via `arden`. Choice-free: reproves `mul_assoc`/dist (`smul_assoc`/`sunion_mul`/`smul_union`) at membership level since Mathlib's `Set` `*`-algebra, `⋃` order lemmas, `Set`-power, `mem_powers_iff` and `Monotone`-over-`Set` all pull `Classical.choice` here) |
 | **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | **Pass** (`Exercise516.lean`: returns to Example 4.4's domain `C` of finite/infinite binary sequences. `tail:C→C` (`tail(bx)=x`, `tail(Λ)=⊥`, the item left to the reader) via `Exercise419.liftC`. `negMap:C→C` (`neg(0x)=1·neg(x)`, `neg(1x)=0·neg(x)`) solved in closed form (`neg(σ)=flip σ`, `flip=List.map not`) via `liftC`; recursion eqs `neg_cons_false`/`neg_cons_true` (so it is *the* solution) and **`negMap_negMap: neg(neg x)=x` for all `x∈|C|`** — proved by determination on the finite elements (`eq_of_toElementMap_principal`, Ex 2.8) where it is `flip∘flip=id`. `dMap:C→C` (bit-doubling `d(0x)=00·d(x)`) via `liftC` (`d(σ)=double σ`). `mergeMap:C×C→C` (`merge(εx,δy)=ε·δ·merge(x,y)`) built directly as an approximable map out of `prod C C` from an explicit interleave value function `mergeVal` on tagged strings `(b,σ)` (`b`=total/partial); the boundary Scott flags is resolved by the unique *monotone* convention (`merge(Λ,y)=Λ`, `merge(εx,y)=ε⊥` once `y` runs out), proved monotone (`mergeVal_SLe`/`mergeElem_mono`, the crux of approximability). Recursion eq `mergeMap_cons` (for all `x,y`, via product extensionality `prodMap_ext`) and **`mergeMap_diag: merge(x,x)=d(x)`**. All *data* choice-free `[propext,Quot.sound]`; map equalities use `Classical.choice` only via `eq_of_toElementMap_principal`. **The Thue–Morse properties of `t=0·merge(neg t,tail t)` are now done too:** `Exercise516ThueMorse.lean` defines `tmOp=Φ`, `tElt=t` (least fixed point), proves the unfolding `tElt_unfold` (`t=0·merge(neg t,tail t)`); the finite approximants `Φⁿ⁺¹(⊥)=(expandⁿ[0])⊥` are the Thue–Morse-morphism iterates (`expand`=`0↦01,1↦10`), and via the parity bit-function `tm n=⊕(binary digits of n)` (recurrences `tm(2n)=tm n`, `tm(2n+1)=¬tm n`) the bridge `expand_iterate_eq` shows `expandⁿ[0]=tmList(2ⁿ)`. **Property (a)** = `tElt_mem_cone_iff`: `σ` is a prefix of `t` iff `σ=tmList σ.length` (so the `n`-th digit of `t` is `tm n`, Lambek's digit-sum-mod-2 description) — fully choice-free `[propext,Quot.sound]`. `Exercise516Overlap.lean` proves **property (b)**, overlap-freeness, from scratch (no domain theory): `no_three_consec` (period-1), the descent on the period (even→half, odd≥5→a run of three), `no_overlap` (no factor of length `2p+1` with period `p`), and Scott's literal cube form `tElt_cube_free` (`t≠u·a·a·a·v` for nonempty `a`) via `no_cube`) |
 
-### 4.2.VI Lecture VI — *Introduction to domain equations* (transcribed; formalization deferred)
+### 4.2.VI Lecture VI — *Introduction to domain equations* (categorical spine 6.3–6.7 **Pass**; rest transcribed)
 
 *OCR note:* `Example 6.1` (line 3214) is not bold-tagged. Scott labels item **6.15** as
 **Lemma 6.15** (3952) but later calls it **Theorem 6.15** (4863) — same result, original typo.
@@ -1434,11 +1434,11 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | ---- | ---- | ----- | --------- | ---- |
 | **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | — |
 | **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | — |
-| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | — |
-| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | — |
-| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | — |
-| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | — |
-| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | — |
+| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | **Pass** (`Definition63.lean`) |
+| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | **Pass** (`Definition63.lean`) |
+| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | **Pass** (`Definition63.lean`) |
+| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | **Pass** (`Proposition66.lean`) |
+| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | **Pass** (`Proposition67.lean`) |
 | **Definition 6.8** | Definition | 3761 | a functor *continuous on maps* | — |
 | **Theorem 6.9** | Theorem | 3771 | continuous `T` with `D≅T(D)` ⟹ a homomorphism `D→E` to any `T`-algebra | — |
 | **Definition 6.10** | Definition | 3795 | the subsystem relation `D ◁ E` | — |
@@ -1640,7 +1640,7 @@ with Lean formalization deferred:
 | III (products, sums, function spaces) | §4.2.III | 29 | **29** |
 | IV (fixed points and recursion) | §4.2.IV | 25 | **12** (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6; Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20) |
 | V (typed λ-calculus) | §4.2.V | 16 | — |
-| VI (domain equations) | §4.2.VI | 29 | — |
+| VI (domain equations) | §4.2.VI | 29 | 5/29 (Defs 6.3–6.5, Props 6.6–6.7 — categorical spine) |
 | VII (computability) | §4.2.VII | 24 | — |
 | VIII (universal domain) | §4.2.VIII | 27 | — |
 | **Total PRG-19 I–VIII** | | **215** | **106** |

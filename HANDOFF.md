@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,7 +7,8 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3064 jobs). **Theorem 5.6 is now complete
+- **`lake build Domain` is green, zero `sorry`s** (≈3067 jobs). **Lecture VI's categorical spine is
+  now formalized** — see the "Lecture VI" section below. **Theorem 5.6 is now complete
   end-to-end**: `Theorem56Full.lean` proves *every partial recursive function is λ-definable*
   (`partrec_lamDef`) against Mathlib's `Nat.Partrec'`, plus Scott's 1-ary corollary `partrec_one`.
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
@@ -22,9 +23,54 @@ Computation* (PRG-19) in:
   ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. **Lecture IV is now
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
   *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
-  (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); VI–VIII are still `—`.
+  (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); **Lecture VI's
+  categorical spine (Defs 6.3–6.5, Props 6.6–6.7) is now Pass**; the rest of VI and VII–VIII are `—`.
   Pages 108–111 were re-OCR'd to fix a page-order scramble
   (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
+
+### Lecture VI — categorical spine 6.3–6.7 (most recent work)
+
+Lecture VI ("Introduction to domain equations") is heavily category-theoretic. The cleanly tractable,
+self-contained chunk — the abstract categorical vocabulary plus the two abstract propositions — is now
+formalized. All three modules build alone, are **choice-free** (`#print axioms` reports *no* axioms at
+all), and are imported from `Domain.lean`; the full `Domain` build is green.
+
+- **`Definition63.lean`** — the abstract framework, generic over an arbitrary `Category` (a bespoke
+  lightweight `class Category` with `Hom`/`id`/`comp` + the three laws; `⊚` is the composition
+  notation, "`g` after `f`", matching `ApproximableMap.comp`).
+  - **Definition 6.3** — `Endofunctor` (`obj`/`map` + `map_id`/`map_comp`). Named `Endofunctor`
+    (not `Functor`) to avoid shadowing Lean core's `Functor`.
+  - **Definition 6.4** — `TAlgebra T` (`carrier`, `str : T(carrier) → carrier`) and `AlgHom A B`
+    (`hom` + the commuting square `comm : hom ⊚ A.str = B.str ⊚ T.map hom`). Helpers `AlgHom.id`,
+    `AlgHom.comp` (the `T`-algebras form a category) with `@[simp]` projections `id_hom`/`comp_hom`.
+  - **Definition 6.5** — `IsInitial A` (data: `desc B : AlgHom A B` for every algebra + `uniq`), and
+    `Iso X Y` (mutually inverse morphisms).
+  - **The concrete category** `instance : Category DomainObj` where `DomainObj` bundles a token type
+    with a `NeighborhoodSystem`; `Hom = ApproximableMap`, laws = Theorem 2.5 (`idMap_comp`/
+    `comp_idMap`/`comp_assoc`). This witnesses that the abstract definitions are non-vacuous (Scott's
+    prose before 6.3: the systems "form quite an interesting category").
+- **`Proposition66.lean`** — **Proposition 6.6**: any two initial `T`-algebras are uniquely
+  isomorphic. `comp_desc_eq_id` (the round-trip `g∘f` equals `id` by uniqueness), `initialIso`
+  (the `Iso` on carriers), `iso_hom_unique` (the realising homomorphism is the only one).
+- **`Proposition67.lean`** — **Proposition 6.7 (Lambek's lemma)**: the structure map `i : T(D)→D` of
+  an initial algebra is an isomorphism. `tStr` (the algebra `(T D, T i)`), `strHom` (`i` is a
+  homomorphism `(TD,Ti)→(D,i)`), `str_comp_desc` (`i∘j = id_D`), and the capstone `lambek` (the `Iso
+  (T.obj D) D`, with `j∘i = id` via functoriality `T(i∘j)=T(id)` + the `j` homomorphism square — done
+  by an explicit `calc`, since `rw [j.comm]` failed to match on implicit composition args).
+
+**Pitfalls (Lecture VI):** (1) name the functor `Endofunctor`, not `Functor` (core clash). (2) For the
+`AlgHom.comp` commuting square, the rewrite chain is
+`assoc, α.comm, ←assoc, β.comm, assoc, ←map_comp`. (3) `rw [(desc …).comm]` can fail to find its own
+LHS pattern (implicit object-args of `⊚` elaborate differently); use the equation as the first step of
+a `calc` instead. (4) `(tStr A).str` is *defeq* but not *syntactically* `T.map A.str` — bridge with a
+`rfl` `calc` step or `show`.
+
+**What's NOT done in VI (good stopping point):** Example 6.1 (the `D^§` tree algebra and the domain
+equation `D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B`,`C`,`A` as equation solutions), and everything from
+Definition 6.8 onward (functors continuous on maps, Theorem 6.9, the subsystem relation `D◁E` and its
+lattice 6.10–6.12, monotone/continuous functors 6.13, the existence Theorem 6.14, Lemma 6.15, Theorem
+6.16, and Exercises 6.17–6.29) — these need substantial new domain-theoretic machinery (continuous
+functors, the subsystem lattice, projection pairs, and the iterated-functor colimit construction).
 
 ### Lecture V §5 completed (most recent work)
 
@@ -414,7 +460,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**5/29: Defs 6.3–6.5, Props 6.6–6.7 — categorical spine**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 

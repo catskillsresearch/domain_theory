@@ -107,4 +107,7 @@ import Domain.Neighborhood.Exercise515
 import Domain.Neighborhood.Exercise516
 import Domain.Neighborhood.Exercise516ThueMorse
 import Domain.Neighborhood.Exercise516Overlap
+import Domain.Neighborhood.Definition63
+import Domain.Neighborhood.Proposition66
+import Domain.Neighborhood.Proposition67
 import Domain.InfoSys
