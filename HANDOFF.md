@@ -1,9 +1,26 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
 
 `/home/catskills/Desktop/domain_theory` — mathlib `v4.30.0`, Lean toolchain per `lean-toolchain`.
+
+## Resume Protocol (read this first)
+
+A session may begin after a context reset; chat memory is not durable, these files are. To resume:
+
+1. Read this `HANDOFF.md` top-to-bottom (it is the source of truth for status + recent work).
+2. For the inventory of every item and its status, **`Grep` `arxiv.md`** for the item (e.g.
+   `Theorem 6.9`) and read only that row — do **not** read `arxiv.md` whole (~2.5k lines).
+3. Per-item details live in the relevant `Domain/Neighborhood/*.lean` docstring/proof notes.
+4. Build with `lake build Domain` (filter output: `| grep -vE 'LEAN_PATH|trace:' | tail`).
+5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
+   end-of-item checklist that keeps this file + `arxiv.md` current).
+
+**Next concrete target:** Proposition 6.11 (the subsystems `{D ∣ D ◁ E}` form a domain) → Prop 6.12
+(`D ◁ E` ⟹ a projection pair `i, j`) → Def 6.13 (monotone/continuous on domains) → the existence
+Theorem 6.14. **Definition 6.10 is now DONE** (`Definition610.lean`, the subsystem relation `D ◁ E`)
+— see the checkpoint at the end of this file. **Theorem 6.9 is also DONE** (`Theorem69.lean`).
 
 ## Where things stand
 
@@ -25,12 +42,13 @@ Computation* (PRG-19) in:
   *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
   (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); **Lecture VI's
   Example 6.1 (the tree algebra `D^§` + the domain equation `D^§ ≅ D + (D^§×D^§)`), Example 6.2
-  (the two concrete equations `B ≅ B + B` and `C ≅ {{Λ}} + C + C`), and categorical
-  spine (Defs 6.3–6.5, Props 6.6–6.7) are now Pass**; the rest of VI and VII–VIII are `—`.
+  (the concrete equations `B ≅ B + B` and `C ≅ {{Λ}} + C + C`, the generalization `A ≅ Aⁿ + Aⁿ`, and
+  the eventually-periodic-tree ↔ regular-event aside via Myhill–Nerode), and categorical
+  spine (Defs 6.3–6.5, Props 6.6–6.7) and Definition 6.8 (continuous on maps) are now Pass**; the rest of VI and VII–VIII are `—`.
   Pages 108–111 were re-OCR'd to fix a page-order scramble
   (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
 
-### Lecture VI — categorical spine 6.3–6.7 (most recent work)
+### Lecture VI — categorical spine 6.3–6.7 + Definition 6.8 (most recent work)
 
 Lecture VI ("Introduction to domain equations") is heavily category-theoretic. The cleanly tractable,
 self-contained chunk — the abstract categorical vocabulary plus the two abstract propositions — is now
@@ -59,6 +77,41 @@ all), and are imported from `Domain.lean`; the full `Domain` build is green.
   homomorphism `(TD,Ti)→(D,i)`), `str_comp_desc` (`i∘j = id_D`), and the capstone `lambek` (the `Iso
   (T.obj D) D`, with `j∘i = id` via functoriality `T(i∘j)=T(id)` + the `j` homomorphism square — done
   by an explicit `calc`, since `rw [j.comm]` failed to match on implicit composition args).
+- **`Definition68.lean`** — **Definition 6.8**: a functor `T` is *continuous on maps* when, for all
+  domains `D, E`, the induced `λf. T(f)` on Scott's **strict** function space `(D →⊥ E)` is
+  approximable. Stated verbatim over strict maps by reusing `Exercise510.lean`'s `strictFun`/
+  `StrictMap`/`strictFunEquiv` (the `(D →⊥ E)` domain, whose elements are exactly the strict maps).
+  "is approximable" = ∃ a representing `Φ : ApproximableMap (strictFun D E) (strictFun (TD) (TE))`
+  with `(toStrictMap (Φ.toElementMap (toStrictFilter f))).1 = T.map f.1` (Prop 2.2 / Thm 3.10).
+  `ContinuousOnMaps.isStrict_map` shows this forces `T` to preserve strictness (LHS is a `StrictMap`'s
+  underlying map), so `T` restricts to Scott's strict subcategory. `continuousOnMaps_id` (witness via
+  `idEndofunctor` + `idMap`) gives non-vacuity. **Choice-free** `[propext, Quot.sound]`.
+
+**Theorem 6.9 — DONE (`Theorem69.lean`, fully choice-free `[propext, Quot.sound]`).** *Statement:* if
+`T` is continuous on maps and `D ≅ T(D)` (so `D` is a `T`-algebra via `i : T(D) → D`, inverse
+`j : D → T(D)`), then for any `T`-algebra `k : T(E) → E` (taken **strict**, as a morphism of Scott's
+strict category) there is a homomorphism `h : D → E`. Formalized as
+`nonempty_algHom_of_continuousOnMaps … : Nonempty (AlgHom ⟨D, iso.hom⟩ B)` (Scott's *existence*).
+*How:* the design point resolved in favour of the **strict** function space `(D →⊥ E)` throughout
+(matching Def 6.8). A homomorphism satisfies `h = k ∘ T(h) ∘ j`, the least fixed point of
+`Op = homOp ∘ Φ` on `strictFun D.sys E.sys`:
+- `Φ` is Def 6.8's witness that `λf. T(f)` is approximable (`(toStrictMap (Φ.toElementMap (toStrictFilter
+  f))).1 = T.map f.1`);
+- `homOp` (Ex 2.8 `ofMono`) is the post/pre-composition `g ↦ k ∘ g ∘ j : (T(D)→⊥T(E)) → (D→⊥E)`;
+  `homOpComp` is the strict composite (strictness of `k∘g∘j` needs `j` strict — `isStrict_of_comp_eq_id`
+  from `j∘i=I`, any split iso preserves `⊥` — and `k` strict by hypothesis), and the **action lemma**
+  `homOp_apply_filter : homOp(f̂) = (k∘f∘j)^` is proved by reducing to single step nbhds `[X,Z]` **via
+  `strictFunEquiv` injectivity** (so the only "finite factoring" needed is `N := [Y₁,Y₂]` — no list
+  induction);
+- `Op.fixElement` (Thm 4.1) represents `h`; `toElementMap_fixElement` + `Φ`'s eq + `homOp_apply_filter`
+  give `h = k∘T(h)∘j`, rearranged via `j∘i=I` (`comp_assoc`, `comp_idMap`) into the `AlgHom` square
+  `h∘i = k∘T(h)`. The `Nonempty` conclusion lets `Φ` be pulled from the `Prop`-valued `ContinuousOnMaps`
+  by `Exists.elim` — **no `Classical.choice`**.
+*New reusable helpers (top of `Theorem69.lean`):* `isStrict_comp`, `isStrict_of_comp_eq_id`,
+`comp_mono_gen` (general-arity composition monotonicity), `toStrictMap_mono`, `toStrictFilter_mono`,
+`toStrictFilter_toStrictMap` (the left-inverse mirror of `toStrictMap_toStrictFilter`).
+*Pitfall:* `rw [toStrictFilter_toStrictMap]` can fail to fire under `set`-introduced let-vars (implicit
+`V₀/V₁` metavariables) — close with `exact (toStrictFilter_toStrictMap _).symm` instead.
 
 **Pitfalls (Lecture VI):** (1) name the functor `Endofunctor`, not `Functor` (core clash). (2) For the
 `AlgHom.comp` commuting square, the rewrite chain is
@@ -107,7 +160,7 @@ existence Theorem 6.14, Lemma 6.15, Theorem 6.16, and Exercises 6.17–6.29) —
 domain-theoretic machinery (continuous functors, the subsystem lattice, projection pairs, and the
 iterated-functor colimit construction).
 
-### Lecture VI — Example 6.2, the concrete domain equations `B ≅ B+B` and `C ≅ {{Λ}}+C+C` (most recent work)
+### Lecture VI — Example 6.2, the domain equations `B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and the eventually-periodic ↔ regular aside (most recent work)
 
 Scott's Example 6.2 exhibits his two running concrete domains as solutions of domain equations. Both
 modules build alone, are **fully choice-free** (`#print axioms` reports `[propext, Quot.sound]` for the
@@ -144,10 +197,35 @@ systems, the order-isos, and the equation theorems), and are imported from `Doma
     and `fromCC`, mutual-inverse laws `fromCC_toCC`/`toCC_fromCC`, bundled as `ccEquiv : |C| ≃o |CC|`;
     capstone `C_domain_equation : C ≅ᴰ CC`. **Pitfall:** `fromCC`'s `sub` field has goal `C.mem univ`,
     an `Or` (two constructors) — the anonymous `⟨…⟩` constructor fails; write `Or.inl ⟨[], cone_nil.symm⟩`.
-- **Deferred (out of scope for Example 6.2):** the generalization `A ≅ Aⁿ + Aⁿ` (needs `n`-fold
-  products, which the project doesn't yet have), and Scott's parenthetical remark that the
-  eventually-periodic infinite trees correspond to the regular events of automata theory (stated
-  without proof — pure automata theory, orthogonal to domain theory).
+- **`Example62A.lean` — the generalization `A ≅ Aⁿ + Aⁿ`** (Scott's "simple, yet interesting
+  generalization of `B`", now done).
+  - **`npow V n` — the flat `n`-fold product `Vⁿ`** over `Fin n × β`: neighbourhoods are the proper
+    products `prodN X = ⋃_j {j}×X_j` (each `X j ∈ V`), with the API `prodN_inter`/`prodN_subset`/
+    `prodN_injective`. `inter_mem` is **componentwise** — there are no tags to disambiguate, so unlike
+    the sum it needs **no** non-emptiness. `npow_nonempty` (needs `0<n`, a coordinate to witness).
+  - **Scott's domain `A` over `{0,1}*`**: the slot prefix `slotPre i j = i 1ʲ0` with the parsing/
+    uniqueness lemmas `slot_list_inj`/`slotPre_inj` (the first `0` after the `1`-run pins down the slot),
+    the tag-`i` tuple `embTuple i X = i ⋃_{j<n} 1ʲ0 X_j` and its API (`embTuple_inter`,
+    `embTuple_inter_ne` for distinct tags, `embTuple_subset`, `embTuple_injective`, `embTuple_ne`).
+    The inductive least family `MemA n` (`univ` ∣ `tuple i X`), `memA_nonempty`/`memA_inter`
+    (`tag_eq_of_subset` recovers the tag from a non-empty witness) and the inversion `memA_tuple_inv`,
+    packaged as `Asys n hn : NeighborhoodSystem Str` (needs `0<n`).
+  - `Apow hn := npow (Asys n hn) n`, `AAsys hn := sum (Apow hn) (Apow hn) …`; the filter maps
+    `toAA`/`fromAA` (9-case `inter_mem`, mirroring `Example61.toS`/`fromS`, with `embTuple false X ↦
+    inj₀ (prodN X)`, `embTuple true Y ↦ inj₁ (prodN Y)`), mutual inverses, bundled as
+    `aaEquiv : |A| ≃o |Aⁿ + Aⁿ|`; capstone `A_domain_equation : Asys n hn ≅ᴰ AAsys hn`. `n=1` recovers
+    `B ≅ B+B`. **Fully choice-free** `[propext, Quot.sound]`.
+- **`Example62Regular.lean` — eventually-periodic trees ↔ regular events** (Scott's closing aside).
+  - Scott's total `+/−`-labelled `n`-ary trees are `Tree n = List (Fin n) → Bool`; `pos a = a []`, the
+    subtree selector `select a σ` (Scott's `aσ`, with the recursion `aΛ=a`, `a(iσ)=(aᵢ)σ` and
+    `select_append`), and the language `treeLang a = L_a = {σ ∣ pos(aσ)=true}`.
+  - The bridge `treeLang_select : L_{aσ} = (treeLang a).leftQuotient σ` identifies the subtree reached
+    by reading `σ` with the residual/left quotient ("`a` is the initial state, `aσ` the state after
+    reading `σ`"), and `treeLang` is injective. Hence `EventuallyPeriodic a` (`{aσ}` finite) iff
+    finitely many left quotients iff regular — `eventuallyPeriodic_iff_isRegular` +
+    `isRegular_iff_exists_eventuallyPeriodic`, i.e. **Myhill–Nerode** via Mathlib's
+    `Language.isRegular_iff_finite_range_leftQuotient`. (Prop-level; uses `Classical.choice` through
+    Mathlib, which is fine for a regularity statement.)
 
 ### Lecture V §5 completed (most recent work)
 
@@ -537,7 +615,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**7/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`), Defs 6.3–6.5, Props 6.6–6.7 — categorical spine + concrete equations**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**10/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -748,3 +826,52 @@ lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
 - Inventory/status: `arxiv.md` (§4.2.IV–VIII Goal Lists; flip `—` → **Pass** as you formalize).
 - `arxiv_with_code.md` is generated from `arxiv.md` by `scripts/generate_arxiv_with_code.py`.
 - This file: update the status section as you complete modules.
+
+---
+
+## Checkpoint 2026-06-21 — Theorem 6.9 (homomorphisms out of a fixed point) DONE
+
+`Domain/Neighborhood/Theorem69.lean` formalizes **Theorem 6.9**: a continuous-on-maps functor `T`
+with `D ≅ T(D)` admits a homomorphism `D → E` into any (strict) `T`-algebra `(E, k)`. Statement:
+`nonempty_algHom_of_continuousOnMaps (T) (hT : ContinuousOnMaps T) (iso : Iso (T.obj D) D)
+(B : TAlgebra T) (hk : IsStrict B.str) : Nonempty (AlgHom ⟨D, iso.hom⟩ B)`.
+
+- **Construction.** The homomorphism is the least fixed point of `λh. k ∘ T(h) ∘ j` (`j = iso.inv`)
+  on Scott's **strict** function space `strictFun D.sys E.sys`. The operator is `Op = homOp ∘ Φ`:
+  `Φ` is Definition 6.8's witness (`λf.T(f)` approximable), `homOp` is the post/pre-composition
+  `g ↦ k∘g∘j` (Ex 2.8 `ofMono`). The crux is the action lemma `homOp_apply_filter` — proved by
+  collapsing to **single** step neighbourhoods `[X,Z]` through `strictFunEquiv` injectivity, so the
+  finite factoring is just `N := [Y₁,Y₂]` (no list induction). `Op.fixElement` gives `h`; the
+  fixed-point equation rearranges (`j∘i=I`, `comp_assoc`, `comp_idMap`) to the `AlgHom` square.
+- **Strictness inputs.** `j` strict is *derived* (`isStrict_of_comp_eq_id`: a split iso preserves `⊥`);
+  `k` strict is a hypothesis (`k` is a morphism of Scott's strict-map category). New general helpers:
+  `isStrict_comp`, `isStrict_of_comp_eq_id`, `comp_mono_gen`, `toStrictMap_mono`, `toStrictFilter_mono`,
+  `toStrictFilter_toStrictMap`.
+- **Choice.** Conclusion is `Nonempty` (a `Prop`), so `Φ` is pulled from the `Prop`-valued
+  `ContinuousOnMaps` by `Exists.elim` — `#print axioms` is `[propext, Quot.sound]` (and so are `homOp`,
+  `homOpComp`). Wired into `Domain.lean`; full `lake build Domain` green (3077 jobs, zero `sorry`).
+- **Next:** Definition 6.10 (`D ◁ E`), Props 6.11/6.12 (subsystem domain + projection pair), Def 6.13
+  (monotone/continuous on domains), then the existence Theorem 6.14 — these need the new subsystem
+  lattice / projection-pair machinery flagged earlier.
+
+## Checkpoint 2026-06-21 — Definition 6.10 (the subsystem relation `D ◁ E`) DONE
+
+`Domain/Neighborhood/Definition610.lean` formalizes **Definition 6.10**: the subdomain relation
+`D ◁ E` between two neighbourhood systems over the same token type.
+
+- **The relation.** `structure Subsystem (D E : NeighborhoodSystem α) : Prop` (notation `D ◁ E`,
+  `infix:50`) with exactly Scott's three pieces: `master_eq : D.master = E.master` (same `Δ`),
+  `sub : D.mem X → E.mem X` (`D ⊆ E`), and the essential `inter_closed : D.mem X → D.mem Y →
+  E.mem (X∩Y) → D.mem (X∩Y)` ("consistency in `D` is the same as in `E`").
+- **API (Scott's prose).** `Subsystem.refl`, `Subsystem.trans` (the `inter_closed` clause threads
+  through `E`: `X,Y∈D⊆E`, `X∩Y∈F`, `E◁F` puts `X∩Y∈E`, `D◁E` puts `X∩Y∈D`), `Subsystem.antisymm`
+  (`D◁E ∧ E◁D ⟹ D=E`), and **`Subsystem.subsystem_iff_subset_of_common`** — Scott's remark that once
+  `D₀◁E` and `D₁◁E`, `D₀◁D₁ ↔ D₀⊆D₁` (the `←` direction's `inter_closed` routes `X∩Y∈D₁⊆E` back into
+  `D₀` via `D₀◁E`). New general helper `NeighborhoodSystem.ext` (equal `mem` + equal `master` ⟹ equal
+  system; the other three fields are `Prop`s).
+- **Choice.** `refl` and `subsystem_iff_subset_of_common` depend on **no axioms**; `antisymm`/`ext`
+  are `[propext, Quot.sound]`. Wired into `Domain.lean`; full `lake build Domain` green (3078 jobs,
+  zero `sorry`).
+- **Next:** Proposition 6.11 (the directed-union remark ⟹ `{D ∣ D ◁ E}` forms a domain), then
+  Proposition 6.12 (the projection pair `i(x)={Y∈E ∣ ∃X∈x, X⊆Y}`, `j(y)=y∩D`, with `j∘i=I_D`,
+  `i∘j⊆I_E`), Def 6.13 (monotone/continuous on domains), and the existence Theorem 6.14.

@@ -110,7 +110,12 @@ import Domain.Neighborhood.Exercise516Overlap
 import Domain.Neighborhood.Example61
 import Domain.Neighborhood.Example62
 import Domain.Neighborhood.Example62C
+import Domain.Neighborhood.Example62A
+import Domain.Neighborhood.Example62Regular
 import Domain.Neighborhood.Definition63
 import Domain.Neighborhood.Proposition66
 import Domain.Neighborhood.Proposition67
+import Domain.Neighborhood.Definition68
+import Domain.Neighborhood.Theorem69
+import Domain.Neighborhood.Definition610
 import Domain.InfoSys
