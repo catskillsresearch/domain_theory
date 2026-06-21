@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13/5.14/5.15); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **all Exercises 5.7–5.16**); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -181,8 +181,34 @@ building a separate λ-syntax.
   `smul_union`) by membership `ext`, define `star` by recursion, and avoid `Monotone`/`⋃`-order
   lemmas/`Submonoid.powers` entirely.
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond`
-on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
+**Lecture V exercises are now COMPLETE (5.7–5.16).** Exercise 5.16 is **Pass** (`Exercise516.lean`):
+
+- **`tailMap : C → C`** (`tail(bx)=x`, `tail(Λ)=⊥`, Example 4.4's "left to the reader" item) via
+  `Exercise419.liftC` (`tail_hcone`/`tail_hsing`).
+- **`negMap : C → C`** (`neg(0x)=1·neg(x)`, `neg(1x)=0·neg(x)`) solved in closed form via `liftC`:
+  `neg(σ⊥)=(flip σ)⊥`, `neg(σ)=flip σ` with `flip = List.map not`. Recursion eqs `neg_cons_false`/
+  `neg_cons_true` (it is *the* solution) and the involution **`negMap_negMap : neg(neg x)=x` for all
+  `x∈|C|`**. The continuity argument flagged in the old plan was **avoided**: instead of "agreement on
+  the sup-dense basis + continuity", use Exercise 2.8's `eq_of_toElementMap_principal` — a map is
+  determined by its values on the finite elements `σ⊥`, `σ`, so `neg∘neg=id` reduces to `flip∘flip=id`
+  on those (helper `map_ext_C`). Much shorter than the directed-sup route.
+- **`dMap : C → C`** (`d(0x)=00·d(x)`, etc.) via `liftC` (`d(σ)=double σ`).
+- **`mergeMap : C × C → C`** (`merge(εx,δy)=ε·δ·merge(x,y)`) built **directly** as an `ApproximableMap
+  (prod C C) C` from an explicit interleave value function `mergeVal` on tagged strings `(b,σ)`
+  (`b`=total/partial flag), with output element `mergeElem`. **Scott's boundary trouble resolved**: the
+  *only* monotone convention is `merge(Λ,y)=Λ`, `merge(⊥,y)=⊥`, and `merge(εx,y)=ε⊥` once `y` runs out
+  (NOT `merge(εx,Λ)=Λ`, which breaks monotonicity since `⊥⊑Λ` but `ε⊥⋢Λ`). The crux is the
+  monotonicity lemma `mergeVal_SLe`/`mergeElem_mono` (order `SLe` on tagged strings, `shapeElem_le_iff`).
+  Value-on-pairs lemma `mergeMap_pair` (the product analogue of `liftC_strBot`), product
+  extensionality `prodMap_ext` (via `prod_principal_pair`), recursion eq `mergeMap_cons` (all `x,y`),
+  and **`mergeMap_diag : merge(x,x)=d(x)`** (only needs the *diagonal* principals — `mergeVal_diag`).
+- **Choice:** all *data* (`tailMap`/`negMap`/`dMap`/`mergeMap`) is `[propext, Quot.sound]`; the map
+  equalities pull `Classical.choice` only via `eq_of_toElementMap_principal` (the sanctioned exception).
+- **Left as a follow-up (stretch):** the Thue–Morse sequence `t = 0·merge(neg t, tail t)` — its
+  `n`-th-digit = digit-sum-of-`n`-mod-2 description and overlap-freeness are genuine
+  combinatorics-on-words, orthogonal to domain theory.
+
+<details><summary>Original 5.16 formalization plan (superseded — kept for reference)</summary>
 
 ### Exercise 5.16 — formalization plan (`neg`/`merge` on `C`; the Thue–Morse sequence)
 
@@ -191,11 +217,27 @@ on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
 (`merge(εx,δy)=ε·δ·merge(x,y)`); prove `neg(neg x)=x`, `merge(x,x)=d(x)` (`d` = the bit-doubling map of
 4.4), and study `t = 0·merge(neg t, tail t)` (its `n`-th digit = digit-sum-of-`n`-in-binary mod 2 — the
 **Thue–Morse** sequence, Lambek's suggestion — and `t` is overlap-free: `t ≠ u·a·a·a·v`, `a ≠ Λ`).
-Suggested module `Exercise516.lean`, `import Domain.Neighborhood.Exercise419` (which already has
-`tail`, the head-tests `empty`/`zero`/`one : C → T`, and the `cond`-on-`C` lift `liftC`); reuse
-`Example44`'s `C`/`consMap b`/`strElem`/`strBot`/`altElt`.
+Suggested module `Exercise516.lean`, `import Domain.Neighborhood.Exercise419`.
+
+**Available API (verified) — and a correction.** Unlike 5.14/5.15 this exercise lives entirely in the
+**approximable-map / neighborhood framework** (no raw `Set` pointwise algebra), so the `Classical.choice`
+taints discovered in 5.14/5.15 (`Set` `mul_assoc`/`union_mul`/`subset_iUnion`/`Monotone`-over-`Set`/
+`Submonoid.powers`) **do not apply here**. What actually exists to reuse:
+- `Exercise419.liftC V coneVal singVal hcone hsing : ApproximableMap C V` — the head-test combinator
+  (a map out of `C` fixed by its values `coneVal σ` on `σ⊥` and `singVal σ` on `σ`); **choice-free
+  data**, with computation rules `liftC_strBot`/`liftC_strElem`. The tests are `Exercise419.emptyMap`/
+  `zeroMap`/`oneMap : ApproximableMap C T` (note: named `…Map`, **not** `empty`/`zero`/`one`).
+- `Exercise326.cond V : ApproximableMap (prod T (prod V V)) V` — the conditional (instantiate at `V=C`);
+  `condT_bot` (`cond(⊥,x,y)=⊥`) is in Exercise419.
+- `Example44`: `C`, `consMap b : C → C` (`consMap_strElem`/`consMap_strBot`), `strElem`/`strBot`,
+  `altElt`. `Exercise314.diag V : V → prod V V` (also `Table55.diagC`).
+- **`tail` is NOT yet implemented** — Example 4.4/Exercise 4.19 only *note* it ("left to the reader").
+  So **step 0** of 5.16 is to *build* `tail : C → C` (`tail(bσ)=σ`, `tail(Λ)=⊥`) via `liftC`
+  (drop-the-head: `coneVal []`/`singVal [] = ⊥`, `coneVal (b::σ)=strBot σ`, `singVal (b::σ)=strElem σ`),
+  with value lemmas `tail_consMap`/`tail_strElem`/`tail_strBot`/`tail_bot`.
 
 **The combinators (the tractable core).**
+- `tail` first (see step 0).
 - `neg := fixElement` of `Nop(g) = λx. cond(zero x, cons true (g (tail x)), cons false (g (tail x)))`
   (flip the head bit, recurse on the tail) — build via `Theorem41.fixMap`/`fixElement` on
   `funSpace C C`. Computation rules `neg_cons0`/`neg_cons1` from `consMap`/`tail`/`cond` value eqs;
@@ -218,14 +260,18 @@ crux flagged in the status notes.
 **The Thue–Morse properties (stretch / optional).** `t = 0·merge(neg t, tail t)` is a fixed point in
 `|C|`; proving (a) `t`'s `n`-th digit `= (Nat.digits 2 n).sum % 2` and (b) overlap-freeness
 (`t ≠ u·a·a·a·v`, `a ≠ Λ`, `u` finite) are real **combinatorics-on-words** theorems about Thue–Morse,
-largely orthogonal to domain theory. Recommend landing `neg`/`merge`/`neg∘neg=id`/`merge(x,x)=d(x)`
+largely orthogonal to domain theory. Recommend landing `tail`/`neg`/`merge`/`neg∘neg=id`/`merge(x,x)=d(x)`
 first as the "Pass" core, and treating (a)/(b) as a separate follow-up (they may warrant their own
 module and a `Nat.digits`/word-combinatorics detour).
 
-**Choice discipline.** `neg`/`merge`/`d` data are choice-free except the structural `Classical.choice`
-inherited from `cond`/`T` (Example 1.2), exactly as Exercise 4.19's `oneDef` and Theorem 5.6's
-`cond`-based maps already are — not new choice. Equalities may use `ext_of_toElementMap` per the
-standing rule.
+**Choice discipline.** `tail`/`neg`/`merge`/`d` *data* are choice-free except the structural
+`Classical.choice` inherited from `cond`/`T` (Example 1.2), exactly as Exercise 4.19's `oneDef` and
+Theorem 5.6's `cond`-based maps already are — not new choice (the `liftC`-built `tail` is itself
+choice-free). Prefer the choice-free relational `ApproximableMap.ext` for map equalities; fall back to
+`ext_of_toElementMap` (the standing allowed exception) only when comparing via `toElementMap`. Audit
+each result with the scratch file as usual.
+
+</details>
 
 ### Lecture IV §4 completed (most recent work)
 
@@ -318,7 +364,7 @@ The Goal Lists are in `arxiv.md`:
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
-| V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive | 2383–3207 |
+| V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 done — Lecture V complete**) | 2383–3207 |
 | VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
