@@ -127,4 +127,5 @@ import Domain.Neighborhood.Theorem616
 import Domain.Neighborhood.Exercise617
 import Domain.Neighborhood.Exercise617Gen
 import Domain.Neighborhood.Exercise618
+import Domain.Neighborhood.Exercise619
 import Domain.InfoSys
