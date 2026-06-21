@@ -17,9 +17,11 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** the existence **Theorem 6.14** (iterate `T` from a generating `Γ` with
-`{Γ}◁T({Γ})`, take `𝒟=⋃ₙTⁿ({Γ})`, get `𝒟≅T(𝒟)` and the initial `T`-algebra; uniqueness via the
-`ρₙ=iₙ∘jₙ` projection chain `⋃ₙρₙ=I_𝒟`). **Definition 6.13 is now DONE** (`Definition613.lean`, the
+**Next concrete target:** finish **Theorem 6.14 uniqueness/initiality** — the existence half is DONE
+(`Theorem614.lean`, see the checkpoint at the end of this file). What remains is `key_rho`
+(`ρₙ₊₁ = colimIso.hom ∘ T(ρₙ) ∘ colimIso.inv`, i.e. `T(ρₙ)=ρₙ₊₁`, the hard `HEq` conjugation through
+`MonotoneAt.inj_heq`/`proj_heq`) and then the `gₙ=g∘ρₙ` recursion (`g`-independent: `g₀=⊥`,
+`gₙ₊₁=k∘T(gₙ)`) giving `g=⋃gₙ` unique. **Definition 6.13 is now DONE** (`Definition613.lean`, the
 functor predicates *monotone on domains* `D◁E ⟹ T(D)◁T(E)` with `i,j` carried to `T(i),T(j)`, and
 *continuous on domains* `λD.T(D)` on `{D∣D◁E}` approximable = preserves directed unions of
 subsystems) — see the checkpoint at the end of this file. **Proposition 6.12 is also DONE**
@@ -621,7 +623,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**13/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**13/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains), Thm 6.14 **existence half** (the colimit `𝒟=⋃ₙTⁿ({Γ})`, `T(𝒟)=𝒟`, the algebra, homomorphism existence via 6.9, and the `⋃ₙρₙ=I_𝒟` chain; **uniqueness/initiality still TODO** — the `T(ρₙ)=ρₙ₊₁` HEq lemma) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions + the iterated-functor colimit solution**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -993,3 +995,68 @@ witnessing non-vacuity. **Fully choice-free** `[propext, Quot.sound]`.
   colimit `𝒟 = ⋃ₙ Tⁿ({Γ})`, `𝒟≅T(𝒟)` the identity, uniqueness via the `ρₙ = iₙ∘jₙ` chain
   `⋃ₙρₙ = I_𝒟`). It will *use* `MonotoneOnDomains` (to get each `Tⁿ{Γ} ◁ 𝒟` and `T(ρₙ)=ρₙ₊₁`) and
   `ContinuousOnDomains` (to get `T(𝒟)=𝒟`).
+
+## Checkpoint 2026-06-21 — Theorem 6.14 EXISTENCE HALF done (`Theorem614.lean`)
+
+`Domain/Neighborhood/Theorem614.lean` formalizes the **existence half** of Theorem 6.14: the
+iterated-functor colimit `𝒟 = ⋃ₙ Tⁿ({Γ})` is a `T`-algebra with `T(𝒟) = 𝒟` (the iso is the
+identity), and it admits a homomorphism into every strict `T`-algebra (Theorem 6.9). Full
+`lake build Domain` green (3082 jobs, zero `sorry`); **all data choice-free** `[propext, Quot.sound]`
+(audited: `colim`, `Dsys`, `colimIso`, `colimAlg`, `rho`, `iSupRho`, `iSupRho_eq_id`,
+`Tcolim_eq_colim`, `nonempty_algHom`).
+
+- **Hypotheses bundled in `Setup`**: `T` (an `Endofunctor DomainObj.{w}`), `hmaps : ContinuousOnMaps`,
+  `hmono : MonotoneOnDomains` (kept separate from `hcont` so it is usable in **data**, choice-free,
+  rather than `Exists.choose`-extracted), `hcont : ContinuousOnDomains`, token type `Tok`, generating
+  system `Γ`, the carrier identification `ceq : (T.obj⟨Tok,Γ⟩).carrier = Tok`, and Scott's
+  `hsub : Γ ◁ (ceq ▸ T(Γ).sys)` (`= {Γ}◁T({Γ})`).
+- **The carrier-transport toolkit (the crux difficulty).** The abstract `T` need not preserve token
+  types, so each `Tⁿ({Γ})` a priori lives over a different carrier. Four **choice-free** transport
+  lemmas (all proved by `cases`/`subst` on a *generalized* carrier-eq variable `β = α`) tame this:
+  `subsystem_cast` (transport `D◁E`), `rec_trans` (`e'▸(e▸x)=(e.trans e')▸x` for systems),
+  `mem_cast` (`(e▸V).mem X ↔ V.mem (e.symm▸X)`), `set_rec_trans` (the `Set` analogue). **Key trick:**
+  carrier-eq proofs into the *same* type are `Prop`s, so **proof irrelevance makes them defeq** —
+  e.g. `carrier_eq.trans (Dceq s n)` and `colimCeq s` are interchangeable for free, which is what
+  makes `Dsys_sub_Tcolim` close by a bare `exact h` after `rw [rec_trans]`.
+- **The tower** `iter s n : Σ' S, Σ' (ceq : (T.obj⟨Tok,S⟩).carrier=Tok), S ◁ (ceq ▸ T(S).sys)`
+  (structural recursion; the successor step feeds `chainₙ` to `s.hmono` to get the next `carrier_eq`
+  and `MonotoneAt.sub`, transported by `subsystem_cast`+`rec_trans`). Accessors `Dsys`/`Dceq`/`Dchain`
+  (`Dsys_succ : Dsys(n+1) = Dceq n ▸ T(Dsys n).sys` is `rfl`), `Dsys_master` (all over `Δ=Γ`),
+  `chain_le` (`Tⁿ◁Tᵐ` for `n≤m`).
+- **The colimit** `colim s` (`mem X := ∃n, (Dsys s n).mem X`; `inter_mem` lifts `X,Y,Z` to one level
+  `max …` via `chain_le` then uses that level's own `inter_mem`). `Dsys_sub_colim` (`Tⁿ◁𝒟`),
+  `colimCeq` (`(T.obj⟨Tok,𝒟⟩).carrier = Tok`, from `MonotoneAt` of `T⁰◁𝒟`), `Tcolim` (`=T(𝒟)` over
+  `Tok`), `Dsys_sub_Tcolim` (`Tⁿ⁺¹◁T(𝒟)`), `Tcolim_master`, `colim_sub_Tcolim` (easy `𝒟⊆T(𝒟)`).
+- **The continuity step** `Tcolim_sub_colim` (the only use of `ContinuousOnDomains`): apply the
+  directed-union-preservation to `ℱ := Set.range (Dsys s)`, `E=U=𝒟`, `hUE = Subsystem.refl 𝒟`.
+  Pull `X : Set Tok` back to `Y₀ := colimCeq.symm ▸ X` on `T(𝒟)`'s carrier; `X∈T(𝒟)` ⟺ `Y₀ ∈
+  targetFam(refl)` (the `carrier_eq ▸ Y₀ = Y₀` step is defeq by proof irrelevance), rewrite by the
+  continuity equation, and read off `∃n, (Dsys s (n+1)).mem X` (the `set_rec_trans` + proof-irrel
+  identification `ceqₙ ▸ Y₀ = (Dceq s n).symm ▸ X` is the `key` step). Hence `Tcolim_eq_colim`
+  (`T(𝒟)=𝒟` via `NeighborhoodSystem.ext` + mutual `⊆`), the `DomainObj` equality `colimObj_eq` (via
+  `domainObj_ext`: carrier-eq + transported-sys-eq ⟹ `⟨c,σ⟩=⟨Tok,𝒟⟩`), the identity iso
+  `colimIso : Iso (T.obj⟨Tok,𝒟⟩) ⟨Tok,𝒟⟩` (via `isoOfEq`, an object-equality ⟹ identity iso in any
+  `Category`), and `colimAlg`.
+- **Existence** `nonempty_algHom s B hk : Nonempty (AlgHom (colimAlg s) B)` for strict `B` — directly
+  `nonempty_algHom_of_continuousOnMaps s.T s.hmaps (colimIso s) B hk` (Theorem 6.9). Capstone
+  `exists_algebra_with_hom`.
+- **The projection chain (uniqueness engine, ready)** `rho s n := iₙ.comp jₙ` (`iₙ,jₙ` from
+  Prop 6.12 on `Dsys_sub_colim s n`), `rho_rel` (`X ρₙ Y ↔ ∃z∈Tⁿ, X⊆z⊆Y`), `rho_mono` (`ρₙ⊆ρₘ`),
+  `iSupRho` (`⋃ₙρₙ` via `ApproximableMap.iSupMap`), and **`iSupRho_eq_id : ⋃ₙρₙ = I_𝒟`** (forward
+  `X⊆z⊆Y⟹X⊆Y`; reverse factors the identity step `X⊆X⊆Y` through the level witnessing `X∈𝒟`).
+
+**What remains for full 6.14 (uniqueness ⟹ initial `T`-algebra among strict algebras).** The gate is
+`key_rho : rho s (n+1) = (colimIso s).hom ∘ T.map (rho s n) ∘ (colimIso s).inv` — i.e. Scott's
+`T(ρₙ)=ρₙ₊₁`. This is a heavy **heterogeneous-equality** lemma: it must thread `MonotoneAt.inj_heq`/
+`proj_heq` (`HEq (T.map iₙ) sub.inj`, `HEq (T.map jₙ) sub.proj`) through the carrier transports and
+the `colimObj_eq` cast. The structural obstacle: `colimObj_eq : T.obj⟨Tok,𝒟⟩ = ⟨Tok,𝒟⟩` is between
+**non-variable terms**, so it cannot be `subst`/`cases`-eliminated to collapse the casts. A promising
+de-risk already noted: `Subsystem` is a `Prop` and `Subsystem.inj`/`proj`'s `rel` fields depend only
+on `(D,E)` (not on the proof), so the *transported* `sub.inj` is **defeq** to `(Dsys_sub_colim s
+(n+1)).inj = iₙ₊₁`; the remaining work is converting the `T.map iₙ` HEq into a map equality over
+`Tok` (an `ApproximableMap` cast lemma). With `key_rho` in hand: for any strict `AlgHom g`,
+`gₙ := g.hom ∘ rho s n` satisfies `g₀=⊥` (`g` strict, `ρ₀=⊥`-map) and `gₙ₊₁ = k∘T(gₙ)` (via `key_rho`
++ `g.comm` with `str=colimIso.hom`), so the sequence is `g`-independent; then
+`g.hom = ⋃ₙ gₙ` (continuity of comp + `iSupRho_eq_id`) forces any two strict homomorphisms equal.
+This re-uses no new external API beyond exposing the fixed-point sup, but the `key_rho` HEq surgery is
+comparable in size to Theorem 6.9 itself — budget it as its own work item.
