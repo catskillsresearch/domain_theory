@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V core formalized** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, Ex 5.7/5.8/5.9/5.10/5.11/5.12/5.13/5.14); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -145,12 +145,106 @@ building a separate λ-syntax.
   `Nat.even_mul_succ_self` is proved by `grind` (pulls `Classical.choice`) — proved `2 ∣ k(k+1)` by
   hand (`two_dvd_mul_succ`) to keep `tri`/`num`/`numEquiv` choice-free.
 
-**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.14 (`fun`/`graph` —
-the Scott **graph model**: needs a `Pω` domain of approximable maps + finite-set encoding via `num`,
-with `fun∘graph = id`, `graph∘fun ⊇ id`), Exercise 5.15 (free-semigroup domain — part 1 `z=e*·{e'}`
+- **Exercise 5.14** (`Exercise514.lean`) — the Scott **`Pω` graph model**. The coding device is the
+  **tag** `tag [n₀,…,n_{k-1}] m = [n₀+1,…,n_{k-1}+1,0,m]`, built from 5.13's `num`
+  (`tag [] m = num 0 m`, `tag (n::ns) m = num (n+1) (tag ns m)`); it is a **bijection**
+  `(List ℕ)×ℕ ≃ ℕ`: `tag_injective` (induction + `num_injective`) and `tag_surjective` (strong
+  induction on the value, decreasing via `num_succ_left_gt : b < num (n+1) b`). With `entries ns`
+  the finite set of list entries, `Fun u x = {m ∣ ∃ ns⊆x, tag ns m ∈ u}` and
+  `Graph f = {tag ns m ∣ m ∈ f(entries ns)}`, and `IsApprox f` (monotone + finite-approximation):
+  `Fun_Graph` (`fun∘graph = λf.f` for continuous `f`), `id_le_Graph_Fun` (`graph∘fun ⊇ λx.x`,
+  genuinely `⊇`), and `Fun_isApprox` (every `Fun u` is approximable). `Pω = (Set ℕ, ⊆)` per 4.17/5.13.
+  **Fully choice-free** (`[propext, Quot.sound]`). **Pitfall:** phrasing `IsApprox` with Mathlib's
+  `Monotone f` (over `Set ℕ`) pulls `Classical.choice` — the `≤` resolves through the
+  `CompleteLattice (Set _)` instance, whose construction uses choice — so *any* lemma merely
+  *mentioning* such an `IsApprox` is choice-tainted. Phrase monotonicity as an explicit
+  `∀ ⦃x x'⦄, x ⊆ x' → f x ⊆ f x'` (`⊆` = `Set.Subset`, defeq to `≤` but instance-free) to stay
+  choice-free.
+
+**Remaining Lecture V items (still `—`, larger standalone efforts):** Exercise 5.15 (free-semigroup domain — part 1 `z=e*·{e'}`
 is a clean `lfpSet` exercise, but part 2 is David Park's simultaneous regular-expression least
 solution = Arden's-lemma star-algebra), Exercise 5.16 (`neg`/`merge` on `C` — needs `tail`/tests/`cond`
 on `C` plus a continuity/approximation argument for `neg(neg x)=x`).
+
+### Exercise 5.15 — formalization plan (free-semigroup powerset + Arden's lemma)
+
+**Statement.** In `P{0,1}*` (powerset of the free monoid, modelled as `(Set (FreeMonoid Bool), ⊆)`;
+use `FreeMonoid Bool` so pointwise `·` is `Set.mul` from `open Pointwise`):
+(1) the least fixed point of `z = {e}·z ∪ {e'}` is `e*·{e'}`, where `e* = {Λ,e,e²,…}`;
+(2) (David Park) the least solution of the pair `x = a·x ∪ b·y ∪ c`, `y = b·x ∪ a·y ∪ d` is
+`x = (a ∪ b·a*·b)*·(c ∪ b·a*·d)`, with `z* = Λ ∪ z*·z` extended to the whole domain.
+Suggested module `Exercise515.lean`, `import Domain.Neighborhood.Exercise414` (reuse `lfpSet`).
+Reuse 4.17's `open Pointwise`/`Submonoid` style. Model `e* = (Submonoid.powers e : Set _)`; the
+general star `z*` (z a *set*) is `(Submonoid.closure z : Set _)`? — **no**, Scott's `z*` is
+`Λ ∪ z*·z = ⋃ₙ zⁿ` (the submonoid generated *as a set product*, i.e. `lfpSet (λw. {1} ∪ w·z)` =
+`⋃ₙ zⁿ`); define `star z := lfpSet (fun w => {1} ∪ w * z)` and prove `star_unfold`/`star_eq_iUnion`.
+
+**Central reusable lemma — Arden's lemma.** Prove once and reuse for *both* parts:
+
+  `arden : lfpSet (fun w => z * w ∪ v) = star z * v`,
+
+i.e. the least solution of `w = z·w ∪ v` is `z*·v`. Proof mirrors 5.13/4.17 style:
+- `star z * v` is a fixed point: `z·(z*·v) ∪ v = (z·z*)·v ∪ v = (z·z* ∪ {1})·v = z*·v` using
+  `star_unfold' : z* = {1} ∪ z·z*` (left-unfold) + `Set.add_mul`/`mul_assoc` on `Set.mul`;
+- least: any prefixed `w₀` (`z·w₀ ∪ v ⊆ w₀`) contains `v` and is closed under `z·(–)`, so
+  `zⁿ·v ⊆ w₀` for all `n` (induction), hence `z*·v = ⋃ₙ zⁿ·v ⊆ w₀`.
+Then **part (1)** is `arden` with `z = {e}`, `v = {e'}` (and `{e}* = e*` since `{e}ⁿ = {eⁿ}`).
+
+**Part (2) via Arden + Bekić (Prop 5.3).** Solve the simultaneous system by substitution:
+- eliminate `y`: treat the 2nd equation as `y = a·y ∪ (b·x ∪ d)`; by `arden`, `y = a*·(b·x ∪ d)`;
+- substitute into the 1st: `x = a·x ∪ b·(a*·(b·x ∪ d)) ∪ c = (a ∪ b·a*·b)·x ∪ (c ∪ b·a*·d)`;
+- by `arden` again, `x = (a ∪ b·a*·b)*·(c ∪ b·a*·d)`. ∎
+Use **Proposition 5.3 (`Proposition53.lean`, Bekić)** to justify that the coordinatewise least
+fixed point of the pair equals the result of this sequential elimination (the hint "Apply 5.3"); the
+real work is the `Set.mul`/`star` distributive algebra (`star_unfold`, `mul_union`, `union_mul`,
+`mul_assoc`, `iUnion` manipulations). **Difficulty:** part (1) ≈ 4.17-level; part (2) is a genuine
+Kleene-algebra calculation — budget accordingly.
+
+**Choice discipline.** `lfpSet`/`star`/`arden` are choice-free (4.14 inheritance + `Set.mul` algebra);
+keep the `iUnion`/induction proofs free of `simpa`-induced choice.
+
+### Exercise 5.16 — formalization plan (`neg`/`merge` on `C`; the Thue–Morse sequence)
+
+**Statement.** On `C` (Example 4.4, finite+infinite binary sequences): give fixed-point definitions of
+`neg : C → C` (`neg(0x)=1·neg(x)`, `neg(1x)=0·neg(x)`) and `merge : C × C → C`
+(`merge(εx,δy)=ε·δ·merge(x,y)`); prove `neg(neg x)=x`, `merge(x,x)=d(x)` (`d` = the bit-doubling map of
+4.4), and study `t = 0·merge(neg t, tail t)` (its `n`-th digit = digit-sum-of-`n`-in-binary mod 2 — the
+**Thue–Morse** sequence, Lambek's suggestion — and `t` is overlap-free: `t ≠ u·a·a·a·v`, `a ≠ Λ`).
+Suggested module `Exercise516.lean`, `import Domain.Neighborhood.Exercise419` (which already has
+`tail`, the head-tests `empty`/`zero`/`one : C → T`, and the `cond`-on-`C` lift `liftC`); reuse
+`Example44`'s `C`/`consMap b`/`strElem`/`strBot`/`altElt`.
+
+**The combinators (the tractable core).**
+- `neg := fixElement` of `Nop(g) = λx. cond(zero x, cons true (g (tail x)), cons false (g (tail x)))`
+  (flip the head bit, recurse on the tail) — build via `Theorem41.fixMap`/`fixElement` on
+  `funSpace C C`. Computation rules `neg_cons0`/`neg_cons1` from `consMap`/`tail`/`cond` value eqs;
+  `neg_bot`/`neg_strBot σ` for the partial elements.
+- `merge` similarly as a fixed point on `funSpace (prod C C) C`, with the boundary choice for
+  `merge(Λ, y)` made explicit (Scott flags it — pick `merge(Λ,y)=Λ`, i.e. strict in the first coord, or
+  document the alternative).
+- `d := merge ∘ diag` (so `merge(x,x)=d(x)` is then *definitional*) — or define `d` independently and
+  prove the equation.
+
+**`neg(neg x)=x` — the hard (continuity) step.** Prove first on finite approximants by induction on
+`σ : Str`: `neg (neg (strBot σ)) = strBot σ` and `neg (neg (strElem σ)) = strElem σ` (head-bit flips
+twice = identity; `tail`/`cons` bookkeeping). Then extend to **all** `x ∈ |C|` by continuity: every
+element is the directed sup of its finite approximants (the cone/singleton principals), and
+`neg ∘ neg` is continuous (`toElementMap` of a composite of approximable maps preserves
+`iSupDirected`, cf. `Theorem41.fixElement_eq_iSupDirected` / `toElementMap_iSupDirected`), so agreement
+on the sup-dense basis forces `neg∘neg = id` on `|C|`. This continuity/approximation argument is the
+crux flagged in the status notes.
+
+**The Thue–Morse properties (stretch / optional).** `t = 0·merge(neg t, tail t)` is a fixed point in
+`|C|`; proving (a) `t`'s `n`-th digit `= (Nat.digits 2 n).sum % 2` and (b) overlap-freeness
+(`t ≠ u·a·a·a·v`, `a ≠ Λ`, `u` finite) are real **combinatorics-on-words** theorems about Thue–Morse,
+largely orthogonal to domain theory. Recommend landing `neg`/`merge`/`neg∘neg=id`/`merge(x,x)=d(x)`
+first as the "Pass" core, and treating (a)/(b) as a separate follow-up (they may warrant their own
+module and a `Nat.digits`/word-combinatorics detour).
+
+**Choice discipline.** `neg`/`merge`/`d` data are choice-free except the structural `Classical.choice`
+inherited from `cond`/`T` (Example 1.2), exactly as Exercise 4.19's `oneDef` and Theorem 5.6's
+`cond`-based maps already are — not new choice. Equalities may use `ext_of_toElementMap` per the
+standing rule.
 
 ### Lecture IV §4 completed (most recent work)
 
