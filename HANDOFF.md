@@ -17,12 +17,15 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Theorem 6.16 is now COMPLETE** (`Theorem616.lean`,
-`trianglelefteq_of_isInitial`: an initial `T`-algebra `D` satisfies `D ⊴ E` for every `E ≅ T(E)` when
-`T` is continuous on maps; see the checkpoint at the end of this file). The natural next items are the
-remaining Lecture VI entries from `arxiv.md` — **Exercise 6.17** (algebras for which `C` is initial),
-**Exercise 6.18** (`D^∞` as an initial algebra / domain-equation solution), **Exercise 6.19** (sum &
-product on the category of strict maps), or move into Lecture VII–VIII. **Lemma 6.15 is COMPLETE**
+**Next concrete target:** **Exercise 6.17 is IN PROGRESS** (`Exercise617.lean`): the categorical
+scaffold — bespoke `∅`-free category `StrictDomainObj`, the endofunctor `Tc = 𝟙+X+X` with full
+functoriality, and `C` as a `Tc`-algebra `Calg` — is COMPLETE, green and choice-free (see the last
+checkpoint at the end of this file). **What remains is the initiality layer**: the unique homomorphism
+`desc : C→E` (via `Exercise419.liftC`), the AlgHom square (reduces to `desc(x)=k(Tc(desc)(toCC x))`),
+uniqueness (prefix induction) ⟹ `IsInitial Calg`, then the generalization `Cₙ`. The final checkpoint
+spells out the exact lemmas/plan. **Theorem 6.16 is COMPLETE** (`Theorem616.lean`,
+`trianglelefteq_of_isInitial`). Other open Lecture VI items: **Exercise 6.18** (`D^∞` as an initial
+algebra), **Exercise 6.19** (sum & product on the category of strict maps). **Lemma 6.15 is COMPLETE**
 (`Lemma615.lean`, the converse of Prop 6.12: a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E`
 between systems over *possibly different* token types ⟹ `D ⊴ E`). **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
 `Theorem614.lean`). `key_rho`, the `gₙ=g∘ρₙ` recursion,
@@ -1202,3 +1205,58 @@ agree by defeq (lambek's `hom := A.str`), so the `AlgHom` comm fields typecheck 
 **Reusable bits worth remembering:** `opStep` and `botStrict_rel` are general (any `T`, `j`, `k`, `Φ`)
 and would serve any future "run 6.9 and read off the approximant ladder" argument (e.g. Exercises
 6.17–6.19).
+
+## Checkpoint — 2026-06-21 — Exercise 6.17 scaffold COMPLETE (`Exercise617.lean`, choice-free; initiality pending)
+
+**What is green now** (`lake build Domain.Neighborhood.Exercise617` ✓, axiom audit `[propext, Quot.sound]`
+on `sumMap3`/`sumMap3_id`/`sumMap3_comp`/`isStrict_sumMap3`/`Tc`/`Calg`/`cStr`):
+
+- **Bespoke `∅`-free category `StrictDomainObj`** (`carrier : Type w`, `sys`, `nonempty : ∀X, sys.mem X → X.Nonempty`),
+  `instance : Category StrictDomainObj` with `Hom := StrictMap`, id/comp from Thm 2.5 +
+  `isStrict_idMap`/`isStrict_comp`. **Why bespoke and not `DomainObj`:** the separated sum needs `∅∉𝒟`
+  (an empty nbhd of one summand becomes a spurious consistency witness for the other tag, breaking
+  `inter_mem`), so `T(X)=𝟙+X+X` is **not** a total endofunctor of `DomainObj` ⟹ **Theorem 6.14 cannot
+  be invoked**. This is exactly Scott's "category of strict maps" (Ex 6.19). (User chose this "bespoke"
+  route over rebuilding the whole 6.9/6.14 spine over the `∅`-free subcategory.)
+- **Endofunctor `Tc = 𝟙+X+X`** complete: `tcObj` (reuses Example 6.2 `sum3 unitSys D D`, `∅`-free by
+  `sum3_nonempty`); the three-way sum map **`sumMap3 = f₀+f₁+f₂`** (full `inter_right`/`mono`; shape
+  lemmas `mem_subset_jᵢ_inv` say a nbhd `⊆ jᵢ` is itself a `jᵢ`-copy); `isStrict_sumMap3`; and
+  **functoriality** `sumMap3_id`/`sumMap3_comp` ⟹ `Tc : Endofunctor StrictDomainObj` (`tcMapHom` =
+  `I_𝟙 + f + f`). `@[simp] Tc_obj`/`Tc_map_val`.
+- **`C` is a `Tc`-algebra** `Calg = ⟨Cobj, cStr⟩`: `Cobj = ⟨Str, C, C_nonempty⟩`,
+  `cStr = ⟨ofIso ccEquiv.symm, isStrict_ofIso _⟩` (Example 6.2's iso `C ≅ 𝟙+C+C`, inverse direction;
+  strict because an `OrderIso` preserves `⊥` — `isStrict_ofIso` via `isStrict_iff_apply_bot` +
+  `toElementMap_ofIso` + `OrderIso.map_bot`).
+
+**Remaining to finish Ex 6.17 (precise, validated plan):**
+
+1. **`desc : C → E` (existence)** via **`Exercise419.liftC`** (build a map out of `C` from per-string
+   values, NO function-space fixed point needed because the recursion is on the *finite* string σ, not
+   on `desc`). For a `Tc`-algebra `B=(E,k)` (`k : 𝟙+E+E → E`):
+   - `e := k.toElementMap term` (the terminator element; `term :=` element of `sum3 unitSys E E` gen'd by `j0 univ`).
+   - `f_b y := k.toElementMap (inj_b y)` where `inj1,inj2 : E.Element → (sum3 unitSys E E).Element` are
+     the canonical sum injections (NEW: build them like Example62C `toCC`, ~40-60 lines each;
+     `inj1(y).mem W := W=master3 ∨ ∃Y, W=j1 Y ∧ y.mem Y`).
+   - `singVal [] = e`, `singVal (b::σ) = f_b (singVal σ)`; `coneVal [] = E.bot`, `coneVal (b::σ) = f_b (coneVal σ)`.
+   - `hcone`/`hsing` monotonicity by `peano_induction` on σ using `f_b` monotone (`toElementMap` mono)
+     + `coneVal σ ≤ singVal σ`.
+2. **AlgHom square** `desc ⊚ cStr = k ⊚ Tc(desc)`. Prove on **elements**: every `s ∈ |𝟙+C+C|` is
+   `toCC x` (ccEquiv onto), and `cStr.toElementMap (toCC x) = fromCC(toCC x) = x`, so the square ⟺
+   **`desc(x) = k(Tc(desc)(toCC x))` for all `x∈|C|`** (★). Case on `x` via `memC_cases`:
+   - `x=Λ̂`: `toCC Λ̂ = term`; `sumMap3 id desc desc` fixes the unit copy ⟹ `term`; `k term = e = desc Λ̂`.
+   - `x=0·y` (`= consMap false y`): **`toCC (consMap false y) = inj1 y`** (key lemma:
+     `toCC(0y).mem(j1 X) ↔ (0y).mem(0X) ↔ y.mem X`); `sumMap3 id desc desc (inj1 y) = inj1 (desc y)`;
+     `k(inj1(desc y)) = f₀(desc y) = desc(0y)`. Likewise `1·y` with `inj2`/`f₁`.
+   - NEW supporting lemmas: `toCC_consMap_eq_inj` and `sumMap3` toElementMap action on `term`/`inj_b`.
+3. **Uniqueness** ⟹ `IsInitial Calg`: any `AlgHom h'` satisfies the same recursion equations
+   (`h'(Λ)=e`, `h'(b·x)=f_b(h' x)` — read off the square the same way), so `h'` agrees with `desc` on
+   every finite generator `strElem σ`/`strBot σ` by `peano_induction`, hence `h'=desc` by
+   `map_ext_C` / `eq_of_toElementMap_principal` (Ex 2.8; cf. `Exercise516` neg∘neg).
+4. **Generalization `Cₙ ≅ 𝟙 + Cₙⁿ + Cₙⁿ`** matching `A ≅ Aⁿ + Aⁿ` (Example 6.2's `A`): same recipe with
+   an `n`-fold sum/product; the algebras are domains with a point + `2n` (or `n`-ary) strict ops.
+5. Wire is **already done** (`Domain.lean` imports `Exercise617`); on completion run the axiom audit on
+   `desc`/`IsInitial Calg` and flip `arxiv.md` 6.17 row to **Pass**.
+
+**Reusables for step 1–2:** `liftC`/`liftC_strBot`/`liftC_strElem` (`Exercise419`), `toElementMap_ofIso`,
+`Example62C.{toCC,fromCC,ccEquiv, toCC_mem_j0/j1/j2, fromCC_mem_nil/embF/embT, memC_cases}`,
+`Example44.{consMap, strElem, strBot, embBit_*}`.
