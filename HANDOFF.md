@@ -17,12 +17,13 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** Definition 6.13 (a functor *monotone on domains*: `D◁E ⟹ T(D)◁T(E)` with
-the projection pair `i,j` of 6.12 carried to `T(i),T(j)`; *continuous on domains*: `λD.T(D)` on
-`{D∣D◁E}` is approximable) → the existence **Theorem 6.14** (iterate `T` from a generating `Γ` with
+**Next concrete target:** the existence **Theorem 6.14** (iterate `T` from a generating `Γ` with
 `{Γ}◁T({Γ})`, take `𝒟=⋃ₙTⁿ({Γ})`, get `𝒟≅T(𝒟)` and the initial `T`-algebra; uniqueness via the
-`ρₙ=iₙ∘jₙ` projection chain `⋃ₙρₙ=I_𝒟`). **Proposition 6.12 is now DONE** (`Proposition612.lean`, the
-projection pair `i,j` from `D◁E`) — see the checkpoint at the end of this file. **Proposition 6.11**
+`ρₙ=iₙ∘jₙ` projection chain `⋃ₙρₙ=I_𝒟`). **Definition 6.13 is now DONE** (`Definition613.lean`, the
+functor predicates *monotone on domains* `D◁E ⟹ T(D)◁T(E)` with `i,j` carried to `T(i),T(j)`, and
+*continuous on domains* `λD.T(D)` on `{D∣D◁E}` approximable = preserves directed unions of
+subsystems) — see the checkpoint at the end of this file. **Proposition 6.12 is also DONE**
+(`Proposition612.lean`, the projection pair `i,j` from `D◁E`). **Proposition 6.11**
 (`Proposition611.lean`, the subsystems `{D ∣ D ◁ E}` form a domain), **Definition 6.10**
 (`Definition610.lean`, the subsystem relation `D ◁ E`) and **Theorem 6.9** (`Theorem69.lean`) are
 also DONE.
@@ -620,7 +621,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**12/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**13/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -952,3 +953,43 @@ relations (Definition 2.1), which keeps everything **choice-free**.
 - **Next:** Definition 6.13 (functors monotone / continuous *on domains*, phrased via this
   projection pair) and the existence **Theorem 6.14** (the iterated-functor colimit `𝒟 = ⋃ₙ Tⁿ({Γ})`
   with the `ρₙ = iₙ∘jₙ` chain `⋃ₙρₙ = I_𝒟` for homomorphism-uniqueness).
+
+## Checkpoint 2026-06-21 — Definition 6.13 (functors monotone / continuous on domains) DONE
+
+`Domain/Neighborhood/Definition613.lean` formalizes **Definition 6.13**: the two domain-level
+continuity conditions on a functor `T : Endofunctor DomainObj` (Definition 6.3). Both are `Prop`
+predicates; the identity functor satisfies both (`monotoneOnDomains_id`, `continuousOnDomains_id`),
+witnessing non-vacuity. **Fully choice-free** `[propext, Quot.sound]`.
+
+- **The carrier-type subtlety (the one design decision).** `D ◁ E` (Definition 6.10) requires `D, E`
+  over the **same** token type `α`; the abstract `T` need not preserve token types, so
+  `T.obj ⟨α,D⟩` and `T.obj ⟨α,E⟩` may have *different* carriers and "`T(D) ◁ T(E)`" does not even
+  typecheck until the carriers are identified. So **monotone on domains** is packaged pointwise as
+  `structure MonotoneAt T (h : D ◁ E)` with fields: `carrier_eq` (`(T.obj⟨α,E⟩).carrier =
+  (T.obj⟨α,D⟩).carrier`), `sub` (the transported `(T.obj⟨α,D⟩).sys ◁ carrier_eq ▸ (T.obj⟨α,E⟩).sys`),
+  and `inj_heq`/`proj_heq` (Scott's "the pair `i,j` is mapped to `T(i),T(j)`": the canonical 6.12
+  pair `sub.inj`/`sub.proj` equals `T.map h.inj`/`T.map h.proj`, up to the carrier transport — hence
+  `HEq`). `MonotoneOnDomains T := ∀ {α D E} (h : D ◁ E), MonotoneAt T h`.
+- **Continuous on domains.** Scott's `λD.T(D) : {D∣D◁E} → {D'∣D'◁T(E)}` *approximable* is rendered,
+  in the concrete neighbourhood framework, as **preservation of directed unions of subsystems**:
+  `ContinuousOnDomains T := ∃ hmono : MonotoneOnDomains T, ∀ {α E} (ℱ : Set (NeighborhoodSystem α))
+  (hℱ : ∀ D∈ℱ, D◁E) (hne) (hdir : DirectedOn (·◁·) ℱ) {U} (hUE : U◁E) (hU : U's family = ⋃ℱ's),
+  targetFam T hmono hUE = ⋃ D∈ℱ, targetFam T hmono (hℱ D)`. Here `targetFam T hmono (h : D◁E) :
+  Set (Set (T.obj⟨α,E⟩).carrier)` is the neighbourhood family of `T(D)` pushed to `T(E)`'s carrier
+  via `MonotoneAt.carrier_eq` (a `▸`-transport of the test set; legal as data because it goes through
+  `Eq.rec`'s large elimination, even though `MonotoneAt` is a `Prop`). This is exactly the continuity
+  Scott invokes in 6.14: `T(⋃ₙ Tⁿ{Γ}) = ⋃ₙ T(Tⁿ⁺¹{Γ})`.
+- **Identity-functor proofs.** `idEndofunctor` fixes objects/maps, so `carrier_eq := rfl`, `sub := h`,
+  `inj_heq/proj_heq := HEq.rfl`; `targetFam (idEndofunctor) _ h` collapses (proof-irrelevance makes
+  `carrier_eq` defeq `rfl`, so `carrier_eq ▸ Y = Y`) to the plain family `{Y∣D.mem Y}`, and
+  continuity becomes the union hypothesis `hU` after `simp [targetFam, Set.mem_iUnion, exists_prop]`.
+- **Pitfall.** `∃ D ∈ ℱ, P` desugars to `∃ D, D∈ℱ ∧ P` (an `And`), whereas the bounded union
+  `⋃ D, ⋃ hD : D∈ℱ, …` unfolds (via `Set.mem_iUnion`) to `∃ D, ∃ _:D∈ℱ, …` (an `Exists`); bridge
+  them with `exists_prop` in the simp set so the final `exact hU Y` unifies by defeq.
+- **Choice.** `MonotoneOnDomains`/`MonotoneAt`/`targetFam`/`ContinuousOnDomains`/`monotoneOnDomains_id`/
+  `continuousOnDomains_id` all report `[propext, Quot.sound]`. Wired into `Domain.lean`; full
+  `lake build Domain` green (3081 jobs, zero `sorry`).
+- **Next:** the existence **Theorem 6.14** (`{Γ}◁T({Γ})` ⟹ initial `T`-algebra via the iterated
+  colimit `𝒟 = ⋃ₙ Tⁿ({Γ})`, `𝒟≅T(𝒟)` the identity, uniqueness via the `ρₙ = iₙ∘jₙ` chain
+  `⋃ₙρₙ = I_𝒟`). It will *use* `MonotoneOnDomains` (to get each `Tⁿ{Γ} ◁ 𝒟` and `T(ρₙ)=ρₙ₊₁`) and
+  `ContinuousOnDomains` (to get `T(𝒟)=𝒟`).
