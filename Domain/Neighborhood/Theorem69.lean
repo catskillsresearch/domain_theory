@@ -39,9 +39,11 @@ exactly matching Definition 6.8.
   `h = k ∘ T(h) ∘ j`, which rearranges (using `j ∘ i = I`) to the homomorphism square
   `h ∘ i = k ∘ T(h)`.
 
-The conclusion is `Nonempty (AlgHom ⟨D, i⟩ B)` — Scott's *existence* statement. Extracting `Φ` from the
-`Prop`-valued `ContinuousOnMaps` is done by `Exists.elim` while proving a `Prop`, so it stays
-**choice-free** (`#print axioms ⊆ {propext, Quot.sound}`).
+The conclusion is `Nonempty {g : AlgHom ⟨D, i⟩ B // IsStrict g.hom}` — Scott's *existence* statement,
+recording that the homomorphism is itself a strict map (it is `toStrictMap` of the fixed point), which
+the uniqueness half of Theorem 6.14 consumes. Extracting `Φ` from the `Prop`-valued `ContinuousOnMaps`
+is done by `Exists.elim` while proving a `Prop`, so it stays **choice-free**
+(`#print axioms ⊆ {propext, Quot.sound}`).
 -/
 
 namespace Domain.Neighborhood
@@ -205,7 +207,7 @@ theorem nonempty_algHom_of_continuousOnMaps
     (T : Endofunctor DomainObj) (hT : ContinuousOnMaps T)
     {D : DomainObj} (iso : Iso (T.obj D) D)
     (B : TAlgebra T) (hk : IsStrict B.str) :
-    Nonempty (AlgHom (⟨D, iso.hom⟩ : TAlgebra T) B) := by
+    Nonempty {g : AlgHom (⟨D, iso.hom⟩ : TAlgebra T) B // IsStrict g.hom} := by
   -- `j = i⁻¹` is strict (it is an isomorphism of domains).
   have hji : iso.inv.comp iso.hom = idMap (T.obj D).sys := iso.hom_inv_id
   have hj : IsStrict iso.inv := isStrict_of_comp_eq_id hji
@@ -237,7 +239,7 @@ theorem nonempty_algHom_of_continuousOnMaps
   have hcore : B.str.comp ((T.map (X := D) (Y := B.carrier) h.1).comp iso.inv) = h.1 :=
     congrArg Subtype.val hh'
   -- rearrange to the homomorphism square `h ∘ i = k ∘ T(h)`.
-  refine ⟨{ hom := h.1, comm := ?_ }⟩
+  refine ⟨⟨{ hom := h.1, comm := ?_ }, h.2⟩⟩
   show h.1.comp iso.hom = B.str.comp (T.map (X := D) (Y := B.carrier) h.1)
   conv_lhs => rw [← hcore]
   rw [comp_assoc, comp_assoc, hji, comp_idMap]

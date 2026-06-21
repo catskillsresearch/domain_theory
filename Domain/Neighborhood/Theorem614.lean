@@ -29,6 +29,22 @@ over different carriers. The hypothesis `{Γ} ◁ T({Γ})` already pins `T({Γ})
 *monotone on domains* (Definition 6.13, `MonotoneAt.carrier_eq`) propagates the identification up the
 tower. We carry the carrier equalities explicitly and transport along them; the transport of the
 subdomain relation is the choice-free `subsystem_cast`.
+
+## Lean note: `rw` fragility on defeq-but-not-syntactic implicits
+
+Throughout the uniqueness half, `rw` with explicit arguments at the `ApproximableMap` /
+`NeighborhoodSystem` level repeatedly failed with "did not find an occurrence of the pattern" even
+when the pattern was visibly present — because the implicit carriers/systems were **defeq but not
+syntactically equal** (`colim s` vs `(colimAlg s).carrier.sys` vs `(objColim s).sys`; the abbrev
+`objColim` vs the literal `⟨Tok, colim s⟩`). Three fixes, used throughout `gcomp_rho_succ`/`gcomp_eq`:
+* work at the categorical `⊚` / `Category.assoc` level, where the implicits are concrete `DomainObj`s
+  rather than systems, so unification has nothing to get stuck on;
+* prefer `congrArg` / `calc` **term-mode** proofs (e.g. `congrArg (fun x => g.hom ⊚ x) (key_rho s n)`),
+  since `calc` bridges adjacent steps by defeq rather than by syntactic match;
+* to rewrite with a lemma whose implicit is pinned to the "wrong" representation (e.g. `comp_idMap`,
+  whose `idMap` arg is tied to `g.hom`'s domain `(colimAlg s).carrier.sys`), first bind the fact via a
+  `have` stated in the *desired* form (`have e : g.hom.comp (idMap (colim s)) = g.hom := comp_idMap
+  g.hom` — the `have` unifies by defeq), then `rw [← e]`.
 -/
 
 namespace Domain.Neighborhood
@@ -273,10 +289,16 @@ def colimAlg (s : Setup.{w}) : TAlgebra s.T :=
 /-! ### Existence of homomorphisms (Theorem 6.9) -/
 
 /-- **Existence (Theorem 6.9 applied to `𝒟 ≅ T(𝒟)`).** For any `T`-algebra `B` with a strict
+structure map, there is a *strict* homomorphism `𝒟 → B`. -/
+theorem nonempty_strict_algHom (s : Setup.{w}) (B : TAlgebra s.T) (hk : IsStrict B.str) :
+    Nonempty {g : AlgHom (colimAlg s) B // IsStrict g.hom} :=
+  nonempty_algHom_of_continuousOnMaps s.T s.hmaps (colimIso s) B hk
+
+/-- **Existence (Theorem 6.9 applied to `𝒟 ≅ T(𝒟)`).** For any `T`-algebra `B` with a strict
 structure map, there is a homomorphism `𝒟 → B`. -/
 theorem nonempty_algHom (s : Setup.{w}) (B : TAlgebra s.T) (hk : IsStrict B.str) :
     Nonempty (AlgHom (colimAlg s) B) :=
-  nonempty_algHom_of_continuousOnMaps s.T s.hmaps (colimIso s) B hk
+  (nonempty_strict_algHom s B hk).map (·.1)
 
 /-! ### The projection chain `ρₙ = iₙ ∘ jₙ` and `⋃ₙ ρₙ = I_𝒟` -/
 
@@ -338,6 +360,242 @@ theorem exists_algebra_with_hom (s : Setup.{w}) :
     ∃ A : TAlgebra s.T, Nonempty (Iso (s.T.obj A.carrier) A.carrier) ∧
       ∀ B : TAlgebra s.T, IsStrict B.str → Nonempty (AlgHom A B) :=
   ⟨colimAlg s, ⟨colimIso s⟩, fun B hk => nonempty_algHom s B hk⟩
+
+/-! ### Theorem 6.14 — the uniqueness half (`T(ρₙ) = ρₙ₊₁`, then `g = ⋃ₙ g∘ρₙ`)
+
+Scott shows homomorphisms out of `𝒟` are unique by showing they are determined on the finite
+elements. Concretely, the projection chain `ρₙ = iₙ ∘ jₙ` satisfies `T(ρₙ) = ρₙ₊₁` (because `T` is
+monotone on domains, so it carries the projection pair `iₙ, jₙ` to `iₙ₊₁, jₙ₊₁`) and
+`⋃ₙ ρₙ = I_𝒟`. For any homomorphism `g : 𝒟 → E`, the sequence `gₙ = g ∘ ρₙ` is then **independent
+of `g`**: `g₀ = ⊥` (because `g` is strict and `ρ₀ = ⊥`), and `gₙ₊₁ = k ∘ T(gₙ) ∘ j` by the
+homomorphism square; so `g = ⋃ₙ gₙ` is forced. -/
+
+/-- In the category of domains, `⊚` (categorical composition) is `ApproximableMap.comp`. -/
+theorem cat_comp_eq {X Y Z : DomainObj} (g : Category.Hom Y Z) (f : Category.Hom X Y) :
+    g ⊚ f = g.comp f := rfl
+
+/-- The colimit `𝒟` as a category object `⟨Tok, 𝒟⟩`. -/
+abbrev objColim (s : Setup.{w}) : DomainObj := ⟨s.Tok, colim s⟩
+
+/-- The `n`-th tower system `Tⁿ({Γ})` as a category object `⟨Tok, Tⁿ({Γ})⟩`. -/
+abbrev objDsys (s : Setup.{w}) (n : ℕ) : DomainObj := ⟨s.Tok, Dsys s n⟩
+
+/-- `T(ρₙ)` as an endomorphism of `T(𝒟)`, with the category objects pinned (they cannot be inferred
+from `rho s n`'s `ApproximableMap` type alone). -/
+abbrev Tmap_rho (s : Setup.{w}) (n : ℕ) :
+    ApproximableMap (s.T.obj (objColim s)).sys (s.T.obj (objColim s)).sys :=
+  s.T.map (X := objColim s) (Y := objColim s) (rho s n)
+
+/-- Transport of a `Hom X X` along an object equality is heterogeneously equal to itself. -/
+theorem transport_heq {Obj : Type*} [Category Obj] {X Y : Obj} (e : X = Y)
+    (f : Category.Hom X X) : HEq (e ▸ f : Category.Hom Y Y) f := by
+  cases e; rfl
+
+/-- Conjugation by the identity isomorphism `isoOfEq e` is the object-transport along `e`. -/
+theorem isoOfEq_conj {Obj : Type*} [Category Obj] {X Y : Obj} (e : X = Y)
+    (f : Category.Hom X X) :
+    (isoOfEq e).hom ⊚ f ⊚ (isoOfEq e).inv = (e ▸ f : Category.Hom Y Y) := by
+  cases e
+  change Category.id X ⊚ f ⊚ Category.id X = f
+  rw [Category.id_comp, Category.comp_id]
+
+/-- **The carrier-transport core of `T(ρₙ) = ρₙ₊₁`.** Given the *monotone-on-domains* data for a
+subsystem (its injection `Tmi`/projection `Tmj` are heterogeneously equal to the canonical 6.12 pair
+`sub.inj`/`sub.proj` of the image subsystem `sub : Ps ◁ ce ▸ Qs`), the composite `Tmi ∘ Tmj` is —
+after carrying the functor-image carriers `Pc, Qc` down to `Tok` — exactly the projection
+`iₙ₊₁ ∘ jₙ₊₁` of the next subsystem `hsub' : Dn1 ◁ Col`. Proved by `subst`ing the carrier equalities,
+after which proof-irrelevance identifies the two subsystem proofs. -/
+theorem map_comp_proj_heq {Tok : Type w} {Pc Qc : Type w} (cn : Pc = Tok) (cc : Qc = Tok)
+    {Ps : NeighborhoodSystem Pc} {Qs : NeighborhoodSystem Qc} (ce : Qc = Pc)
+    (sub : Ps ◁ (ce ▸ Qs : NeighborhoodSystem Pc))
+    {Dn1 Col : NeighborhoodSystem Tok}
+    (hDn1 : (cn ▸ Ps : NeighborhoodSystem Tok) = Dn1)
+    (hCol : (cc ▸ Qs : NeighborhoodSystem Tok) = Col)
+    (hsub' : Dn1 ◁ Col)
+    (Tmi : ApproximableMap Ps Qs) (Tmj : ApproximableMap Qs Ps)
+    (hi : HEq Tmi sub.inj) (hj : HEq Tmj sub.proj) :
+    HEq (Tmi.comp Tmj) (hsub'.inj.comp hsub'.proj) := by
+  subst cn
+  subst cc
+  obtain rfl := hDn1
+  obtain rfl := hCol
+  have e1 : Tmi = sub.inj := eq_of_heq hi
+  have e2 : Tmj = sub.proj := eq_of_heq hj
+  rw [e1, e2]
+
+/-- **`T(ρₙ) = ρₙ₊₁`, heterogeneously.** The image `T(ρₙ)` of the `n`-th projection, living over
+`T(𝒟)`'s carrier, is heterogeneously equal to the `(n+1)`-st projection `ρₙ₊₁` over `Tok`. -/
+theorem map_rho_heq (s : Setup.{w}) (n : ℕ) :
+    HEq (Tmap_rho s n) (rho s (n + 1)) := by
+  have hcomp : Tmap_rho s n
+      = (s.T.map (X := objDsys s n) (Y := objColim s) (Dsys_sub_colim s n).inj).comp
+          (s.T.map (X := objColim s) (Y := objDsys s n) (Dsys_sub_colim s n).proj) :=
+    s.T.map_comp (X := objColim s) (Y := objDsys s n) (Z := objColim s)
+      (Dsys_sub_colim s n).inj (Dsys_sub_colim s n).proj
+  rw [hcomp]
+  exact map_comp_proj_heq (Dceq s n) (colimCeq s) (s.hmono (Dsys_sub_colim s n)).carrier_eq
+    (s.hmono (Dsys_sub_colim s n)).sub (Dsys_succ s n).symm (Tcolim_eq_colim s)
+    (Dsys_sub_colim s (n + 1)) (s.T.map (X := objDsys s n) (Y := objColim s) (Dsys_sub_colim s n).inj)
+    (s.T.map (X := objColim s) (Y := objDsys s n) (Dsys_sub_colim s n).proj)
+    (s.hmono (Dsys_sub_colim s n)).inj_heq (s.hmono (Dsys_sub_colim s n)).proj_heq
+
+/-- **`ρₙ₊₁ = i ∘ T(ρₙ) ∘ j`** (Scott's `T(ρₙ) = ρₙ₊₁`, conjugated by the structure iso). Since the
+iso `𝒟 ≅ T(𝒟)` is the identity, this is the carrier transport of `T(ρₙ)`; combined with
+`map_rho_heq` it pins `ρₙ₊₁`. -/
+theorem key_rho (s : Setup.{w}) (n : ℕ) :
+    rho s (n + 1) = (colimIso s).hom ⊚ Tmap_rho s n ⊚ (colimIso s).inv := by
+  rw [show (colimIso s).hom = (isoOfEq (colimObj_eq s)).hom from rfl,
+      show (colimIso s).inv = (isoOfEq (colimObj_eq s)).inv from rfl,
+      isoOfEq_conj (colimObj_eq s) (Tmap_rho s n)]
+  apply eq_of_heq
+  exact HEq.trans (map_rho_heq s n).symm
+    (transport_heq (colimObj_eq s) (Tmap_rho s n)).symm
+
+/-! ### The `g`-independent fixed-point recursion -/
+
+/-- For a strict map `g`, `g(⊥) = ⊥` relationally: `g` sends `Δ` only to `Δ`. -/
+theorem strict_rel_master {β₀ β₁ : Type w} {V₀ : NeighborhoodSystem β₀}
+    {V₁ : NeighborhoodSystem β₁} {g : ApproximableMap V₀ V₁} (hg : IsStrict g) {Z : Set β₁} :
+    g.rel V₀.master Z ↔ Z = V₁.master :=
+  ⟨fun h => hg h, fun h => h ▸ g.master_rel⟩
+
+/-- `Dsys s 0 = Γ` (the base of the tower). -/
+@[simp] theorem Dsys_zero (s : Setup.{w}) : Dsys s 0 = s.Γ := rfl
+
+/-- **`ρ₀ = ⊥`** when `{Γ}` is the trivial one-point system: `ρ₀` relates `X` only to the master.
+This is where Scott's `{Γ}` (a *one-point* domain) is used. -/
+theorem rho_zero_rel (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    {X Y : Set s.Tok} :
+    (rho s 0).rel X Y ↔ (colim s).mem X ∧ Y = (colim s).master := by
+  rw [rho_rel]
+  constructor
+  · rintro ⟨hcX, hcY, z, hz, _, hzY⟩
+    have hzm : z = s.Γ.master := hΓ z hz
+    subst hzm
+    refine ⟨hcX, Set.Subset.antisymm ((colim s).sub_master hcY) ?_⟩
+    rw [colim_master]; exact hzY
+  · rintro ⟨hcX, rfl⟩
+    refine ⟨hcX, (colim s).master_mem, s.Γ.master, s.Γ.master_mem, ?_, ?_⟩
+    · have h := (colim s).sub_master hcX; rwa [colim_master] at h
+    · rw [colim_master]
+
+/-- For a strict homomorphism `g`, the base `g ∘ ρ₀` is the least map: it relates `X` only to the
+master of `E`, independent of `g`. -/
+theorem gcomp_rho_zero_rel (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) {g : ApproximableMap (colim s) B.carrier.sys} (hg : IsStrict g)
+    {X : Set s.Tok} {Z : Set B.carrier.carrier} :
+    (g.comp (rho s 0)).rel X Z ↔ (colim s).mem X ∧ Z = B.carrier.sys.master := by
+  rw [comp_rel]
+  constructor
+  · rintro ⟨Y, hrho, hgYZ⟩
+    rw [rho_zero_rel s hΓ] at hrho
+    obtain ⟨hcX, rfl⟩ := hrho
+    exact ⟨hcX, (strict_rel_master hg).mp hgYZ⟩
+  · rintro ⟨hcX, rfl⟩
+    exact ⟨(colim s).master, (rho_zero_rel s hΓ).mpr ⟨hcX, rfl⟩, g.master_rel⟩
+
+/-- The base case of `g`-independence: any two strict maps agree after `∘ ρ₀`. -/
+theorem gcomp_rho_zero_indep (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) {g g' : ApproximableMap (colim s) B.carrier.sys}
+    (hg : IsStrict g) (hg' : IsStrict g') :
+    g.comp (rho s 0) = g'.comp (rho s 0) := by
+  apply ApproximableMap.ext
+  intro X Z
+  rw [gcomp_rho_zero_rel s hΓ B hg, gcomp_rho_zero_rel s hΓ B hg']
+
+/-- **The fixed-point recursion `gₙ₊₁ = k ∘ T(gₙ) ∘ j`.** Using `key_rho` (`ρₙ₊₁ = i∘T(ρₙ)∘j`) and the
+homomorphism square `g ∘ i = k ∘ T(g)`. -/
+theorem gcomp_rho_succ (s : Setup.{w}) (B : TAlgebra s.T) (g : AlgHom (colimAlg s) B) (n : ℕ) :
+    g.hom.comp (rho s (n + 1))
+      = B.str.comp ((s.T.map (X := objColim s) (Y := B.carrier)
+          (g.hom.comp (rho s n))).comp (colimIso s).inv) := by
+  have hcomm : g.hom ⊚ (colimIso s).hom
+      = B.str ⊚ s.T.map (X := objColim s) (Y := B.carrier) g.hom := g.comm
+  show g.hom ⊚ rho s (n + 1)
+      = B.str ⊚ (s.T.map (X := objColim s) (Y := B.carrier) (g.hom ⊚ rho s n)) ⊚ (colimIso s).inv
+  calc g.hom ⊚ rho s (n + 1)
+      = g.hom ⊚ ((colimIso s).hom ⊚ (Tmap_rho s n ⊚ (colimIso s).inv)) :=
+          congrArg (fun x => g.hom ⊚ x) (key_rho s n)
+    _ = (g.hom ⊚ (colimIso s).hom) ⊚ (Tmap_rho s n ⊚ (colimIso s).inv) :=
+          (Category.assoc g.hom (colimIso s).hom (Tmap_rho s n ⊚ (colimIso s).inv)).symm
+    _ = (B.str ⊚ s.T.map (X := objColim s) (Y := B.carrier) g.hom)
+            ⊚ (Tmap_rho s n ⊚ (colimIso s).inv) := by rw [hcomm]
+    _ = B.str ⊚ (s.T.map (X := objColim s) (Y := B.carrier) g.hom
+            ⊚ (Tmap_rho s n ⊚ (colimIso s).inv)) :=
+          Category.assoc B.str (s.T.map (X := objColim s) (Y := B.carrier) g.hom)
+            (Tmap_rho s n ⊚ (colimIso s).inv)
+    _ = B.str ⊚ ((s.T.map (X := objColim s) (Y := B.carrier) g.hom ⊚ Tmap_rho s n)
+            ⊚ (colimIso s).inv) :=
+          congrArg (B.str ⊚ ·)
+            (Category.assoc (s.T.map (X := objColim s) (Y := B.carrier) g.hom) (Tmap_rho s n)
+              (colimIso s).inv).symm
+    _ = B.str ⊚ (s.T.map (X := objColim s) (Y := B.carrier) (g.hom ⊚ rho s n)
+            ⊚ (colimIso s).inv) :=
+          congrArg (fun m => B.str ⊚ (m ⊚ (colimIso s).inv))
+            (s.T.map_comp (X := objColim s) (Y := objColim s) (Z := B.carrier) g.hom
+              (rho s n)).symm
+
+/-- **`g`-independence of `gₙ = g ∘ ρₙ`.** For any two strict homomorphisms into the same algebra,
+`g ∘ ρₙ = g' ∘ ρₙ` for all `n` — the sequence is determined by the recursion, not by `g`. -/
+theorem gcomp_rho_indep (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) (g g' : AlgHom (colimAlg s) B)
+    (hg : IsStrict g.hom) (hg' : IsStrict g'.hom) (n : ℕ) :
+    g.hom.comp (rho s n) = g'.hom.comp (rho s n) := by
+  induction n with
+  | zero => exact gcomp_rho_zero_indep s hΓ B hg hg'
+  | succ k ih => rw [gcomp_rho_succ s B g k, gcomp_rho_succ s B g' k, ih]
+
+/-! ### Uniqueness and initiality (among strict algebras) -/
+
+/-- Two algebra homomorphisms with equal underlying maps are equal (the commuting square is a
+`Prop`). -/
+theorem algHom_ext {Obj : Type*} [Category Obj] {T : Endofunctor Obj} {A B : TAlgebra T}
+    {g g' : AlgHom A B} (h : g.hom = g'.hom) : g = g' := by
+  cases g; cases g'; cases h; rfl
+
+/-- **The underlying maps of two strict homomorphisms coincide**: `g = g ∘ I = g ∘ ⋃ₙ ρₙ =
+⋃ₙ (g ∘ ρₙ)`, and the latter is `g`-independent. -/
+theorem gcomp_eq (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) (g g' : AlgHom (colimAlg s) B)
+    (hg : IsStrict g.hom) (hg' : IsStrict g'.hom) :
+    g.hom = g'.hom := by
+  have key : g.hom.comp (iSupRho s) = g'.hom.comp (iSupRho s) := by
+    apply ApproximableMap.ext
+    intro X Z
+    rw [comp_rel, comp_rel]
+    constructor
+    · rintro ⟨Y, ⟨n, hrho⟩, hgYZ⟩
+      have hin : (g.hom.comp (rho s n)).rel X Z := ⟨Y, hrho, hgYZ⟩
+      rw [gcomp_rho_indep s hΓ B g g' hg hg' n] at hin
+      obtain ⟨Y', hrho', hgYZ'⟩ := hin
+      exact ⟨Y', ⟨n, hrho'⟩, hgYZ'⟩
+    · rintro ⟨Y, ⟨n, hrho⟩, hgYZ⟩
+      have hin : (g'.hom.comp (rho s n)).rel X Z := ⟨Y, hrho, hgYZ⟩
+      rw [← gcomp_rho_indep s hΓ B g g' hg hg' n] at hin
+      obtain ⟨Y', hrho', hgYZ'⟩ := hin
+      exact ⟨Y', ⟨n, hrho'⟩, hgYZ'⟩
+  have e : g.hom.comp (idMap (colim s)) = g.hom := comp_idMap g.hom
+  have e' : g'.hom.comp (idMap (colim s)) = g'.hom := comp_idMap g'.hom
+  rw [← e, ← e', ← iSupRho_eq_id]
+  exact key
+
+/-- **Uniqueness of strict homomorphisms out of `𝒟`.** Any two strict `T`-algebra homomorphisms from
+the canonical solution into the same algebra are equal. -/
+theorem algHom_unique (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) (g g' : AlgHom (colimAlg s) B)
+    (hg : IsStrict g.hom) (hg' : IsStrict g'.hom) : g = g' :=
+  algHom_ext (gcomp_eq s hΓ B g g' hg hg')
+
+/-- **Theorem 6.14 (Scott 1981, PRG-19) — initial `T`-algebra.** When `{Γ}` is the one-point
+generating system, the canonical solution `𝒟 = ⋃ₙ Tⁿ({Γ})` is the **initial** `T`-algebra among the
+strict algebras: for every `T`-algebra `B` with a strict structure map there is a *unique* strict
+homomorphism `𝒟 → B`. (Existence is Theorem 6.9; uniqueness is the `ρₙ` projection-chain argument.) -/
+theorem exists_unique_strict_algHom (s : Setup.{w}) (hΓ : ∀ X, s.Γ.mem X → X = s.Γ.master)
+    (B : TAlgebra s.T) (hk : IsStrict B.str) :
+    ∃ g : AlgHom (colimAlg s) B, IsStrict g.hom ∧
+      ∀ g' : AlgHom (colimAlg s) B, IsStrict g'.hom → g' = g := by
+  obtain ⟨⟨g, hg⟩⟩ := nonempty_strict_algHom s B hk
+  exact ⟨g, hg, fun g' hg' => algHom_unique s hΓ B g' g hg' hg⟩
 
 end Theorem614
 

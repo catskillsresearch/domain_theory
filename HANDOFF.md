@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,11 +17,10 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** finish **Theorem 6.14 uniqueness/initiality** — the existence half is DONE
-(`Theorem614.lean`, see the checkpoint at the end of this file). What remains is `key_rho`
-(`ρₙ₊₁ = colimIso.hom ∘ T(ρₙ) ∘ colimIso.inv`, i.e. `T(ρₙ)=ρₙ₊₁`, the hard `HEq` conjugation through
-`MonotoneAt.inj_heq`/`proj_heq`) and then the `gₙ=g∘ρₙ` recursion (`g`-independent: `g₀=⊥`,
-`gₙ₊₁=k∘T(gₙ)`) giving `g=⋃gₙ` unique. **Definition 6.13 is now DONE** (`Definition613.lean`, the
+**Next concrete target:** **Theorem 6.14 is now COMPLETE** (existence *and* uniqueness/initiality —
+`Theorem614.lean`, see the checkpoint at the end of this file). `key_rho`, the `gₙ=g∘ρₙ` recursion,
+`g`-independence and initiality-among-strict-algebras all build green and choice-free. Pick the next
+unstarted Lecture VI item from `arxiv.md`. **Definition 6.13 is now DONE** (`Definition613.lean`, the
 functor predicates *monotone on domains* `D◁E ⟹ T(D)◁T(E)` with `i,j` carried to `T(i),T(j)`, and
 *continuous on domains* `λD.T(D)` on `{D∣D◁E}` approximable = preserves directed unions of
 subsystems) — see the checkpoint at the end of this file. **Proposition 6.12 is also DONE**
@@ -32,7 +31,7 @@ also DONE.
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3067 jobs). **Lecture VI's categorical spine is
+- **`lake build Domain` is green, zero `sorry`s** (≈3082 jobs). **Lecture VI's categorical spine is
   now formalized** — see the "Lecture VI" section below. **Theorem 5.6 is now complete
   end-to-end**: `Theorem56Full.lean` proves *every partial recursive function is λ-definable*
   (`partrec_lamDef`) against Mathlib's `Nat.Partrec'`, plus Scott's 1-ary corollary `partrec_one`.
@@ -1060,3 +1059,48 @@ on `(D,E)` (not on the proof), so the *transported* `sub.inj` is **defeq** to `(
 `g.hom = ⋃ₙ gₙ` (continuity of comp + `iSupRho_eq_id`) forces any two strict homomorphisms equal.
 This re-uses no new external API beyond exposing the fixed-point sup, but the `key_rho` HEq surgery is
 comparable in size to Theorem 6.9 itself — budget it as its own work item.
+
+---
+
+## Checkpoint — 2026-06-21: **Theorem 6.14 COMPLETE (uniqueness/initiality)**
+
+`lake build Domain` green (3082 jobs, zero `sorry`). Axiom audit of `exists_unique_strict_algHom`,
+`exists_algebra_with_hom`, `key_rho`, `gcomp_eq`, `algHom_unique` ⟹ all `[propext, Quot.sound]`
+(**choice-free**, including the `Prop`-level uniqueness). The uniqueness half of 6.14 is finished;
+`Theorem614.lean` now proves `𝒟 = ⋃ₙ Tⁿ({Γ})` is the **initial** `T`-algebra among strict algebras.
+
+- **`key_rho : rho s (n+1) = (colimIso s).hom ⊚ T(ρₙ) ⊚ (colimIso s).inv`** (Scott's `T(ρₙ)=ρₙ₊₁`,
+  conjugated by the structure iso). Built bottom-up from `HEq` surgery:
+  - `transport_heq` (`HEq (e ▸ f) f` for an endo-`Hom` along an object-eq) and `isoOfEq_conj`
+    (`(isoOfEq e).hom ⊚ f ⊚ (isoOfEq e).inv = e ▸ f`, by `cases e` + id-laws). Since `colimIso = isoOfEq
+    colimObj_eq`, conjugation by it **is** the carrier-transport along `colimObj_eq`.
+  - `map_comp_proj_heq` (**the crux**): given the *monotone-on-domains* data `Tmi/Tmj` HEq-equal to the
+    Prop-6.12 pair `sub.inj/sub.proj` of the image subsystem, `Tmi ∘ Tmj` is HEq to `iₙ₊₁ ∘ jₙ₊₁`. Proof:
+    `subst` the two carrier equalities (`cn : Pc=Tok`, `cc : Qc=Tok`), then `obtain rfl` the two
+    transported-system equalities; **proof irrelevance** collapses the two `Subsystem` proofs so
+    `eq_of_heq` turns the `HEq`s into `Tmi=sub.inj`, `Tmj=sub.proj` and `rw` closes.
+  - `map_rho_heq : HEq (T(ρₙ)) ρₙ₊₁` = `T.map_comp` (`T(iₙ∘jₙ)=T(iₙ)∘T(jₙ)`) then `map_comp_proj_heq`
+    fed with `s.hmono (Dsys_sub_colim s n)`'s `carrier_eq`/`sub`/`inj_heq`/`proj_heq`.
+  - `key_rho` = `isoOfEq_conj` to turn the RHS into `colimObj_eq ▸ T(ρₙ)`, then `eq_of_heq` against
+    `map_rho_heq.symm.trans (transport_heq …).symm`.
+- **The `g`-independent recursion** (`g₀=⊥`, `gₙ₊₁=k∘T(gₙ)∘j`):
+  - `rho_zero_rel` (needs **`{Γ}` one-point**, `hΓ : ∀X, Γ.mem X → X=Γ.master`): `ρ₀` relates `X` only
+    to `𝒟.master`. `strict_rel_master` (`g.rel master Z ↔ Z=master` for strict `g`) then gives
+    `gcomp_rho_zero_rel` and `gcomp_rho_zero_indep` (the base case, `g`-independent).
+  - `gcomp_rho_succ : g∘ρₙ₊₁ = k ∘ T(g∘ρₙ) ∘ j` — proved as a `calc` **at the categorical `⊚` level**
+    (so the implicit args are concrete `DomainObj`s, dodging the system-level `rw` fragility): `key_rho`,
+    then `Category.assoc` term-mode steps + `g.comm` (`g∘str = k∘T(g)`, `str=colimIso.hom`) + `T.map_comp`.
+    The two congruence steps use `congrArg (g.hom ⊚ ·)`/`congrArg (fun m => B.str ⊚ (m ⊚ inv))` so `calc`
+    bridges by **defeq** rather than syntactic match.
+  - `gcomp_rho_indep` (induction on `n`), `gcomp_eq` (`g = g∘I = g∘⋃ρₙ = ⋃(g∘ρₙ)` g-independent, via
+    `iSupRho_eq_id` + `comp_idMap`), `algHom_ext` (commuting square is a `Prop`), `algHom_unique`.
+- **Initiality**: `exists_unique_strict_algHom` — for every strict `T`-algebra `B`, a **unique** strict
+  homomorphism `𝒟 → B`. Required strengthening `Theorem69.nonempty_algHom_of_continuousOnMaps` to return
+  `Nonempty {g // IsStrict g.hom}` (the Theorem-6.9 homomorphism is in fact strict), threaded through
+  `nonempty_strict_algHom`.
+- **Lean gotcha logged**: `rw` with explicit args at the `ApproximableMap`/`NeighborhoodSystem` level
+  repeatedly failed "did not find pattern" on **defeq-but-not-syntactic** implicits (`colim s` vs
+  `(colimAlg s).carrier.sys` vs `(objColim s).sys`; abbrev `objColim` vs literal `⟨Tok,colim s⟩`). Fixes:
+  work at the `⊚`/`Category.assoc` level (object-indexed, concrete), prefer `congrArg`/`calc` term-mode
+  proofs (defeq-tolerant), and bind `comp_idMap`/etc. facts via a `have` with the *desired* `colim s`
+  type (the `have` unifies by defeq) before rewriting.
