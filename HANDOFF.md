@@ -17,12 +17,15 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** Proposition 6.12 (`D ◁ E` ⟹ a projection pair `i, j` with `j∘i=I_D`,
-`i∘j⊆I_E`, where `i(x)={Y∈E ∣ ∃X∈x, X⊆Y}`, `j(y)=y∩D`) → Def 6.13 (monotone/continuous on domains)
-→ the existence Theorem 6.14. **Proposition 6.11 is now DONE** (`Proposition611.lean`, the subsystems
-`{D ∣ D ◁ E}` form a domain) and **Definition 6.10 is DONE** (`Definition610.lean`, the subsystem
-relation `D ◁ E`) — see the checkpoints at the end of this file. **Theorem 6.9 is also DONE**
-(`Theorem69.lean`).
+**Next concrete target:** Definition 6.13 (a functor *monotone on domains*: `D◁E ⟹ T(D)◁T(E)` with
+the projection pair `i,j` of 6.12 carried to `T(i),T(j)`; *continuous on domains*: `λD.T(D)` on
+`{D∣D◁E}` is approximable) → the existence **Theorem 6.14** (iterate `T` from a generating `Γ` with
+`{Γ}◁T({Γ})`, take `𝒟=⋃ₙTⁿ({Γ})`, get `𝒟≅T(𝒟)` and the initial `T`-algebra; uniqueness via the
+`ρₙ=iₙ∘jₙ` projection chain `⋃ₙρₙ=I_𝒟`). **Proposition 6.12 is now DONE** (`Proposition612.lean`, the
+projection pair `i,j` from `D◁E`) — see the checkpoint at the end of this file. **Proposition 6.11**
+(`Proposition611.lean`, the subsystems `{D ∣ D ◁ E}` form a domain), **Definition 6.10**
+(`Definition610.lean`, the subsystem relation `D ◁ E`) and **Theorem 6.9** (`Theorem69.lean`) are
+also DONE.
 
 ## Where things stand
 
@@ -617,7 +620,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**11/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**12/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -914,3 +917,38 @@ domain in its own right*. Capstone:
   into `Domain.lean`; full `lake build Domain` green (3079 jobs, zero `sorry`).
 - **Next:** Proposition 6.12 (`D ◁ E` ⟹ the projection pair `i, j`), Def 6.13 (monotone/continuous
   on domains), then the existence Theorem 6.14.
+
+## Checkpoint 2026-06-21 — Proposition 6.12 (`D ◁ E` ⟹ a projection pair) DONE
+
+`Domain/Neighborhood/Proposition612.lean` formalizes **Proposition 6.12**: every subdomain relation
+`D ◁ E` gives a *projection pair* `i : D → E`, `j : E → D` with `j ∘ i = I_D` and `i ∘ j ⊆ I_E`.
+Scott leaves the proof "for the exercises"; done here directly at the level of the neighbourhood
+relations (Definition 2.1), which keeps everything **choice-free**.
+
+- **The two maps (in `namespace Subsystem`, taking `h : D ◁ E`).**
+  - `Subsystem.inj h : ApproximableMap D E` — the relation `X i Y ↔ D.mem X ∧ E.mem Y ∧ X ⊆ Y`;
+    element-wise `Subsystem.toElementMap_inj` gives Scott's `i(x) = {Y ∈ E ∣ ∃ X ∈ x, X ⊆ Y}`.
+    `master_rel` uses `h.master_eq.subset` (same `Δ`).
+  - `Subsystem.proj h : ApproximableMap E D` — the relation `Y j X ↔ E.mem Y ∧ D.mem X ∧ Y ⊆ X`;
+    element-wise `Subsystem.toElementMap_proj` gives Scott's `j(y) = y ∩ D` (the `D`-neighbourhoods
+    already in `y`; the `←` of the elementwise iff takes `Y := X`, the `→` uses `y.up_mem`). **The
+    `inter_right` law of `proj` is the one place Definition 6.10's `inter_closed` is used:** from
+    `X,X' ∈ D` and `Y ⊆ X∩X'` with `Y ∈ E`, `E.inter_mem` puts `X∩X' ∈ E`, then `h.inter_closed`
+    returns `X∩X' ∈ D`.
+- **The two laws.**
+  - `Subsystem.proj_comp_inj : h.proj.comp h.inj = idMap D` — proved with the **choice-free**
+    relational `ApproximableMap.ext` (+ `comp_rel`/`idMap_rel`). Forward: a round trip `X ⊆ Y ⊆ Z`
+    collapses to `X ⊆ Z`. Backward: `X ⊆ Z` factors through the witness `Y := Z`.
+  - `Subsystem.inj_comp_proj_le : h.inj.comp h.proj ≤ idMap E` — the `≤` is the `FunctionSpace`
+    `PartialOrder` (inclusion of relations). A round trip `Y ⊆ X ⊆ Y'` through a common
+    `D`-neighbourhood `X` is in particular `Y ⊆ Y'` on `E`; the reverse fails (not every consistent
+    `E`-pair factors through `D`), so this is genuinely only `⊆`.
+- **Bundled.** `Subsystem.ProjectionPair D E` (fields `inj`/`proj`/`proj_comp_inj`/
+  `inj_comp_proj_le`) + `Subsystem.projectionPair h : ProjectionPair D E`, ready for Def 6.13 /
+  Thm 6.14 reuse.
+- **Choice.** All of `inj`/`proj`/`proj_comp_inj`/`inj_comp_proj_le`/`toElementMap_inj`/
+  `toElementMap_proj`/`projectionPair` report `[propext, Quot.sound]`. Wired into `Domain.lean`;
+  full `lake build Domain` green (3080 jobs, zero `sorry`).
+- **Next:** Definition 6.13 (functors monotone / continuous *on domains*, phrased via this
+  projection pair) and the existence **Theorem 6.14** (the iterated-functor colimit `𝒟 = ⋃ₙ Tⁿ({Γ})`
+  with the `ρₙ = iₙ∘jₙ` chain `⋃ₙρₙ = I_𝒟` for homomorphism-uniqueness).

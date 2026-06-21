@@ -119,4 +119,5 @@ import Domain.Neighborhood.Definition68
 import Domain.Neighborhood.Theorem69
 import Domain.Neighborhood.Definition610
 import Domain.Neighborhood.Proposition611
+import Domain.Neighborhood.Proposition612
 import Domain.InfoSys
