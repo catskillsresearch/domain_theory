@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED: run scripts/generate_arxiv_with_code.sh to refresh -->
 # Scott's 3 Successively Less Topological, Simpler, and More Constructive Presentations of Domain Theory and Their Equivalence — full narrative + complete Lean source
 
-*Generated 2026-06-20 from `arxiv.md` and all library `.lean` files in dependency order (`Domain.lean`).*
+*Generated 2026-06-21 from `arxiv.md` and all library `.lean` files in dependency order (`Domain.lean`).*
 
 **Review copy.** The narrative body matches [`arxiv.md`](arxiv.md) (excluding the review pointer at the top). This file appends **Appendix A: Complete Lean source** with every line of the formalization inlined below.
 
@@ -16,7 +16,7 @@
 
 ### Appendix A — file index
 
-- [`Domain.lean`](#domainlean) — 69 lines
+- [`Domain.lean`](#domainlean) — 114 lines
 - [`Domain/Constructive.lean`](#domainconstructivelean) — 92 lines
 - [`Domain/ContinuousLattice/Injective.lean`](#domaincontinuouslatticeinjectivelean) — 125 lines
 - [`Domain/ContinuousLattice/WayBelow.lean`](#domaincontinuouslatticewaybelowlean) — 229 lines
@@ -36,7 +36,7 @@
 - [`Domain/Neighborhood/Exercise122.lean`](#domainneighborhoodexercise122lean) — 144 lines
 - [`Domain/InfoSys.lean`](#domaininfosyslean) — 98 lines
 
-**Total:** 19 files, 6758 lines of Lean.
+**Total:** 19 files, 6803 lines of Lean.
 
 ---
 
@@ -1406,7 +1406,7 @@ is Pass.**
 | **Exercise 3.27** | Exercise | 1622–1628 | (set theorists) alt proof `(D₀→D₁)` is a domain via Ex 2.22; compare with 3.9/3.10 | **Pass** (`Exercise327.lean`) |
 | **Exercise 3.28** | Exercise | 1630–1642 | minimal element of `⋂[Xᵢ,Yᵢ]` in function space: `f₀(x)=⊔{↑Yᵢ∣x∈[Xᵢ]}` | **Pass** (`Exercise328.lean`) |
 
-### 4.2.IV Lecture IV — *Fixed points and recursion* (Theorems 4.1, 4.2 formalized)
+### 4.2.IV Lecture IV — *Fixed points and recursion* (Theorems 4.1, 4.2; Examples 4.3, 4.4; Definition 4.5 + Theorem 4.6; **all Exercises 4.7–4.25** formalized)
 
 The full PRG-19 text (Lectures I–VIII) is now transcribed in `sources/PRG19_vision.md`. The Lean
 **spine** of the formalization targets Lectures I–III (complete); formalization keyed to the PRG-19
@@ -1420,52 +1420,52 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | ---- | ---- | ----- | --------- | ---- |
 | **Theorem 4.1** | Theorem | 1653 | every approximable `f:D→D` has a **least** fixed point `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixElement`, `toElementMap_fixElement`, `fixElement_le_of_toElementMap_le`) |
 | **Theorem 4.2** | Theorem | 1711 | the fixed-point operator `fix:(D→D)→D` is itself approximable; `fix(f)=⊔ₙ fⁿ(⊥)` | **Pass** (`Theorem41.lean`: `fixMap`, `fixMap_fixed`, `fixMap_least`, `fixMap_eq_iSup`, `fixMap_unique`) |
-| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | — |
-| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | — |
-| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | — |
-| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | — |
-| **Exercise 4.7** | Exercise | 2199 | `a⊑f(a)` ⟹ is there a fixed point `x=f(x)` with `a⊑x`? | — |
-| **Exercise 4.8** | Exercise | 2205 | `f:D→D`, `S⊆\|D\|` closure conditions for fixed points | — |
-| **Exercise 4.9** | Exercise | 2221 | an approximable operator (least fixed point over a family) | — |
-| **Exercise 4.10** | Exercise | 2235 | construct the relativized domain `Dₐ` (elements above `a`) | — |
-| **Exercise 4.11** | Exercise | 2245 | (Plotkin) `fix` uniquely determined by general conditions on `D⇝F_D` | — |
-| **Exercise 4.12** | Exercise | 2255 | need `f` have a *maximum* fixed point? example with many fixed points | — |
-| **Exercise 4.13** | Exercise | 2257 | eliminate the apparent circularity between 4.1 and 4.6 | — |
-| **Exercise 4.14** | Exercise | 2279 | need monotone `f:PA→PA` have a maximum fixed point? | — |
-| **Exercise 4.15** | Exercise | 2281 | (set theorists) monotone `f:\|D\|→\|D\|` has a *maximal* fixed point (Zorn) | — |
-| **Exercise 4.16** | Exercise | 2289 | (fixed-point nuts) the *optimal* fixed point | — |
-| **Exercise 4.17** | Exercise | 2301 | (algebraists) semigroup `⟨S,1,·⟩`, `PS` a domain; least `x` | — |
-| **Exercise 4.18** | Exercise | 2317 | verify the assertions about `N`, `F` in Example 4.3 | — |
-| **Exercise 4.19** | Exercise | 2319 | verify Example 4.4; `one:C→T` from the rest by a fixed-point equation | — |
-| **Exercise 4.20** | Exercise | 2321 | `fix(f∘g)=f(fix(g∘f))` | — |
-| **Exercise 4.21** | Exercise | 2327 | `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication | — |
-| **Exercise 4.22** | Exercise | 2343 | `N*` satisfying (i)(ii) ⟹ subset `N` satisfying (i)(ii)(iii)? | — |
-| **Exercise 4.23** | Exercise | 2347 | (Eilenberg) unique fixed point under an approximation `aₙ` scheme | — |
-| **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | — |
-| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | — |
+| **Example 4.3** | Example | 1791 | the natural-number domain `N` (infinite generalization of Ex 1.2); `0`, successor, predecessor | **Pass** (`Example43.lean`: flat domain `N`, `natElem`, the strict-lift combinator `constLiftN`, `succMap`/`predMap`/`zeroMap` with their value equations) |
+| **Example 4.4** | Example | 1985 | the domain `C` of finite/infinite binary sequences (Ex 2.21) as a structured domain | **Pass** (`Example44.lean`: nested-or-disjoint system `C`, `strElem`/`strBot`, successors `consMap b` with `consMap_strElem`/`consMap_strBot`, fixed-point element `a = 01a`; `tail`/`empty`/`zero`/`one` left as Ex 4.19 per Scott) |
+| **Definition 4.5** | Definition | 2139 | *model for Peano's Axioms* `⟨N,0,⁺⟩` (zero not a successor, successor injective, induction) | **Pass** (`Theorem46.lean`: `PeanoModel`) |
+| **Theorem 4.6** | Theorem | 2151 | all models of Peano's Axioms are isomorphic | **Pass** (`Theorem46.lean`: `peano_models_isomorphic`, via the least-fixed-point graph `Graph` and `exists_unique_right`/`exists_unique_left`) |
+| **Exercise 4.7** | Exercise | 2199 | `a⊑f(a)` ⟹ is there a fixed point `x=f(x)` with `a⊑x`? | **Pass** (`Exercise407.lean`: `fixAbove = ⊔ₙ fⁿ(a)`, `fixAbove_isFixed`, `le_fixAbove`, `fixAbove_least`; choice-free) |
+| **Exercise 4.8** | Exercise | 2205 | `f:D→D`, `S⊆\|D\|` closure conditions for fixed points | **Pass** (`Exercise408.lean`: `fix_induction` (fixed-point induction) + the `S={x∣a(x)=b(x)}` corollary `fix_induction_eq`) |
+| **Exercise 4.9** | Exercise | 2221 | an approximable operator (least fixed point over a family) | **Pass** (`Exercise409.lean`: `bigPsi = curry(eval∘⟨π_G,eval⟩)` with `bigPsi_apply : Ψ(θ)(f)=f(θ(f))`; `fix_eq_fixElement_bigPsi : fix = fix(Ψ)` via `bigPsi_fix`+`bigPsi_least`; operator data choice-free) |
+| **Exercise 4.10** | Exercise | 2235 | construct the relativized domain `Dₐ` (elements above `a`) | **Pass** (`Exercise410.lean`: `relSystem`, `relIso : \|Dₐ\| ≃o {x∣x⊑a}`, restriction `relMap` with `f(a)=a`, unique fixed point `relMap_unique_fixed`) |
+| **Exercise 4.11** | Exercise | 2245 | (Plotkin) `fix` uniquely determined by general conditions on `D⇝F_D` | **Pass** (`Exercise411.lean`: `fixElement_uniform` (fix satisfies (iii)); `fix_unique_of_uniform` via the inclusion `inclMap : Dₐ↪D` + Ex 4.10's unique fixed point) |
+| **Exercise 4.12** | Exercise | 2255 | need `f` have a *maximum* fixed point? example with many fixed points | **Pass** (`Exercise412.lean`: `I_T` on Example 1.2 has 3 fixed points, two maximal & incomparable — `no_greatest_fixedPoint`) |
+| **Exercise 4.13** | Exercise | 2257 | eliminate the apparent circularity between 4.1 and 4.6 | **Pass** (`Exercise413.lean`: (1) `monoFix = ⋂{x∣f(x)⊑x}` least fixed point of monotone `f` (choice-free); (3) `exists_unique_nat_rec` primitive recursion; (4) `nat_iterate_unique`) |
+| **Exercise 4.14** | Exercise | 2279 | need monotone `f:PA→PA` have a maximum fixed point? | **Pass** (`Exercise414.lean`: *yes* — Knaster–Tarski `gfpSet`=⋃ post-fixed, greatest fixed point, plus dual `lfpSet`; entirely choice-free) |
+| **Exercise 4.15** | Exercise | 2281 | (set theorists) monotone `f:\|D\|→\|D\|` has a *maximal* fixed point (Zorn) | **Pass** (`Exercise415.lean`: `exists_maximal_fixedPoint` via `zorn_le₀` on post-fixed points + `chainUnion`; `exists_least_fixedPoint` via `monoFix`; classical) |
+| **Exercise 4.16** | Exercise | 2289 | (fixed-point nuts) the *optimal* fixed point | **Pass** (`Exercise416.lean`: `f_sInf_le : f(⋂S)⊑⋂S`; `optimalFix` below/consistent with every fixed point in `S` — `optimalFix_le`, `optimalFix_consistent`; choice-free data) |
+| **Exercise 4.17** | Exercise | 2301 | (algebraists) semigroup `⟨S,1,·⟩`, `PS` a domain; least `x` | **Pass** (`Exercise417.lean`: least solution of `x={1}∪{a,b}∪x·x` is `Submonoid.closure {a,b}` (`lfpSet_eq_closure`); non-unique — `Set.univ` also fixed (`fixedPoint_not_unique`)) |
+| **Exercise 4.18** | Exercise | 2317 | verify the assertions about `N`, `F` in Example 4.3 | **Pass** (`Exercise418.lean`: flat-domain `element_classification` of `\|N\|`, Peano facts `natElem_injective`/`succMap_injective`/`zero_ne_succMap`) |
+| **Exercise 4.19** | Exercise | 2319 | verify Example 4.4; `one:C→T` from the rest by a fixed-point equation | **Pass** (`Exercise419.lean`: Peano axioms for `{0,1}*`; reusable head-test `liftC` giving `empty`/`zero`/`one : C→T`; `one_def_strElem`/`one_def_strBot` define `one` from `empty`,`zero`,`cond`) |
+| **Exercise 4.20** | Exercise | 2321 | `fix(f∘g)=f(fix(g∘f))` | **Pass** (`Exercise420.lean`: `fixElement_comp_comm`, the rolling rule; choice-free) |
+| **Exercise 4.21** | Exercise | 2327 | `≤ ⊆ N×N` as a unique fixed-point equation; addition/multiplication | **Pass** (`Exercise421.lean`: `leOp`/`leRel_isFixed`/`leOp_unique` (≤ is *the* unique fixed point); the up-sets `[m] = upSet m` with `upSet_zero`/`upSet_succ`/`upSet_unique` (4.13(3)); the addition iso `addIso : ℕ ≃ [m]` (`addIso_apply`/`_zero`/`_succ`); multiplication `mulOp_lfp_eq_multiples` (least solution = multiples)) |
+| **Exercise 4.22** | Exercise | 2343 | `N*` satisfying (i)(ii) ⟹ subset `N` satisfying (i)(ii)(iii)? | **Pass** (`Exercise422.lean`: `nats = lfpSet ({0}∪x⁺)`, `zero_mem_nats`/`succ_mem_nats`/`nats_induction`; `peanoSub : PeanoModel {m // m ∈ nats}` (all three axioms) ⟹ `exists_peano_submodel`; existence via the axiom of infinity `natPeano`) |
+| **Exercise 4.23** | Exercise | 2347 | (Eilenberg) unique fixed point under an approximation `aₙ` scheme | **Pass** (`Exercise423.lean`: `f_unique_fixedPoint` — `fix f` is the unique fixed point under the scheme `aₙ` ((i) `a₀=⊥`, (ii)+(iii) pointwise `IsLUB`, (iv) `aₙ₊₁∘f=aₙ₊₁∘f∘aₙ`); choice-free) |
+| **Exercise 4.24** | Exercise | 2359 | (set theorists) Schröder–Bernstein via the fixed-point theorem (Tarski) | **Pass** (`Exercise424.lean`: Tarski set `sbSet = lfpSet ((A−g B)∪g(f X))` (choice-free), bijection `sbFun` with `sbFun_injective`/`sbFun_surjective` ⟹ `schroeder_bernstein` + `schroeder_bernstein_equiv : A ≃ B`; classical) |
+| **Exercise 4.25** | Exercise | 2373 | the system `C₁` over `{1}*` analogous to `N` | **Pass** (`Exercise425.lean`: nested-or-disjoint `C1` over `{1}* ≅ ℕ` (tails + singletons), `oneElem`/`oneBot`, successor `consMap` (`consMap_oneElem`/`_oneBot`), the infinite fixed point `infElt = 1^∞` (`infElt_eq`) distinguishing non-flat `C₁` from flat `N`, and the relating map `relateNToC1 : N → C₁`; data choice-free) |
 
-### 4.2.V Lecture V — *Typed λ-calculus* (transcribed; formalization deferred)
+### 4.2.V Lecture V — *Typed λ-calculus* (core + Exercises 5.7–5.16 formalized — **Lecture V exercises complete**)
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
-| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | — |
-| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | — |
-| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise | — |
-| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | — |
-| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | — |
-| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | — |
-| **Exercise 5.7** | Exercise | 3001 | find definitions of various combinators | — |
-| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinators ↔ `λ`-expressions via `σ(τ)` only | — |
-| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | — |
-| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁` | — |
-| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators | — |
-| **Exercise 5.12** | Exercise | 3067 | a combinator on `D` by least fixed point | — |
-| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | — |
-| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | — |
-| **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | — |
-| **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | — |
+| **Theorem 5.1** | Theorem | 2595 | every typed `λ`-term defines an approximable function of its free variables | **Pass** (`Theorem51.lean`) |
+| **Theorem 5.2** | Theorem | 2653 | the conversion/substitution equation for suitably typed `λ`-terms | **Pass** (`Theorem52.lean`) |
+| **Proposition 5.3** | Proposition | 2741 | least fixed point of a pair-valued `λ`, coordinatewise (Bekić) | **Pass** (`Proposition53.lean`) |
+| **Proposition 5.4** | Proposition | 2795 | fixed-point equation for `g:(D→D)` | **Pass** (`Proposition54.lean`) |
+| *Table 5.5* | Table | 2832 | summary table: combinators defined via `λ`-notation | **Pass** (`Table55.lean`) |
+| **Theorem 5.6** | Theorem | 2873 | every partial recursive `h:N→N` is `λ`-definable (over primitives `cond/succ/pred/zero/0`) | **Pass** (`Theorem56.lean`: constructions — strict starting fns, primitive recursion, μ-scheme) **+ `Theorem56Full.lean`: the full closure `partrec_lamDef` wired against Mathlib `Nat.Primrec'`/`Nat.Partrec'` on the universal arg domain `𝒩=N^∞`, with rfind divergence via the directed-sup continuity, and Scott's 1-ary corollary `partrec_one`** |
+| **Exercise 5.7** | Exercise | 3001 | multi-variable `λ`/application from one-variable forms (`p₀`,`p₁`,`pair`) | **Pass** (`Exercise507.lean`) |
+| **Exercise 5.8** | Exercise | 3009 | (combinator nuts) combinatory completeness: bracket abstraction (`I`/`K`/`S`) eliminates `λ`, `σ(τ)` only | **Pass** (`Exercise508.lean`) |
+| **Exercise 5.9** | Exercise | 3011 | commuting `f,g` have a least common fixed point (cf. 4.20) | **Pass** (`Exercise509.lean`) |
+| **Exercise 5.10** | Exercise | 3013 | the *smash product* `D₀⊗D₁`, the *strict function space* `D₀→⊥D₁`, and the adjunction `(D₀⊗D₁)→⊥D₂ ≃ D₀→⊥(D₁→⊥D₂)` | **Pass** (`Exercise510.lean`) |
+| **Exercise 5.11** | Exercise | 3027 | `D^∞` as bottomless *stacks*; stack combinators (head/tail/push/diag/map) | **Pass** (`Exercise511.lean`) |
+| **Exercise 5.12** | Exercise | 3067 | the `while` combinator on `D` by least fixed point | **Pass** (`Exercise512.lean`) |
+| **Exercise 5.13** | Exercise | 3093 | a one-one pairing `num:N×N→N` | **Pass** (`Exercise513.lean`: `num n m=(n+m)(n+m+1)/2+m` (Cantor diagonal), the three recurrences + `num_injective`, the bijection `numEquiv:ℕ×ℕ≃ℕ` (choice-free inverse `unnum`); power-set domains as `(Set·,⊆)`, `setCongr` order-iso ⟹ `P N≅P(N×N)`, `P N≅P N×P N`, `P(N×N)≅P N×P N`; choice-free) |
+| **Exercise 5.14** | Exercise | 3115 | approximable `fun`/`graph` mappings | **Pass** (`Exercise514.lean`: the Scott `Pω` graph model. The tag `tag [n₀…n_{k-1}] m = [n₀+1,…,n_{k-1}+1,0,m]` from 5.13's `num` is a bijection `(List ℕ)×ℕ≃ℕ` (`tag_injective`; `tag_surjective` by strong induction, decreasing via `num_succ_left_gt`). With `Fun u x={m∣∃ns⊆x, tag ns m∈u}`, `Graph f={tag ns m∣m∈f(entries ns)}` and `IsApprox` (monotone + finite-approx): `Fun_Graph` (`fun∘graph=λf.f` for continuous `f`), `id_le_Graph_Fun` (`graph∘fun⊇λx.x`), `Fun_isApprox` (every `Fun u` is approximable); `Pω=(Set ℕ,⊆)` per 4.17/5.13; choice-free) |
+| **Exercise 5.15** | Exercise | 3145 | (algebraists) free semigroup `{0,1}*`, `P{0,1}*` as a domain | **Pass** (`Exercise515.lean`: powerset Kleene algebra `(Set S,∪,·,∅,{1})` for any monoid `S`. `star z=⋃ₙ zⁿ` (recursive `kpow`, `star_eq: z*=Λ∪z·z*`). **Arden's lemma** `arden: lfpSet(λw.z·w∪v)=z*·v` (no `Monotone`). (1) `part1`: `lfpSet(λz.{e}·z∪{e'})=star{e}·{e'}` with `mem_star_singleton` (`e*={Λ,e,e²,…}`), specialised to `FreeMonoid Bool` (`part1_freeMonoid`). (2) David Park: `parkX=(a∪b·a*·b)*·(c∪b·a*·d)`, `parkY=a*·(b·x₀∪d)` — `park_solves` (solve the system) + `park_least` (below every solution = least), by Gaussian elimination via `arden`. Choice-free: reproves `mul_assoc`/dist (`smul_assoc`/`sunion_mul`/`smul_union`) at membership level since Mathlib's `Set` `*`-algebra, `⋃` order lemmas, `Set`-power, `mem_powers_iff` and `Monotone`-over-`Set` all pull `Classical.choice` here) |
+| **Exercise 5.16** | Exercise | 3180 | a fixed-point definition of `neg:C→C` | **Pass** (`Exercise516.lean`: returns to Example 4.4's domain `C` of finite/infinite binary sequences. `tail:C→C` (`tail(bx)=x`, `tail(Λ)=⊥`, the item left to the reader) via `Exercise419.liftC`. `negMap:C→C` (`neg(0x)=1·neg(x)`, `neg(1x)=0·neg(x)`) solved in closed form (`neg(σ)=flip σ`, `flip=List.map not`) via `liftC`; recursion eqs `neg_cons_false`/`neg_cons_true` (so it is *the* solution) and **`negMap_negMap: neg(neg x)=x` for all `x∈|C|`** — proved by determination on the finite elements (`eq_of_toElementMap_principal`, Ex 2.8) where it is `flip∘flip=id`. `dMap:C→C` (bit-doubling `d(0x)=00·d(x)`) via `liftC` (`d(σ)=double σ`). `mergeMap:C×C→C` (`merge(εx,δy)=ε·δ·merge(x,y)`) built directly as an approximable map out of `prod C C` from an explicit interleave value function `mergeVal` on tagged strings `(b,σ)` (`b`=total/partial); the boundary Scott flags is resolved by the unique *monotone* convention (`merge(Λ,y)=Λ`, `merge(εx,y)=ε⊥` once `y` runs out), proved monotone (`mergeVal_SLe`/`mergeElem_mono`, the crux of approximability). Recursion eq `mergeMap_cons` (for all `x,y`, via product extensionality `prodMap_ext`) and **`mergeMap_diag: merge(x,x)=d(x)`**. All *data* choice-free `[propext,Quot.sound]`; map equalities use `Classical.choice` only via `eq_of_toElementMap_principal`. **The Thue–Morse properties of `t=0·merge(neg t,tail t)` are now done too:** `Exercise516ThueMorse.lean` defines `tmOp=Φ`, `tElt=t` (least fixed point), proves the unfolding `tElt_unfold` (`t=0·merge(neg t,tail t)`); the finite approximants `Φⁿ⁺¹(⊥)=(expandⁿ[0])⊥` are the Thue–Morse-morphism iterates (`expand`=`0↦01,1↦10`), and via the parity bit-function `tm n=⊕(binary digits of n)` (recurrences `tm(2n)=tm n`, `tm(2n+1)=¬tm n`) the bridge `expand_iterate_eq` shows `expandⁿ[0]=tmList(2ⁿ)`. **Property (a)** = `tElt_mem_cone_iff`: `σ` is a prefix of `t` iff `σ=tmList σ.length` (so the `n`-th digit of `t` is `tm n`, Lambek's digit-sum-mod-2 description) — fully choice-free `[propext,Quot.sound]`. `Exercise516Overlap.lean` proves **property (b)**, overlap-freeness, from scratch (no domain theory): `no_three_consec` (period-1), the descent on the period (even→half, odd≥5→a run of three), `no_overlap` (no factor of length `2p+1` with period `p`), and Scott's literal cube form `tElt_cube_free` (`t≠u·a·a·a·v` for nonempty `a`) via `no_cube`) |
 
-### 4.2.VI Lecture VI — *Introduction to domain equations* (transcribed; formalization deferred)
+### 4.2.VI Lecture VI — *Introduction to domain equations* (Example 6.1 + categorical spine 6.3–6.7 **Pass**; rest transcribed)
 
 *OCR note:* `Example 6.1` (line 3214) is not bold-tagged. Scott labels item **6.15** as
 **Lemma 6.15** (3952) but later calls it **Theorem 6.15** (4863) — same result, original typo.
@@ -1473,13 +1473,13 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 
 | Item | Type | Lines | Statement | Lean |
 | ---- | ---- | ----- | --------- | ---- |
-| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | — |
+| **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D^∞`-style construct) | **Pass** (`Example61.lean`: the *tree algebra* `D^§` over a fixed domain `D` and Scott's domain equation `D^§ ≅ D + (D^§ × D^§)`. Tokens live in `Γ = {1,2}* 0 Δ`, modelled as `List Bool × α` with master `Γ = {t ∣ t.2 ∈ Δ}` (`true=1`, `false=2`); the three neighbourhood embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`, `embPair P Q = 1P ∪ 2Q` with their intersection/subset/injectivity/disjointness API. `MemS D` is the inductive least family containing (i) `Γ`, (ii) `0X` for `X∈𝒟`, (iii) `1P∪2Q` for `P,Q∈𝒟^§`; **`memS_inter`** is Scott's central closure-under-consistent-intersection proof by induction on the derivation (cross cases `0A∩(1P∪2Q)=∅` discharged via non-emptiness `memS_nonempty`, needing the standing `∅∉𝒟` as `hD`). `Dsharp D hD` packages the system. The **domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD) (Dsharp D hD)) …` is built as the explicit order-iso `dsharpEquiv` (forward `toS`/inverse `fromS` filter maps, the inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`), routed through the project's `+` (Ex 3.18) and `×` (Def 3.1) with the shape-inversion lemmas `memS_embZero_inv`/`memS_embPair_inv`/`sum_mem_inj₀_inv`/`sum_mem_inj₁_inv`. Also the isomorphic injections `inSharp` (`x^§ = {Γ}∪{0X∣X∈x}`, `inSharp_le_iff`) and `pairSharp` (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`); `⊥ = {Γ}` is the system's own `bot`. **Fully choice-free** `[propext, Quot.sound]` — even the equation iso and order-injection lemmas) |
 | **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | — |
-| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | — |
-| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | — |
-| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | — |
-| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | — |
-| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | — |
+| **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | **Pass** (`Definition63.lean`) |
+| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | **Pass** (`Definition63.lean`) |
+| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | **Pass** (`Definition63.lean`) |
+| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | **Pass** (`Proposition66.lean`) |
+| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | **Pass** (`Proposition67.lean`) |
 | **Definition 6.8** | Definition | 3761 | a functor *continuous on maps* | — |
 | **Theorem 6.9** | Theorem | 3771 | continuous `T` with `D≅T(D)` ⟹ a homomorphism `D→E` to any `T`-algebra | — |
 | **Definition 6.10** | Definition | 3795 | the subsystem relation `D ◁ E` | — |
@@ -1679,21 +1679,26 @@ with Lean formalization deferred:
 | I (domains by neighbourhoods) | §4.2 | 43 | **43** |
 | II (approximable mappings) | §4.2.II | 22 | **22** |
 | III (products, sums, function spaces) | §4.2.III | 29 | **29** |
-| IV (fixed points and recursion) | §4.2.IV | 25 | **2** (Thm 4.1, 4.2) |
+| IV (fixed points and recursion) | §4.2.IV | 25 | **12** (Thm 4.1, 4.2; Ex 4.3, 4.4; Def 4.5 + Thm 4.6; Exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20) |
 | V (typed λ-calculus) | §4.2.V | 16 | — |
-| VI (domain equations) | §4.2.VI | 29 | — |
+| VI (domain equations) | §4.2.VI | 29 | 5/29 (Defs 6.3–6.5, Props 6.6–6.7 — categorical spine) |
 | VII (computability) | §4.2.VII | 24 | — |
 | VIII (universal domain) | §4.2.VIII | 27 | — |
-| **Total PRG-19 I–VIII** | | **215** | **96** |
+| **Total PRG-19 I–VIII** | | **215** | **106** |
 
 The Lecture III **spine** (Def 3.1 → Thm 3.13) is complete and choice-free, and **all Lecture III
 exercises (3.14–3.28) are now formalized** (`Exercise316`/`317`/`324Iter`/`324Distrib`/`325`/`327`
 completing the set).
 
 **Lectures IV–VIII** are fully **transcribed and inventoried** (§4.2.IV–VIII); formalization keyed
-to PRG-19 numbering has now **begun in Lecture IV** with the Fixed-point Theorem **4.1** and the
-approximability of `fix` **4.2** (`Theorem41.lean`). The remaining IV–VIII items are not yet
-formalized; the domain-equation material is also explored separately in the
+to PRG-19 numbering is now **well underway in Lecture IV** with the Fixed-point Theorem **4.1** and
+the approximability of `fix` **4.2** (`Theorem41.lean`), the natural-number domain `N` (**Example
+4.3**, `Example43.lean`), the binary-sequence domain `C` (**Example 4.4**, `Example44.lean`), the
+Peano-model material **Definition 4.5 + Theorem 4.6** (`Theorem46.lean`), and **six §4 exercises**
+— **4.7** (fixed point above `a`), **4.8** (fixed-point induction), **4.10** (the relativized domain
+`Dₐ`), **4.12** (no maximum fixed point), **4.18** (the assertions about `N`), and **4.20**
+(`fix(f∘g)=f(fix(g∘f))`). The remaining IV–VIII items are not yet formalized; the domain-equation
+material is also explored separately in the
 `Domain/ContinuousLattice/*` track (e.g. `FunctionSpaceTower.lean`, `InverseLimits.lean`), not yet
 keyed to the PRG-19 numbering. Lean roots for the formalized spine: `Approximable.lean` (§2),
 `Product.lean` + `FunctionSpace.lean` (§3), `Theorem41.lean` (§4 fixed points).
@@ -2221,6 +2226,106 @@ iff each `{f(x) ∣ f ∈ F}` is bounded), and `sSupMaps` (the pointwise sup, bu
 `supOnPrincipal` + Exercise 2.8's `ofMono`) with `le_sSupMaps`/`sSupMaps_le` (it is the least upper
 bound) and `toElementMap_sSupMaps : (⊔F)(x) = ⊔{f(x) ∣ f ∈ F}` — all `[propext, Quot.sound]`.
 
+#### Lecture IV §4 exercises 4.7, 4.8, 4.10, 4.12, 4.18, 4.20
+
+Six §4 exercises built directly on the Theorem 4.1/4.2 fixed-point API (`Theorem41.lean`) and the
+natural-number domain (`Example43.lean`).
+
+**Exercise 4.7 (`Exercise407.lean`) — a fixed point above `a` when `a ⊑ f(a)`.** *Yes.* Replace `⊥`
+by `a` in 4.2(iii): the chain `iterFrom f a n = fⁿ(a)` is increasing (one application of `f`'s
+monotonicity to `a ⊑ f(a)`, propagated by a **choice-free** `≤`-induction `iterFrom_mono` — Scott's
+hint that `⊔ₙ fⁿ(a)` is a *well-defined* element is exactly the directedness fed to `iSupDirected`).
+`fixAbove f ha = ⊔ₙ fⁿ(a)`; `fixAbove_isFixed` (continuity, `toElementMap_iSupDirected`),
+`le_fixAbove` (the `n=0` term), and `fixAbove_least` (least fixed point above `a`). The key lesson
+relearned: `monotone_nat_of_le_succ` pulls `Classical.choice`, so the chain's monotonicity is proved
+by hand by induction on `n ≤ m`, keeping the *data construction* `fixAbove` at `[propext,
+Quot.sound]`.
+
+**Exercise 4.8 (`Exercise408.lean`) — fixed-point induction.** `fix_induction`: for a predicate `P`
+with `P ⊥`, `P x ⟹ P (f x)`, and closure under sups of monotone chains (`supChain`), `P (fix f)`
+holds — because `fix f = ⊔ₙ fⁿ(⊥)` (`fixElement_eq_supChain`, repackaging
+`fixElement_eq_iSupDirected`) and `P (fⁿ(⊥))` by induction (`iterElem_zero`, `iterElem_succ`). The
+application Scott suggests is `fix_induction_eq`: for approximable `a, b` with `a(⊥)=b(⊥)`,
+`f∘a=a∘f`, `f∘b=b∘f`, we get `a(fix f)=b(fix f)` — (i) is the base equality, (ii) the commutations
+`a(f x)=f(a x)`, (iii) continuity of `a`,`b`. Choice-free.
+
+**Exercise 4.10 (`Exercise410.lean`) — the relativized domain `Dₐ`.** `relSystem a` keeps the tokens
+and master but takes neighbourhoods to be the *members of the filter `a`*; it is a system because a
+filter contains `Δ` and is `∩`-closed. The order-iso `relIso : |Dₐ| ≃o {x ∣ x ⊑ a}` is built from
+`embed` (`𝒟`-upward-closure of a `Dₐ`-filter, with the `V.mem X` guard so it stays a filter) and
+`restrict` (an element `x ⊑ a` *is* a `Dₐ`-filter, since `x.mem ⊆ a.mem`), with the round-trips
+`embed_restrict`/`restrict_embed` and `embed_mono`/`le_of_embed_le` for order reflection. When
+`f(a)=a`, `relMap f ha : Dₐ → Dₐ` restricts `f` (rel `X Y := a.mem X ∧ f.rel X Y`; codomain check
+uses `↑X ⊑ a ⟹ Y ∈ f(↑X) ⊑ f(a) = a`), agreeing via `relMap_toElementMap_embed`
+(`embed (f'(g)) = f(embed g)`). **How many fixed points has `f'` over `D_{fix f}`?** *Exactly one*
+(`relMap_unique_fixed`): any fixed point of `f` below `fix f` is a pre-fixed point, hence `⊒ fix f`
+by leastness, hence `= fix f` (`fixElement_below_unique`). All choice-free.
+
+**Exercise 4.12 (`Exercise412.lean`) — no maximum fixed point.** The identity map `I_𝒟` has *every*
+element fixed; on Scott's Example 1.2 fork `T` it therefore has three fixed points, the two total
+ones `elemZero`,`elemOne` being maximal and incomparable (`elemZero_not_le_elemOne` and converse), so
+there is **no greatest fixed point** (`no_greatest_fixedPoint`). Classical only through Example 1.2's
+finite classification.
+
+**Exercise 4.18 (`Exercise418.lean`) — the assertions about `N`.** `element_classification`: `|N|`
+is exactly `⊥` together with the numerals `n̂` (so `N` is genuinely flat — decides whether `x`
+contains a singleton, hence classical, as Example 4.3 already is). Peano facts (choice-free):
+`natElem_injective`, `succMap_injective`, `natElem_zero_ne_succ`/`zero_ne_succMap` (`0̂` is not a
+successor); `pred∘succ=id` is already `Example43.predMap_succMap_natElem`.
+
+**Exercise 4.20 (`Exercise420.lean`) — `fix(f∘g)=f(fix(g∘f))`.** The rolling/dinaturality rule, pure
+element-level algebra (`fixElement_comp_comm`): `f(fix(g∘f))` is a fixed point of `f∘g` (so `⊒` the
+least), and a symmetric argument with `fix(g∘f) ⊑ g(fix(f∘g))` gives the reverse — using only
+`toElementMap_comp`, `toElementMap_fixElement`, `fixElement_le_of_toElementMap_le`, and monotonicity.
+Choice-free.
+
+**Exercise 4.9 (`Exercise409.lean`) — the operator `Ψ` and `fix = fix(Ψ)`.** With `G = (𝒟→𝒟)` and
+`E = (G→𝒟)`, the term `λF λf. f(F(f))` is the combinator `bigPsi = curry(eval_{𝒟,𝒟} ∘ ⟨π_G, eval_{G,𝒟}⟩)`,
+an approximable operator `E→E` (choice-free); the curry β-rule plus the `eval`/projection laws give the
+defining equation `bigPsi_apply : Ψ(θ)(f) = f(θ(f))`. Representing `fix` by `toFilter (fixMap V) ∈ |E|`,
+`bigPsi_fix` shows `Ψ(fix)=fix` and `bigPsi_least` shows `Ψ(θ)⊑θ ⟹ fix⊑θ` (pointwise, `θ(f)` is a
+pre-fixed point of `f` so Theorem 4.1 minimality applies); together `fix_eq_fixElement_bigPsi : fix = fix(Ψ)`.
+
+**Exercise 4.11 (`Exercise411.lean`) — Plotkin's uniqueness of `fix`.** `fixElement_uniform`: `fix`
+is uniform — `h(⊥)=⊥`, `h∘f₀=f₁∘h ⟹ h(fix f₀)=fix f₁` (`h(f₀ⁿ(⊥))=f₁ⁿ(⊥)` by induction, then `h`
+preserves directed unions). `fix_unique_of_uniform`: any assignment `F` obeying (ii) and (iii)
+equals `fix`. Proof: apply (iii) along the inclusion `inclMap : 𝒟_{fix f} ↪ 𝒟` (`inclMap_bot`,
+`inclMap_intertwine`); since `f'` on `𝒟_{fix f}` has the unique fixed point `fix f` (Ex 4.10), `F(f')`
+maps to `fix f`, so `F_𝒟(f)=fix f`. `inclMap` is choice-free.
+
+**Exercise 4.13 (`Exercise413.lean`) — removing the 4.1/4.6 circularity.** (1) For *monotone*
+`f:|𝒟|→|𝒟|` with a pre-fixed point `a` (`f(a)⊑a`), `monoFix f = ⋂{x∣f(x)⊑x}` (Ex 1.18 `sInf`) is a
+fixed point (`monoFix_isFixed`) and the least (`monoFix_least`), `⊑a` — choice-free, monotonicity
+only. (3) `exists_unique_nat_rec`: for any `⟨Z,z,·⟩` a unique `s:ℕ→Z` with `s(0)=z`, `s(n+1)=op(s n)`;
+(4) `nat_iterate_unique` identifies `⟨N,0,⁺⟩`.
+
+**Exercise 4.14 (`Exercise414.lean`) — maximum fixed point on `PA`.** *Yes.* Knaster–Tarski:
+`gfpSet f = ⋃{x∣x⊆f(x)}` is the greatest fixed point of a monotone `f:PA→PA` (`gfpSet_isFixed`,
+`gfpSet_greatest`); dually `lfpSet f = ⋂{x∣f(x)⊆x}` is the least. Entirely choice-free.
+
+**Exercise 4.15 (`Exercise415.lean`) — maximal fixed point via Zorn.** `exists_maximal_fixedPoint`:
+Zorn (`zorn_le₀`) on the post-fixed points `{x∣x⊑f(x)}`, whose chains have an upper bound `chainUnion`
+that is again post-fixed; the maximal element is a fixed point. `exists_least_fixedPoint` then uses
+`monoFix`. Classical (Zorn).
+
+**Exercise 4.16 (`Exercise416.lean`) — the optimal fixed point.** Scott's step (1): for a non-empty
+set `S` of fixed points, `f_sInf_le : f(⋂S)⊑⋂S`. The induced least fixed point `optimalFix S`
+(`monoFix` on the pre-fixed point `⋂S`) lies below every member of `S` (`optimalFix_le`) and is
+consistent with each (`optimalFix_consistent`) — the optimal point below all maximal fixed points
+(supplied by Ex 4.15). Data choice-free.
+
+**Exercise 4.17 (`Exercise417.lean`) — least solution of `x={1}∪{a,b}∪x·x` in `PS`.** Via Ex 4.14's
+`lfpSet`, the least solution is the generated submonoid: `lfpSet_eq_closure : lfpSet(F a b) =
+Submonoid.closure {a,b}` (`⊇` by `closure_le` against the pre-fixed-point submonoid `preFixSubmonoid`;
+`⊆` since the closure is `F`-closed). The fixed point is *not* unique: `Set.univ` is also a solution
+(`F_univ`, `fixedPoint_not_unique`).
+
+**Exercise 4.19 (`Exercise419.lean`) — verify Example 4.4; `one` by a fixed-point equation.** Peano
+axioms for `Σ* = {0,1}*` (`peano_cons_injective`, `peano_cons_disjoint`, `peano_nil_ne_cons`,
+`peano_induction`). A reusable head-test combinator `liftC` (choice-free) yields `empty`, `zero`,
+`one : C→T` with their value equations; `one_def_strElem`/`one_def_strBot` then express `one` from
+`empty`, `zero` and `cond` (Ex 3.26) by a fixed-point equation (`condT_bot` handling `cond` at `⊥`).
+
 ---
 
 ## 5. Part III — Scott 1982 information systems (stub)
@@ -2479,7 +2584,7 @@ Files appear in `Domain.lean` import order. Each block is a verbatim copy of the
 
 ## `Domain.lean`
 
-*69 lines.*
+*114 lines.*
 
 ```lean
 import Domain.Constructive
@@ -2550,6 +2655,51 @@ import Domain.Neighborhood.Exercise326
 import Domain.Neighborhood.Exercise326Sum
 import Domain.Neighborhood.Exercise328
 import Domain.Neighborhood.Theorem41
+import Domain.Neighborhood.Example43
+import Domain.Neighborhood.Example44
+import Domain.Neighborhood.Theorem46
+import Domain.Neighborhood.Exercise407
+import Domain.Neighborhood.Exercise408
+import Domain.Neighborhood.Exercise409
+import Domain.Neighborhood.Exercise410
+import Domain.Neighborhood.Exercise411
+import Domain.Neighborhood.Exercise412
+import Domain.Neighborhood.Exercise413
+import Domain.Neighborhood.Exercise414
+import Domain.Neighborhood.Exercise415
+import Domain.Neighborhood.Exercise416
+import Domain.Neighborhood.Exercise417
+import Domain.Neighborhood.Exercise418
+import Domain.Neighborhood.Exercise419
+import Domain.Neighborhood.Exercise420
+import Domain.Neighborhood.Exercise421
+import Domain.Neighborhood.Exercise422
+import Domain.Neighborhood.Exercise423
+import Domain.Neighborhood.Exercise424
+import Domain.Neighborhood.Exercise425
+import Domain.Neighborhood.Table55
+import Domain.Neighborhood.Theorem51
+import Domain.Neighborhood.Theorem52
+import Domain.Neighborhood.Proposition53
+import Domain.Neighborhood.Proposition54
+import Domain.Neighborhood.Theorem56
+import Domain.Neighborhood.Theorem56Full
+import Domain.Neighborhood.Exercise507
+import Domain.Neighborhood.Exercise508
+import Domain.Neighborhood.Exercise509
+import Domain.Neighborhood.Exercise510
+import Domain.Neighborhood.Exercise511
+import Domain.Neighborhood.Exercise512
+import Domain.Neighborhood.Exercise513
+import Domain.Neighborhood.Exercise514
+import Domain.Neighborhood.Exercise515
+import Domain.Neighborhood.Exercise516
+import Domain.Neighborhood.Exercise516ThueMorse
+import Domain.Neighborhood.Exercise516Overlap
+import Domain.Neighborhood.Example61
+import Domain.Neighborhood.Definition63
+import Domain.Neighborhood.Proposition66
+import Domain.Neighborhood.Proposition67
 import Domain.InfoSys
 ```
 
