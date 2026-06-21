@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16** — 5.16's `neg`/`merge`/`d` core Pass, Thue–Morse `t` follow-up open); VI–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); VI–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -7,7 +7,7 @@ Computation* (PRG-19) in:
 
 ## Where things stand
 
-- **`lake build Domain` is green, zero `sorry`s** (≈3056 jobs). **Theorem 5.6 is now complete
+- **`lake build Domain` is green, zero `sorry`s** (≈3064 jobs). **Theorem 5.6 is now complete
   end-to-end**: `Theorem56Full.lean` proves *every partial recursive function is λ-definable*
   (`partrec_lamDef`) against Mathlib's `Nat.Partrec'`, plus Scott's 1-ary corollary `partrec_one`.
 - **Lecture I (43), Lecture II (22), Lecture III (29) = 94 numbered results/exercises are Pass.**
@@ -21,8 +21,9 @@ Computation* (PRG-19) in:
 - **Lectures IV–VIII are fully transcribed** in `sources/PRG19_vision.md` (152/152 OCR pages,
   ≈5365 lines) **and inventoried** in `arxiv.md` §4.2.IV–VIII as Goal Lists. **Lecture IV is now
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
-  *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V core is now Pass** (see next
-  section); VI–VIII are still `—`. Pages 108–111 were re-OCR'd to fix a page-order scramble
+  *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
+  (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); VI–VIII are still `—`.
+  Pages 108–111 were re-OCR'd to fix a page-order scramble
   (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
 
 ### Lecture V §5 completed (most recent work)
@@ -181,9 +182,9 @@ building a separate λ-syntax.
   `smul_union`) by membership `ext`, define `star` by recursion, and avoid `Monotone`/`⋃`-order
   lemmas/`Submonoid.powers` entirely.
 
-**Lecture V exercises 5.7–5.16 are formalized; Exercise 5.16's domain-theoretic core is Pass, with one
-follow-up (the Thue–Morse properties of `t`) still open — see the plan immediately below.** Exercise
-5.16 so far (`Exercise516.lean`):
+**Lecture V exercises 5.7–5.16 are formalized — Lecture V is now COMPLETE end-to-end, including all of
+Exercise 5.16's Thue–Morse `t` follow-up (see the next two subsections).** Exercise
+5.16's `neg`/`merge`/`d` core (`Exercise516.lean`):
 
 - **`tailMap : C → C`** (`tail(bx)=x`, `tail(Λ)=⊥`, Example 4.4's "left to the reader" item) via
   `Exercise419.liftC` (`tail_hcone`/`tail_hsing`).
@@ -206,81 +207,55 @@ follow-up (the Thue–Morse properties of `t`) still open — see the plan immed
   and **`mergeMap_diag : merge(x,x)=d(x)`** (only needs the *diagonal* principals — `mergeVal_diag`).
 - **Choice:** all *data* (`tailMap`/`negMap`/`dMap`/`mergeMap`) is `[propext, Quot.sound]`; the map
   equalities pull `Classical.choice` only via `eq_of_toElementMap_principal` (the sanctioned exception).
-- **Still open (the rest of Exercise 5.16 — NEXT TASK):** the Thue–Morse sequence
-  `t = 0·merge(neg t, tail t)`. Scott asks for two properties — (a) the `n`-th digit of `t` equals the
-  sum mod 2 of the binary digits of `n` (Lambek), and (b) `t` is overlap-free (`t ≠ u·a·a·a·v` for any
-  finite `a ≠ Λ` and finite `u`). **Detailed plan below.**
 
-### Exercise 5.16 follow-up — the Thue–Morse sequence `t` (NOT yet formalized)
+### Exercise 5.16 follow-up — the Thue–Morse sequence `t` (DONE)
 
-This is the unfinished tail of Exercise 5.16. The domain-theoretic plumbing is all in place; what
-remains is genuine **combinatorics-on-words**, so budget it as its own module
-(`Exercise516ThueMorse.lean`, `import Domain.Neighborhood.Exercise516`).
+The whole Thue–Morse follow-up is now formalized across two modules. **No `sorry`; full `Domain` build
+green (≈3064 jobs).**
 
-**Step 0 — define `t` and get its unfolding.** `t` is a least fixed point in `|C|`. The operator is
-`Φ(x) = consMap false (mergeMap.toElementMap (pair (negMap.toElementMap x) (tailMap.toElementMap x)))`,
-i.e. `Φ = (consMap false).comp (mergeMap.comp (paired negMap tailMap))`. Define
-`tElt := Φ.fixElement` (`Theorem41.fixElement`) and derive the **unfolding equation**
-`t = 0·merge(neg t, tail t)` from `toElementMap_fixElement` + `toElementMap_comp`/`toElementMap_paired`
-(exactly as `Example44.altElt_eq` does for `a = 01a`). This much is cheap and worth landing on its own
-even before (a)/(b).
+**`Exercise516ThueMorse.lean` — Step 0 + property (a) (digit-sum mod 2).** Fully choice-free even at the
+`Prop` level (`[propext, Quot.sound]`).
+- **Step 0.** `tmOp = Φ = (consMap false).comp (mergeMap.comp (paired negMap tailMap))`,
+  `tElt = t = tmOp.fixElement`, and the unfolding `tElt_unfold : 0·merge(neg t, tail t) = t`.
+- **The bridge (the real idea).** The fixed-point approximants are exactly the iterates of the
+  **Thue–Morse morphism** `expand` (`0 ↦ 01`, `1 ↦ 10`): `iterElem_succ_eq : Φᵏ⁺¹(⊥) = (expandᵏ[0])⊥`.
+  The crux `tmOp_strBot_expand` shows `Φ` *is* `expand` on a partial element `(0σ)⊥` (computed from
+  `mergeMap_pair` + the interleave lemma `weave_head`: `merge((flip σ)⊥,(tail σ)⊥) = (expand σ minus
+  head)…`). The key shortcut that makes the bridge work: `step σ = false :: weave σ` equals `expand σ`
+  **whenever `σ` starts with `0`**, and every approximant string does.
+- **The parity bit-function** `tm n := (Nat.bits n).foldr xor false` (= ⊕ of the binary digits of `n`),
+  with recurrences `tm_zero`, `tm_two_mul : tm(2n)=tm n`, `tm_two_mul_add_one : tm(2n+1)=¬tm n`
+  (proved from Mathlib's `Nat.bit0_bits`/`bit1_bits`). The prefix `tmList n = (List.range n).map tm`,
+  and `expand_iterate_eq : expandᵏ[0] = tmList(2ᵏ)` (via `expand_tmList : expand(tmList m)=tmList(2m)`,
+  which is the even/odd recurrence in disguise).
+- **Property (a)** = `tElt_mem_cone_iff : tElt.mem (cone σ) ↔ σ = tmList σ.length` — a string is a prefix
+  of `t` *iff* it is the length-matched Thue–Morse parity prefix. So the `n`-th digit of `t` is `tm n`,
+  Lambek's digit-sum-mod-2 description. Corollary `tElt_digit : (tmList n ++ [tm n])⊥ ⊑ t`.
 
-**The reading bridge — `t` as a function `ℕ → Bool`.** Both properties are about *digits* of `t`, so
-the real work is connecting the domain element `tElt` to an honest sequence `tm : ℕ → Bool`. Two
-sub-pieces:
-- **(i) Extract digits.** Define `digit : C.Element → ℕ → Bool` (or a partial `ℕ →. Bool`) reading the
-  `n`-th bit: `digit x n = b` iff `strElem (w ++ [b]) ` … more practically, `x.mem (cone (w))` style
-  membership of the length-`(n+1)` prefixes. Cleanest: prove `tElt` is *total and infinite* (every
-  finite prefix `take n (tm)` has `strBot (take n tm) ≤ tElt`), then `digit tElt n = tm n`. Expect to
-  need a "principal `≤` element" reading lemma in the spirit of `ExampleB.mem_iff_exists_sigmaBot`.
-- **(ii) Identify `tm`.** Define the Thue–Morse bit function on `ℕ` and prove it satisfies the **same**
-  recurrences the fixed point forces: `tm 0 = false`, `tm (2k) = tm k`, `tm (2k+1) = !(tm k)` (the
-  standard Thue–Morse recurrence). **Use `Nat.bits`, not `Nat.digits`** (see "Mathlib reality check"
-  below): the cleanest definition is `tm n := (Nat.bits n).count true % 2 = 1` (or
-  `(Nat.bits n).foldr xor false`), because `Nat.bits : ℕ → List Bool` already returns a `List Bool`
-  matching `C`'s `Str = List Bool`, and the parity recurrence is then immediate from `bit0_bits`/
-  `bit1_bits` (`Nat.bits (2k) = false :: Nat.bits k` for `k ≠ 0`, `Nat.bits (2k+1) = true :: Nat.bits k`).
-  Prove the even/odd recurrence for `tm` by `Nat.binaryRec` (recursion on the binary expansion — the
-  right induction principle here). **This is the crux**: prove `digit tElt n = tm n` by strong/binary
-  induction on `n`, pushing the `t = 0·merge(neg t, tail t)` equation through the bit positions (the
-  `merge` interleaves `neg t` on even positions and `tail t` on odd — work out the index bookkeeping
-  carefully; this is where Lambek's digit-sum description comes from).
+**`Exercise516Overlap.lean` — property (b), overlap-freeness.** A self-contained combinatorics-on-words
+theorem (no domain theory; `Prop`-level so `Classical.choice` is fine).
+- `Overlap i p := 1 ≤ p ∧ ∀ k ≤ p, tm(i+k)=tm(i+p+k)` (a factor of length `2p+1` with period `p`).
+- Base facts: `odd_of_consec_eq` (`tm x = tm(x+1) ⟹ x` odd, since `tm(2m)≠tm(2m+1)`) and
+  `no_three_consec` (no three equal in a row — the period-1 case).
+- **`no_overlap : ∀ i p, ¬ Overlap i p`** by strong induction on `p`: **even `p=2q`** contracts to a
+  period-`q` overlap (subsample even/odd positions, `tm_two_mul`/`tm_two_mul_add_one`); **odd `p≥5`**
+  forces a run of three equal symbols (relations at `k=0..4`); the corner **`p=3`** is a direct
+  4-relation `Bool` contradiction; **`p=1`** is `no_three_consec`.
+- Scott's literal cube form: `no_cube` (no `a·a·a` in `tm`, since a cube is an overlap) and
+  **`tElt_cube_free : a ≠ [] → ¬ (u·a·a·a)⊥ ⊑ t`** (`t ≠ u·a·a·a·v`), via `tElt_mem_cone_iff` + the
+  bit-reading lemma `tmList_getElem?` + the periodicity lemma `append_three_period`.
 
-**Property (a) — digit-sum-mod-2.** Once `digit tElt n = tm n` and `tm n` is *defined* as the parity of
-the binary digits of `n`, this is essentially immediate. Most of the effort is the digit bridge above
-plus the two `Nat.bits` cons-recurrences (which are already in Mathlib — `bit0_bits`/`bit1_bits`).
-
-**Property (b) — overlap-freeness (`t ≠ u·a·a·a·v`).** The classic Thue–Morse overlap-free theorem,
-phrased on `tm : ℕ → Bool`: there is no `i` and period `p ≥ 1` with `tm (i + j) = tm (i + p + j)` for
-all `j ≤ p` (an "overlap" `a·a·a` of an `a` of length `p`). This is a self-contained word-combinatorics
-proof (Thue 1912): by minimal-counterexample / descent using the `tm(2k)=tm k`, `tm(2k+1)=!tm k`
-recurrence to fold an overlap at scale `2p` down to one at scale `p`. **No domain theory and no Mathlib
-library leverage** — prove it about `tm` from scratch, then translate to `C` via the digit bridge (an
-overlap `u·a·a·a·v` in `t` is exactly an overlap in `tm`). This is the largest single piece and should
-be its own file.
-
-**Recommended landing order:** (Step 0 `tElt` + unfolding) → (digit bridge `digit tElt n = tm n`, with
-the even/odd recurrence) → (a) → (b). (a) is reachable; (b) is a real, from-scratch theorem and warrants
-its own file. Keep `tElt` *data* choice-free; the digit-reading and the two property proofs may use
-`Classical.choice` freely (they are `Prop`-level facts, like the existing uniqueness lemmas).
-
-**Mathlib reality check (verified against this toolchain's mathlib `v4.30.0`).**
-- **No `ThueMorse` / Prouhet–Thue–Morse development exists** anywhere in Mathlib — do **not** plan to
-  reuse one. (`rg -i thue|morse` finds only Morse-theory/`Holder` false positives.)
-- **No "combinatorics on words"** (overlap-free / square-free / infinite words) in `Mathlib/Combinatorics/`.
-  The `Mathlib.Combinatorics.*` namespaces (Enumerative, SimpleGraph, Additive, Pigeonhole, Extremal,
-  Hindman, HalesJewett, …) are **not relevant** to this exercise. So property (b) has no scaffolding.
-- The genuinely relevant tools live in the **number-theory/data** namespaces, not Combinatorics:
-  `Mathlib/Data/Nat/Bits.lean` — `Nat.bits : ℕ → List Bool`, `Nat.bodd`, `Nat.binaryRec`,
-  `bits_append_bit`/`bit0_bits`/`bit1_bits`/`one_bits`/`zero_bits`; and `Mathlib/Data/Nat/Bitwise.lean`
-  (`Nat.testBit`), `Mathlib/Data/Nat/Digits/*` (`Nat.digits 2`) as alternatives. Prefer `Nat.bits`.
+**Mathlib reality check (still accurate, mathlib `v4.30.0`):** there is **no** `ThueMorse` /
+combinatorics-on-words development to reuse; `tm` was built on `Nat.bits` (`bit0_bits`/`bit1_bits`),
+and property (b) was proved entirely from scratch.
 
 **Available API (all verified, in `Exercise516.lean`):** `negMap`/`negMap_strBot`/`negMap_strElem`,
 `tailMap`/`tailMap_strBot`/`tailMap_strElem`/`tailMap_consMap_strElem`, `mergeMap`/`mergeMap_cons`
 (the recursion `merge(εx,δy)=ε·δ·merge(x,y)`)/`mergeMap_pair`/`mergeMap_diag`, `dMap`, `consMap`
 (Example 4.4), `Theorem41.fixElement`/`toElementMap_fixElement`/`fixElement_eq_iSupDirected`, and the
-`Example44`/`ExampleB` element/prefix lemmas. For the `ℕ`-side parity use `Nat.bits`/`Nat.binaryRec`/
-`Nat.bodd` (NOT a nonexistent `ThueMorse` file).
+`Example44`/`ExampleB` element/prefix lemmas. Thue–Morse-side API now in `Exercise516ThueMorse.lean`
+(`tmOp`/`tElt`/`expand`/`tm`/`tmList`, `tElt_mem_cone_iff`) and `Exercise516Overlap.lean`
+(`Overlap`/`no_overlap`/`no_cube`/`tElt_cube_free`).
 
 <details><summary>Original 5.16 formalization plan (superseded — kept for reference)</summary>
 
@@ -438,7 +413,7 @@ The Goal Lists are in `arxiv.md`:
 | Lecture | arxiv § | Rows | Theme | Source lines |
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
-| V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized**; 5.16's Thue–Morse `t` properties open — see plan) | 2383–3207 |
+| V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
 | VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
