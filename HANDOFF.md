@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,13 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lemma 6.15 is now COMPLETE** (`Lemma615.lean`, the converse of Prop 6.12:
-a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E` between systems over *possibly different* token
-types ⟹ `D ⊴ E`; see the checkpoint at the end of this file). The natural next item is **Theorem
-6.16** (an initial `T`-algebra `D` satisfies `D ⊴ E` for every `E ≅ T(E)`) — it uses Lemma 6.15 plus
-Theorem 6.9 (both homomorphisms `h:D→E`, `g:E→D`; `g∘h=I_D` by initiality; the remaining
-`h∘g⊆I_E` is a `gₙ/hₙ` directed-sup argument à la Theorem 6.14). Or pick another unstarted Lecture VI
-item from `arxiv.md`. **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
+**Next concrete target:** **Theorem 6.16 is now COMPLETE** (`Theorem616.lean`,
+`trianglelefteq_of_isInitial`: an initial `T`-algebra `D` satisfies `D ⊴ E` for every `E ≅ T(E)` when
+`T` is continuous on maps; see the checkpoint at the end of this file). The natural next items are the
+remaining Lecture VI entries from `arxiv.md` — **Exercise 6.17** (algebras for which `C` is initial),
+**Exercise 6.18** (`D^∞` as an initial algebra / domain-equation solution), **Exercise 6.19** (sum &
+product on the category of strict maps), or move into Lecture VII–VIII. **Lemma 6.15 is COMPLETE**
+(`Lemma615.lean`, the converse of Prop 6.12: a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E`
+between systems over *possibly different* token types ⟹ `D ⊴ E`). **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
 `Theorem614.lean`). `key_rho`, the `gₙ=g∘ρₙ` recursion,
 `g`-independence and initiality-among-strict-algebras all build green and choice-free.
 **Definition 6.13 is now DONE** (`Definition613.lean`, the
@@ -1155,3 +1156,49 @@ D ⊴ E`. Full `lake build Domain` green (3083 jobs, zero `sorry`); **fully choi
 - **Next:** **Theorem 6.16** (initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E ≅ T(E)`) is the natural
   consumer: `h:D→E`, `g:E→D` from Theorem 6.9, `g∘h=I_D` by initiality (Thm 6.14), then `h∘g⊆I_E` via
   a `gₙ/hₙ` directed-sup argument, and finally `trianglelefteq_of_projectionPair`.
+
+## Checkpoint — 2026-06-21 — Theorem 6.16 COMPLETE (`Theorem616.lean`, choice-free)
+
+**`trianglelefteq_of_isInitial (T) (hT : ContinuousOnMaps T) (Dalg) (hinit : IsInitial Dalg) (E)
+(isoE : Iso (T.obj E) E) : Dalg.carrier.sys ⊴ E.sys`** — Scott's Theorem 6.16 verbatim: an initial
+`T`-algebra embeds as a subdomain of every solution of the domain equation. `lake build Domain` green,
+zero `sorry`, axiom audit `[propext, Quot.sound]` (incl. the `Prop`-level initiality use).
+
+How the proof goes (it reuses Theorem 6.9's machinery rather than re-deriving it):
+
+- **Setup.** Lambek (Prop 6.7) gives `isoD := lambek Dalg hinit : T(D)≅D`, so `i=isoD.hom` (which is
+  *defeq* `Dalg.str`), `j=isoD.inv`; `u=isoE.hom`, `v=isoE.inv`. All four maps are strict via
+  `isStrict_of_comp_eq_id` applied to the split-iso laws. The Definition-6.8 witnesses `Φ` for the
+  three strict hom-spaces `(D,E)`, `(E,D)`, `(E,E)` are `obtain`-ed from `hT` (choice-free since the
+  goal `D ⊴ E` is a `Prop`).
+- **`opStep` (the shared per-step lemma, top-level).** For Theorem 6.9's operator
+  `Op = (homOp T D E j k)⊚Φ`, `toStrictMap(Op x).1 = k ∘ T(toStrictMap x).1 ∘ j`. Pure
+  `homOp_apply_filter` + the defining property `hΦ` of `Φ`; no `T`-strictness needed (it comes from
+  `hΦ`). This is the *only* place the 6.9 internals are touched.
+- **Three approximant chains** `H,G,K n := (toStrictMap (Op·.iterElem n)).1`. Base
+  `iterElem 0 = ⊥` (local `iterElem_zero`) + **`botStrict_rel`** (top-level: `⊥`'s strict map relates
+  `X↦master`, i.e. it is the constant-`⊥` least map). Recursions `Hₙ₊₁=u∘T(Hₙ)∘j` etc. via
+  `iterElem_succ`+`opStep`.
+- **Ladder** `Hₙ∘Gₙ=Kₙ` by induction. Step rewrites with **`key`** (`(u∘a∘j)∘(i∘b∘v)=u∘(a∘b)∘v`,
+  using `j∘i=I_{T(D)}`) then functoriality **`hTcomp`** (`T(p)∘T(q)=T(p∘q)`) + IH. Base by
+  `ApproximableMap.ext` + the three `botStrict_rel`s.
+- **`⊔`-decomposition** `*_fix_rel` (`fixElement_eq_iSupDirected`+`mem_iSupDirected`, `toStrictMap_rel`
+  is `Iff.rfl`). Gives **`hgk : h∘g = k`** by diagonalizing the doubly-indexed directed family at
+  `max m n` (monotonicity `H_mono`/`G_mono` from `iterElem_mono`+`toStrictMap_mono`).
+- **`hk_le : k ≤ I_E`** because `I_E` is a fixed point of `Op_k` (`opStep`+`T.map_id`+`u∘v=I`, then
+  `fixElement_le_of_toElementMap_le`).
+- **`hgh_id : g∘h = I_D`** by initiality: `h,g` are `AlgHom`s (`h_comm`/`g_comm` derived from the
+  fixed-point equations `h_fixeq`/`g_fixeq` via `toElementMap_fixElement`), so both `g∘h` and `id`
+  equal `hinit.desc`.
+- **Capstone:** `trianglelefteq_of_projectionPair h g hgh_id (le_of_eq_of_le hgk hk_le)` (Lemma 6.15).
+
+**`⊚`-vs-`.comp` friction (the main time sink, as warned for 6.14):** `opStep`/`homOpComp` produce
+`ApproximableMap.comp`, but the categorical laws (`Iso.hom_inv_id`, `T.map_id`, `T.map_comp`,
+`AlgHom` comm) are stated with `⊚`/`Category.id`. These are *defeq* but `rw` needs syntactic matches.
+Fix: keep everything in `.comp` and make **defeq `.comp`-form copies** of each law up front —
+`hji`/`hvu`/`huv` (iso laws), `hmapid` (`T.map_id`), `hTcomp` (`T.map_comp`). `Iso.hom`/`Dalg.str`
+agree by defeq (lambek's `hom := A.str`), so the `AlgHom` comm fields typecheck without conversion.
+
+**Reusable bits worth remembering:** `opStep` and `botStrict_rel` are general (any `T`, `j`, `k`, `Φ`)
+and would serve any future "run 6.9 and read off the approximant ladder" argument (e.g. Exercises
+6.17–6.19).
