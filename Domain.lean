@@ -108,6 +108,8 @@ import Domain.Neighborhood.Exercise516
 import Domain.Neighborhood.Exercise516ThueMorse
 import Domain.Neighborhood.Exercise516Overlap
 import Domain.Neighborhood.Example61
+import Domain.Neighborhood.Example62
+import Domain.Neighborhood.Example62C
 import Domain.Neighborhood.Definition63
 import Domain.Neighborhood.Proposition66
 import Domain.Neighborhood.Proposition67

@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (`D^§ ≅ D + (D^§×D^§)`), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) COMPLETE**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -24,7 +24,8 @@ Computation* (PRG-19) in:
   complete end-to-end**: the spine (Theorems 4.1/4.2, Examples 4.3/4.4, Definition 4.5 + Theorem 4.6)
   *and* **every §4 exercise (4.7–4.25)** are **Pass**. **Lecture V is now COMPLETE end-to-end**
   (including all of Exercise 5.16's Thue–Morse `t` follow-up — see next section); **Lecture VI's
-  Example 6.1 (the tree algebra `D^§` + the domain equation `D^§ ≅ D + (D^§×D^§)`) and categorical
+  Example 6.1 (the tree algebra `D^§` + the domain equation `D^§ ≅ D + (D^§×D^§)`), Example 6.2
+  (the two concrete equations `B ≅ B + B` and `C ≅ {{Λ}} + C + C`), and categorical
   spine (Defs 6.3–6.5, Props 6.6–6.7) are now Pass**; the rest of VI and VII–VIII are `—`.
   Pages 108–111 were re-OCR'd to fix a page-order scramble
   (Thm 6.14 tail, Lemma 6.15, Thm 6.16, Exercises 6.17–6.20 now in correct order).
@@ -97,7 +98,7 @@ order-injection lemmas; no `ext_of_toElementMap` needed). Scott's `D^§` over a 
   when the goal is `(p,a)∈Gamma D` fails elaboration order (it unifies `?x` from the goal) — bind
   `have h := hP …; exact h` so the membership is elaborated first and `exact` closes by defeq.
 
-**What's NOT done in VI (good stopping point):** Example 6.2 (`B`,`C`,`A` as equation solutions), the
+**What's NOT done in VI (good stopping point):** the
 *initial-algebra/homomorphism* `g : D^§ → E` part of Example 6.1 (the `out`/`proj`/`atom` predecessors
 and the fixed-point `g` — connects `D^§` to the 6.4 `T`-algebra spine, but needs the `cond`-style
 recursion over `D^§`), and everything from Definition 6.8 onward (functors continuous on maps, Theorem
@@ -105,6 +106,48 @@ recursion over `D^§`), and everything from Definition 6.8 onward (functors cont
 existence Theorem 6.14, Lemma 6.15, Theorem 6.16, and Exercises 6.17–6.29) — these need substantial new
 domain-theoretic machinery (continuous functors, the subsystem lattice, projection pairs, and the
 iterated-functor colimit construction).
+
+### Lecture VI — Example 6.2, the concrete domain equations `B ≅ B+B` and `C ≅ {{Λ}}+C+C` (most recent work)
+
+Scott's Example 6.2 exhibits his two running concrete domains as solutions of domain equations. Both
+modules build alone, are **fully choice-free** (`#print axioms` reports `[propext, Quot.sound]` for the
+systems, the order-isos, and the equation theorems), and are imported from `Domain.lean`; the full
+`Domain` build is green.
+
+- **`Example62.lean` — `B ≅ B + B`** (`B` = `ExampleB`, binary streams over `Str = List Bool`).
+  - The single-bit prepend `embBit b X = bX` (`= prepend [b] X`) with its API: `embBit_cone`,
+    `embBit_inter`, `embBit_inter_ne`, `embBit_injective`, `memB_embBit`, and the inversion
+    `memB_embBit_inv` (if `embBit b W ∈ B` then `W ∈ B` — this fixes the type-mismatch when feeding
+    `x.sub` into the sum's `inter_mem`). `B_nonempty` (every `B`-nbhd is non-empty).
+  - The neighbourhood-shape classifier `memB_cases`: any `B`-nbhd is the master `Σ*` (`Set.univ`),
+    `embBit false X`, or `embBit true Y`. This three-way split drives the iso.
+  - `BB := sum B B B_nonempty B_nonempty` (the project's `+`, Ex 3.18, over `Option (Str ⊕ Str)`).
+    Inversions `sum_mem_inj0_inv`/`sum_mem_inj1_inv`/`sum_mem_nonempty`.
+  - The filter maps `toBB : |B| → |BB|` (its `inter_mem` is a 9-case analysis over the three shapes ×
+    three shapes) and `fromBB : |BB| → |B|`, mutual-inverse laws `fromBB_toBB`/`toBB_fromBB`, bundled
+    as `bbEquiv : |B| ≃o |BB|`; capstone `B_domain_equation : B ≅ᴰ BB`.
+- **`Example62C.lean` — `C ≅ {{Λ}} + C + C`** (`C` = `Example44`, finite+infinite binary streams;
+  `{{Λ}} = unitSys`, the one-point domain `𝟙`, Exercise 3.15).
+  - **The genuine three-way separated sum** `sum3 V₀ V₁ V₂ : NeighborhoodSystem (Option (α ⊕ β ⊕ γ))`
+    — built fresh rather than nesting binary `sum`, because `(𝟙 + C) + C` would add a **spurious extra
+    bottom** that breaks the iso (`C` has exactly three atoms above its bottom). Tags `t0`/`t1`/`t2`,
+    injections `j0`/`j1`/`j2`, master `master3`, with the full disjointness/intersection API
+    (`jX_inter_jX`, `jX_inter_jY`, `master3_inter_jX`, `eq_master3_of_subset`, …) and a 16-case
+    `inter_mem`. Inversions `sum3_mem_j1_inv`/`sum3_mem_j2_inv`/`sum3_mem_nonempty`.
+  - `C`-side helpers: `embBit` reused for `C` (`memC_embBit`/`memC_embBit_inv`, `embBit_singleton`),
+    the `{Λ} = {[]}` terminator lemmas (`singleton_nil_inter_embBit`, `singleton_nil_ne_univ`,
+    `singleton_nil_ne_embBit`), `C_nonempty`/`unitSys_nonempty`, and the four-way classifier
+    `memC_cases`: any `C`-nbhd is the master `Σ*` (`Set.univ`), the terminator `{Λ}`, `embBit false X`,
+    or `embBit true Y`.
+  - `CC := sum3 unitSys C C …`; the filter maps `toCC : |C| → |CC|` (the `{Λ}` terminator goes to the
+    unit summand `j0`, `0X`/`1X` to the two `C` copies `j1`/`j2`; `inter_mem` is the 16-case analysis)
+    and `fromCC`, mutual-inverse laws `fromCC_toCC`/`toCC_fromCC`, bundled as `ccEquiv : |C| ≃o |CC|`;
+    capstone `C_domain_equation : C ≅ᴰ CC`. **Pitfall:** `fromCC`'s `sub` field has goal `C.mem univ`,
+    an `Or` (two constructors) — the anonymous `⟨…⟩` constructor fails; write `Or.inl ⟨[], cone_nil.symm⟩`.
+- **Deferred (out of scope for Example 6.2):** the generalization `A ≅ Aⁿ + Aⁿ` (needs `n`-fold
+  products, which the project doesn't yet have), and Scott's parenthetical remark that the
+  eventually-periodic infinite trees correspond to the regular events of automata theory (stated
+  without proof — pure automata theory, orthogonal to domain theory).
 
 ### Lecture V §5 completed (most recent work)
 
@@ -494,7 +537,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**6/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Defs 6.3–6.5, Props 6.6–6.7 — categorical spine**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**7/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`), Defs 6.3–6.5, Props 6.6–6.7 — categorical spine + concrete equations**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
