@@ -17,10 +17,16 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Theorem 6.14 is now COMPLETE** (existence *and* uniqueness/initiality —
-`Theorem614.lean`, see the checkpoint at the end of this file). `key_rho`, the `gₙ=g∘ρₙ` recursion,
-`g`-independence and initiality-among-strict-algebras all build green and choice-free. Pick the next
-unstarted Lecture VI item from `arxiv.md`. **Definition 6.13 is now DONE** (`Definition613.lean`, the
+**Next concrete target:** **Lemma 6.15 is now COMPLETE** (`Lemma615.lean`, the converse of Prop 6.12:
+a projection pair `i,j` with `j∘i=I_D`, `i∘j⊆I_E` between systems over *possibly different* token
+types ⟹ `D ⊴ E`; see the checkpoint at the end of this file). The natural next item is **Theorem
+6.16** (an initial `T`-algebra `D` satisfies `D ⊴ E` for every `E ≅ T(E)`) — it uses Lemma 6.15 plus
+Theorem 6.9 (both homomorphisms `h:D→E`, `g:E→D`; `g∘h=I_D` by initiality; the remaining
+`h∘g⊆I_E` is a `gₙ/hₙ` directed-sup argument à la Theorem 6.14). Or pick another unstarted Lecture VI
+item from `arxiv.md`. **Theorem 6.14 is COMPLETE** (existence *and* uniqueness/initiality —
+`Theorem614.lean`). `key_rho`, the `gₙ=g∘ρₙ` recursion,
+`g`-independence and initiality-among-strict-algebras all build green and choice-free.
+**Definition 6.13 is now DONE** (`Definition613.lean`, the
 functor predicates *monotone on domains* `D◁E ⟹ T(D)◁T(E)` with `i,j` carried to `T(i),T(j)`, and
 *continuous on domains* `λD.T(D)` on `{D∣D◁E}` approximable = preserves directed unions of
 subsystems) — see the checkpoint at the end of this file. **Proposition 6.12 is also DONE**
@@ -622,7 +628,7 @@ The Goal Lists are in `arxiv.md`:
 | ------- | ------- | ---- | ----- | ------------ |
 | IV  | §4.2.IV   | 25 | Fixed points & recursion (**25/25 done — Lecture IV complete**) | 1647–2382 |
 | V   | §4.2.V    | 16 | Typed λ-calculus, λ-definability of partial recursive (**16/16 formalized — Lecture V COMPLETE**, incl. 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2, overlap-freeness) | 2383–3207 |
-| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**13/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains), Thm 6.14 **existence half** (the colimit `𝒟=⋃ₙTⁿ({Γ})`, `T(𝒟)=𝒟`, the algebra, homomorphism existence via 6.9, and the `⋃ₙρₙ=I_𝒟` chain; **uniqueness/initiality still TODO** — the `T(ρₙ)=ρₙ₊₁` HEq lemma) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions + the iterated-functor colimit solution**) | 3208–4188 |
+| VI  | §4.2.VI   | 29 | Domain equations, functors, initial `T`-algebras (**14/29: Example 6.1 (`D^§≅D+(D^§×D^§)`), Example 6.2 (`B≅B+B`, `C≅{{Λ}}+C+C`, the generalization `A≅Aⁿ+Aⁿ`, eventually-periodic ↔ regular), Defs 6.3–6.5, Props 6.6–6.7, Def 6.8 (continuous on maps), Thm 6.9 (homomorphisms out of a fixed point), Def 6.10 (the subsystem relation `D◁E`), Prop 6.11 (the subsystems of `E` form a domain), Prop 6.12 (`D◁E` ⟹ a projection pair `i,j`), Def 6.13 (monotone / continuous on domains), Thm 6.14 **existence half** (the colimit `𝒟=⋃ₙTⁿ({Γ})`, `T(𝒟)=𝒟`, the algebra, homomorphism existence via 6.9, and the `⋃ₙρₙ=I_𝒟` chain; **uniqueness/initiality still TODO** — the `T(ρₙ)=ρₙ₊₁` HEq lemma) — categorical spine + concrete equations + the homomorphism-existence theorem + the subsystem relation + its domain structure + the projection pair + the domain-level functor continuity conditions + the iterated-functor colimit solution + Lemma 6.15 (projection pair ⟹ `D⊴E`, the converse of 6.12)**) | 3208–4188 |
 | VII | §4.2.VII  | 24 | Computability in effectively given domains, power domain | 4189–4728 |
 | VIII| §4.2.VIII | 27 | Retracts of the universal domain `U` | 4729–5336 |
 
@@ -1104,3 +1110,48 @@ comparable in size to Theorem 6.9 itself — budget it as its own work item.
   work at the `⊚`/`Category.assoc` level (object-indexed, concrete), prefer `congrArg`/`calc` term-mode
   proofs (defeq-tolerant), and bind `comp_idMap`/etc. facts via a `have` with the *desired* `colim s`
   type (the `have` unifies by defeq) before rewriting.
+
+---
+
+## Checkpoint — 2026-06-21: **Lemma 6.15 COMPLETE (converse of Prop 6.12)**
+
+`Domain/Neighborhood/Lemma615.lean` formalizes **Lemma 6.15**: a projection pair `i : D → E`,
+`j : E → D` with `j ∘ i = I_D` and `i ∘ j ⊆ I_E` — for `D, E` over **possibly different** token
+types — exhibits `D` as a subdomain of `E`. Capstone
+`trianglelefteq_of_projectionPair (i) (j) (hji : j.comp i = idMap D) (hij : i.comp j ≤ idMap E) :
+D ⊴ E`. Full `lake build Domain` green (3083 jobs, zero `sorry`); **fully choice-free**
+`[propext, Quot.sound]` (audited: `trianglelefteq_of_projectionPair`, `Dprime`, `Dprime_subsystem`,
+`dprimeEquiv`, `Subsystem.trianglelefteq`).
+
+- **`Trianglelefteq` (`⊴`, `infix:50`).** Scott's `D ⊴ E := ∃ D' : NeighborhoodSystem β, D' ◁ E ∧
+  (D ≅ᴰ D')` ("`D ≅ D'` for some `D' ◁ E`"). Note `◁` (Definition 6.10) needs the **same** token
+  type, but `⊴` does not — the witness `D'` lives over `E`'s tokens `β`.
+- **The whole proof is relational** (Definition 2.1 level) — *cleaner than Scott's* filter-by-filter
+  argument. The one idea: the predicate `IsGen i j X Y := i.rel X Y ∧ j.rel Y X` ("`Y` generates
+  `i(↑X)`", i.e. `i(↑X) = ↑Y`). Everything follows from:
+  - **`isGen_exists`** (uses `hji`): every `X ∈ D` has a generator — apply `j∘i = I_D` to the identity
+    relation `X I_D X` (`(j.comp i).rel X X` after `rw [hji]`, then `comp_rel` gives `∃Y, …`).
+  - **`isGen_mono`** (uses `hji`) / **`isGen_mono'`** (uses `hij`): the correspondence is `⊆`-monotone
+    both ways — `Z ⊆ W → X ⊆ X'` (widen `X i Z` to `X i W`, compose with `W j X'`, read off via
+    `j∘i=I_D`) and the dual via `i∘j⊆I_E`. Their two-way use gives uniqueness in each argument
+    (`isGen_fst_unique` needs only `hji`, `isGen_snd_unique` only `hij`).
+  - **`isGen_inter`** (just `mono`/`inter_right` of `i,j`; the `E.mem (Y∩Y')` hypothesis licenses the
+    `j.mono` steps): generators are closed under `∩`, generating `X∩X'`. **`D.mem (X∩X')` is obtained
+    from `j.inter_right` — not from `D`'s own closure** (no need for a `D`-consistency witness).
+- **`Dprime i j`** (`mem Y := ∃ X, IsGen i j X Y`, `master := E.master`): a nbhd system (condition
+  (ii) from `isGen_inter`, deriving `E.mem (Y₁∩Y₂)` from the witness via `E.inter_mem`), with
+  **`Dprime_subsystem : Dprime i j ◁ E`** whose `inter_closed` clause is *literally* `isGen_inter`.
+- **`dprimeEquiv : D.Element ≃o (Dprime i j).Element`** = `toEl x = {Y ∣ ∃ X ∈ x, IsGen X Y}`,
+  `ofEl y = {X ∣ ∃ Y ∈ y, IsGen X Y}`. Filter laws: `up_mem` of `toEl`/`ofEl` is `isGen_mono`/
+  `isGen_mono'` (+`isGen_exists`); inverse laws + `map_rel_iff'` are generator uniqueness +
+  existence. (`map_rel_iff'`: apply the `≤` positionally — the Element-order binder is named `X`, so
+  `h (Y := …)` fails; use `h Y _`.)
+- **`Subsystem.trianglelefteq : D ◁ E → D ⊴ E`** (take `D' = D`) — so together with the capstone,
+  `D ⊴ E ↔ ∃` projection pair `D ⇄ E` (Prop 6.12 ⇆ Lemma 6.15).
+- **Pitfall (re)learned:** a `theorem`/`def` binder list with an **unused implicit** (`{X Y X' Y' :
+  Set α}` when only `X, X'` appear) leaves the spurious metavariable **unsolved** at every call site,
+  surfacing as a stray `⊢ Set α` goal in the *caller*. Trim binders to exactly what the statement
+  mentions.
+- **Next:** **Theorem 6.16** (initial `T`-algebra `D` ⟹ `D ⊴ E` for any `E ≅ T(E)`) is the natural
+  consumer: `h:D→E`, `g:E→D` from Theorem 6.9, `g∘h=I_D` by initiality (Thm 6.14), then `h∘g⊆I_E` via
+  a `gₙ/hₙ` directed-sup argument, and finally `trianglelefteq_of_projectionPair`.
