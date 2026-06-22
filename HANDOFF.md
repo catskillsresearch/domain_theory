@@ -17,8 +17,17 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII** (Defn 7.1 *computable presentation* onward;
-transcribed/inventoried, formalization-deferred). **Exercise 6.29 is COMPLETE** (`Exercise629.lean`,
+**Next concrete target:** **Lecture VII — Definition 7.2** (*computable map* = `REPred` of the
+neighbourhood relation `Xₙ f Yₘ`). **Definition 7.1 is COMPLETE** (`Definition71.lean`, ns
+`Domain.Neighborhood`): `ComputablePresentation V` (enumeration `X:ℕ→Set α` onto 𝒟 + Scott's two
+`ComputablePred` relations interEq/cons), `incl_computable`, `eq_computable`,
+`NeighborhoodSystem.IsEffectivelyGiven`, sanity inhabitant `unitSys_isEffectivelyGiven`. **CHOICE
+NOTE for all of Lecture VII:** the user chose genuine mathlib recursion theory
+(`Computable`/`ComputablePred`/`REPred`), which is *classical at its foundation* (`Computable.const`
+already depends on `Classical.choice`). So every Lecture-VII computability result audits as
+`{propext, Classical.choice, Quot.sound}` — this is **unavoidable & expected**, not a discipline
+slip: the *data* (enumerations, index functions) stays explicit/constructive, only the computability
+*witnesses* are classical. **Exercise 6.29 is COMPLETE** (`Exercise629.lean`,
 ns `Exercise629`): infinitary `∏_i D_i` (`iprod`, cylinders + finite support; headline
 `iprodEquiv : |∏_i D_i| ≃o ∀ i, |D_i|`), `∑_i D_i` (`isum`, separated sum + `isum_trichotomy`),
 `⊕_i D_i` (`ioplus`, coalesced) — these **generalize**; `⊗_i D_i` (`iotimes`) **degenerates** over an
@@ -2091,3 +2100,49 @@ their docstrings and the file header.
 **Next concrete target:** Exercise 6.29 is **COMPLETE**; this finishes Lecture VI's formalization. The
 next frontier is **Lecture VII** (Defn 7.1 *computable presentation* onward), transcribed/inventoried
 but formalization-deferred.
+
+---
+
+## Checkpoint 2026-06-22 — Lecture VII opens: **Definition 7.1 COMPLETE** (`Definition71.lean`)
+
+**Modeling decision (user-chosen).** Lecture VII's "recursive / recursively enumerable" is modeled
+with **genuine mathlib recursion theory**: `ComputablePred` (a predicate with a `Decidable` instance
+whose `decide` is `Computable`) and `REPred` (domain of a `Partrec` function), over the integer
+indices (`ℕ`, `ℕ×ℕ`, `ℕ×ℕ×ℕ` are all `Primcodable`). Imports: `Mathlib.Computability.Partrec` +
+`Mathlib.Computability.RE`.
+
+**CHOICE NOTE (applies to *all* of Lecture VII).** mathlib's recursion theory is **classical at its
+foundation** — `#print axioms Computable.const` already lists `Classical.choice`. Therefore every
+Lecture-VII computability theorem audits as `{propext, Classical.choice, Quot.sound}`. This is
+**unavoidable and expected** under the chosen modeling, *not* a discipline slip: the construction
+*data* (the enumeration `X`, the index functions) is still explicit and constructive; only the
+*computability witnesses* (the `ComputablePred`/`REPred` proofs) are classical. Flag it, don't fight
+it.
+
+**What's in `Definition71.lean`:**
+- `ComputablePresentation V` (structure): `X : ℕ → Set α`, `mem_X : ∀ n, V.mem (X n)`,
+  `surj : V.mem Y → ∃ n, X n = Y`, and Scott's two decidable relations
+  `interEq_computable : ComputablePred (fun (t:ℕ×ℕ×ℕ) => X t.1 ∩ X t.2.1 = X t.2.2)` (7.1(i)) and
+  `cons_computable : ComputablePred (fun (t:ℕ×ℕ) => ∃ k, X k ⊆ X t.1 ∩ X t.2)` (7.1(ii)).
+- `ComputablePresentation.incl_computable` — Scott's biconditional `Xₙ⊆Xₘ ↔ Xₙ∩Xₘ=Xₙ`
+  (`Set.inter_eq_left`); proved by reindexing `(n,m)↦(n,m,n)` into (i) via `ComputablePred.computable_iff`
+  + `Computable.pair/fst/snd`/`Computable.comp`.
+- `ComputablePresentation.eq_computable` — `Xₙ=Xₘ ↔ Xₙ⊆Xₘ ∧ Xₘ⊆Xₙ` (`Set.Subset.antisymm_iff`);
+  decision Bool `cond (f (n,m)) (f (m,n)) false` from `incl_computable`'s `f` (used `show … = ((cond …
+  : Bool) : Prop)` to force the projections to reduce, then `cases`+`simp`).
+- `NeighborhoodSystem.IsEffectivelyGiven V := Nonempty (ComputablePresentation V)`.
+- `unitPresentation : ComputablePresentation unitSys` + `unitSys_isEffectivelyGiven` — the constant
+  enumeration `Xₙ=Δ=univ`; both relations are always-true (`ComputablePred.computable_iff.2 ⟨fun _ =>
+  true, Computable.const true, by funext; simp⟩`).
+
+**Useful mathlib API found.** `ComputablePred` & `REPred` live in `Mathlib.Computability.RE`.
+`ComputablePred.computable_iff : ComputablePred p ↔ ∃ f:α→Bool, Computable f ∧ p = fun a => (f a:Prop)`
+is the workhorse for building derived deciders. `Computable.find` (in RE) turns a `ComputablePred`
++ totality into a `Computable` `Nat.find` — will be handy for the intersection-index function and
+later constructions. `Computable.fst/snd/pair/comp/cond/const` for index plumbing. The Bool→Prop
+coercion is `(b : Prop) := (b = true)`.
+
+**Next:** Definition 7.2 — a *computable map* `f : 𝒟 → E` is one whose neighbourhood relation
+`Xₙ f Yₘ` is `REPred` in `(n,m)` (r.e., not merely recursive — the `𝒟 = {Δ}` degeneration gives the
+*computable element* notion: `{m | Yₘ ∈ y}` is r.e.). Will need the approximable-map infrastructure
+(`ApproximableMap`) to phrase `Xₙ f Yₘ`.
