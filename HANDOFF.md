@@ -17,14 +17,15 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.23 is IN PROGRESS — Phases 1–3 COMPLETE + Phase 4 partial**
-(`Exercise623.lean`: the concrete solution domain `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))`; the
-strict-map `Category ScottSys` + `Texp` as an `Endofunctor` + the algebra `ExpAlg`; the **evaluation
-homomorphism** `descAlgHom : AlgHom (ExpAlg N hN) B` for every algebra `B` (Scott's `val(s)`,
-existence), built as the Kleene fixed point `⋃ₙ k∘T(·)∘j`; and `descMap_le_algHom` (`val` is the
-**least** homomorphism). **Phase 4 remaining**: the reverse inequality `g ≤ val` (so `g = val` ⟹
-`IsInitial`) via the projection chain `ρₙ` and the crux lemma `GExpr.map ρₙ = ρₙ₊₁` — see the dated
-checkpoint at the very end for the precise roadmap). **Exercise 6.22 is
+**Next concrete target:** **Exercise 6.24** (double fixed point `D ≅ D+(D×E)`, `E ≅ D+E`).
+**Exercise 6.23 is COMPLETE — all four phases** (`Exercise623.lean`: the concrete solution domain
+`Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))`; the strict-map `Category ScottSys` + `Texp` as an
+`Endofunctor` + the algebra `ExpAlg`; the **evaluation homomorphism** `descAlgHom : AlgHom (ExpAlg N
+hN) B` for every algebra `B` (Scott's `val(s)`, existence), built as the Kleene fixed point
+`⋃ₙ k∘T(·)∘j`; and **uniqueness/initiality `ExpInitial : IsInitial (ExpAlg N hN)`** via the projection
+chain `ρₙ = iₙ∘jₙ`, the functor-carries-the-projection-pair crux `GExpr.map_inj/map_proj`, the key
+equation `key_rho : ρₙ₊₁ = i∘T(ρₙ)∘j`, and `g`-independence `gcomp_rho_eq : g∘ρₙ = valₙ` ⟹
+`descMap_eq_algHom`). Choice-free `{propext, Quot.sound}`. **Exercise 6.22 is
 COMPLETE** (`Exercise622.lean`: the three domain equations recognised as `GExpr` fixed points).
 **Exercise 6.21 is COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the
 6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary generalization). Also open:
@@ -1754,3 +1755,40 @@ defeq-but-not-syntactic implicits (the `↑g.hom` vs `g.hom.1` display is a tell
 **term-mode `calc` with `congrArg (fun m => m.comp …)`** and `(comp_assoc _ _ _).symm`, which bridge by
 defeq. (4) `StrictMap`/`isStrict_idMap`/`isStrict_constBot` live in `Exercise510`; `isStrict_comp`/
 `comp_mono_gen` in `Theorem69` — both imported/opened now.
+
+## 2026-06-21 — Exercise 6.23 Phase 4 COMPLETE (`ExpInitial`), green, choice-free
+
+`Exercise623.lean` builds green, **zero `sorry`**, wired in `Domain.lean`. Phase 4 (uniqueness ⟹
+initiality) is done; `#print axioms ExpInitial = {propext, Quot.sound}` (and likewise
+`descMap_eq_algHom`, `key_rho`, `GExpr.map_inj/map_proj`, `iSupRho_eq_id`, `gcomp_rho_eq`, and all 8
+token `*MapTok_inj/proj` lemmas).
+
+What landed (all in the `Uniqueness`/crux sections of `Exercise623.lean`):
+- `Subsystem.inj_isStrict`/`proj_isStrict`/`self_inj`/`self_proj` (Prop 6.12 helpers).
+- The **8 token lemmas** `sum/prod/oplus/otimesMapTok_inj` + `_proj`: the functor's token actions
+  carry Prop-6.12 projection pairs, e.g. `otimesMapTok h0.inj h1.inj = (otimesTok_subsystem h0 h1).inj`.
+- **Crux** `GExpr.map_inj : T.map h.inj = (T.obj_subsystem h).inj` and `GExpr.map_proj` (induction over
+  the 6 constructors; `const/var` immediate, 4 binary cases discharged by the token lemmas).
+- The projection chain `expSub n : (gTower (Texp N) n).sys ◁ (Exp N hN).sys`, `rho n = iₙ.comp jₙ`,
+  `rho_rel`, `rho_mono`, `iSupRho`, **`iSupRho_eq_id : ⋃ₙ ρₙ = I_Exp`**, `rho_zero_rel` (`ρ₀ = ⊥`).
+- `map_rho_eq : T(ρₙ) = i'ₙ∘j'ₙ` and **`key_rho : ρₙ₊₁ = expHom∘T(ρₙ)∘expInv`**.
+- `gcomp_rho_zero/_succ/_eq` (`g∘ρₙ = descRel n`, `g`-independent), `descMap_eq_algHom`
+  (`g.hom.1 = descMap`), `algHom_ext`, and **`ExpInitial : IsInitial (ExpAlg N hN)`**.
+
+**Bug fixes this session (the build that was red on resume).** (a) `gTower` takes `(T : GExpr)` then
+`(n : ℕ)` — it does **not** take the `RootedConst` proof; `expSub`/`rho_rel` had a stray
+`(Texp_rooted hN)` arg (`gTower_sub_colim`/`gTower_le`/`gColim_master` *do* take it). (b) `key_rho`:
+chained `rw [comp_rel, comp_rel, …]` is brittle on nested comps — use
+`rw [map_rho_eq]; simp only [comp_rel, rho_rel, expInv_rel, expHom_rel, Subsystem.proj_rel,
+Subsystem.inj_rel, hsyseq]`. (c) the `rw [hcomm]`/`rw [map_comp …]` calc steps: replace with
+term-mode `congrArg (fun m => …) hcomm` / `…map_comp …).symm` (gotcha #3). (d) `descMap_eq_algHom`'s
+final `rw [← comp_idMap, ← iSupRho_eq_id]` failed on `idMap (ExpAlg…).carrier.sys` vs `idMap (Exp…).sys`
+(defeq, not syntactic) — replace with a `calc … := by rw [iSupRho_eq_id hN]; exact (comp_idMap _).symm`
+that closes by **defeq via `exact`**.
+
+**NEW gotcha — `Eq.le` on `Set` drags in `Classical.choice`.** `(h : s = t).le` to get `s ⊆ t`
+silently depends on `Classical.choice` (the `Set` `Preorder`/`le_of_eq` path). This is what made the
+sum/oplus/otimes token lemmas (and everything downstream incl. `ExpInitial`) non-choice-free. **Fix:
+use `(h : s = t).subset`** (`Eq.subset`, choice-free) — or `subset_rfl`. `prodMapTok_*` was already
+clean precisely because it had no master case and never used `.le`. Bisect choice provenance with
+`#print axioms` + temporarily `sorry`-ing branches (setup vs. branch bodies).

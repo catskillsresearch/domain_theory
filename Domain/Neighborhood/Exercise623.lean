@@ -507,6 +507,530 @@ theorem descMap_le_algHom (g : AlgHom (ExpAlg N hN) B) : descMap hN B ≤ g.hom.
 
 end Existence
 
+/-! ## Phase 4 — uniqueness of `val(s)` and initiality of `Exp`
+
+Scott proves homomorphisms out of the iterated colimit are unique by showing they are *determined on
+the finite elements*: the projection chain `ρₙ = iₙ ∘ jₙ` (Proposition 6.12's pair for
+`Texpⁿ({Γ}) ◁ Exp`) satisfies `T(ρₙ) = ρₙ₊₁` and `⋃ₙ ρₙ = I_Exp`, so any homomorphism `g` equals
+`⋃ₙ g ∘ ρₙ`, a sequence that is forced by the recursion (independent of `g`). The crux is the
+*concrete* "monotone on domains" content (Definition 6.13): the functor `Texp` carries the canonical
+6.12 projection pair of `D ◁ E` to that of `T(D) ◁ T(E)` — here a genuine **equality** of maps over
+`Str` (no `HEq` carrier transport, the whole point of staying in `ScottSys`).
+
+This section establishes that crux as `GExpr.map_inj`/`GExpr.map_proj` (by induction over the six
+functor constructors), then mirrors Theorem 6.14's uniqueness argument concretely. -/
+
+/-! ### Proposition 6.12 helpers: the projection pair is strict, and trivial on `D ◁ D` -/
+
+/-- The injection `i : D → E` of a subsystem is **strict**: `i` sends `Δ_D` only to `Δ_E`. -/
+theorem Subsystem.inj_isStrict {α : Type*} {D E : NeighborhoodSystem α} (h : D ◁ E) :
+    IsStrict h.inj := by
+  intro Y hrel
+  rw [Subsystem.inj_rel] at hrel
+  obtain ⟨_, hYE, hsub⟩ := hrel
+  exact Set.Subset.antisymm (E.sub_master hYE) (by rw [← h.master_eq]; exact hsub)
+
+/-- The projection `j : E → D` of a subsystem is **strict**. -/
+theorem Subsystem.proj_isStrict {α : Type*} {D E : NeighborhoodSystem α} (h : D ◁ E) :
+    IsStrict h.proj := by
+  intro X hrel
+  rw [Subsystem.proj_rel] at hrel
+  obtain ⟨_, hXD, hsub⟩ := hrel
+  exact Set.Subset.antisymm (D.sub_master hXD) (by rw [h.master_eq]; exact hsub)
+
+/-- On `D ◁ D` (e.g. `Subsystem.refl`), the injection is the identity (both relations are
+`X ∈ D ∧ Y ∈ D ∧ X ⊆ Y`). -/
+theorem Subsystem.self_inj {α : Type*} {D : NeighborhoodSystem α} (h : D ◁ D) :
+    h.inj = idMap D := by
+  apply ApproximableMap.ext
+  intro X Y
+  rw [Subsystem.inj_rel, idMap_rel]
+
+/-- On `D ◁ D`, the projection is the identity. -/
+theorem Subsystem.self_proj {α : Type*} {D : NeighborhoodSystem α} (h : D ◁ D) :
+    h.proj = idMap D := by
+  apply ApproximableMap.ext
+  intro X Y
+  rw [Subsystem.proj_rel, idMap_rel]
+
+/-! ### The functor carries projection pairs: the token-level lemmas -/
+
+variable {A₀ A₁ B₀ B₁ : ScottSys}
+
+/-- **Sum carries the injection.** `(i₀ + i₁) = i` for the sum subsystem: both relate `W ↦ W'` iff
+`W ∈ 𝒟₀+𝒟₁`, `W' ∈ ℰ₀+ℰ₁`, `W ⊆ W'`. -/
+theorem sumMapTok_inj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    sumMapTok h0.inj h1.inj = (sumTok_subsystem h0 h1).inj := by
+  have hsubM : ∀ {W : Set Str}, (A₀.sum A₁).sys.mem W → W ⊆ sumTokMaster B₀.sys B₁.sys := by
+    rintro W (rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩)
+    · exact (show sumTokMaster A₀.sys A₁.sys = sumTokMaster B₀.sys B₁.sys by
+        unfold sumTokMaster; rw [h0.master_eq, h1.master_eq]).subset
+    · exact embF_subset_sumTokMaster (h0.sub hX)
+    · exact embT_subset_sumTokMaster (h1.sub hY)
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.inj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ | ⟨X, X', ⟨hX, hX', hXsub⟩, rfl, rfl⟩ | ⟨Y, Y', ⟨hY, hY', hYsub⟩, rfl, rfl⟩)
+    · exact ⟨hW, (B₀.sum B₁).sys.master_mem, hsubM hW⟩
+    · exact ⟨Or.inr (Or.inl ⟨X, hX, rfl⟩), Or.inr (Or.inl ⟨X', hX', rfl⟩), embBit_subset.mpr hXsub⟩
+    · exact ⟨Or.inr (Or.inr ⟨Y, hY, rfl⟩), Or.inr (Or.inr ⟨Y', hY', rfl⟩), embBit_subset.mpr hYsub⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', hX', rfl⟩ | ⟨Y', hY', rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact Or.inr (Or.inl ⟨X, X', ⟨hX, hX', embBit_subset.mp hsub⟩, rfl, rfl⟩)
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (A₁.ne Y hY) h)
+    · rcases hW with rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (A₀.ne X hX) h)
+      · exact Or.inr (Or.inr ⟨Y, Y', ⟨hY, hY', embBit_subset.mp hsub⟩, rfl, rfl⟩)
+
+/-- **Sum carries the projection.** -/
+theorem sumMapTok_proj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    sumMapTok h0.proj h1.proj = (sumTok_subsystem h0 h1).proj := by
+  have hsubM : ∀ {W : Set Str}, (B₀.sum B₁).sys.mem W → W ⊆ sumTokMaster A₀.sys A₁.sys := by
+    rintro W (rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩)
+    · exact (show sumTokMaster B₀.sys B₁.sys = sumTokMaster A₀.sys A₁.sys by
+        unfold sumTokMaster; rw [h0.master_eq, h1.master_eq]).subset
+    · exact (embBit_subset.mpr (by rw [h0.master_eq]; exact B₀.sys.sub_master hX)).trans
+        (embF_subset_sumTokMaster A₀.sys.master_mem)
+    · exact (embBit_subset.mpr (by rw [h1.master_eq]; exact B₁.sys.sub_master hY)).trans
+        (embT_subset_sumTokMaster A₁.sys.master_mem)
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.proj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ | ⟨X, X', ⟨hX, hX', hXsub⟩, rfl, rfl⟩ | ⟨Y, Y', ⟨hY, hY', hYsub⟩, rfl, rfl⟩)
+    · exact ⟨hW, (A₀.sum A₁).sys.master_mem, hsubM hW⟩
+    · exact ⟨Or.inr (Or.inl ⟨X, hX, rfl⟩), Or.inr (Or.inl ⟨X', hX', rfl⟩), embBit_subset.mpr hXsub⟩
+    · exact ⟨Or.inr (Or.inr ⟨Y, hY, rfl⟩), Or.inr (Or.inr ⟨Y', hY', rfl⟩), embBit_subset.mpr hYsub⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', hX', rfl⟩ | ⟨Y', hY', rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact Or.inr (Or.inl ⟨X, X', ⟨hX, hX', embBit_subset.mp hsub⟩, rfl, rfl⟩)
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (B₁.ne Y hY) h)
+    · rcases hW with rfl | ⟨X, hX, rfl⟩ | ⟨Y, hY, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (B₀.ne X hX) h)
+      · exact Or.inr (Or.inr ⟨Y, Y', ⟨hY, hY', embBit_subset.mp hsub⟩, rfl, rfl⟩)
+
+/-- **Product carries the injection.** -/
+theorem prodMapTok_inj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    prodMapTok h0.inj h1.inj = (prodTok_subsystem h0 h1).inj := by
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.inj_rel]
+  constructor
+  · rintro ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, rfl, rfl⟩
+    exact ⟨prodTok_mem_prodTokNbhd hX hY, prodTok_mem_prodTokNbhd hX' hY',
+      prodTokNbhd_subset_iff.mpr ⟨hXs, hYs⟩⟩
+  · rintro ⟨⟨X, Y, hX, hY, rfl⟩, ⟨X', Y', hX', hY', rfl⟩, hsub⟩
+    obtain ⟨hXs, hYs⟩ := prodTokNbhd_subset_iff.mp hsub
+    exact ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, rfl, rfl⟩
+
+/-- **Product carries the projection.** -/
+theorem prodMapTok_proj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    prodMapTok h0.proj h1.proj = (prodTok_subsystem h0 h1).proj := by
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.proj_rel]
+  constructor
+  · rintro ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, rfl, rfl⟩
+    exact ⟨prodTok_mem_prodTokNbhd hX hY, prodTok_mem_prodTokNbhd hX' hY',
+      prodTokNbhd_subset_iff.mpr ⟨hXs, hYs⟩⟩
+  · rintro ⟨⟨X, Y, hX, hY, rfl⟩, ⟨X', Y', hX', hY', rfl⟩, hsub⟩
+    obtain ⟨hXs, hYs⟩ := prodTokNbhd_subset_iff.mp hsub
+    exact ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, rfl, rfl⟩
+
+/-- **Coalesced sum carries the injection.** -/
+theorem oplusMapTok_inj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    oplusMapTok h0.inj h1.inj = (oplusTok_subsystem h0 h1).inj := by
+  have hsubM : ∀ {W : Set Str}, (A₀.oplus A₁).sys.mem W → W ⊆ sumTokMaster B₀.sys B₁.sys := by
+    rintro W (rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩)
+    · exact (show sumTokMaster A₀.sys A₁.sys = sumTokMaster B₀.sys B₁.sys by
+        unfold sumTokMaster; rw [h0.master_eq, h1.master_eq]).subset
+    · exact embF_subset_sumTokMaster (h0.sub hX)
+    · exact embT_subset_sumTokMaster (h1.sub hY)
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.inj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ | ⟨X, X', ⟨hX, hX', hXs⟩, hXne, hX'ne, rfl, rfl⟩ |
+      ⟨Y, Y', ⟨hY, hY', hYs⟩, hYne, hY'ne, rfl, rfl⟩)
+    · exact ⟨hW, (B₀.oplus B₁).sys.master_mem, hsubM hW⟩
+    · exact ⟨Or.inr (Or.inl ⟨X, hX, hXne, rfl⟩), Or.inr (Or.inl ⟨X', hX', hX'ne, rfl⟩),
+        embBit_subset.mpr hXs⟩
+    · exact ⟨Or.inr (Or.inr ⟨Y, hY, hYne, rfl⟩), Or.inr (Or.inr ⟨Y', hY', hY'ne, rfl⟩),
+        embBit_subset.mpr hYs⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', hX', hX'ne, rfl⟩ | ⟨Y', hY', hY'ne, rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact Or.inr (Or.inl ⟨X, X', ⟨hX, hX', embBit_subset.mp hsub⟩, hXne, hX'ne, rfl, rfl⟩)
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (A₁.ne Y hY) h)
+    · rcases hW with rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (A₀.ne X hX) h)
+      · exact Or.inr (Or.inr ⟨Y, Y', ⟨hY, hY', embBit_subset.mp hsub⟩, hYne, hY'ne, rfl, rfl⟩)
+
+/-- **Coalesced sum carries the projection.** -/
+theorem oplusMapTok_proj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    oplusMapTok h0.proj h1.proj = (oplusTok_subsystem h0 h1).proj := by
+  have hsubM : ∀ {W : Set Str}, (B₀.oplus B₁).sys.mem W → W ⊆ sumTokMaster A₀.sys A₁.sys := by
+    rintro W (rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩)
+    · exact (show sumTokMaster B₀.sys B₁.sys = sumTokMaster A₀.sys A₁.sys by
+        unfold sumTokMaster; rw [h0.master_eq, h1.master_eq]).subset
+    · exact (embBit_subset.mpr (by rw [h0.master_eq]; exact B₀.sys.sub_master hX)).trans
+        (embF_subset_sumTokMaster A₀.sys.master_mem)
+    · exact (embBit_subset.mpr (by rw [h1.master_eq]; exact B₁.sys.sub_master hY)).trans
+        (embT_subset_sumTokMaster A₁.sys.master_mem)
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.proj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ | ⟨X, X', ⟨hX, hX', hXs⟩, hXne, hX'ne, rfl, rfl⟩ |
+      ⟨Y, Y', ⟨hY, hY', hYs⟩, hYne, hY'ne, rfl, rfl⟩)
+    · exact ⟨hW, (A₀.oplus A₁).sys.master_mem, hsubM hW⟩
+    · exact ⟨Or.inr (Or.inl ⟨X, hX, hXne, rfl⟩), Or.inr (Or.inl ⟨X', hX', hX'ne, rfl⟩),
+        embBit_subset.mpr hXs⟩
+    · exact ⟨Or.inr (Or.inr ⟨Y, hY, hYne, rfl⟩), Or.inr (Or.inr ⟨Y', hY', hY'ne, rfl⟩),
+        embBit_subset.mpr hYs⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', hX', hX'ne, rfl⟩ | ⟨Y', hY', hY'ne, rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact Or.inr (Or.inl ⟨X, X', ⟨hX, hX', embBit_subset.mp hsub⟩, hXne, hX'ne, rfl, rfl⟩)
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (B₁.ne Y hY) h)
+    · rcases hW with rfl | ⟨X, hX, hXne, rfl⟩ | ⟨Y, hY, hYne, rfl⟩
+      · exact absurd (hsub nil_mem_sumTokMaster) nil_not_mem_embBit
+      · exact absurd hsub (fun h => embBit_not_subset_cross (by decide) (B₀.ne X hX) h)
+      · exact Or.inr (Or.inr ⟨Y, Y', ⟨hY, hY', embBit_subset.mp hsub⟩, hYne, hY'ne, rfl, rfl⟩)
+
+/-- **Smash product carries the injection.** -/
+theorem otimesMapTok_inj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    otimesMapTok h0.inj h1.inj = (otimesTok_subsystem h0 h1).inj := by
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.inj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ |
+      ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, hXne, hYne, hX'ne, hY'ne, rfl, rfl⟩)
+    · refine ⟨hW, (B₀.otimes B₁).sys.master_mem, ?_⟩
+      rcases hW with rfl | ⟨P, Q, hP, hQ, hPne, hQne, rfl⟩
+      · exact (show prodTokNbhd A₀.sys.master A₁.sys.master
+            = prodTokNbhd B₀.sys.master B₁.sys.master by rw [h0.master_eq, h1.master_eq]).subset
+      · exact prodTokNbhd_subset_iff.mpr ⟨B₀.sys.sub_master (h0.sub hP),
+          B₁.sys.sub_master (h1.sub hQ)⟩
+    · exact ⟨Or.inr ⟨X, Y, hX, hY, hXne, hYne, rfl⟩, Or.inr ⟨X', Y', hX', hY', hX'ne, hY'ne, rfl⟩,
+        prodTokNbhd_subset_iff.mpr ⟨hXs, hYs⟩⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', Y', hX', hY', hX'ne, hY'ne, rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, Y, hX, hY, hXne, hYne, rfl⟩
+      · obtain ⟨hsX, _⟩ := prodTokNbhd_subset_iff.mp hsub
+        exact absurd (Set.Subset.antisymm (B₀.sys.sub_master hX')
+          (by rw [← h0.master_eq]; exact hsX)) hX'ne
+      · obtain ⟨hXs, hYs⟩ := prodTokNbhd_subset_iff.mp hsub
+        exact Or.inr ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩,
+          hXne, hYne, hX'ne, hY'ne, rfl, rfl⟩
+
+/-- **Smash product carries the projection.** -/
+theorem otimesMapTok_proj (h0 : A₀.sys ◁ B₀.sys) (h1 : A₁.sys ◁ B₁.sys) :
+    otimesMapTok h0.proj h1.proj = (otimesTok_subsystem h0 h1).proj := by
+  apply ApproximableMap.ext
+  intro W W'
+  rw [Subsystem.proj_rel]
+  constructor
+  · rintro (⟨hW, rfl⟩ |
+      ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩, hXne, hYne, hX'ne, hY'ne, rfl, rfl⟩)
+    · refine ⟨hW, (A₀.otimes A₁).sys.master_mem, ?_⟩
+      rcases hW with rfl | ⟨P, Q, hP, hQ, hPne, hQne, rfl⟩
+      · exact (show prodTokNbhd B₀.sys.master B₁.sys.master
+            = prodTokNbhd A₀.sys.master A₁.sys.master by rw [h0.master_eq, h1.master_eq]).subset
+      · exact prodTokNbhd_subset_iff.mpr ⟨by rw [h0.master_eq]; exact B₀.sys.sub_master hP,
+          by rw [h1.master_eq]; exact B₁.sys.sub_master hQ⟩
+    · exact ⟨Or.inr ⟨X, Y, hX, hY, hXne, hYne, rfl⟩, Or.inr ⟨X', Y', hX', hY', hX'ne, hY'ne, rfl⟩,
+        prodTokNbhd_subset_iff.mpr ⟨hXs, hYs⟩⟩
+  · rintro ⟨hW, hW', hsub⟩
+    rcases hW' with rfl | ⟨X', Y', hX', hY', hX'ne, hY'ne, rfl⟩
+    · exact Or.inl ⟨hW, rfl⟩
+    · rcases hW with rfl | ⟨X, Y, hX, hY, hXne, hYne, rfl⟩
+      · obtain ⟨hsX, _⟩ := prodTokNbhd_subset_iff.mp hsub
+        exact absurd (Set.Subset.antisymm (A₀.sys.sub_master hX')
+          (by rw [h0.master_eq]; exact hsX)) hX'ne
+      · obtain ⟨hXs, hYs⟩ := prodTokNbhd_subset_iff.mp hsub
+        exact Or.inr ⟨X, Y, X', Y', ⟨hX, hX', hXs⟩, ⟨hY, hY', hYs⟩,
+          hXne, hYne, hX'ne, hY'ne, rfl, rfl⟩
+
+/-! ### The crux (Definition 6.13, concrete): `T` carries the 6.12 projection pair
+
+This is the *monotone on domains* content of Definition 6.13, but here a genuine **equality** of maps
+over the single token type `Str` (no `HEq` carrier transport): the functor `T = GExpr` sends the
+injection/projection of `D ◁ E` to the injection/projection of `T(D) ◁ T(E)`. Proved by induction
+over the six constructors using the token-level lemmas just established. -/
+
+/-- **`T(i) = i'`** — the functor carries the injection of `D ◁ E` to that of `T(D) ◁ T(E)`. -/
+theorem GExpr.map_inj : (T : GExpr) → {X Y : ScottSys} → (h : X.sys ◁ Y.sys) →
+    T.map h.inj = (T.obj_subsystem h).inj
+  | .const D, _, _, _ => (Subsystem.self_inj (Subsystem.refl D.sys)).symm
+  | .var, _, _, _ => rfl
+  | .sum a b, _, _, h => by
+      show sumMapTok (a.map h.inj) (b.map h.inj)
+          = (sumTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).inj
+      rw [a.map_inj h, b.map_inj h, sumMapTok_inj]
+  | .prod a b, _, _, h => by
+      show prodMapTok (a.map h.inj) (b.map h.inj)
+          = (prodTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).inj
+      rw [a.map_inj h, b.map_inj h, prodMapTok_inj]
+  | .oplus a b, _, _, h => by
+      show oplusMapTok (a.map h.inj) (b.map h.inj)
+          = (oplusTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).inj
+      rw [a.map_inj h, b.map_inj h, oplusMapTok_inj]
+  | .otimes a b, _, _, h => by
+      show otimesMapTok (a.map h.inj) (b.map h.inj)
+          = (otimesTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).inj
+      rw [a.map_inj h, b.map_inj h, otimesMapTok_inj]
+
+/-- **`T(j) = j'`** — the functor carries the projection of `D ◁ E` to that of `T(D) ◁ T(E)`. -/
+theorem GExpr.map_proj : (T : GExpr) → {X Y : ScottSys} → (h : X.sys ◁ Y.sys) →
+    T.map h.proj = (T.obj_subsystem h).proj
+  | .const D, _, _, _ => (Subsystem.self_proj (Subsystem.refl D.sys)).symm
+  | .var, _, _, _ => rfl
+  | .sum a b, _, _, h => by
+      show sumMapTok (a.map h.proj) (b.map h.proj)
+          = (sumTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).proj
+      rw [a.map_proj h, b.map_proj h, sumMapTok_proj]
+  | .prod a b, _, _, h => by
+      show prodMapTok (a.map h.proj) (b.map h.proj)
+          = (prodTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).proj
+      rw [a.map_proj h, b.map_proj h, prodMapTok_proj]
+  | .oplus a b, _, _, h => by
+      show oplusMapTok (a.map h.proj) (b.map h.proj)
+          = (oplusTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).proj
+      rw [a.map_proj h, b.map_proj h, oplusMapTok_proj]
+  | .otimes a b, _, _, h => by
+      show otimesMapTok (a.map h.proj) (b.map h.proj)
+          = (otimesTok_subsystem (a.obj_subsystem h) (b.obj_subsystem h)).proj
+      rw [a.map_proj h, b.map_proj h, otimesMapTok_proj]
+
+/-! ### The identity structure isomorphism, relationally -/
+
+/-- The forward map of the identity iso `isoOfObjEq e` is the inclusion `X ↪ Y` (= `idMap` across the
+object equality `e`). -/
+theorem isoOfObjEq_hom_rel {X Y : ScottSys} (e : X = Y) {A E : Set Str} :
+    ((isoOfObjEq e).hom).1.rel A E ↔ X.sys.mem A ∧ Y.sys.mem E ∧ A ⊆ E := by
+  cases e; exact idMap_rel
+
+/-- The inverse map of the identity iso `isoOfObjEq e`. -/
+theorem isoOfObjEq_inv_rel {X Y : ScottSys} (e : X = Y) {A E : Set Str} :
+    ((isoOfObjEq e).inv).1.rel A E ↔ Y.sys.mem A ∧ X.sys.mem E ∧ A ⊆ E := by
+  cases e; exact idMap_rel
+
+/-- **Relational description of the structure map `i = expHom`** (the identity `T(Exp) = Exp`). -/
+theorem expHom_rel {N : ScottSys} (hN : ([] : Str) ∈ N.sys.master) {A E : Set Str} :
+    (expHom N hN).rel A E ↔
+      ((Texp N).obj (Exp N hN)).sys.mem A ∧ (Exp N hN).sys.mem E ∧ A ⊆ E :=
+  isoOfObjEq_hom_rel (Exp_structure_eq N hN)
+
+/-- **Relational description of the inverse structure map `j = expInv`**. -/
+theorem expInv_rel {N : ScottSys} (hN : ([] : Str) ∈ N.sys.master) {A E : Set Str} :
+    (expInv N hN).rel A E ↔
+      (Exp N hN).sys.mem A ∧ ((Texp N).obj (Exp N hN)).sys.mem E ∧ A ⊆ E :=
+  isoOfObjEq_inv_rel (Exp_structure_eq N hN)
+
+/-! ### The projection chain `ρₙ = iₙ ∘ jₙ` and `⋃ₙ ρₙ = I_Exp` -/
+
+section Uniqueness
+
+variable {N : ScottSys} (hN : ([] : Str) ∈ N.sys.master)
+
+/-- The subdomain `Texpⁿ({Γ}) ◁ Exp` (Proposition 6.12's pair lives here). -/
+def expSub (n : ℕ) : (gTower (Texp N) n).sys ◁ (Exp N hN).sys :=
+  gTower_sub_colim (Texp N) (Texp_rooted hN) n
+
+/-- **`ρₙ = iₙ ∘ jₙ : Exp → Exp`**, the retraction onto `Texpⁿ({Γ})`. -/
+def rho (n : ℕ) : ApproximableMap (Exp N hN).sys (Exp N hN).sys :=
+  (expSub hN n).inj.comp (expSub hN n).proj
+
+/-- Scott's relational description `A ρₙ E ↔ ∃ z ∈ Texpⁿ({Γ}), A ⊆ z ⊆ E`. -/
+theorem rho_rel (n : ℕ) {A E : Set Str} :
+    (rho hN n).rel A E ↔ (Exp N hN).sys.mem A ∧ (Exp N hN).sys.mem E ∧
+      ∃ z, (gTower (Texp N) n).sys.mem z ∧ A ⊆ z ∧ z ⊆ E := by
+  unfold rho
+  rw [comp_rel]
+  constructor
+  · rintro ⟨z, hproj, hinj⟩
+    rw [Subsystem.proj_rel] at hproj
+    rw [Subsystem.inj_rel] at hinj
+    obtain ⟨hcA, hTz, hAz⟩ := hproj
+    obtain ⟨_, hcE, hzE⟩ := hinj
+    exact ⟨hcA, hcE, z, hTz, hAz, hzE⟩
+  · rintro ⟨hcA, hcE, z, hTz, hAz, hzE⟩
+    exact ⟨z, by rw [Subsystem.proj_rel]; exact ⟨hcA, hTz, hAz⟩,
+      by rw [Subsystem.inj_rel]; exact ⟨hTz, hcE, hzE⟩⟩
+
+/-- `ρₙ ⊆ ρₘ` for `n ≤ m`. -/
+theorem rho_mono {n m : ℕ} (h : n ≤ m) {A E : Set Str} (hr : (rho hN n).rel A E) :
+    (rho hN m).rel A E := by
+  rw [rho_rel] at hr ⊢
+  obtain ⟨hcA, hcE, z, hTz, hAz, hzE⟩ := hr
+  exact ⟨hcA, hcE, z, (gTower_le (Texp N) (Texp_rooted hN) h).sub hTz, hAz, hzE⟩
+
+/-- The pointwise union `⋃ₙ ρₙ`. -/
+def iSupRho : ApproximableMap (Exp N hN).sys (Exp N hN).sys :=
+  iSupMap (rho hN) (fun i j => ⟨max i j,
+    fun _ _ h => rho_mono hN (le_max_left i j) h,
+    fun _ _ h => rho_mono hN (le_max_right i j) h⟩)
+
+/-- **`⋃ₙ ρₙ = I_Exp`** (Scott's key identity). -/
+theorem iSupRho_eq_id : iSupRho hN = idMap (Exp N hN).sys := by
+  apply ApproximableMap.ext
+  intro A E
+  rw [idMap_rel]
+  constructor
+  · rintro ⟨n, hr⟩
+    rw [rho_rel] at hr
+    obtain ⟨hcA, hcE, z, _, hAz, hzE⟩ := hr
+    exact ⟨hcA, hcE, hAz.trans hzE⟩
+  · rintro ⟨hcA, hcE, hAE⟩
+    obtain ⟨n, hA⟩ := hcA
+    exact ⟨n, (rho_rel hN n).mpr ⟨⟨n, hA⟩, hcE, A, hA, subset_rfl, hAE⟩⟩
+
+/-- **`ρ₀ = ⊥`** (the generator `{Γ}` is one-point): `ρ₀` relates `A` only to the master. -/
+theorem rho_zero_rel {A E : Set Str} :
+    (rho hN 0).rel A E ↔ (Exp N hN).sys.mem A ∧ E = (Exp N hN).sys.master := by
+  rw [rho_rel]
+  constructor
+  · rintro ⟨hcA, hcE, z, hz, _, hzE⟩
+    have hzm : z = (Exp N hN).sys.master :=
+      (hz : z = gFix (Texp N)).trans (gColim_master (Texp N) (Texp_rooted hN)).symm
+    subst hzm
+    exact ⟨hcA, Set.Subset.antisymm ((Exp N hN).sys.sub_master hcE) hzE⟩
+  · rintro ⟨hcA, rfl⟩
+    exact ⟨hcA, (Exp N hN).sys.master_mem, (Exp N hN).sys.master,
+      gColim_master (Texp N) (Texp_rooted hN), (Exp N hN).sys.sub_master hcA, subset_rfl⟩
+
+/-! ### The crux equation `ρₙ₊₁ = i ∘ T(ρₙ) ∘ j` -/
+
+/-- `T(ρₙ) = T(iₙ) ∘ T(jₙ) = i'ₙ ∘ j'ₙ`, the projection pair of `T(Texpⁿ{Γ}) ◁ T(Exp)`. -/
+theorem map_rho_eq (n : ℕ) :
+    (Texp N).map (rho hN n)
+      = ((Texp N).obj_subsystem (expSub hN n)).inj.comp
+        ((Texp N).obj_subsystem (expSub hN n)).proj := by
+  unfold rho
+  rw [(Texp N).map_comp (expSub hN n).proj (Subsystem.inj_isStrict (expSub hN n)),
+      (Texp N).map_inj, (Texp N).map_proj]
+
+/-- **`ρₙ₊₁ = i ∘ T(ρₙ) ∘ j`** (Scott's `T(ρₙ) = ρₙ₊₁`, conjugated by the structure iso). -/
+theorem key_rho (n : ℕ) :
+    rho hN (n + 1)
+      = (expHom N hN).comp (((Texp N).map (rho hN n)).comp (expInv N hN)) := by
+  have hsyseq : ((Texp N).obj (Exp N hN)).sys = (Exp N hN).sys :=
+    gColim_obj_sys_eq (Texp N) (Texp_rooted hN)
+  apply ApproximableMap.ext
+  intro A E
+  rw [map_rho_eq]
+  simp only [comp_rel, rho_rel, expInv_rel, expHom_rel, Subsystem.proj_rel,
+    Subsystem.inj_rel, hsyseq]
+  constructor
+  · rintro ⟨hcA, hcE, z, hTz, hAz, hzE⟩
+    exact ⟨E, ⟨A, ⟨hcA, hcA, subset_rfl⟩, z, ⟨hcA, hTz, hAz⟩, hTz, hcE, hzE⟩,
+      hcE, hcE, subset_rfl⟩
+  · rintro ⟨Y, ⟨C, ⟨hcA, _, hAC⟩, z, ⟨_, hTz, hCz⟩, _, _, hzY⟩, _, hcE, hYE⟩
+    exact ⟨hcA, hcE, z, hTz, hAC.trans hCz, hzY.trans hYE⟩
+
+/-! ### `g`-independence of `g ∘ ρₙ` and uniqueness -/
+
+variable (B : TAlgebra (TexpF N))
+
+/-- The base of the recursion: `g ∘ ρ₀ = ⊥ = val₀`, independent of `g`. -/
+theorem gcomp_rho_zero (g : AlgHom (ExpAlg N hN) B) :
+    g.hom.1.comp (rho hN 0) = descRel hN B 0 := by
+  apply ApproximableMap.ext
+  intro A Z
+  rw [comp_rel]
+  constructor
+  · rintro ⟨E, hrho, hg⟩
+    rw [rho_zero_rel] at hrho
+    obtain ⟨hcA, rfl⟩ := hrho
+    have hZ : Z = B.carrier.sys.master := g.hom.2 hg
+    exact ⟨hcA, by rw [NeighborhoodSystem.mem_bot]; exact hZ⟩
+  · rintro ⟨hcA, hZ⟩
+    rw [NeighborhoodSystem.mem_bot] at hZ
+    subst hZ
+    exact ⟨(Exp N hN).sys.master, (rho_zero_rel hN).mpr ⟨hcA, rfl⟩, g.hom.1.master_rel⟩
+
+/-- **The fixed-point recursion `gₙ₊₁ = k ∘ T(gₙ) ∘ j`** (`key_rho` + the homomorphism square). -/
+theorem gcomp_rho_succ (g : AlgHom (ExpAlg N hN) B) (n : ℕ) :
+    g.hom.1.comp (rho hN (n + 1))
+      = (algStr B).comp (((Texp N).map (g.hom.1.comp (rho hN n))).comp (expInv N hN)) := by
+  have hcomm : (g.hom.1).comp (expHom N hN) = (algStr B).comp ((Texp N).map g.hom.1) :=
+    congrArg Subtype.val g.comm
+  calc g.hom.1.comp (rho hN (n + 1))
+      = g.hom.1.comp ((expHom N hN).comp
+          (((Texp N).map (rho hN n)).comp (expInv N hN))) := by rw [key_rho]
+    _ = (g.hom.1.comp (expHom N hN)).comp
+          (((Texp N).map (rho hN n)).comp (expInv N hN)) :=
+        (comp_assoc _ _ _).symm
+    _ = ((algStr B).comp ((Texp N).map g.hom.1)).comp
+          (((Texp N).map (rho hN n)).comp (expInv N hN)) :=
+        congrArg (fun m => m.comp (((Texp N).map (rho hN n)).comp (expInv N hN))) hcomm
+    _ = (algStr B).comp (((Texp N).map g.hom.1).comp
+          (((Texp N).map (rho hN n)).comp (expInv N hN))) := comp_assoc _ _ _
+    _ = (algStr B).comp ((((Texp N).map g.hom.1).comp ((Texp N).map (rho hN n))).comp
+          (expInv N hN)) :=
+        congrArg ((algStr B).comp ·)
+          (comp_assoc ((Texp N).map g.hom.1) ((Texp N).map (rho hN n)) (expInv N hN)).symm
+    _ = (algStr B).comp (((Texp N).map (g.hom.1.comp (rho hN n))).comp (expInv N hN)) :=
+        congrArg (fun m => (algStr B).comp (m.comp (expInv N hN)))
+          ((Texp N).map_comp (rho hN n) g.hom.2).symm
+
+/-- **`g ∘ ρₙ = val₀ₙ`**: every homomorphism `g` agrees with the canonical Kleene iterate after the
+`n`-th projection — the sequence is forced by the recursion, independent of `g`. -/
+theorem gcomp_rho_eq (g : AlgHom (ExpAlg N hN) B) :
+    ∀ n, g.hom.1.comp (rho hN n) = descRel hN B n
+  | 0 => gcomp_rho_zero hN B g
+  | n + 1 => by rw [gcomp_rho_succ hN B g n, gcomp_rho_eq g n, ← descRel_succ]
+
+/-- **The underlying map of any homomorphism `g : Exp → D` is `val = descMap`.** Hence `descAlgHom`
+is the *unique* homomorphism. -/
+theorem descMap_eq_algHom (g : AlgHom (ExpAlg N hN) B) : g.hom.1 = descMap hN B := by
+  have hcomp : g.hom.1.comp (iSupRho hN) = descMap hN B := by
+    apply ApproximableMap.ext
+    intro A E
+    rw [comp_rel, descMap_rel]
+    constructor
+    · rintro ⟨Y, ⟨n, hrho⟩, hg⟩
+      refine ⟨n, ?_⟩
+      rw [← gcomp_rho_eq hN B g n, comp_rel]
+      exact ⟨Y, hrho, hg⟩
+    · rintro ⟨n, hn⟩
+      rw [← gcomp_rho_eq hN B g n, comp_rel] at hn
+      obtain ⟨Y, hrho, hg⟩ := hn
+      exact ⟨Y, ⟨n, hrho⟩, hg⟩
+  calc g.hom.1 = g.hom.1.comp (iSupRho hN) := by
+        rw [iSupRho_eq_id hN]; exact (comp_idMap g.hom.1).symm
+    _ = descMap hN B := hcomp
+
+/-- Two algebra homomorphisms with equal underlying maps are equal. -/
+theorem algHom_ext {A C : TAlgebra (TexpF N)} {g g' : AlgHom A C} (h : g.hom = g'.hom) : g = g' := by
+  cases g; cases g'; cases h; rfl
+
+/-- **Exercise 6.23 (Scott 1981, PRG-19) — `Exp` is the initial `T`-algebra.** For every algebra
+`B = (D, s, u, v)` there is a *unique* homomorphism `val(s) : Exp → D` — Scott's evaluation of an
+expression. Existence is `descAlgHom` (Phase 3); uniqueness is the projection-chain argument. -/
+def ExpInitial : IsInitial (ExpAlg N hN) where
+  desc B := descAlgHom hN B
+  uniq B g := algHom_ext (Subtype.ext (descMap_eq_algHom hN B g))
+
+end Uniqueness
+
 end Exercise619
 
 end Domain.Neighborhood
