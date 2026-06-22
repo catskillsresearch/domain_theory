@@ -133,4 +133,7 @@ import Domain.Neighborhood.Exercise621
 import Domain.Neighborhood.Exercise622
 import Domain.Neighborhood.Exercise623
 import Domain.Neighborhood.Exercise624
+import Domain.Neighborhood.Exercise625
+import Domain.Neighborhood.Exercise626
+import Domain.Neighborhood.Exercise627
 import Domain.InfoSys

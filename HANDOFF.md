@@ -17,8 +17,31 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.25** (projection-pair `g,h` element identities: the Galois
-connection `g(x) ⊑ y ↔ x ⊑ h(y)` and the two extremal formulas). **Exercise 6.24 is COMPLETE**
+**Next concrete target:** **Exercise 6.28** (Plotkin: finite systems `D,E`).
+**Exercise 6.27 is COMPLETE** (`Exercise627.lean`, namespace `Domain.Neighborhood.Exercise627`):
+which `⊴` subsystem relations hold — **the first five hold for all `𝒟,ℰ`, the sixth `𝒟 ⊴ 𝒟⊗ℰ`
+fails in general**. `(1) (𝒟⊗ℰ)◁(𝒟×ℰ)`, `(3) (𝒟⊕ℰ)◁(𝒟+ℰ)` are literal subsystems; `(2) 𝒟⊴𝒟×ℰ`,
+`(4) 𝒟⊴𝒟⊕ℰ` are projection pairs (Lemma 6.15); `(5) (𝒟→⊥ℰ)⊴(𝒟→ℰ)` is the inclusion/strictification
+pair `inclMap`/`strctMap` (choice-free, general systems); `(6)` is refuted by `ℰ=𝟙` collapsing
+`𝒟⊗𝟙` to a one-point lattice. Part 4's `oplus_mem_leftN` (the `X=Δ₀?` split) is the **only**
+`Classical.choice` use; rest `⊆ {propext, Quot.sound}`. See dated checkpoint at end.
+**Exercise 6.26 is COMPLETE** (`Exercise626.lean`, namespace `Domain.Neighborhood.Exercise619`):
+the **lift** `liftTok D _hD = {{Λ}∪0Δ}∪{0X∣X∈𝒟}` over `Str={0,1}*` (`∅`-free, packaged `ScottSys.lift`).
+**Elements** `|𝒟_⊥|≅|𝒟|_⊥`: fresh bottom `liftBot`, embedding `liftUp` with `liftBot_le`,
+`liftUp_le_liftUp_iff`, `liftBot_lt_liftUp`, `unlift`/`liftUp_unlift`, covering `eq_liftBot_or_exists_liftUp`
+(its lone `Classical.choice`, for the `z.mem 0Δ?` split; everything else choice-free). **Functor** (yes,
+strict): `liftMapTok`, `liftMapTok_isStrict`/`_id`/`_comp`. **`𝒟_⊥⊕ℰ_⊥≅ᴰ𝒟+ℰ`** (`lift_oplus_lift_iso_sum`,
+elementwise `OrderIso` `toSumLift`/`fromSumLift`, deletes the inner `0`). **`𝒟_⊥⊗ℰ_⊥≅ᴰ(𝒟×ℰ)_⊥`**
+(`lift_otimes_lift_iso_lift_prod` — answer to Scott's `??`; `toLiftProd`/`fromLiftProd`). See dated
+checkpoint at end. **Exercise 6.25 is COMPLETE** (`Exercise625.lean`, namespace `Domain.Neighborhood.Subsystem.ProjectionPair`):
+the projection pair `g=inj`, `h=proj` of `ProjectionPair D E` carries the two laws on elements
+(`proj_inj_apply : h(g x)=x`, `inj_proj_apply_le : g(h y)⊑y`); from them the **Galois connection**
+`galois : g(x)⊑y ↔ x⊑h(y)` (monotonicity in each direction), the two **extremal formulas**
+`proj_eq_sSup : h(y)=⊔{x∣g(x)⊑y}` (the set is the down-set of `h(y)` — bounded + `lowerSet_directed`)
+and `inj_eq_sInf : g(x)=⊓{y∣x⊑h(y)}` (the up-set of `g(x)` — `upperSet_nonempty`), and finally `g`
+**maps consistent (=bounded) sets to consistent sets** (`inj_bounded`) and **preserves all lubs**
+`inj_sSup : g(⊔S)=⊔{g(s)}` (lower-adjoint property, proved via `galois`). Choice-free; see the dated
+checkpoint at the end. **Exercise 6.24 is COMPLETE**
 (`Exercise624.lean`, namespace `Domain.Neighborhood.Exercise624`): the **double fixed-point** method
 for the coupled system `D ≅ D+(D×E)`, `E ≅ D+E`. Tokens `Str={0,1}*`; token recursions
 `gTok p q = insert [] (0p ∪ 1q) = tok(D+E)` and `fTok p q = gTok p (gTok p q) = tok(D+(D×E))`; the
@@ -1850,3 +1873,118 @@ packages both.
 
 **Next concrete target:** Exercise 6.25 (projection-pair `g,h` identities on elements:
 `g(x) ⊑ y ↔ x ⊑ h(y)`, the Galois connection, and the two extremal formulas for `h`/`g`).
+
+---
+
+## Checkpoint 2026-06-22 — Exercise 6.25 COMPLETE (`Exercise625.lean`)
+
+**Status:** `lake build Domain` green (3094 jobs), zero `sorry`. All 7 results choice-free
+(`#print axioms ⊆ {propext, Quot.sound}`). Wired into `Domain.lean` after `Exercise624`.
+
+**What it proves.** Exercise 6.25 is entirely *element-level* reasoning about an abstract projection
+pair, so I reused `Subsystem.ProjectionPair D E` (from `Proposition612.lean`) directly — no new
+domain construction. Scott's `g = P.inj`, `h = P.proj`. Namespace
+`Domain.Neighborhood.Subsystem.ProjectionPair`.
+
+- **Two laws on elements** (the only inputs to everything else):
+  - `proj_inj_apply : h(g x) = x` — `rw [← toElementMap_comp, P.proj_comp_inj, toElementMap_idMap]`.
+  - `inj_proj_apply_le : g(h y) ⊑ y` — `le_iff_toElementMap_le.mp P.inj_comp_proj_le` then
+    `rw [toElementMap_comp, toElementMap_idMap]`.
+- **`galois : g(x) ⊑ y ↔ x ⊑ h(y)`** — `→` apply monotone `h` then `h(g x)=x`; `←` apply monotone
+  `g` then chain through `g(h y) ⊑ y`. (`toElementMap_mono` is Prop 2.2(iii).)
+- **`proj_eq_sSup : h(y) = ⊔{x ∣ g(x) ⊑ y}`** — `lowerSet y := {x ∣ g(x)⊑y}`; by `galois` it is the
+  down-set `{x ∣ x⊑h(y)}`, so `lowerSet_bounded` (bound `h(y)`) and `lowerSet_directed` (top `h(y)`,
+  membership = `inj_proj_apply_le`). Equality by `le_antisymm` of `D.le_sSup`/`D.sSup_le`
+  (Exercise 1.27's bounded `sSup`).
+- **`inj_eq_sInf : g(x) = ⊓{y ∣ x ⊑ h(y)}`** — `upperSet x := {y ∣ x⊑h(y)}`; `upperSet_nonempty`
+  contains `g(x)` (since `x ⊑ h(g x)=x`). Equality by `le_antisymm` of `E.le_sInf`/`E.sInf_le`
+  (Exercise 1.18's `sInf`; needs only `Nonempty`, not bounded).
+- **`inj_bounded`** — `g` maps consistent (=bounded, per Ex 1.27) sets to bounded sets: image of a
+  set bounded by `b` is bounded by `g(b)` (monotone). True of any approximable map; the real content
+  is the next one.
+- **`inj_sSup : g(⊔S) = ⊔{g(s) ∣ s∈S}`** — `g` (lower adjoint) preserves **all** lubs, not just
+  directed ones. `⊒` is monotonicity; `⊑` is the adjoint trick: `(galois ..).mpr` reduces to
+  `⊔S ⊑ h(⊔{g s})`, then `sSup_le` reduces to each `s ⊑ h(⊔{g s})`, then `(galois ..).mp` reduces to
+  `g(s) ⊑ ⊔{g s}` = `le_sSup`.
+
+**Lessons / reusable facts.**
+- `le_iff_toElementMap_le` (Thm 3.13(i), top-level in `Domain.Neighborhood`, *not* inside
+  `ApproximableMap`) is the bridge from a `≤` between approximable *maps* to a `≤` between their
+  element images — exactly what turns `inj_comp_proj_le : g∘h ≤ I` into `g(h y) ⊑ y`.
+- Two bounded-sup APIs coexist: `sSupDirected` (`Approximable.lean`, directed families, the lub used
+  by continuity) vs. `Bounded`/`sSup` (`Exercise127.lean`, *any* bounded set, built from `sInf` of
+  upper bounds). Exercise 6.25's "not just directed unions" needs the **`Exercise127` `sSup`**.
+- `ProjectionPair` lives over a *single* token type `α` (both `D E : NeighborhoodSystem α`), so
+  `D.Bounded`/`D.sSup`/`E.sInf` all apply with no cross-type plumbing.
+
+**Next concrete target:** Exercise 6.26 (`𝒟_⊥` lift, functoriality, `𝒟_⊥ ⊕ ℰ_⊥ ≅ 𝒟 + ℰ`).
+
+---
+
+## Checkpoint — Exercise 6.26 (the lifting `𝒟_⊥`) COMPLETE
+
+`Domain/Neighborhood/Exercise626.lean`, namespace `Domain.Neighborhood.Exercise619` (reopened, as
+`Exercise621` does, to reuse `sumTok`/`oplusTok`/`otimesTok`/`prodTokNbhd` + their membership lemmas).
+Wired into `Domain.lean`; `lake build Domain` green.
+
+**Object.** `liftTok D _hD` over `Str = {0,1}*` with master `liftTokMaster D = insert [] (embBit false D.master)`
+(`= {Λ}∪0Δ`) and proper neighbourhoods `embBit false X = 0X` for every `X∈𝒟` (incl. `0Δ`, strictly above
+the new bottom). `∅`-free (`liftTok_nonempty`); packaged as `ScottSys.lift`. (The nonempty hypothesis is
+unused inside the system itself — hence the binder `_hD` — but carried for the `ScottSys` packaging.)
+
+**Elements — `|𝒟_⊥| ≅ |𝒟|_⊥`.** `liftBot` (mem `W ↔ W = master`) is the fresh least element
+(`liftBot_le`); `liftUp x = {master}∪{0X∣X∈x}` is an order embedding (`liftUp_le_liftUp_iff`) sitting
+strictly above it (`liftBot_lt_liftUp`, via `embF_ne_liftTokMaster`). `unlift z hz = {X∣0X∈z}` (needs
+`hz : z.mem 0Δ`) with `liftUp_unlift`, and the covering `eq_liftBot_or_exists_liftUp`. The covering is the
+**only** non-`{propext,Quot.sound}` result: it case-splits on `z.mem 0Δ` (excluded middle), unavoidable.
+
+**Functor — "is this a suitable functor?" yes (strict).** `liftMapTok f` (rel: a *collapse-to-master*
+row `(W∈𝒟_⊥ ∧ W'=master)` ∨ a copy row `0X→0X'` from `f.rel X X'`), with `liftMapTok_isStrict` (for any
+`f`), `liftMapTok_id`, `liftMapTok_comp` — the one-summand analogue of 6.19's `sumMapTok`.
+
+**`𝒟_⊥ ⊕ ℰ_⊥ ≅ᴰ 𝒟 + ℰ`** (`lift_oplus_lift_iso_sum`). Element `OrderIso` `sumLiftEquiv` built from
+`toSumLift`/`fromSumLift`: the `⊕` of the lifts has tokens `00X'` (`X'∈𝒟`) / `10Y'` (`Y'∈ℰ`) over the
+shared bottom; the iso *deletes the inner `0`* (`00X'↔0X'`, `10Y'↔1Y'`). Cross-tag (`0`vs`1`) intersections
+vanish by `∅`-freeness — structurally exactly 6.19's `toSum`/`fromSum` with one extra `embBit false`.
+
+**`𝒟_⊥ ⊗ ℰ_⊥ ≅ᴰ (𝒟 × ℰ)_⊥`** (`lift_otimes_lift_iso_lift_prod`) — the answer to Scott's `??`. The smash
+of the lifts has proper rectangles `prodTokNbhd (0X') (0Y')`; the lift of the product has `0(prodTokNbhd X' Y')`.
+`liftProdEquiv` (`toLiftProd`/`fromLiftProd`) transports one to the other; purely rectangular (no
+cross-empties), so cleaner than the sum.
+
+**Gotcha for future work (recorded once).** The reused membership/closure lemmas for `oplusTok`/`sumTok`
+(`oplusTok_mem_master`, `sumTok_mem_embF`, `*_mem_embF_inv`, `oplusTok_nonempty`, …) carry the `∅`-free
+witnesses `h₀ h₁` as *implicit* arguments that appear **only under `.mem`** — which the unifier reduces
+away — so they are **not** inferred from the goal/expected type. Pass them explicitly
+(`(h₀ := D.ne) (h₁ := E.ne)`, or use the packaged `(D.lift.oplus E.lift).ne`), or just use `Or.inl rfl`
+for master membership. Likewise pass `(D₀ := …) (D₁ := …)` to `sumTokMaster_inter_embF/T` when the goal
+spells the system as a `.lift.sys` projection (folded) but the lemma would unfold it (`rw` needs a
+syntactic match). This affected ~10 sites here.
+
+**Axioms.** All of `liftTok`, `ScottSys.lift`, order facts, `liftMapTok*`, `lift_oplus_lift_iso_sum`,
+`lift_otimes_lift_iso_lift_prod` audit to `{propext, Quot.sound}`; `eq_liftBot_or_exists_liftUp` additionally
+uses `Classical.choice` (the lone, called-out excluded-middle split).
+
+---
+
+## Checkpoint — Exercise 6.27 COMPLETE (`Exercise627.lean`, ns `Exercise627`)
+
+**Which subsystem relations `⊴` (Lemma 6.15 *embeds-as-subdomain*) hold.** Verdict: **the first five
+hold for all `𝒟,ℰ`; the sixth `𝒟 ⊴ 𝒟⊗ℰ` is false in general.** Wired into `Domain.lean`; full
+`Domain` green, zero `sorry`. Concrete `{0,1}*` constructors of Ex 6.19/6.21 + function spaces
+(`FunctionSpace.lean`, Ex 5.10).
+
+- **(1) `(𝒟⊗ℰ)◁(𝒟×ℰ)`** `otimesTok_subsystem_prodTok` ⟹ `otimes_trianglelefteq_prod` (`Subsystem.trianglelefteq`): smash is literally a subsystem of the product (same master, sub-family of proper rectangles, boundary-stable intersections).
+- **(2) `𝒟 ⊴ 𝒟×ℰ`** `fst_trianglelefteq_prod` via projection pair `fstInj X↦(X,Δ₁)` / `fstProj`, `trianglelefteq_of_projectionPair`.
+- **(3) `(𝒟⊕ℰ)◁(𝒟+ℰ)`** `oplusTok_subsystem_sumTok` ⟹ `oplus_trianglelefteq_sum`: coalesced sum drops `0Δ₀`,`1Δ₁`; cross-tag intersections empty.
+- **(4) `𝒟 ⊴ 𝒟⊕ℰ`** `inl_trianglelefteq_oplus` via `inlInj`/`inlProj` with `leftN X` (`=0X` proper / `sumTokMaster` at `X=Δ₀`). **Only classical part:** `oplus_mem_leftN` decides the undecidable `X=Δ₀` ⟹ `Classical.choice` (genuinely unavoidable over arbitrary systems; flagged).
+- **(5) `(𝒟→⊥ℰ)⊴(𝒟→ℰ)`** `strictFun_trianglelefteq_funSpace` — **general `V₀ V₁`, choice-free**. Inclusion `inclMap` + strictification retraction `strctMap`, built by `ofMono` from elementwise `incl=toFilter∘val∘toStrictMap`, `strct=toStrictFilter∘strictify∘toApproxMap`. New `strictifyMap` (force `Δ₀↦Δ₁`); `strictifyMap_le`, `strictifyMap_of_isStrict`. Crux union formulas `toElementMap_inclMap`/`toElementMap_strctMap` (via `mem_stepFun_iff`/`mem_sstepFun_iff`); then `strct_incl`/`incl_strct_le` collapse via the four equiv-inverse lemmas (`toApproxMap_toFilter`, `toStrictMap_toStrictFilter`, …). Comp laws use a **choice-free** local `ext_of_principal` (extracts `mem` from `rel_dom`, avoiding `ext_of_toElementMap`'s `by_cases` — which silently pulls in `Classical.choice`) and `le_iff_toElementMap_le`.
+- **(6) `¬(𝒟 ⊴ 𝒟⊗ℰ)`** `not_trianglelefteq_otimes`: counterexample `ℰ=𝟙` (`unitPt`). `otimes_unitPt_collapse` ⟹ `twoPt⊗𝟙` has only its master ⟹ `subsingleton_element_of_only_master` (one-point lattice), but `twoPt` has two elements — contradicts iso injectivity.
+
+**Axioms.** Parts 1–3, 5, 6 audit to `{propext, Quot.sound}`; part 4 (`inl_trianglelefteq_oplus`)
+additionally uses `Classical.choice` (the single documented `X=Δ₀?` split). **Gotcha recorded:** the
+standard extensionality `ext_of_toElementMap`/`eq_of_toElementMap_principal` do a `by_cases V₀.mem X`,
+which brings in `Classical.choice`; when you need a *choice-free* map equality from agreement on
+principals, use the `rel_dom`-based `ext_of_principal` pattern instead.
+
+**Next concrete target:** Exercise 6.28 (Plotkin: finite systems `D,E`).
