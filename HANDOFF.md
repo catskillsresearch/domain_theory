@@ -17,11 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.21 is COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`,
-smash product `⊗`, the 6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary
-"several terms" generalization — see the dated checkpoint at the very end of this file). Next open:
-**Exercise 6.22 / 6.23 / 6.24**. Earlier completed milestones below for context. **Exercise 6.17 is
-COMPLETE — both parts** (`Exercise617.lean`,
+**Next concrete target:** **Exercise 6.22 is COMPLETE** (`Exercise622.lean`: the three domain
+equations `N ≅ {{0},{0,Λ}}⊕N`, `M ≅ {{Λ}}+M`, `N* ≅ N⊕(N⊗N*)` recognised as `GExpr` fixed points,
+each given a solution via 6.21/6.20 — see the dated checkpoint at the very end). **Exercise 6.21 is
+COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the 6-constructor functor
+algebra `GExpr`, its 6.20 fixed point, and the n-ary "several terms" generalization). Next open:
+**Exercise 6.23** (initial `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))` as a syntactic domain + `val(s)`),
+**Exercise 6.24** (double fixed point `D ≅ D+(D×E)`, `E ≅ D+E`). Earlier completed milestones below
+for context. **Exercise 6.17 is COMPLETE — both parts** (`Exercise617.lean`,
 `Exercise617Gen.lean`). Part 1: `CisInitial : IsInitial Calg`, `C` is the initial `T`-algebra for
 `T(X)=𝟙+X+X`. Part 2 (`Exercise617Gen.lean`): the development is generalized over an arbitrary
 alphabet `A : Type [DecidableEq A]` — domain `Cn A` of finite/infinite `A`-sequences, endofunctor
@@ -1580,3 +1583,40 @@ explicitly (matches the Part-A gotcha). `otimesTok` takes **no** such args, so i
 equality with `have heq' : sumTokMaster … = … := heq` before `▸` (defeq through `(A.oplus B).sys.master`
 won't rewrite directly). (3) `prodTokNbhd_injective` needs its arg retyped to the literal
 `prodTokNbhd …` shape (same coercion trick) before use on a `.sys.master`.
+
+## Checkpoint — 2026-06-21: Exercise 6.22 COMPLETE (`Exercise622.lean`)
+
+Scott's *"Comment on these domain equations"* — `N ≅ {{0},{0,Λ}} ⊕ N`, `M ≅ {{Λ}} + M`,
+`N* ≅ N ⊕ (N ⊗ N*)`. This is a *comment-on* exercise, so the formal content is to recognise each RHS
+as a construct `T(X)` of the **`GExpr`** algebra (Exercise 6.21) with **rooted** constants, hence
+`gExists_singleton_subsystem` gives a solution `Γ = tok(T({Γ}))` with `{Γ} ◁ T({Γ})` and **Thm 6.14
+applies**. Built green (full `Domain`, 3091 jobs), axiom audit `⊆ {propext, Quot.sound}`, wired into
+`Domain.lean`. New module reuses everything from 6.21 (namespace `Domain.Neighborhood.Exercise619`).
+
+**The two new constant domains.** `Cnat = {{0},{0,Λ}}` (`0 = [false]`, `Λ = []`): the **two-point
+chain** `{0} ⊏ Δ={0,Λ}`. Built as a bare `NeighborhoodSystem` with the nested pair `{0} ⊆ {0,Λ}`;
+`inter_mem`'s four cases discharge with `Set.inter_self` / `Set.inter_eq_self_of_subset_left` /
+`…_right` off the single fact `hAB : {[false]} ⊆ {[false],[]}` (`Set.singleton_subset_iff.mpr
+(Set.mem_insert ..)`). `∅`-free + rooted (`nil_mem_Cnat`, via `Set.mem_insert_iff.mpr (Or.inr rfl)`).
+`Cone = singletonSys {Λ}` is the one-point `𝟙` (`nil_mem_Cone := rfl`).
+
+**The three equations & their meaning (the "comment").** `NExpr = ⊕(const Cnat, var)` → `N` = the
+**vertical naturals** (coalesced `⊕` *identifies* bottoms ⇒ a chain `⊥⊑0⊑1⊑⋯⊑∞`). `MExpr =
++(const Cone, var)` → `M` = the **lazy naturals** (separated `+` *keeps* the stop/continue choice
+apart ⇒ branching). `NStarExpr N = ⊕(const N, ⊗(const N, var))` → `N*` = **strict streams over `N`**
+(cons-cell functor `X ≅ N ⊕ (N ⊗ X)`, smash `⊗` = strict head/tail pair). The only `+`-vs-`⊕`
+difference (coalesced vs separated) is *exactly* what distinguishes `N` from `M` — a nice payoff of
+having both in `GExpr`.
+
+**Theorems.** `N_eq_solution`, `M_eq_solution`, `NStar_eq_solution (N) (hN : Λ ∈ tok N)` — each is
+`gExists_singleton_subsystem _ <rooted>`. `NStar_over_N_exists` **chains** them: eq-1's solution is a
+rooted domain (its token set is the fixed point `Γ₁ ∋ Λ`, extracted via `gExists_tok_fixedPoint`), so
+it is a legitimate datum domain for eq-3 — `N*` exists over the very `N` from eq-1.
+
+**Gotchas / reuse for next session.** (1) `RootedConst` of these small expressions is just nested
+`⟨…, trivial⟩` and elaborates fine without unfolding (`def`s are semireducible; `exact` unfolds
+`NExpr`/`RootedConst` during defeq). (2) To get `Λ ∈ Γ` from a `GExpr` fixed point, use
+`gExists_tok_fixedPoint` (exposes `hnil`), **not** `gExists_singleton_subsystem` (hides it). (3) Set
+literals: `{[false],[]}` is `insert [false] {[]}`; `Λ ∈ master` is `Set.mem_insert_iff.mpr (Or.inr
+rfl)`, and for a `singletonSys Γ` the master *is* `Γ` so `Λ ∈ {Λ}` is `rfl`. (4) `Cnat`/`Cone` are
+the reusable "small constant domains" — `Cone` is the terminal object `𝟙`, handy for 6.23/6.24.
