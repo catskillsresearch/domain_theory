@@ -335,4 +335,59 @@ theorem REPred.of_iff {p q : ℕ → Prop} (h : ∀ n, q n ↔ p n) (hp : REPred
 theorem rePred_of_forall {p : ℕ → Prop} (h : ∀ n, p n) : REPred p :=
   (recDecidable_of_forall h).re
 
+/-! ### Closure properties of r.e. predicates (for Proposition 7.3 and Theorem 7.4)
+
+The projection-of-decidable form makes r.e.-ness closed under primitive-recursive **reindexing**
+(`REPred.comp`), **conjunction** (`REPred.and`, pairing the two search variables), and
+**existential projection** over `ℕ` (`REPred.proj`, absorbing the projected variable into the search
+variable). These are exactly the moves Scott's `g ∘ f` needs: `X (g∘f) Z ↔ ∃ Y, X f Y ∧ Y g Z`. -/
+
+/-- **Reindexing.** If `p` is r.e. and `g` is primitive recursive, then `fun n => p (g n)` is r.e.
+(absorb `g` into the decidable relation along `unpair.2`). -/
+theorem REPred.comp {p : ℕ → Prop} (hp : REPred p) {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    REPred (fun n => p (g n)) := by
+  obtain ⟨q, hq, hqe⟩ := hp
+  refine ⟨fun t => q (Nat.pair t.unpair.1 (g t.unpair.2)),
+    hq.comp (Nat.Primrec.left.pair (hg.comp Nat.Primrec.right)), fun n => ?_⟩
+  simp only [unpair_pair_fst, unpair_pair_snd]
+  exact hqe (g n)
+
+/-- **Conjunction.** Recursive enumerability is closed under `∧`: combine the two decidable relations
+and run the two searches in parallel (pairing the search variables `i, j` into a single `w`). -/
+theorem REPred.and {p q : ℕ → Prop} (hp : REPred p) (hq : REPred q) :
+    REPred (fun n => p n ∧ q n) := by
+  obtain ⟨a, ha, hae⟩ := hp
+  obtain ⟨b, hb, hbe⟩ := hq
+  refine ⟨fun u => a (Nat.pair u.unpair.1.unpair.1 u.unpair.2)
+      ∧ b (Nat.pair u.unpair.1.unpair.2 u.unpair.2),
+    (ha.comp ((Nat.Primrec.left.comp Nat.Primrec.left).pair Nat.Primrec.right)).and
+      (hb.comp ((Nat.Primrec.right.comp Nat.Primrec.left).pair Nat.Primrec.right)), fun n => ?_⟩
+  simp only [unpair_pair_fst, unpair_pair_snd]
+  rw [hae n, hbe n]
+  constructor
+  · rintro ⟨⟨i, hi⟩, ⟨j, hj⟩⟩
+    exact ⟨Nat.pair i j, by simp only [unpair_pair_fst, unpair_pair_snd]; exact ⟨hi, hj⟩⟩
+  · rintro ⟨w, hw1, hw2⟩
+    exact ⟨⟨w.unpair.1, hw1⟩, ⟨w.unpair.2, hw2⟩⟩
+
+/-- **Existential projection.** If `p` is r.e. then so is `fun n => ∃ i, p ⟨i, n⟩`: fold the new
+existential variable `i` into the search variable (pairing it with the decidable relation's own
+search variable `j`). -/
+theorem REPred.proj {p : ℕ → Prop} (hp : REPred p) :
+    REPred (fun n => ∃ i, p (Nat.pair i n)) := by
+  obtain ⟨q, hq, hqe⟩ := hp
+  refine ⟨fun u => q (Nat.pair u.unpair.1.unpair.2 (Nat.pair u.unpair.1.unpair.1 u.unpair.2)),
+    hq.comp ((Nat.Primrec.right.comp Nat.Primrec.left).pair
+      ((Nat.Primrec.left.comp Nat.Primrec.left).pair Nat.Primrec.right)), fun n => ?_⟩
+  simp only [unpair_pair_fst, unpair_pair_snd]
+  constructor
+  · rintro ⟨i, hi⟩
+    rw [hqe (Nat.pair i n)] at hi
+    obtain ⟨j, hj⟩ := hi
+    exact ⟨Nat.pair i j, by simpa only [unpair_pair_fst, unpair_pair_snd] using hj⟩
+  · rintro ⟨w, hw⟩
+    refine ⟨w.unpair.1, ?_⟩
+    rw [hqe (Nat.pair w.unpair.1 n)]
+    exact ⟨w.unpair.2, hw⟩
+
 end Domain.Recursive

@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation) and Definition 7.2 (computable map / computable element) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory (`Recursive.lean`); rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`); rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,10 +17,16 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Proposition 7.3** (identity is computable — already done as
-`idMap_isComputable`; remaining: **composition of computable maps is computable**) then **Theorem
-7.4** (`D₀+D₁`, `D₀×D₁` effectively given; `inᵢ`/`outᵢ`/`projᵢ` computable). These need r.e. closure
-under `∃`/`∧` over the projection-of-decidable `REPred` in `Recursive.lean`.
+**Next concrete target:** **Lecture VII — Theorem 7.4** (`D₀+D₁`, `D₀×D₁` effectively given when
+`D₀,D₁` are; the combinators `inᵢ`/`outᵢ`/`projᵢ` computable; `f+g`, `f×g` computable). Will need
+computable presentations of the sum/product systems (enumerate `Xⁱₙ` pairs, decide their
+intersection/consistency) and the r.e. closure layer below.
+**Proposition 7.3 is COMPLETE and CHOICE-FREE** (`Definition72.lean`): `idMap_isComputable`
+(identity), `comp_isComputable` (composition of computable maps — `∃l, Xₙ f Yₗ ∧ Yₗ g Zₖ` via
+`Q.surj`), and `apply_isComputableElement` (computable map ∘ computable element = computable element).
+Powered by a new **choice-free r.e. closure layer** in `Recursive.lean`: `REPred.comp` (primrec
+reindex), `REPred.and` (conjunction, pair search vars), `REPred.proj` (`∃` over ℕ, fold into search
+var); all audit `⊆ {propext, Quot.sound}`.
 **Definition 7.2 is COMPLETE and CHOICE-FREE** (`Definition72.lean`, ns `Domain.Neighborhood`):
 `IsComputableMap P Q f := REPred₂ (fun n m ↦ f.rel (Xₙ) (Yₘ))` (Scott's *computable map* = r.e.
 neighbourhood relation `Xₙ f Yₘ`), `IsComputableElement Q y := REPred (fun m ↦ y.mem (Yₘ))` (the
@@ -2253,3 +2259,44 @@ green (3101 jobs; the lone `Exercise617Gen` unused-variable warning is pre-exist
 This needs `REPred` closed under **`∃` over ℕ** and **`∧`** (both hold for the projection-of-decidable
 form: pair the search variables, use `RecDecidable.and`). Then **Theorem 7.4** (`D₀+D₁`, `D₀×D₁`
 effectively given; the `inᵢ`/`outᵢ`/`projᵢ` combinators computable).
+
+---
+
+## Checkpoint — 2026-06-22 — Proposition 7.3 COMPLETE (identity + composition computable), choice-free
+
+Added to **`Definition72.lean`** (ns `Domain.Neighborhood`), all `⊆ {propext, Quot.sound}`:
+
+- **`comp_isComputable`** — `IsComputableMap P Q f → IsComputableMap Q R g → IsComputableMap P R
+  (g.comp f)`. Scott's `X (g∘f) Z ↔ ∃ Y, X f Y ∧ Y g Z`; surjectivity `Q.surj` (with `g.rel_dom` to
+  know `Y` is a `W`-neighbourhood) lets the witness `Y` range over **indices** `l` (`Y = Q.X l`), so
+  the relation becomes `∃ l, Xₙ f Yₗ ∧ Yₗ g Zₖ`. Assembled as
+  `((hf'.comp hgf).and (hg'.comp hgg)).proj` then `REPred.of_iff` (peeling `comp_rel`), where the
+  primrec reindexers are `hgf : u ↦ ⟨u.2.1, u.1⟩` and `hgg : u ↦ ⟨u.1, u.2.2⟩` (`u` codes `(l, ⟨n,k⟩)`).
+- **`apply_isComputableElement`** — the "immediate and useful consequence": `f` computable and `x`
+  a computable element ⟹ `f(x)` computable. `f(x) = {Yₘ ∣ ∃ Xₙ ∈ x, Xₙ f Yₘ}` (`toElementMap`);
+  `P.surj` (with `x.sub`) ranges `X` over `n`, giving `∃ n, Xₙ ∈ x ∧ Xₙ f Yₘ`, r.e. by the same
+  closure lemmas.
+
+**New choice-free r.e.-closure layer in `Recursive.lean`** (projection-of-`RecDecidable` form), the
+reusable engine for 7.3 and 7.4:
+
+- **`REPred.comp`** — reindex by a `Nat.Primrec g`: `p` r.e. ⟹ `fun n ↦ p (g n)` r.e. (absorb `g`
+  into the decidable relation along `unpair.2`).
+- **`REPred.and`** — `p, q` r.e. ⟹ `fun n ↦ p n ∧ q n` r.e. (pair the two search variables `i, j`
+  into one `w`; the decider is `RecDecidable.and` of two reindexed copies).
+- **`REPred.proj`** — `p` r.e. ⟹ `fun n ↦ ∃ i, p ⟨i, n⟩` r.e. (fold the existential variable into
+  the search variable).
+
+**Lean GOTCHA noted:** `IsComputableMap`/`IsComputableElement` are `def … : Prop := REPred …`, so
+**dot notation** `hf.comp`/`hx.and` does *not* resolve (head symbol is `IsComputableMap`, not
+`REPred`). Re-bind first: `have hf' : REPred (fun s ↦ f.rel (P.X s.unpair.1) (Q.X s.unpair.2)) := hf`
+(defeq by `β`-reduction), then use dot notation on `hf'`.
+
+**Audits** (`#print axioms`): `comp_isComputable`, `apply_isComputableElement`, `REPred.comp`,
+`REPred.and`, `REPred.proj` → `{propext, Quot.sound}`. No `Classical.choice`. `lake build Domain`
+green (3101 jobs; only the pre-existing `Exercise617Gen` unused-`F` warning).
+
+**Next:** **Theorem 7.4** — `D₀+D₁`, `D₀×D₁` effectively given (build `ComputablePresentation`s of the
+sum/product systems: enumerate the tagged/paired neighbourhoods, decide intersection & consistency
+from the components' deciders) and the combinators `inᵢ`/`outᵢ`/`projᵢ`, `f+g`, `f×g` computable
+(now straightforward given the `REPred` closure layer).

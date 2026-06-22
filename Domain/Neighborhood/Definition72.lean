@@ -20,24 +20,34 @@ need not be decidable. So 7.2 already incorporates the notion of a **computable 
 
 We model `IsComputableMap` as `REPred₂ (fun n m ↦ Xₙ f Yₘ)` over the choice-free recursion theory of
 `Recursive.lean` (`REPred` = projection of a recursively decidable relation; see that file for why we
-roll our own and reject Mathlib's classical recursion theory). Two faithful consequences are proved:
+roll our own and reject Mathlib's classical recursion theory).
+
+**Proposition 7.3** is then formalized in full:
 
 * `idMap_isComputable` — the identity map is computable, because `Xₙ I Xₘ ↔ Xₙ ⊆ Xₘ`
-  (`ComputablePresentation.incl_computable`) is recursively *decidable*, hence r.e. (the identity
-  half of Proposition 7.3).
+  (`ComputablePresentation.incl_computable`) is recursively *decidable*, hence r.e.
+* `comp_isComputable` — the composition of computable maps is computable: `Xₙ (g∘f) Zₖ` is
+  `∃ Yₗ, Xₙ f Yₗ ∧ Yₗ g Zₖ` (surjectivity of the middle presentation lets `Y` range over indices
+  `l`), which is r.e. by the closure lemmas `REPred.comp`/`REPred.and`/`REPred.proj`.
+* `apply_isComputableElement` — Scott's stated consequence: a computable map applied to a computable
+  element gives a computable element (`f(x) = {Yₘ ∣ ∃ Xₙ ∈ x, Xₙ f Yₘ}`, again r.e. by the closure
+  lemmas).
+
+Two further faithful facts:
+
 * `principal_isComputableElement` — every **finite** (principal) element `↑Xₙ` is computable, since
   its index set `{m ∣ Xₙ ⊆ Xₘ}` is a recursive slice of `incl_computable` (Scott's remark that
   finite elements have recursive index sets).
 
 Everything here is `⊆ {propext, Quot.sound}` (choice-free): it is built only from the choice-free
-deciders of Definition 7.1 and the choice-free `RecDecidable.re`.
+deciders of Definition 7.1 and the choice-free r.e. layer of `Recursive.lean`.
 -/
 
 namespace Domain.Neighborhood
 
 open NeighborhoodSystem Domain.Recursive ApproximableMap
 
-variable {α β : Type*}
+variable {α β γ : Type*}
 
 /-- **Definition 7.2 (Scott 1981, PRG-19) — computable map.** Relative to computable presentations
 `P` of `V` and `Q` of `W`, an approximable map `f : V → W` is *computable* iff its neighbourhood
@@ -64,6 +74,49 @@ theorem idMap_isComputable (P : ComputablePresentation V) :
     simp only [idMap_rel]
     exact ⟨fun h => h.2.2, fun h => ⟨P.mem_X _, P.mem_X _, h⟩⟩)
     P.incl_computable).re
+
+/-- **Proposition 7.3 (Scott 1981, PRG-19) — composition of computable maps is computable.** For
+`X (g∘f) Z ↔ ∃ Y, X f Y ∧ Y g Z`, surjectivity of the middle presentation `Q` lets the witness `Y`
+range over indices `l` (`Y = Yₗ`); the resulting `∃ l, Xₙ f Yₗ ∧ Yₗ g Zₖ` is recursively enumerable
+by reindexing (`REPred.comp`), conjunction (`REPred.and`), and existential projection
+(`REPred.proj`). -/
+theorem comp_isComputable {U : NeighborhoodSystem γ}
+    {P : ComputablePresentation V} {Q : ComputablePresentation W} {R : ComputablePresentation U}
+    {f : ApproximableMap V W} {g : ApproximableMap W U}
+    (hf : IsComputableMap P Q f) (hg : IsComputableMap Q R g) :
+    IsComputableMap P R (g.comp f) := by
+  have hf' : REPred (fun s => f.rel (P.X s.unpair.1) (Q.X s.unpair.2)) := hf
+  have hg' : REPred (fun s => g.rel (Q.X s.unpair.1) (R.X s.unpair.2)) := hg
+  have hgf : Nat.Primrec (fun u => Nat.pair u.unpair.2.unpair.1 u.unpair.1) :=
+    Nat.Primrec.pair (Nat.Primrec.left.comp Nat.Primrec.right) Nat.Primrec.left
+  have hgg : Nat.Primrec (fun u => Nat.pair u.unpair.1 u.unpair.2.unpair.2) :=
+    Nat.Primrec.pair Nat.Primrec.left (Nat.Primrec.right.comp Nat.Primrec.right)
+  refine REPred.of_iff (fun t => ?_) ((hf'.comp hgf).and (hg'.comp hgg)).proj
+  simp only [comp_rel, unpair_pair_fst, unpair_pair_snd]
+  constructor
+  · rintro ⟨Y, hfY, hgY⟩
+    obtain ⟨l, rfl⟩ := Q.surj (g.rel_dom hgY)
+    exact ⟨l, hfY, hgY⟩
+  · rintro ⟨l, hfl, hgl⟩
+    exact ⟨Q.X l, hfl, hgl⟩
+
+/-- **Proposition 7.3 (consequence) (Scott 1981, PRG-19).** "If `f : 𝒟 → ℰ` is computable and
+`x ∈ |𝒟|` is computable, then `f(x) ∈ |ℰ|` is also computable." Here `f(x) = {Yₘ ∣ ∃ Xₙ ∈ x, Xₙ f Yₘ}`
+(`toElementMap`); surjectivity of `P` lets the witness `X` range over indices `n`, and the resulting
+`∃ n, Xₙ ∈ x ∧ Xₙ f Yₘ` is r.e. by `REPred.and`/`REPred.proj`. -/
+theorem apply_isComputableElement {P : ComputablePresentation V} {Q : ComputablePresentation W}
+    {f : ApproximableMap V W} (hf : IsComputableMap P Q f) {x : V.Element}
+    (hx : IsComputableElement P x) : IsComputableElement Q (f.toElementMap x) := by
+  have hf' : REPred (fun s => f.rel (P.X s.unpair.1) (Q.X s.unpair.2)) := hf
+  have hx' : REPred (fun n => x.mem (P.X n)) := hx
+  refine REPred.of_iff (fun m => ?_) ((hx'.comp Nat.Primrec.left).and hf').proj
+  simp only [mem_toElementMap, unpair_pair_fst, unpair_pair_snd]
+  constructor
+  · rintro ⟨X, hX, hfX⟩
+    obtain ⟨n, rfl⟩ := P.surj (x.sub hX)
+    exact ⟨n, hX, hfX⟩
+  · rintro ⟨n, hxn, hfn⟩
+    exact ⟨P.X n, hxn, hfn⟩
 
 /-- **Every finite (principal) element is computable** (Scott's remark after 7.2: "If `y` were
 finite, the set of indices would be recursive"). For the finite element `↑Xₙ`, the index set
