@@ -136,4 +136,6 @@ import Domain.Neighborhood.Exercise624
 import Domain.Neighborhood.Exercise625
 import Domain.Neighborhood.Exercise626
 import Domain.Neighborhood.Exercise627
+import Domain.Neighborhood.Exercise628
+import Domain.Neighborhood.Exercise629
 import Domain.InfoSys

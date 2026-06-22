@@ -17,7 +17,25 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.28** (Plotkin: finite systems `D,E`).
+**Next concrete target:** **Lecture VII** (Defn 7.1 *computable presentation* onward;
+transcribed/inventoried, formalization-deferred). **Exercise 6.29 is COMPLETE** (`Exercise629.lean`,
+ns `Exercise629`): infinitary `∏_i D_i` (`iprod`, cylinders + finite support; headline
+`iprodEquiv : |∏_i D_i| ≃o ∀ i, |D_i|`), `∑_i D_i` (`isum`, separated sum + `isum_trichotomy`),
+`⊕_i D_i` (`ioplus`, coalesced) — these **generalize**; `⊗_i D_i` (`iotimes`) **degenerates** over an
+infinite index (`iotimes_subsingleton`: only the basepoint). So `+`,`×`,`⊕` generalize, `⊗` does not.
+Finite support is the *positive* `List` form `∀ i, i∉l → X i = master` (keeps `FinSupp.inter`/recon
+choice-free). Data + `isum_summand_unique` are `⊆ {propext, Quot.sound}`; only `isum_trichotomy` (EM)
+and the `⊗` degeneracy (classical `Set.Finite`) use `Classical.choice` (Prop-level, flagged). See the
+dated checkpoint at end.
+**Exercise 6.28 is COMPLETE** (`Exercise628.lean`, namespace `Domain.Neighborhood`): the finite
+Cantor–Schröder–Bernstein Plotkin suggested — if `|𝒟|,|ℰ|` are finite and `𝒟 ⊴ ℰ ⊴ 𝒟` then
+`𝒟 ≅ᴰ ℰ` (`isomorphic_of_trianglelefteq_both`; faithful nbhd-count version
+`isomorphic_of_finite_system`). Crux: `⊴` already yields an **order embedding** `|D| ↪o |E|`
+(`Trianglelefteq.elementEmbedding`, via Prop 6.12's `i,j` and `projElementEmbedding`); mutual
+embeddings of finite types ⟹ iso (`orderIso_of_embeddings`, `Fintype.card` antisymm). Infinite
+question answered **No** (finite cardinality count, no infinite analogue) — counterexample as prose.
+Relational core choice-free; the finite count uses `Classical.choice` (extract `Fintype`). See dated
+checkpoint at end.
 **Exercise 6.27 is COMPLETE** (`Exercise627.lean`, namespace `Domain.Neighborhood.Exercise627`):
 which `⊴` subsystem relations hold — **the first five hold for all `𝒟,ℰ`, the sixth `𝒟 ⊴ 𝒟⊗ℰ`
 fails in general**. `(1) (𝒟⊗ℰ)◁(𝒟×ℰ)`, `(3) (𝒟⊕ℰ)◁(𝒟+ℰ)` are literal subsystems; `(2) 𝒟⊴𝒟×ℰ`,
@@ -1987,4 +2005,89 @@ standard extensionality `ext_of_toElementMap`/`eq_of_toElementMap_principal` do 
 which brings in `Classical.choice`; when you need a *choice-free* map equality from agreement on
 principals, use the `rel_dom`-based `ext_of_principal` pattern instead.
 
-**Next concrete target:** Exercise 6.28 (Plotkin: finite systems `D,E`).
+**Next concrete target:** Exercise 6.29 (infinitary `∑_n D_n`, `∏_n D_n`; `⊕`,`⊗`?).
+
+---
+
+## Checkpoint — Exercise 6.28 COMPLETE (`Exercise628.lean`, ns `Domain.Neighborhood`) — 2026-06-22
+
+**Statement (Plotkin).** If `𝒟,ℰ` are *finite* systems and `𝒟 ⊴ ℰ ⊴ 𝒟`, then `𝒟 ≅ ℰ`. Need the
+same for infinite systems? Wired into `Domain.lean`; full `Domain` green, zero `sorry`.
+
+**The one idea.** `⊴` is *stronger* than a plain order embedding (it is a retract), but the proof
+only needs the embedding. `Trianglelefteq.elementEmbedding : (D ⊴ E) → Nonempty (|D| ↪o |E|)`:
+unfold `⊴` to `e : |D| ≅o |D'|` with `D' ◁ E`; Prop 6.12 turns `D' ◁ E` into the projection pair
+`i = hsub.inj`, `j = hsub.proj` with `j ∘ i = I` (`proj_comp_inj`); then `projElementEmbedding i j hji`
+is an order embedding `|D'| ↪o |E|` — built by `OrderEmbedding.ofMapLEIff i.toElementMap`, with `≤`
+both ways: forward is `toElementMap_mono i`, backward applies the *monotone left inverse* `j`
+(`toElementMap_mono j` to `i(a) ⊑ i(b)`, then rewrite by the round-trip
+`j(i(x)) = (j∘i)(x) = I(x) = x` from `toElementMap_comp`/`hji`/`toElementMap_idMap`). Compose with
+`e.toOrderEmbedding` (`RelEmbedding.trans`).
+
+**Finite Schröder–Bernstein.** `orderIso_of_embeddings {P Q} [Finite P] [Finite Q] (f : P ↪o Q)
+(g : Q ↪o P) : Nonempty (P ≃o Q)`: order embeddings are injective, so
+`Fintype.card_le_of_injective` both ways gives equal card, `Fintype.bijective_iff_injective_and_card`
+makes `f` bijective, and the `OrderIso` is `{ toEquiv := Equiv.ofBijective f hbij,
+map_rel_iff' := f.map_rel_iff' }`.
+
+**GOTCHA (recorded).** `StrictMono.orderIsoOfSurjective` needs `[LinearOrder]`; element domains are
+only `PartialOrder`. A surjective *strictly monotone* map is **not** an order iso on partial orders
+— but a surjective *order embedding* (which reflects `≤`) is. So build the iso from the bijective
+embedding's `map_rel_iff'` directly, never via `orderIsoOfSurjective`.
+
+**Finite system.** `NeighborhoodSystem.IsFinite D := Finite {X // D.mem X}` (finitely many
+neighbourhoods). `finite_element_of_isFinite : D.IsFinite → Finite |D|`: a filter is pinned by which
+neighbourhoods it contains, so `x ↦ {p | x.mem p.1}` injects `|D| ↪ Set {X // D.mem X}` (off-`D`
+sets are in neither filter by `x.sub`); finite powerset of a finite type. Faithful theorem
+`isomorphic_of_finite_system` just `haveI`s the two `Finite |·|` and calls the core.
+
+**Need the same for infinite systems? No.** Plotkin's argument is a finite cardinality count with no
+infinite analogue; the retraction preorder on infinite dcpos fails Cantor–Schröder–Bernstein
+(Eilenberg-swindle obstruction). The infinite counterexample is recorded as prose only — out of this
+file's scope (would require building two non-isomorphic infinite systems that are mutual retracts).
+
+**Axioms.** `projElementEmbedding`, `Trianglelefteq.elementEmbedding` are choice-free
+`{propext, Quot.sound}`. `orderIso_of_embeddings`, `finite_element_of_isFinite`, and both main
+theorems add `Classical.choice` (extracting `Fintype` from `Finite` / a section of the surjection) —
+genuinely unavoidable and confined to the finite count.
+
+---
+
+## Checkpoint — 2026-06-22 — Exercise 6.29 COMPLETE (infinitary `∑`, `∏`; `⊕` yes, `⊗` no)
+
+`Exercise629.lean` (ns `Domain.Neighborhood.Exercise629`), wired into `Domain.lean`, full `Domain`
+green, zero `sorry`. Index family `D : ∀ i, NeighborhoodSystem (α i)` over `α i` (`ℕ` intended).
+
+**The four operations.**
+- **`iprod` `∏_i D_i`** — cylinders `iprodNbhd X = {p | p.2 ∈ X p.1}`, `X i ∈ 𝒟ᵢ`, master off a finite
+  support. Headline **infinitary Prop 3.2**: `iprodEquiv : |∏_i D_i| ≃o ∀ i, |D_i|` (pointwise order).
+- **`isum` `∑_i D_i`** — separated sum over `Option (Σ i, α i)`: basepoint master `sumMasterI` or one
+  tagged copy `injI i X`. `isum_trichotomy`, `isum_summand_unique`.
+- **`ioplus` `⊕_i D_i`** — coalesced sum (as `∑`, improper copies deleted). Generalizes fine.
+- **`iotimes` `⊗_i D_i`** — smash. Proper = every coordinate proper ⟹ over infinite `ι` clashes with
+  finite support ⟹ `iotimes_only_master`/`iotimes_subsingleton`: a one-point domain. **`⊗` does not
+  generalize.** Answer to Scott's question: `+`,`×`,`⊕` generalize; `⊗` degenerates.
+
+**Choice discipline (the hard part — went from pervasive `Classical.choice` to clean).**
+- Finite support is the **positive `List` form** `FinSupp D X := ∃ l, ∀ i, i ∉ l → X i = master`. The
+  negative form (`X i ≠ master → i ∈ l`) forces double-negation elimination on undecidable set
+  equality (`X i = master`) in `FinSupp.inter`/reconstruction ⟹ choice. The positive form makes both
+  constructive (outside `l ++ l'`, `master ∩ master = master`; the support equality `restrictTo l X = X`
+  is `(hl j h).symm`).
+- `Function.update_eq_self` is **classical** — prove `updTuple D i master = (fun j => master)` by
+  `funext` + `by_cases j = i` (`updTuple_apply_self`/`_ne`, both `propext`-only).
+- In `injI`-intersection `inter_mem` proofs (`isum`/`ioplus`), do **not** `by_cases i = j` (classical,
+  no `DecidableEq`): recover `i = j` constructively from the consistency witness `Z` via
+  `index_of_some_mem_injI`. Same trick makes `isum_summand_unique` choice-free.
+- Mathlib pitfalls pulling choice: `Set.Finite`, `Function.update_eq_self`, `List.mem_toFinset`,
+  `Finite.of_fintype`, `not_forall`/`Infinite.exists_notMem_finset`.
+
+**Axiom audit.** Data `iprod`, `isum`, `ioplus`, `iotimes`, `iprodEquiv`, plus `isum_summand_unique`,
+`z_mem_of_slices`, `FinSupp.inter` — all `⊆ {propext, Quot.sound}`. Only `isum_trichotomy` (excluded
+middle: does `z` reach a summand?) and `iotimes_subsingleton`/`iotimes_only_master` (cardinality via
+classical `Set.Finite`) add `Classical.choice` — both Prop-level, genuinely classical, flagged in
+their docstrings and the file header.
+
+**Next concrete target:** Exercise 6.29 is **COMPLETE**; this finishes Lecture VI's formalization. The
+next frontier is **Lecture VII** (Defn 7.1 *computable presentation* onward), transcribed/inventoried
+but formalization-deferred.
