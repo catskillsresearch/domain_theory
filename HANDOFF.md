@@ -17,7 +17,16 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.24** (double fixed point `D ≅ D+(D×E)`, `E ≅ D+E`).
+**Next concrete target:** **Exercise 6.25** (projection-pair `g,h` element identities: the Galois
+connection `g(x) ⊑ y ↔ x ⊑ h(y)` and the two extremal formulas). **Exercise 6.24 is COMPLETE**
+(`Exercise624.lean`, namespace `Domain.Neighborhood.Exercise624`): the **double fixed-point** method
+for the coupled system `D ≅ D+(D×E)`, `E ≅ D+E`. Tokens `Str={0,1}*`; token recursions
+`gTok p q = insert [] (0p ∪ 1q) = tok(D+E)` and `fTok p q = gTok p (gTok p q) = tok(D+(D×E))`; the
+pair Kleene iteration `pIter` gives `GammaD/GammaE` with `fTok_GammaD_GammaE`/`gTok_GammaD_GammaE`
+(continuity = each token references ≤1 coordinate, so a single stage suffices, no merge). Object level:
+`Dsol={Γ_D}`, `Esol={Γ_E}`, `Dsol_subsystem : {Γ_D} ◁ D+(D×E)` and `Esol_subsystem : {Γ_E} ◁ D+E`
+simultaneously (`exists_simultaneous_subsystems`) — the joint hypothesis of the simultaneous Thm 6.14.
+Choice-free; see the dated checkpoint at the end.
 **Exercise 6.23 is COMPLETE — all four phases** (`Exercise623.lean`: the concrete solution domain
 `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))`; the strict-map `Category ScottSys` + `Texp` as an
 `Endofunctor` + the algebra `ExpAlg`; the **evaluation homomorphism** `descAlgHom : AlgHom (ExpAlg N
@@ -25,11 +34,11 @@ hN) B` for every algebra `B` (Scott's `val(s)`, existence), built as the Kleene 
 `⋃ₙ k∘T(·)∘j`; and **uniqueness/initiality `ExpInitial : IsInitial (ExpAlg N hN)`** via the projection
 chain `ρₙ = iₙ∘jₙ`, the functor-carries-the-projection-pair crux `GExpr.map_inj/map_proj`, the key
 equation `key_rho : ρₙ₊₁ = i∘T(ρₙ)∘j`, and `g`-independence `gcomp_rho_eq : g∘ρₙ = valₙ` ⟹
-`descMap_eq_algHom`). Choice-free `{propext, Quot.sound}`. **Exercise 6.22 is
+`descMap_eq_algHom`). Choice-free `{propext, Quot.sound}`. **Exercise 6.24 is COMPLETE**
+(double fixed point — see above and the dated checkpoint). **Exercise 6.22 is
 COMPLETE** (`Exercise622.lean`: the three domain equations recognised as `GExpr` fixed points).
 **Exercise 6.21 is COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the
-6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary generalization). Also open:
-**Exercise 6.24** (double fixed point `D ≅ D+(D×E)`, `E ≅ D+E`). Earlier completed milestones below
+6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary generalization). Earlier completed milestones below
 for context. **Exercise 6.17 is COMPLETE — both parts** (`Exercise617.lean`,
 `Exercise617Gen.lean`). Part 1: `CisInitial : IsInitial Calg`, `C` is the initial `T`-algebra for
 `T(X)=𝟙+X+X`. Part 2 (`Exercise617Gen.lean`): the development is generalized over an arbitrary
@@ -1792,3 +1801,52 @@ sum/oplus/otimes token lemmas (and everything downstream incl. `ExpInitial`) non
 use `(h : s = t).subset`** (`Eq.subset`, choice-free) — or `subset_rfl`. `prodMapTok_*` was already
 clean precisely because it had no master case and never used `.le`. Bisect choice provenance with
 `#print axioms` + temporarily `sorry`-ing branches (setup vs. branch bodies).
+
+---
+
+## Checkpoint — Exercise 6.24 COMPLETE (double fixed point) — 2026-06-22
+
+**Status:** `lake build Domain` green (3093 jobs), zero `sorry`. New module `Exercise624.lean`
+(namespace `Domain.Neighborhood.Exercise624`), wired into `Domain.lean`. Axiom audit on
+`exists_double_fixedPoint`, `exists_simultaneous_subsystems`, `Dsol_subsystem`, `Esol_subsystem`
+all `⊆ {propext, Quot.sound}` (choice-free).
+
+**What Exercise 6.24 asks.** Show there exist domains with `D ≅ D+(D×E)` and `E ≅ D+E` *by a double
+fixed-point method*: decide the tokens, then define `D, E` by simultaneous fixed points. This is the
+**simultaneous** analogue of 6.20/6.21 — those exercises deliver a single `Γ` with `{Γ} ◁ T({Γ})`
+("so 6.14 applies"); 6.24 delivers a **pair** `(Γ_D, Γ_E)` solving two coupled token equations at
+once, whence the two singleton systems are subsystems of the two right-hand sides simultaneously =
+the joint hypothesis of the simultaneous Theorem 6.14.
+
+**Design (concrete, no bivariate `FExpr` needed).** Both `D, E` are `∅`-free systems over the single
+token type `Str = {0,1}*`. Over `{0,1}*` the sum `+` and product `×` share the master shape
+`{Λ} ∪ 0·(…) ∪ 1·(…)`, so the two token recursions collapse to:
+- `gTok p q = tok(D+E) = insert [] (embBit false p ∪ embBit true q)`;
+- `fTok p q = tok(D+(D×E)) = gTok p (gTok p q)`  (the inner `gTok p q` is `tok(D×E)`).
+
+**Key continuity insight.** `mem_gTok_iUnion`/`mem_fTok_iUnion`: every token of `*Tok (⋃ aₙ)(⋃ bₙ)`
+lands in some *single* `*Tok aₙ bₙ`. Reason: each concrete token (`[]`, `0w'`, `1[]`, `1(0u')`,
+`1(1u')`) references **at most one** of the two coordinates, even in `fTok`'s nested `true`-branch —
+so **no directedness merge is needed** (unlike the abstract continuity-on-domains lemmas). This makes
+the fixed point fall out from just monotonicity + this additivity; the chain need not even be proved
+increasing.
+
+**The double fixed point.** `pIter : ℕ → Set Str × Set Str`, `Φ(p,q) = (fTok p q, gTok p q)` from
+`({Λ},{Λ})`; `GammaD = ⋃ₙ (pIter n).1`, `GammaE = ⋃ₙ (pIter n).2`. `fTok_GammaD_GammaE`,
+`gTok_GammaD_GammaE` (⊇: `fTok_mono`/`gTok_mono` + `pIter_*_subset_*`; ⊆: additivity lemma landing at
+stage `n+1`). Capstone `exists_double_fixedPoint`.
+
+**Object level.** `Dsol = {Γ_D}`, `Esol = {Γ_E}` (`singletonSys`); `Fsol D E = D.sum (D.prod E)`,
+`Gsol D E = D.sum E`. `master_Fsol`/`master_Gsol` are **`rfl`** (the sum/product masters defeq-expand to
+`fTok`/`gTok`). `Dsol_subsystem : {Γ_D} ◁ D+(D×E)` and `Esol_subsystem : {Γ_E} ◁ D+E` by the
+singleton-subsystem pattern (cf. `exists_singleton_subsystem`); `exists_simultaneous_subsystems`
+packages both.
+
+**Choice-discipline gotcha (reuse).** `Set.subset_iUnion` is **classical** (drags in
+`Classical.choice`). For a choice-free `(s i) ⊆ ⋃ i, s i`, prove it by hand:
+`fun _ hx => Set.mem_iUnion.mpr ⟨i, hx⟩` (here `pIter_fst_subset_GammaD`/`pIter_snd_subset_GammaE`).
+`Set.mem_iUnion` itself is choice-free. (Also: `(pIter 0).1` does not match `{·}` for
+`Set.mem_singleton_iff`; use `have hw0 : w = [] := hn` — singleton membership is defeq to `=`.)
+
+**Next concrete target:** Exercise 6.25 (projection-pair `g,h` identities on elements:
+`g(x) ⊑ y ↔ x ⊑ h(y)`, the Galois connection, and the two extremal formulas for `h`/`g`).
