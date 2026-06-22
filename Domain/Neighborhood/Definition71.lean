@@ -1,7 +1,6 @@
 import Domain.Neighborhood.Basic
 import Domain.Neighborhood.Exercise315
-import Mathlib.Computability.Partrec
-import Mathlib.Computability.RE
+import Domain.Neighborhood.Recursive
 
 /-!
 # Definition 7.1 (Scott 1981, PRG-19, §7) — computable presentations / effectively given domains
@@ -22,11 +21,18 @@ calculations with neighbourhoods*. This forces at most a countable infinity of n
 >
 > are recursively decidable (in `n, m, k` and in `n, m` respectively).
 
-We model "recursively decidable" by mathlib's genuine recursion theory: `ComputablePred` over the
-integer indices (`ℕ`, `ℕ × ℕ`, `ℕ × ℕ × ℕ` are all `Primcodable`). Relation (i) is the ternary
-`interEq` predicate; relation (ii) is the binary `cons`(istency) predicate. The enumeration `X` is
-the only *data* the structure carries, and it is a plain `ℕ → Set α`, so building a presentation
-stays choice-free.
+**Recursion theory: we roll our own and reject Mathlib here.** "Recursively decidable" is modelled by
+`Domain.Recursive.RecDecidable` — the existence of a primitive-recursive `{0,1}`-valued
+characteristic function, with tuples coded by `Nat.pair`. We deliberately do **not** use Mathlib's
+recursion theory (`ComputablePred` / `Primrec` / `Partrec`): in Mathlib `v4.30.0` essentially all of
+its *correctness lemmas* are proved with `grind`/`lia` or the `@[simp]` lemma `Nat.unpair_pair`,
+which **open `Classical`**, so they audit with `Classical.choice`. This project's discipline is to
+keep constructions choice-free (`⊆ {propext, Quot.sound}`), so we rebuilt the slice of recursion
+theory we need (choice-free `Nat.sqrt` correctness, the `Nat.pair`/`unpair` round-trips, and
+primitive-recursive `id`/`+`/`*`) in `Domain/Neighborhood/Recursive.lean`. Relation (i) is the
+ternary `interEq` predicate (`RecDecidable₃`); relation (ii) is the binary consistency predicate
+(`RecDecidable₂`). The enumeration `X` is the only *data* the structure carries (a plain
+`ℕ → Set α`), so building a presentation stays choice-free.
 
 The intuitive content (Scott's prose): (i) lets us *locate* the intersection of two neighbourhoods
 in the standard list, and (ii) is the *consistency condition* — the necessary and sufficient
@@ -41,7 +47,7 @@ A neighbourhood system is *effectively given* when it admits such a presentation
 
 namespace Domain.Neighborhood
 
-open NeighborhoodSystem
+open NeighborhoodSystem Domain.Recursive
 
 variable {α : Type*}
 
@@ -63,41 +69,41 @@ structure ComputablePresentation (V : NeighborhoodSystem α) where
   /-- The enumeration is onto `𝒟`: every neighbourhood appears as some `Xₙ`. -/
   surj : ∀ {Y : Set α}, V.mem Y → ∃ n, X n = Y
   /-- **7.1(i)** — `Xₙ ∩ Xₘ = X_k` is recursively decidable in `n, m, k`. -/
-  interEq_computable : ComputablePred (fun t : ℕ × ℕ × ℕ => X t.1 ∩ X t.2.1 = X t.2.2)
+  interEq_computable : RecDecidable₃ (fun n m k => X n ∩ X m = X k)
   /-- **7.1(ii)** — consistency `∃ k. X_k ⊆ Xₙ ∩ Xₘ` is recursively decidable in `n, m`. -/
-  cons_computable : ComputablePred (fun t : ℕ × ℕ => ∃ k, X k ⊆ X t.1 ∩ X t.2)
+  cons_computable : RecDecidable₂ (fun n m => ∃ k, X k ⊆ X n ∩ X m)
 
 namespace ComputablePresentation
 
 variable {V : NeighborhoodSystem α} (P : ComputablePresentation V)
 
+/-- Reindexing `(n, m) ↦ (n, m, n)` on `Nat.pair` codes: `t ↦ pair n (pair m n)`. -/
+private def inclShuffle (t : ℕ) : ℕ := Nat.pair t.unpair.1 (Nat.pair t.unpair.2 t.unpair.1)
+
+private theorem primrec_inclShuffle : Nat.Primrec inclShuffle :=
+  Nat.Primrec.pair Nat.Primrec.left (Nat.Primrec.pair Nat.Primrec.right Nat.Primrec.left)
+
+/-- Swap the two components of a `Nat.pair` code: `t ↦ pair m n`. -/
+private def swapPair (t : ℕ) : ℕ := Nat.pair t.unpair.2 t.unpair.1
+
+private theorem primrec_swapPair : Nat.Primrec swapPair :=
+  Nat.Primrec.pair Nat.Primrec.right Nat.Primrec.left
+
 /-- **Scott's biconditional after 7.1.** "The inclusion relation between neighbourhoods is itself
-decidable in terms of the indices", because `Xₙ ⊆ Xₘ ↔ Xₙ ∩ Xₘ = Xₙ`. We obtain a decision Boolean
-for inclusion by reindexing `(n, m) ↦ (n, m, n)` into relation (i). -/
-theorem incl_computable : ComputablePred (fun t : ℕ × ℕ => P.X t.1 ⊆ P.X t.2) := by
-  obtain ⟨f, hf, hfeq⟩ := ComputablePred.computable_iff.1 P.interEq_computable
-  refine ComputablePred.computable_iff.2 ⟨fun t => f (t.1, t.2, t.1), ?_, ?_⟩
-  · exact hf.comp (Computable.pair Computable.fst (Computable.pair Computable.snd Computable.fst))
-  · funext t
-    have h := congrFun hfeq (t.1, t.2, t.1)
-    exact (propext (@Set.inter_eq_left _ (P.X t.1) (P.X t.2))).symm.trans h
+decidable in terms of the indices", because `Xₙ ⊆ Xₘ ↔ Xₙ ∩ Xₘ = Xₙ`. We obtain the decision by
+reindexing `(n, m) ↦ (n, m, n)` into relation (i). -/
+theorem incl_computable : RecDecidable₂ (fun n m => P.X n ⊆ P.X m) := by
+  refine RecDecidable.of_iff (fun t => ?_) (P.interEq_computable.comp primrec_inclShuffle)
+  simp only [inclShuffle, unpair_pair_fst, unpair_pair_snd]
+  exact Set.inter_eq_left.symm
 
 /-- **Equality of neighbourhoods is decidable** from the indices: `Xₙ = Xₘ ↔ Xₙ ⊆ Xₘ ∧ Xₘ ⊆ Xₙ`,
-so equality is the conjunction of two instances of `incl_computable`. -/
-theorem eq_computable : ComputablePred (fun t : ℕ × ℕ => P.X t.1 = P.X t.2) := by
-  obtain ⟨f, hf, hfeq⟩ := ComputablePred.computable_iff.1 P.incl_computable
-  refine ComputablePred.computable_iff.2
-    ⟨fun t => cond (f (t.1, t.2)) (f (t.2, t.1)) false, ?_, ?_⟩
-  · exact (hf.comp (Computable.pair Computable.fst Computable.snd)).cond
-      (hf.comp (Computable.pair Computable.snd Computable.fst)) (Computable.const false)
-  · funext t
-    obtain ⟨n, m⟩ := t
-    show (P.X n = P.X m) = ((cond (f (n, m)) (f (m, n)) false : Bool) : Prop)
-    have h1 : (P.X n ⊆ P.X m) = (f (n, m) = true) := congrFun hfeq (n, m)
-    have h2 : (P.X m ⊆ P.X n) = (f (m, n) = true) := congrFun hfeq (m, n)
-    apply propext
-    rw [Set.Subset.antisymm_iff, h1, h2]
-    cases f (n, m) <;> cases f (m, n) <;> simp
+so equality is the conjunction of `incl_computable` with its swap. -/
+theorem eq_computable : RecDecidable₂ (fun n m => P.X n = P.X m) := by
+  refine RecDecidable.of_iff (fun t => ?_)
+    (P.incl_computable.and (P.incl_computable.comp primrec_swapPair))
+  simp only [swapPair, unpair_pair_fst, unpair_pair_snd]
+  exact Set.Subset.antisymm_iff
 
 end ComputablePresentation
 
@@ -110,15 +116,14 @@ def NeighborhoodSystem.IsEffectivelyGiven (V : NeighborhoodSystem α) : Prop :=
 
 /-- The trivial presentation of the one-point system `𝟙 = unitSys`: the constant enumeration
 `Xₙ = Δ = univ`. Both of Scott's relations are *always true* here (any two neighbourhoods are equal
-and consistent), hence trivially recursive. -/
+and consistent), hence trivially recursively decidable via the constant `1` decider. -/
 def unitPresentation : ComputablePresentation unitSys where
   X _ := Set.univ
   mem_X _ := rfl
   surj := by rintro Y rfl; exact ⟨0, rfl⟩
-  interEq_computable :=
-    ComputablePred.computable_iff.2 ⟨fun _ => true, Computable.const true, by funext t; simp⟩
-  cons_computable :=
-    ComputablePred.computable_iff.2 ⟨fun _ => true, Computable.const true, by funext t; simp⟩
+  interEq_computable := recDecidable_of_forall fun _ => Set.inter_self Set.univ
+  cons_computable := recDecidable_of_forall fun _ =>
+    ⟨0, by rw [Set.inter_self]⟩
 
 /-- **The one-point domain `𝟙` is effectively given.** -/
 theorem unitSys_isEffectivelyGiven : unitSys.IsEffectivelyGiven :=

@@ -17,17 +17,25 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Definition 7.2** (*computable map* = `REPred` of the
-neighbourhood relation `Xₙ f Yₘ`). **Definition 7.1 is COMPLETE** (`Definition71.lean`, ns
+**Next concrete target:** **Lecture VII — Definition 7.2** (*computable map* = r.e. version of the
+neighbourhood relation `Xₙ f Yₘ`), built on the bespoke choice-free recursion theory below.
+**Definition 7.1 is COMPLETE and CHOICE-FREE** (`Definition71.lean` + `Recursive.lean`, ns
 `Domain.Neighborhood`): `ComputablePresentation V` (enumeration `X:ℕ→Set α` onto 𝒟 + Scott's two
-`ComputablePred` relations interEq/cons), `incl_computable`, `eq_computable`,
-`NeighborhoodSystem.IsEffectivelyGiven`, sanity inhabitant `unitSys_isEffectivelyGiven`. **CHOICE
-NOTE for all of Lecture VII:** the user chose genuine mathlib recursion theory
-(`Computable`/`ComputablePred`/`REPred`), which is *classical at its foundation* (`Computable.const`
-already depends on `Classical.choice`). So every Lecture-VII computability result audits as
-`{propext, Classical.choice, Quot.sound}` — this is **unavoidable & expected**, not a discipline
-slip: the *data* (enumerations, index functions) stays explicit/constructive, only the computability
-*witnesses* are classical. **Exercise 6.29 is COMPLETE** (`Exercise629.lean`,
+relations interEq/cons as `RecDecidable₃`/`RecDecidable₂`), `incl_computable`, `eq_computable`,
+`NeighborhoodSystem.IsEffectivelyGiven`, sanity inhabitant `unitSys_isEffectivelyGiven` — all audit
+`{propext, Quot.sound}`. **RECURSION-THEORY NOTE for all of Lecture VII — we roll our own and
+rejected Mathlib because it opens Classical and we are trying to avoid that:** Mathlib's
+`Computable`/`ComputablePred`/`Primrec`/`Partrec`/`REPred` correctness lemmas are proved via
+`grind`/`lia` or the `@[simp]` `Nat.unpair_pair`, all of which pull `Classical.choice` (even
+`Computable.const` does). Rather than inherit that, `Recursive.lean` rebuilds the slice we need
+choice-free: `RecDecidable p := ∃ f, Nat.Primrec f ∧ ∀n, p n ↔ f n = 1`; choice-free `Nat.sqrt`
+correctness (`iter_sq_le`/`lt_iter_succ_sq`/`sqrt_le`/`lt_succ_sqrt`/`sqrt_eq_of`, porting mathlib's
+proofs with `grind`/`lia`→`omega` and a local choice-free `lt_of_mul_lt_mul_left'`); the
+`Nat.pair`/`unpair` round-trips (`unpair_pair`/`pair_unpair`); primitive-recursive `id`/`+`/`*`
+(`primrec_id`/`primrec_add`/`primrec_mul`, built only from the choice-free `Nat.Primrec`
+*constructors*); and closure lemmas `RecDecidable.of_iff`/`.comp` (reindex)/`.and`. Everything is
+`⊆ {propext, Quot.sound}`. Use these (not mathlib's recursion theory) for 7.2 onward.
+**Exercise 6.29 is COMPLETE** (`Exercise629.lean`,
 ns `Exercise629`): infinitary `∏_i D_i` (`iprod`, cylinders + finite support; headline
 `iprodEquiv : |∏_i D_i| ≃o ∀ i, |D_i|`), `∑_i D_i` (`isum`, separated sum + `isum_trichotomy`),
 `⊕_i D_i` (`ioplus`, coalesced) — these **generalize**; `⊗_i D_i` (`iotimes`) **degenerates** over an
@@ -2146,3 +2154,46 @@ coercion is `(b : Prop) := (b = true)`.
 `Xₙ f Yₘ` is `REPred` in `(n,m)` (r.e., not merely recursive — the `𝒟 = {Δ}` degeneration gives the
 *computable element* notion: `{m | Yₘ ∈ y}` is r.e.). Will need the approximable-map infrastructure
 (`ApproximableMap`) to phrase `Xₙ f Yₘ`.
+
+---
+
+## Checkpoint — Jun 22, 2026: Definition 7.1 redone CHOICE-FREE (bespoke recursion theory)
+
+**What changed.** Definition 7.1 was previously formalized on Mathlib's `ComputablePred` and audited
+`{propext, Classical.choice, Quot.sound}`. Per the decision to keep the project choice-free, it has
+been **rebuilt on a bespoke, choice-free recursion theory** and now audits `{propext, Quot.sound}`.
+
+**Why we rejected Mathlib here.** We audited Mathlib `v4.30.0`'s recursion theory and found
+`Classical.choice` is pervasive in its *correctness lemmas* (not the inductives themselves): the
+tactics `grind` and `lia` both pull `Classical.choice` (whereas `omega` does not), and the `@[simp]`
+lemma `Nat.unpair_pair` is classical, which in turn makes `Computable.const`, `Primrec.const`,
+`Nat.Primrec.id/add/mul`, `Nat.sqrt_le`, `Nat.unpair_pair`, … all classical. Since these are exactly
+the lemmas any `ComputablePred`/`REPred` development leans on, **we roll our own recursion theory and
+reject Mathlib in this case because it opens Classical and we are trying to avoid that.**
+
+**New file `Domain/Neighborhood/Recursive.lean`** (ns `Domain.Recursive`), all `⊆ {propext, Quot.sound}`:
+- choice-free `Nat.sqrt` correctness — `amGM`, `iter_sq_le`, `lt_iter_succ_sq` (faithful ports of
+  Mathlib's `Nat.sqrt.iter_sq_le`/`lt_iter_succ_sq` with `grind`/`lia`→`omega`, plus a choice-free
+  `lt_of_mul_lt_mul_left'` replacing the classical `Nat.lt_of_mul_lt_mul_left`), `sqrt_le`,
+  `lt_succ_sqrt`, `sqrt_eq_of` (the `q²≤m<(q+1)² → sqrt m = q` characterization), `sqrt_add_eq`;
+- `Nat.pair`/`unpair` round-trips — `unpair_pair` (+ `unpair_pair_fst/snd`), `sqrt_le_add`,
+  `pair_unpair`;
+- primitive-recursive arithmetic — `primrec_id`, `primrec_add`, `primrec_mul` (built ONLY from the
+  choice-free `Nat.Primrec` constructors `zero/succ/left/right/pair/comp/prec`, with the
+  `unpair_pair`-noise discharged by my choice-free round-trips + `omega`, via helpers `rec_add`/`rec_mul`);
+- the predicate API — `RecDecidable p := ∃ f, Nat.Primrec f ∧ ∀n, p n ↔ f n = 1`, `RecDecidable₂`,
+  `RecDecidable₃`, and closure `RecDecidable.of_iff` / `.comp` (reindex by any `Nat.Primrec` map) /
+  `.and` (multiply `{0,1}` deciders; uses choice-free `nat_mul_eq_one`), plus `recDecidable_of_forall`.
+
+**`Definition71.lean`** now states (i)/(ii) as `RecDecidable₃`/`RecDecidable₂`, derives
+`incl_computable` (reindex `(n,m)↦(n,m,n)` via `RecDecidable.comp` + `Set.inter_eq_left`) and
+`eq_computable` (`RecDecidable.and` of `incl` with its `swapPair` reindex + `Set.Subset.antisymm_iff`),
+and `unitPresentation` via the constant-`1` decider `recDecidable_of_forall`. Wired into `Domain.lean`.
+
+**Audits** (`#print axioms`): `incl_computable`, `eq_computable`, `unitPresentation`,
+`unitSys_isEffectivelyGiven`, and every lemma in `Recursive.lean` → `{propext, Quot.sound}`.
+`lake build Domain` green.
+
+**Next:** Definition 7.2 (computable map / element) on top of `Recursive.lean` — will need an r.e.
+analogue. The natural choice-free move is `RecEnumerable p := ∃ f, Nat.Primrec f ∧ ∀n, p n ↔ ∃k, f (pair n k) = 1`
+(domain of a `Nat.Primrec` predicate / projection), staying within the same constructor-only discipline.

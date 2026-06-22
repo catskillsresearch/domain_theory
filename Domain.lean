@@ -138,5 +138,6 @@ import Domain.Neighborhood.Exercise626
 import Domain.Neighborhood.Exercise627
 import Domain.Neighborhood.Exercise628
 import Domain.Neighborhood.Exercise629
+import Domain.Neighborhood.Recursive
 import Domain.Neighborhood.Definition71
 import Domain.InfoSys
