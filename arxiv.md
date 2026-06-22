@@ -27,25 +27,6 @@ point-set topology and lattice theory (1972) → filter-theoretic neighborhoods 
 finite combinatorics (1982) → synthesis (Part IV). The formalization makes this objective
 via mathlib dependency footprints and `#print axioms` audits.
 
-**STATUS:** **Part I** is the active workstream: vision transcription through the March 1972 Milner
-correction is complete; **94** numbered results / exercises are **Pass** (zero `sorry`s, zero
-Stuck) — **all of Lecture I (Def 1.1 → Exercise 1.27)** and **all of Lecture II** (Def 2.1,
-Prop 2.2, Examples 2.3–2.4, the category Theorem 2.5 / Prop 2.6, the isomorphism Theorem 2.7, and
-Exercises 2.8–2.22) are now formalized. Lecture II completed this session: 2.13 (approximable =
-continuous), 2.14 (`φ` of an iso), 2.15 (Sierpiński/opens), 2.18 (spacing map), 2.20 (powerset
-domain), 2.21 (system `C`/juxtaposition), 2.22 (abstract representation theorem). **Lecture III (§3)
-— products, sums, function spaces — has its full spine (Def 3.1 → Thm 3.13) formalized:** the
-product `prodEquiv`, the function space `funSpaceEquiv` (Thm 3.10), the least map of Prop 3.9, the
-cartesian-closed structure `eval`/`curry`/`curryEquiv` (Thm 3.11–3.12), and the pointwise
-boundedness/sups of Thm 3.13(ii)(iii) (`sSupMaps`), all choice-free. **All §3 exercises (3.14–3.28)
-are now formalized**, including the infinite iterate `𝒟`<sup>∞</sup> (3.16), the retract B ◁ T<sup>∞</sup> (3.17), the
-function-space isos/mapping relationships (3.24), open sets as a domain (3.25), and the abstract
-Ex 2.22 re-proof of the function-space domain (3.27).
-**Parts II–III** are stubbed; **Part IV** lists planned
-bridge theorems only. **Part III** is the **fully constructive** target
-(`[propext, Quot.sound]` only); **Parts I–II** and the **1972 leg of Part IV** are
-**classical** (see §1.2).
-
 Complete Lean source is indexed in **Appendix A**; `scripts/generate_arxiv_with_code.py`
 expands this narrative mechanically into `arxiv_with_code.md`.
 
@@ -69,35 +50,82 @@ limits) is spelled out in §3.
 **Why this formalization is hard: Scott's topological lineage.** A working hypothesis of this
 project is that the chief obstacle to mechanizing Scott's notes is not Lean but *prerequisite
 mathematical culture*. Scott's lecture notes — especially the 1972 *Continuous Lattices* — read
-with a level of topological maturity that leaves most modern computer scientists dizzy, because
+with a level of topological maturity that leaves most modern computer scientists confounded, because
 Scott did **not** treat topology as a standalone tool grafted onto computation. He treated it as a
 natural extension of logic and algebra. The typical computer-science reader has never been trained
 in point-set topology *as a pure discipline in its own right*, and so meets these notes missing the
-very reflexes they silently assume. The striking fact — and the key to the difficulty — is that
-Scott himself had **no formal, conventional graduate training in topology either**. His deep
-topological expertise developed *organically* out of his foundational training in mathematical
+very reflexes they silently assume. The topology at issue is narrow and specific: **general (point-set)
+topology**, the root system and trunk of the subject — the layer that fixes the bare meaning of
+"space," "nearness," and "continuity" before the tree branches into the very different sub-fields of
+**algebraic** topology (holes in spaces — the donut versus the coffee cup), **differential** topology
+(smooth surfaces one can do calculus on), and **geometric** topology (manifolds, knots, embeddings).
+The Kelley–Stone–Tarski tradition lives strictly down in those roots, where topology is inseparable
+from **set theory and mathematical logic** — the corner Scott inhabited. Scott's deep
+topological expertise developed out of his training in mathematical
 logic, algebra, and set theory: first as an undergraduate under **Alfred Tarski** at UC Berkeley
 (1950–1954), then during his doctoral studies at Princeton [Plo20], [Sco22]. Rather than approaching
 topology as a geometric discipline, he came to it sideways, recognizing the deep structural bridges
 between order theory, non-classical logic, and mathematical space.
 
-One piece of explicitly topological schooling did anchor this: as a Berkeley undergraduate Scott
+It is worth being concrete about what that missing training actually demands, because "learn some
+topology" understates the gap by an order of magnitude: genuine command of point-set topology sits at
+the top of a multi-year ladder. Its lower rungs are an undergraduate's apprenticeship in proof and
+**basic set theory** (functions, equivalence relations, power sets, countable versus uncountable
+cardinality) and — decisively — **real analysis**: the ε–δ account of continuity, convergence, metric
+spaces, and the Heine–Borel theorem, without which the later axioms have no concrete shadow to cast.
+The core curriculum then rebuilds those analytic intuitions in their pure, coordinate-free form —
+topologies via open sets, bases, and **neighborhood systems**; continuity as nothing but the inverse
+image of opens, *with distance and number deliberately stripped away*; products (including infinite
+products) and quotient "gluings"; connectedness; the two faces of **compactness** (open-cover and
+limit-point); the **separation axioms** `T₀`–`T₄`, Urysohn's Lemma, and the Tietze extension theorem;
+the countability axioms; and the hard lesson that **sequences no longer detect limits** in a general
+space, forcing the move to **nets** or **filters**. Only at the graduate level does the subject reveal
+its true allegiance, fusing with **axiomatic set theory** — the Axiom of Choice, Zorn's Lemma,
+transfinite induction — to the point where wholly natural topological questions (Suslin's Problem, the
+normal Moore space conjecture) turn out to be *independent of ZFC* [Jec03], and with **functional
+analysis**, where weak-* topologies, Banach–Alaoglu, and Stone–Weierstrass make the point-set
+machinery the working dialect of infinite-dimensional spaces. The canonical path through this
+material is itself a curriculum: Munkres for the foundations [Mun00], Willard for the graduate
+treatment of nets, filters, and uniform spaces [Wil70], and — the field's true stress test — Steen
+and Seebach's *Counterexamples in Topology* [SS95], whose 140-odd pathological spaces exhibit exactly
+where a theorem collapses when a single hypothesis is dropped, mastery being measured precisely by how
+fluently one navigates them. This is the apprenticeship a denotational semanticist silently
+presupposes and a working programmer has almost never served — and the classic reference of that 
+canon was written by the man who taught Scott the subject.
+
+As a Berkeley undergraduate Scott
 studied general topology directly under **John L. Kelley**, who during exactly those years was
-drafting his field-defining textbook *General Topology* (1955) [Kel55]. Kelley's rigorous,
-comprehensive framework standardized point-set topology, and in particular popularized the use of
-**filters and nets** (rather than sequences) to describe convergence in arbitrary spaces, taking a
-foundation-up, non-metric view entirely comfortable with **non-Hausdorff** spaces. Both fingerprints
+drafting his field-defining textbook *General Topology* (1955) [Kel55] — for some forty years the
+subject's standard graduate text. Kelley's rigorous, comprehensive framework standardized
+point-set topology, supplied the definitive codification of the **net** and **filter** calculus the
+ladder above culminates in, and took a foundation-up, non-metric view entirely comfortable with
+**non-Hausdorff** spaces. The set-theoretic depth of that foundation was no accident: it was Kelley
+who proved in 1950 that **Tychonoff's theorem** — arbitrary products of compact spaces are compact, a
+load-bearing rule of the discipline — is logically *equivalent* to the **Axiom of Choice** [Kel50],
+an emblem of the period's discovery that point-set topology and the foundations of set theory are two
+faces of one thing. Both Kelley fingerprints
 are all over domain theory: Scott's domains are presented through filters of neighborhoods, and their
 natural topology is **`T₀` but not `T₁`/`T₂`** — asymmetric, with "points" standing for *states of
-information* rather than geometric locations. These are precisely the `T₀`/`T₁` separation axioms
-required by computer-science domains, and precisely the corner of topology that mainstream curricula,
-fixated on Hausdorff spaces and open balls, skip entirely.
+information* rather than geometric locations. These are precisely the `T₀`/`T₁` separation axioms that
+computer-science domains require: the exact antithesis of the Hausdorff, open-ball world a standard
+analysis course instills, which is why a reader equipped with only that world feels the ground shift
+here.
 
 The deeper, organizing influence was **Tarski**, whose graduate courses Scott took as an
 undergraduate and who introduced him to **lattice theory, Boolean algebras, and the Tarski
 Fixed-Point Theorem**. Tarski assigned Scott to study Marshall Stone's seminal paper representing
 Boolean algebras as topological spaces [Sto36], seeding a lifelong interest in the interplay of
-algebra and topology [Man18]. Compounded by the algebraic formulation of **intuitionistic and modal
+algebra and topology [Man18]. Stone — whose career motto was the imperative *"always topologize"* —
+had shown in his **representation (duality) theorem** that every Boolean algebra is, up to
+isomorphism, the algebra of clopen sets of a totally disconnected compact space (a **Stone space**),
+so that reasoning algebraically about logical formulae *is* taking intersections and unions of open
+sets; the related **Stone–Čech compactification** (with Eduard Čech) became standard analyst's
+equipment, to which Kelley devotes whole chapters of *General Topology*. Tarski himself, working with
+J. C. C. McKinsey, pushed the same identification one step further into **topological semantics**: the
+point-set operators **interior** and **closure** obey *exactly* the axioms of the modal operators
+**□** ("it is necessarily true that…") and **◊** ("it is possibly true that…") [MT44], so that a
+*closure algebra* and a *modal logic* are one object seen twice. Compounded by the algebraic
+formulation of **intuitionistic and modal
 logics** — which model truth values by the open sets of a topological space rather than by classical
 binary `{true, false}` — this produced the governing slogan of Scott's career: every Boolean algebra
 *is* the space of its ultrafilters, intuitionistic logic *is* the lattice of opens, and therefore
@@ -129,8 +157,100 @@ machine but to **supply the λ-calculus with mathematical meanings** — a space
 topological/order machinery above is for, and it is why the payoff recorded below is a
 *denotational*, function-space achievement rather than an operational one.
 
-This lineage is not antiquarian decoration: the same lens generated the very structures we are
-formalizing. The **Scott topology** inverts standard point-set practice, acting on posets/domains
+**Which of the two models a field actually reaches for depends entirely on the question being
+asked**, and the division of labour is worth making explicit because it locates this project. For the
+general *theory of computation* — computability and especially **complexity** — the Turing machine is
+overwhelmingly the model of choice; the standard texts of Sipser [Sip13] and Hopcroft–Motwani–Ullman
+[HMU06] build everything on it, for three practical reasons. Resource use is concrete and additive
+(**time** is the number of transitions, **space** the number of tape cells), whereas in the
+λ-calculus a single β-reduction can blow up the size of a term and the step count swings with the
+evaluation strategy (lazy versus eager). The read-head-and-tape picture aligns directly with the
+**von Neumann** CPU/RAM architecture and with imperative code. And undecidability results such as the
+**Halting Problem** read cleanly as a machine trapped in an infinite loop. This is the home of
+imperative programming and of complexity theory's central questions (P vs. NP). The λ-calculus
+dominates the *complementary* territory: **programming-language theory and semantics** (it is the
+native account of binding, scope, and application underlying Lisp, OCaml, and Haskell), **type theory
+and formal verification** (the proof assistants **Coq, Lean, and Agda** are built on typed λ-calculi
+extending up to the Calculus of Constructions), and **denotational semantics**, where modelling a
+program as a mathematical function is far more tractable than tracking the step-by-step mutation of a
+tape. Because the two models compute *exactly the same functions* (the Church–Turing thesis again),
+the choice is one of convenience — whichever makes the proof less tedious — and for Scott's
+denotational, function-space program the λ-calculus is not just a handy notation, but a defining structural necessity.
+It is likewise why the present development is carried out **in Lean**, itself a dependently typed
+λ-calculus: here the object of study and the tool of study belong to the very same tradition.
+
+The contrast is sharpest at the level of **training**, and it reframes the obstacle this project
+confronts. A computer scientist who has mastered the theory of computation is in no way
+mathematically unsophisticated; they have climbed a ladder every bit as long and rigorous as the
+topological one sketched earlier — but up a different tree. That ladder is built from **discrete and
+asymptotic** mathematics, not point-set analysis: enough calculus to handle limits and growth rates
+(the substance of Big-O, and of showing that every polynomial `nᵏ` is eventually dwarfed by any
+exponential `aⁿ`); proof technique, above all **induction** and **structural induction** over strings
+and trees; **discrete mathematics** — finite sets, combinatorics, the Kleene star, and **Cantor's
+diagonal argument**, from which one learns there are uncountably many problems but only countably many
+machines to solve them; **first-order logic and Boolean satisfiability** — the road to Gödel's
+incompleteness theorem (essentially the Halting Problem in another key) and to the **Cook–Levin**
+encoding of a whole computation as one logical formula; and **graph theory**, serving at once as the
+transition diagrams of the machines and as the habitat of the canonical hard problems (Hamiltonian
+path, clique). On top of these sit the three pillars proper: **automata theory** read as the study of
+*restricted* Turing machines (the Chomsky hierarchy climbing from finite automata through pushdown and
+linear-bounded automata, each tier fenced off by its pumping lemma); **computability** (the universal
+machine, diagonalization, reduction, and **Rice's** and the **recursion** theorems); and **complexity**
+(the `TIME`/`SPACE` classes, the `P`-versus-`NP` landscape, NP-completeness via Cook–Levin, Savitch's
+theorem, and the time/space hierarchy theorems). Its canonical progression is its own self-contained
+curriculum — Rosen for the discrete foundations [Ros19], Sipser for the three pillars [Sip13], Arora
+and Barak for graduate complexity [AB09]. What that syllabus contains almost none of is
+**point-set topology, order theory, lattices, nets and filters, or functional analysis** — the entire
+substance of the topological ladder above. The two pathways meet only on their lowest rungs (basic
+logic and set theory) and diverge completely thereafter. That is the exact shape of the difficulty:
+Scott's notes are hard for a computer scientist not through any deficit of rigor but because the
+standard theory-of-computation training and the denotational/topological training are *nearly disjoint
+curricula* — the reader arrives superbly equipped, for the wrong tree.
+
+It is worth putting a number on this — a back-of-the-envelope one, but it sharpens "rare" into
+something concrete. Take a single year's entering class of United States computer-science PhD students,
+on the order of **2,800**, and *partition* it by which syllabus a student has genuinely *mastered* on
+arrival (not merely been exposed to). Four mutually exclusive groups result; the estimate below is
+deliberately generous to the theoretical end.
+
+| Mutually exclusive group | Est. students | Share of cohort |
+| :--- | ---: | ---: |
+| Mastered **both** syllabi | ~10 | ~0.35% |
+| Mastered the **Turing-machine** syllabus only | ~270 | ~9.65% |
+| Mastered **point-set topology** only | ~10 | ~0.35% |
+| Mastered **neither** | ~2,510 | ~89.6% |
+| **Entering cohort** | **2,800** | **100%** |
+
+Collapsing the overlap, that is roughly **20 students (~0.7%) with the topological training** and
+**280 (~10%) with the Turing-machine training** in any given year, and the asymmetry follows directly
+from the two ladders. Point-set topology is all but absent because, for the overwhelming bulk of
+computer science, it has essentially no use: CS is a discrete science, and the comparatively rare
+moments when it does touch infinite spaces — Baire space, Cantor space, the domains of denotational
+semantics — reach for *highly structured* (separable, often metrizable) objects that real analysis
+already supplies, never the pathological, non-metrizable, net-and-filter menagerie that is point-set
+topology's whole reason for being. The ~20 who have mastered it anyway are almost all undergraduate
+double majors in pure mathematics and CS: a few theory students who simply liked the subject, and a
+few programming-language students drawn to **denotational semantics**, where exactly the
+**Scott-continuity** notions this monograph formalizes earn their keep. Full command of the
+Turing-machine syllabus is commoner but still a minority, concentrated in the theoretical-CS pipeline
+— the CRA Taulbee Survey puts the share entering *theory and algorithms* near 8% [CRA22], some 220
+students, who typically absorb Rice's theorem, Savitch's theorem, the `L`/`NL` space classes, and the
+hierarchy theorems as undergraduates — plus perhaps 60 more entering the mathematically demanding
+neighbours of theory (formal verification, compilers and programming languages, cryptography, learning
+theory). It is no larger because most undergraduate programs require only a single, surface-level
+automata course that stops well short of diagonalization, space complexity, and the hierarchy
+theorems. The remaining ~90% are trained in neither — no reflection on ability, but a plain
+consequence of where modern CS research actually lives: artificial intelligence, vision, language,
+systems, databases, software engineering, security, human–computer interaction. An AI student's
+mathematical depth goes into multivariate calculus, linear algebra, probability, and optimization; a
+systems or security student's into computer architecture, systems programming, and networks — skill
+sets that intersect *neither* the topological ladder nor the Turing-machine one. For the empirical,
+system-building majority the separation axioms and the space-hierarchy theorems are alike simply
+irrelevant. The reader this monograph must serve is therefore drawn from a population in which fewer
+than one entrant in a hundred arrives already fluent in its mathematical idiom — the quantitative core
+of the "prerequisite mathematical culture" hypothesis with which this section began.
+
+The **Scott topology** inverts standard point-set practice, acting on posets/domains
 where a set is *Scott-open* exactly when it names a property verifiable from a finite approximation;
 **domain theory** recasts computation through continuous functions on such spaces and so furnished
 the first rigorous model of the untyped λ-calculus; and the **pointless-topology** thread —
@@ -167,21 +287,6 @@ out to be **the same move**, because the topological apparatus he was removing i
 non-constructive (excluded-middle, choice, maximal-filter) steps lived. The `#print axioms` audits
 throughout this monograph (§1.2) are, in effect, an empirical test of that conjecture: they let us
 measure, theorem by theorem, how much classical content each presentation actually requires.
-
-### 1.1 Contribution (overall)
-
-1. **Part I:** Scott 1972 continuous lattices — numbered-result inventory, Milner correction,
-  and partial §3–§4 spine in `Domain/ContinuousLattice/`.
-2. **Part II (live, §1 foundations):** PRG-19 neighborhood systems in `Domain/Neighborhood/` —
-  Defs 1.1/1.6/1.7/1.8/1.9, Theorems 1.1c/1.10 (element-token system `𝒟 ≅ᴰ {[X]}`)/1.11
-  (`⋂`/ascending-`⋃` closure), Examples 1.2–1.5/1.B, Factoids 1.1a–1.8b, Exercises 1.12–1.15, 1.22
-  (topology on `|𝒟|`); **32 results**, foundational constructions audited choice-free
-  (`[propext, Quot.sound]`); the infinite-system classification / maximality / non-isomorphism
-  results (Ex 1.12/1.14/1.15) use `Classical.choice` (deciding boundedness/membership).
-3. **Part III (planned):** 1982 information systems — choice-free core in `Domain/InfoSys.lean`
-  and `Domain/Constructive.lean`.
-4. **Part IV (planned):** functors and isomorphisms tying Parts I–III; constructive certification
-  for the 1982 route; documented classical frontier for the 1972 route.
 
 ### 1.2 Constructivity discipline
 
@@ -1455,10 +1560,10 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Example 6.1** | Example | 3214 | iterating `D×D` indefinitely into a single domain (`D`<sup>∞</sup>-style construct) | **Pass** (`Example61.lean`: the *tree algebra* `D`<sup>§</sup> over a fixed domain `D` and Scott's domain equation D<sup>§</sup> ≅ D + (D<sup>§</sup> × D<sup>§</sup>). Tokens live in `Γ = {1,2}* 0 Δ`, modelled as `List Bool × α` with master `Γ = {t ∣ t.2 ∈ Δ}` (`true=1`, `false=2`); the three neighbourhood embeddings `embZero X = 0X`, `embL P = 1P`, `embR Q = 2Q`, `embPair P Q = 1P ∪ 2Q` with their intersection/subset/injectivity/disjointness API. `MemS D` is the inductive least family containing (i) `Γ`, (ii) `0X` for `X∈𝒟`, (iii) `1P∪2Q` for P,Q∈𝒟<sup>§</sup>; **`memS_inter`** is Scott's central closure-under-consistent-intersection proof by induction on the derivation (cross cases `0A∩(1P∪2Q)=∅` discharged via non-emptiness `memS_nonempty`, needing the standing `∅∉𝒟` as `hD`). `Dsharp D hD` packages the system. The **domain equation** `dsharp_domain_equation : Dsharp D hD ≅ᴰ sum D (prod (Dsharp D hD) (Dsharp D hD)) …` is built as the explicit order-iso `dsharpEquiv` (forward `toS`/inverse `fromS` filter maps, the inverse laws `fromS_toS`/`toS_fromS`, and `map_rel_iff'`), routed through the project's `+` (Ex 3.18) and `×` (Def 3.1) with the shape-inversion lemmas `memS_embZero_inv`/`memS_embPair_inv`/`sum_mem_inj₀_inv`/`sum_mem_inj₁_inv`. Also the isomorphic injections `inSharp` (x<sup>§</sup> = {Γ}∪{0X∣X∈x}, `inSharp_le_iff`) and `pairSharp` (`⟨x,y⟩ = {Γ}∪{1P∪2Q∣P∈x,Q∈y}`, `pairSharp_le_iff`); `⊥ = {Γ}` is the system's own `bot`. **Fully choice-free** `[propext, Quot.sound]` — even the equation iso and order-injection lemmas) |
 | **Example 6.2** | Example | 3506 | `B`, `C` as solutions of domain equations (isomorphisms) | **Pass** (`Example62.lean` + `Example62C.lean`: Scott's domain equations `B ≅ B + B` and `C ≅ {{Λ}} + C + C`. `Example62.lean` builds the single-bit prepend `embBit b X = bX` (`= prepend [b] X`) over `Str = List Bool` with its intersection/subset/injectivity/disjointness API and the neighbourhood-shape classification `memB_cases` (master `Σ*`, `0X`, `1X`); the forward/inverse filter maps `toBB`/`fromBB` and the order-iso `bbEquiv : |B| ≃o |B + B|` against the project's `+` (Ex 3.18) give `B_domain_equation : B ≅ᴰ sum B B …`. `Example62C.lean` first builds the genuine **three-way separated sum** `sum3 V₀ V₁ V₂` over `Option (α ⊕ β ⊕ γ)` (tags `t0`/`t1`/`t2`, injections `j0`/`j1`/`j2`, `master3`, full `inter_mem`) — nesting the binary sum would add a spurious extra bottom — then the order-iso `ccEquiv : |C| ≃o |𝟙 + C + C|` (`toCC`/`fromCC`, with `𝟙 = unitSys` the `{{Λ}}` summand, the `{Λ} = {[]}` terminator going to the unit copy, `0X`/`1X` to the two `C` copies) giving `C_domain_equation : C ≅ᴰ sum3 unitSys C C …`. **Fully choice-free** `[propext, Quot.sound]`. The **`Aⁿ + Aⁿ` generalization** ("a simple, yet interesting generalization of `B`") is also done in `Example62A.lean`: the flat `n`-fold product `npow V n` over `Fin n × β` (neighbourhoods the proper products `prodN X = ⋃_j {j}×X_j`, componentwise `inter_mem`), Scott's domain `A` over `{0,1}*` as the inductive least family `MemA` with the slot encoding `embTuple i X = i ⋃_{j<n} 1ʲ0 X_j` (parsed via the uniqueness lemma `slotPre_inj`/`slot_list_inj`), the system `Asys n hn` (needs `0<n`), and the order-iso `aaEquiv : |A| ≃o |Aⁿ + Aⁿ|` giving `A_domain_equation : Asys n hn ≅ᴰ sum (npow A n) (npow A n) …` (choice-free `[propext, Quot.sound]`). The closing **eventually-periodic-tree ↔ regular-event** aside is `Example62Regular.lean`: Scott's `+/−`-labelled `n`-ary trees `Tree n = List (Fin n) → Bool` with `pos`, the subtree selector `select a σ` (Scott's `aσ`, recursion `aΛ=a`, `a(iσ)=(aᵢ)σ`), the language `treeLang a = L_a`, and the theorem `eventuallyPeriodic_iff_isRegular : EventuallyPeriodic a ↔ (treeLang a).IsRegular` together with `isRegular_iff_exists_eventuallyPeriodic` — exactly the **Myhill–Nerode theorem** (`treeLang_select` identifies `L_{aσ}` with the left quotient `σ⁻¹L_a`, so finitely many subtrees = finitely many left quotients = regular; Prop-level, uses `Classical.choice` via Mathlib's `Language.isRegular_iff_finite_range_leftQuotient`)) |
 | **Definition 6.3** | Definition | 3621 | a *functor* `T` on the category of domains | **Pass** (`Definition63.lean`: a self-contained `class Category` (objects, hom-sets, `id`, `comp`, the three laws), the witness instance on `DomainObj`/`ApproximableMap` (laws = Thm 2.5), and `Endofunctor` (the *endofunctor* of Def 6.3, with `map_id`/`map_comp`). **On not using Mathlib's `CategoryTheory.Category`:** it is structurally identical and *expressive enough* to state all of 6.3–6.7 (it has functors `⥤`, `Endofunctor.Algebra`/`Algebra.Hom`, `Limits.IsInitial`, even Lambek's lemma as `Endofunctor.Algebra.Initial.strInv`/`left_inv`/`right_inv`), and a bare `Category DomainObj` instance is itself choice-free `[propext, Quot.sound]` — so this is *not* a question of missing vocabulary. It is nonetheless avoided because its *content* is choice-bound: `Endofunctor.Algebra.Initial.left_inv` (the inverse half of Lambek = Scott's Prop 6.7) reports `[propext, Classical.choice, Quot.sound]` since Mathlib's `IsInitial` rides on the `Limits` framework, whereas the project's `lambek`/`initialIso` (Props 6.7/6.6) depend on **no axioms whatsoever**. Adopting Mathlib would therefore either inject `Classical.choice` into the flagship Lecture VI results (breaking the `#print axioms ⊆ {propext, Quot.sound}` discipline) or reuse only the bare class and re-prove 6.6–6.7 by hand anyway — paying a heavy transitive import and the `≫` (diagrammatic) vs `⊚` (Scott's "after") convention clash for no reusable content. Since Scott asks only for "a small amount of the terminology of category theory", the ~50-line bespoke class is kept; the full rationale and the empirical axiom comparison live in the module docstring.) |
-| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | **Pass** (`Definition63.lean`) |
-| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | **Pass** (`Definition63.lean`) |
-| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | **Pass** (`Proposition66.lean`) |
-| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | **Pass** (`Proposition67.lean`) |
+| **Definition 6.4** | Definition | 3663 | a *`T`-algebra* `T(E)→E` | **Pass** (`Definition63.lean`): `structure TAlgebra T` = a carrier object `E` with a structure map `str : T(E) → E`; `structure AlgHom A B` = a morphism `hom : E → F` carrying the commuting-square field `comm : hom ⊚ A.str = B.str ⊚ T.map hom`. Scott's remark that the `T`-algebras *themselves form a category* is discharged by `AlgHom.id` (square closes via `id_comp`+`map_id`+`comp_id`) and `AlgHom.comp` (β after α; the composite square chains `assoc`→`α.comm`→`assoc`→`β.comm`→`assoc`→`map_comp`), with `@[simp]` projections `id_hom`/`comp_hom`. Stated over an arbitrary `Category`; `⊚` reads "`g` after `f`" (matching `ApproximableMap.comp`, deliberately *not* the diagrammatic `≫`). Choice-free `{propext, Quot.sound}`. |
+| **Definition 6.5** | Definition | 3701 | an *initial* `T`-algebra | **Pass** (`Definition63.lean`): `structure IsInitial A` bundles the existence datum `desc : (B : TAlgebra T) → AlgHom A B` with the uniqueness field `uniq : ∀ B (h : AlgHom A B), h = desc B` — a *unique* homomorphism into every algebra. The companion `structure Iso X Y` (mutually inverse `hom`/`inv` with `hom_inv_id`/`inv_hom_id`) is defined here too, since 6.6/6.7 manufacture isomorphisms. All of it lives over an arbitrary `Category`, exactly as Scott stresses ("could be given for any category"); the concrete `instance : Category DomainObj` (objects = systems, homs = `ApproximableMap`, laws = Thm 2.5) witnesses non-vacuity. `IsInitial` itself depends on **no axioms**; module bound `{propext, Quot.sound}` (the `DomainObj` witness). |
+| **Proposition 6.6** | Proposition | 3705 | any two initial `T`-algebras are uniquely isomorphic | **Pass** (`Proposition66.lean`): the textbook diagram chase. For initial `A`,`B`, initiality gives unique homs each way; the helper `comp_desc_eq_id hA hB : (hB.desc A).comp (hA.desc B) = AlgHom.id A` holds because *both* sides are homs `A → A`, so `hA.uniq` forces each to equal `hA.desc A`. `initialIso hA hB : Iso A.carrier B.carrier` then sets `hom = (hA.desc B).hom`, `inv = (hB.desc A).hom`, and reads the two identity laws off `comp_desc_eq_id` in each direction via `congrArg AlgHom.hom`. Uniqueness of the realising hom is `iso_hom_unique := hA.uniq B h`. Verified to **depend on no axioms at all** (not even `propext`/`Quot.sound`) — purely the category laws; this is precisely *why* the project keeps a bespoke `Category` instead of Mathlib's choice-bound `Limits.IsInitial`. |
+| **Proposition 6.7** | Proposition | 3709 | `i:T(D)→D` initial ⟹ `T(i)` initial and `i` is an isomorphism | **Pass** (`Proposition67.lean`, **Lambek's lemma**): formalises the decisive half — the structure map of an initial algebra is an iso. With `A=(D,i)`, the functor builds `tStr A = (T(D), T(i))` and `strHom A : (T(D),T(i)) → (D,i)` (square = `rfl`). Initiality returns the descent hom `j := (hA.desc (tStr A)).hom`; `str_comp_desc` proves `i ⊚ j = I_D` (again `(strHom A).comp j` and `id` are both homs `A→A`, so `uniq` collapses them). `lambek A hA : Iso (T(D)) D` packages `hom=i`, `inv=j`: `inv_hom_id` *is* `str_comp_desc`, and `hom_inv_id` (`j ⊚ i = I_{T(D)}`) is the calc `j⊚i = T(i)⊚T(j) = T(i⊚j) = T(I_D) = I_{T(D)}` using `j`'s square (`comm`), `(map_comp _ _).symm`, `str_comp_desc`, then `map_id`. This is Scott's point that "to have initial algebras at all we must satisfy `D ≅ T(D)`". Verified to **depend on no axioms at all**. |
 | **Definition 6.8** | Definition | 3761 | a functor *continuous on maps* | **Pass** (`Definition68.lean`: `ContinuousOnMaps (T : Endofunctor DomainObj)` — for all domains `D, E` the induced action `λf. T(f)` on Scott's **strict** function space is approximable. Stated *verbatim* over the strict maps: the (co)domain `(D →⊥ E)` is the project's `strictFun D.sys E.sys` (Exercise 5.10), whose elements are exactly the strict approximable maps (`IsStrict f`, i.e. `f(⊥)=⊥`), with the representation `strictFunEquiv : \|D →⊥ E\| ≃o StrictMap D E` mirroring Theorem 3.10. "`λf.T(f)` is approximable" is rendered (Prop 2.2 / Thm 3.10) as the existence of a representing `Φ : ApproximableMap (strictFun D.sys E.sys) (strictFun (T.obj D).sys (T.obj E).sys)` whose elementwise action — transported through `toStrictFilter`/`toStrictMap` — reproduces `T` on underlying maps: `(toStrictMap (Φ.toElementMap (toStrictFilter f))).1 = T.map f.1`. Since the LHS is the underlying map of a `StrictMap`, the condition automatically forces `T(f)` strict whenever `f` is (`ContinuousOnMaps.isStrict_map`), so a continuous-on-maps `T` genuinely restricts to Scott's category of domains and strict maps. Non-vacuity: the identity functor is continuous on maps (`continuousOnMaps_id`, representing map = `idMap` on `strictFun`), built on the generic `idEndofunctor`. **Choice-free** `[propext, Quot.sound]`. *Design note:* Scott's category for 6.8 uses strict maps, but the project's abstract spine (Defs 6.3–6.7) uses the all-maps `DomainObj` category; this is bridged faithfully by keeping `T : Endofunctor DomainObj` (all maps) while stating the continuity condition over the strict function spaces and *deriving* strictness-preservation, rather than introducing a separate strict-category abstraction.) |
 | **Theorem 6.9** | Theorem | 3771 | continuous `T` with `D≅T(D)` ⟹ a homomorphism `D→E` to any `T`-algebra | **Pass** (`Theorem69.lean`: `nonempty_algHom_of_continuousOnMaps (T) (hT : ContinuousOnMaps T) (iso : Iso (T.obj D) D) (B : TAlgebra T) (hk : IsStrict B.str) : Nonempty (AlgHom ⟨D, iso.hom⟩ B)` — Scott's existence statement. Lets `i = iso.hom : T(D)→D`, `j = iso.inv : D→T(D)`; `j` is strict (`isStrict_of_comp_eq_id` from `j∘i=I`, any split iso preserves `⊥`), `k = B.str` strict by hypothesis (a morphism of Scott's strict category). A homomorphism `h` satisfies `h∘i=k∘T(h)`, i.e. the fixed-point equation `h = k∘T(h)∘j`. The operator `λh.k∘T(h)∘j` on the strict function space `(D→⊥E)` is `Op = homOp ∘ Φ`: `Φ` is Def 6.8's witness that `λf.T(f)` is approximable, and `homOp` (built by Ex 2.8 `ofMono`) is the post/pre-composition `g↦k∘g∘j : (T(D)→⊥T(E))→(D→⊥E)`, with `homOpComp` the strict composite and action lemma `homOp_apply_filter : homOp(f̂)=(k∘f∘j)^` (proved by reducing — through `strictFunEquiv` injectivity — to single step nbhds `[X,Z]`, the finite factoring being `N:=[Y₁,Y₂]`). `Op.fixElement` (Thm 4.1) represents `h := toStrictMap …`; `toElementMap_fixElement` + `Φ`'s defining eq + `homOp_apply_filter` give `h = k∘T(h)∘j`, which rearranges via `j∘i=I` (`comp_assoc`, `comp_idMap`) to the `AlgHom` square `h∘i=k∘T(h)`. Conclusion is `Nonempty` (a `Prop`), so `Φ` is extracted from the `Prop`-valued `ContinuousOnMaps` by `Exists.elim` — **fully choice-free** `[propext, Quot.sound]`. New reusable helpers: `isStrict_comp`, `isStrict_of_comp_eq_id`, `comp_mono_gen`, `toStrictMap_mono`, `toStrictFilter_mono`, `toStrictFilter_toStrictMap`.) |
 | **Definition 6.10** | Definition | 3795 | the subsystem relation `D ◁ E` | **Pass** (`Definition610.lean`: `Subsystem D E` / notation `D ◁ E` for `D E : NeighborhoodSystem α` over the same token type — a `Prop`-valued structure with three fields: `master_eq` (`D.master = E.master`, i.e. systems over the *same* `Δ`), `sub` (`D ⊆ E`: `D.mem X → E.mem X`), and the essential `inter_closed` (consistency is inherited from `E`: `D.mem X → D.mem Y → E.mem (X∩Y) → D.mem (X∩Y)`). Elementary API matching Scott's prose: `Subsystem.refl`/`Subsystem.trans` (the `inter_closed` clause threads through `E`) and antisymmetry `Subsystem.antisymm` (`D◁E` and `E◁D` ⟹ `D=E`, via the new `NeighborhoodSystem.ext`: equal `mem` + equal `master` ⟹ equal system, other fields `Prop`). **Scott's remark** `Subsystem.subsystem_iff_subset_of_common`: once `D₀◁E` and `D₁◁E`, the subdomain relation collapses to plain inclusion `D₀◁D₁ ↔ D₀⊆D₁` (the `←` `inter_closed` routes `X∩Y∈D₁⊆E` back into `D₀` via `D₀◁E`). Fully **choice-free** — `refl`/`subsystem_iff_subset_of_common` depend on *no* axioms, `antisymm`/`ext` on `[propext, Quot.sound]`.) |
@@ -1475,7 +1580,7 @@ remaining IV–VIII items are inventoried below; some fixed-point and domain-equ
 | **Exercise 6.21** | Exercise | 4081 | functors generated by the operations | **Pass** (`Exercise621.lean`, namespace `Domain.Neighborhood.Exercise619`): extends 6.19B/6.20 with the *coalesced* sum `⊕` and *smash* product `⊗`, and generalizes all of `+,×,⊕,⊗` to several terms. **Objects:** `oplusTok D₀ D₁ h₀ h₁` (= `sumTok` with the improper copies `0Δ₀,1Δ₁` deleted: `mem W := W=M ∨ (∃X∈𝒟₀, X≠Δ₀, W=0X) ∨ (∃Y∈𝒟₁, Y≠Δ₁, W=1Y)`, same master `M={Λ}∪0Δ₀∪1Δ₁`) and `otimesTok D₀ D₁` (`mem W := W=M ∨ (∃X∈𝒟₀ Y∈𝒟₁, X≠Δ₀, Y≠Δ₁, W=prodTokNbhd X Y)`); both `∅`-free (`oplusTok_nonempty`/`otimesTok_nonempty`), repackaged as `ScottSys.oplus`/`ScottSys.otimes`. Coalescence = the two bottoms are **identified** (`⊕`=coalesced sum, `⊗`=smash), vs `+,×` which keep them apart. Closure uses `inter_ne_of_ne_left/right` (`X⊆Δ, X≠Δ ⟹ X∩X'≠Δ`). **Monotone on domains:** `oplusTok_subsystem`/`otimesTok_subsystem` carry `◁` componentwise (inversions `oplusTok_mem_embF/T_inv`, `otimesTok_mem_prod_inv`). **Maps:** `oplusMapTok`/`otimesMapTok` are full `ApproximableMap`s; their relation adds a **master/collapse row** *(every `W` relates to the top `M`)* that absorbs a boundary hit `f₀(X)=Δ₀'` collapsing back to the shared bottom, plus `≠Δ` side-conditions on the proper rows. Both **always strict** (`oplus/otimesMapTok_isStrict`); identities `oplus/otimesMapTok_id`; **composition laws `oplus/otimesMapTok_comp` require `g₀,g₁` strict** — strictness of the outer map is exactly what prevents an intermediate top from being re-expanded, the categorical reason `⊕,⊗` are functors only on Scott's **strict-map** category; monotone `oplus/otimesMapTok_mono`. **Extended algebra** `inductive GExpr := const \| var \| sum \| prod \| oplus \| otimes` with `GExpr.obj`/`GExpr.map`, and the four properties by induction over all six constructors: **functors** `GExpr.map_id`/`map_comp` (`map_comp` carries `IsStrict g`, threaded through subexprs)/`map_isStrict`; **continuous on maps** `GExpr.map_mono`+`map_continuous`; **monotone on domains** `GExpr.obj_subsystem`; **continuous on domains** `GExpr.obj_continuous`. **6.20 for the extended algebra:** `gFun` (token-master recursion — all four binary ops share the body `insert Λ (0·gFun a ∪ 1·gFun b)` since `sumTokMaster=prodTokNbhd` on masters), `gFun_eq_master`, `gFun_mono`/`gFun_continuous` (reusing Part B's generic `insertTag_mono`/`insertTag_continuous`, `singletonSys`), Kleene `gIter`/`gFun_iter_fixed`, and capstones `gExists_tok_fixedPoint`, **`gExists_singleton_subsystem : ∃Γ h, (singletonSys Γ h).sys ◁ (T.obj (singletonSys Γ h)).sys`** (Thm 6.14 applies). **Several terms:** since `GExpr` is closed under the binary ops, every finite combination `T₀⋆T₁⋆⋯⋆Tₙ` is itself a `GExpr` and inherits all results; `GExpr.naryOp`/`narySum`/`naryProd`/`naryOplus`/`naryOtimes` package the n-ary right-nested folds, `naryOp_rootedConst` preserves the `Λ∈tok` side-condition, and `narySum/naryProd/naryOplus/naryOtimes_singleton_subsystem` give each n-ary construct a solution `Γ=tok(T({Γ}))`. All `⊆ {propext, Quot.sound}` (choice-free). |
 | **Exercise 6.22** | Exercise | 4093 | comment on given domain equations | **Pass** (`Exercise622.lean`, namespace `Domain.Neighborhood.Exercise619`): the "comment on" exercise, formalized as recognising each of the three equations as an instance of the 6.21/6.20 fixed-point machinery, so each has a solution (`Γ=tok(T({Γ}))`, `{Γ} ◁ T({Γ})`, Thm 6.14 applies). **Constants:** `Cnat = {{0},{0,Λ}}` — the two-point chain `{0}⊏Δ` (`0=[false]`, `Λ=[]`), built directly with nested-pair `inter_mem` via `inter_eq_self_of_subset_left/right`, `∅`-free + rooted (`nil_mem_Cnat`); `Cone = singletonSys {Λ}` = the one-point `𝟙` (`nil_mem_Cone`). **Equations:** `NExpr = ⊕(const Cnat, var)` (`N ≅ {{0},{0,Λ}}⊕N`, the **vertical naturals** — coalesced `⊕` collapses the per-step choice into a chain), `MExpr = +(const Cone, var)` (`M ≅ {{Λ}}+M`, the **lazy naturals** — separated `+` keeps stop/continue branching), `NStarExpr N = ⊕(const N, ⊗(const N, var))` (`N* ≅ N⊕(N⊗N*)`, **strict streams over N**: cons-cell functor with smash `⊗`). **Theorems:** `N_eq_solution`/`M_eq_solution`/`NStar_eq_solution N (hN:Λ∈tok N)` each `gExists_singleton_subsystem _ rooted`; `NStar_over_N_exists` chains eq-1's solution (a rooted domain, `Λ∈Γ₁`) as the datum domain of eq-3 via `gExists_tok_fixedPoint`. Axiom audit `⊆ {propext, Quot.sound}`. |
 | **Exercise 6.23** | Exercise | 4107 | the initial solution to a domain equation | **Pass — all 4 phases** (`Exercise623.lean`, namespace `Domain.Neighborhood.Exercise619`): the *concrete solution domain* `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))`. Functor `Texp N = ⊕(const N, +(×(var,var), ×(var,var)))` as a `GExpr` (Ex 6.21). Built a **generic ScottSys colimit fixed point for any rooted `GExpr` `T`** (the concrete, carrier-fixed analogue of Theorem 6.14, so no `HEq` transport): `gFix T = ⋃ₙ gIterⁿ({Λ})` (the 6.20/6.21 token fixed point, as explicit data — choice-free), `gGen T = {Γ}`, `gBase : {Γ} ◁ T({Γ})`, the tower `gTower T n = Tⁿ({Γ})` with `gChain`/`gTower_le`/`gTower_master`, the colimit `gColim T hT = ⋃ₙ Tⁿ({Γ})` (∅-free system over `Str`), `gTower_sub_colim : Tⁿ({Γ}) ◁ 𝒟`, and the **structure equality** `gColim_obj_eq : T(𝒟)=𝒟` (via `GExpr.obj_continuous` for membership + `obj_subsystem` for the master; uses `ScottSys.ext`). Instantiated: `Exp N hN := gColim (Texp N) _` and `Exp_structure_eq : Texp(Exp)=Exp` (the domain-equation iso, structure map = identity). **Phase 2 DONE:** the strict-map `Category ScottSys` (objects = ∅-free systems over `Str`, morphisms = `StrictMap`; `id`/`comp` from Thm 2.5), every `GExpr` as an `Endofunctor` (`gFunctor`, via `map_id`/`map_comp`/`map_isStrict`), `TexpF N`, the structure iso `ExpIso : T(Exp)≅Exp` (`isoOfObjEq` of `Exp_structure_eq`), and the algebra `ExpAlg N hN : TAlgebra (TexpF N)`. **Phase 3 DONE (existence of `val`):** the Kleene iteration `descRel` (`val₀=⊥`, `valₙ₊₁=k∘T(valₙ)∘j`), `descMap = ⋃ₙ valₙ` (`iSupMap`), strict, with the fixed-point eq `descMap_fix` (uses `GExpr.map_continuous`) and homomorphism square `descComm`, packaged as `descAlgHom : AlgHom (ExpAlg N hN) B` for any algebra `B` — Scott's evaluation map. **Phase 4 DONE (uniqueness ⟹ initiality):** `algHom_fix`/`descMap_le_algHom` (`val` is the least hom), then the reverse via the **projection chain** `ρₙ = iₙ∘jₙ` (`Subsystem.inj`/`proj` of `expSub n : gTower(Texp N) n ◁ Exp`), `rho_rel`/`rho_mono`/`iSupRho`, **`iSupRho_eq_id : ⋃ₙρₙ = I_Exp`**, `rho_zero_rel` (`ρ₀=⊥`). The **crux** `GExpr.map_inj : T.map h.inj = (T.obj_subsystem h).inj` (+ `map_proj`) by induction over the 6 constructors, with the 8 token lemmas `sum/prod/oplus/otimesMapTok_inj`+`_proj` discharging the binary cases; whence `map_rho_eq : T(ρₙ)=i'ₙ∘j'ₙ` and **`key_rho : ρₙ₊₁ = expHom∘T(ρₙ)∘expInv`**. Then `gcomp_rho_zero/_succ/_eq` give `g∘ρₙ = descRel n` (`g`-independent, from the hom square + `key_rho`), so `descMap_eq_algHom : g.hom.1 = descMap` (via `iSupRho_eq_id`), and with `algHom_ext` ⟹ **`ExpInitial : IsInitial (ExpAlg N hN)`** — Scott's unique evaluation `val(s)`. Axiom audit `⊆ {propext, Quot.sound}` for the whole chain (`Eq.le` on `Set` was silently classical — use `Eq.subset`); full `Domain` green, zero `sorry`. |
-| **Exercise 6.24** | Exercise | 4127 | existence of domains satisfying given equations | — |
+| **Exercise 6.24** | Exercise | 4127 | existence of domains satisfying given equations | **Pass** (`Exercise624.lean`, namespace `Domain.Neighborhood.Exercise624`): the **double fixed-point** method for the coupled system `D ≅ D+(D×E)`, `E ≅ D+E`. **Tokens decided:** both `D,E` are `∅`-free systems over the single type `Str={0,1}*` (Ex 6.19's uniform category). Since sum `+` and product `×` share the master shape `{Λ}∪0·(…)∪1·(…)` over `{0,1}*`, the two token recursions are `gTok p q = tok(D+E) = insert Λ (0p ∪ 1q)` and `fTok p q = tok(D+(D×E)) = gTok p (gTok p q)`. Both monotone (`gTok_mono`/`fTok_mono`) and **fully additive over a chain**: `mem_gTok_iUnion`/`mem_fTok_iUnion` show every token of `*Tok(⋃aₙ)(⋃bₙ)` lands in some single `*Tok aₙ bₙ` — **each token references at most one coordinate**, even in `fTok`'s nested `1(0p)` branch, so no directedness merge is needed. **Double fixed point:** the pair Kleene iteration `pIter : ℕ → Set Str × Set Str` (`Φ(p,q)=(fTok p q, gTok p q)` from `({Λ},{Λ})`), with component unions `GammaD=⋃ₙ(pIter n).1`, `GammaE=⋃ₙ(pIter n).2`; `fTok_GammaD_GammaE : fTok Γ_D Γ_E = Γ_D` and `gTok_GammaD_GammaE : gTok Γ_D Γ_E = Γ_E` (⊇ by `fTok_mono`+`pIter_fst_subset_GammaD`; ⊆ by the additivity lemma landing at stage `n+1`). Capstone `exists_double_fixedPoint`. **Object level:** `Dsol={Γ_D}`, `Esol={Γ_E}` (`singletonSys`), `Fsol D E = D.sum (D.prod E)`, `Gsol D E = D.sum E`; `master_Fsol`/`master_Gsol` are `rfl` (masters expand to `fTok`/`gTok`), so `Dsol_subsystem : {Γ_D} ◁ D+(D×E)` and `Esol_subsystem : {Γ_E} ◁ D+E` hold simultaneously (singleton-subsystem pattern as in 6.20). `exists_simultaneous_subsystems` packages both — **exactly the joint hypothesis of the simultaneous Theorem 6.14**, which then yields the two isos (matching the 6.20/6.21 precedent that delivers the `◁` hypothesis "so 6.14 applies"). **Choice discipline:** avoid `Set.subset_iUnion` (it is classical) — use the choice-free `pIter_*_subset_*` via `Set.mem_iUnion`. Axiom audit `⊆ {propext, Quot.sound}`. |
 | **Exercise 6.25** | Exercise | 4141 | projection-pair `g,h` identities on elements | — |
 | **Exercise 6.26** | Exercise | 4153 | definitions on systems as in 6.19 | — |
 | **Exercise 6.27** | Exercise | 4165 | which subsystem relationships hold | — |
@@ -2486,12 +2591,29 @@ LNM 274, Springer, 1972.
 Monograph PRG-19, Oxford University Computing Laboratory, May 1981.
 - **[Sco82]** D. Scott. *Domains for Denotational Semantics*. ICALP 1982, LNCS 140.
 - **[Win93]** G. Winskel. *The Formal Semantics of Programming Languages*. MIT Press, 1993.
+- **[Sip13]** M. Sipser. *Introduction to the Theory of Computation*. 3rd ed., Cengage Learning, 2013.
+- **[HMU06]** J. E. Hopcroft, R. Motwani, and J. D. Ullman. *Introduction to Automata Theory,
+Languages, and Computation*. 3rd ed., Addison-Wesley, 2006.
+- **[Ros19]** K. H. Rosen. *Discrete Mathematics and Its Applications*. 8th ed., McGraw-Hill, 2019.
+- **[AB09]** S. Arora and B. Barak. *Computational Complexity: A Modern Approach*. Cambridge
+University Press, 2009.
+- **[CRA22]** Computing Research Association. *CRA Taulbee Survey*. Annual survey of the North
+American PhD pipeline in computing, Computing Research Association, 2022.
 - **[AJ94]** S. Abramsky and A. Jung. *Domain Theory*. Handbook of Logic in Computer Science, Vol. 3.
 - **[GHKLMS03]** G. Gierz, K. H. Hofmann, K. Keimel, J. D. Lawson, M. Mislove, and D. S. Scott.
 *Continuous Lattices and Domains*. Cambridge University Press, 2003.
 - **[Kel55]** J. L. Kelley. *General Topology*. D. Van Nostrand Company, 1955.
+- **[Kel50]** J. L. Kelley. *The Tychonoff product theorem implies the axiom of choice*. Fundamenta
+Mathematicae, 37:75–76, 1950.
+- **[Mun00]** J. R. Munkres. *Topology*. 2nd ed., Prentice Hall, 2000.
+- **[Wil70]** S. Willard. *General Topology*. Addison-Wesley, 1970 (Dover reprint, 2004).
+- **[SS95]** L. A. Steen and J. A. Seebach Jr. *Counterexamples in Topology*. Dover, 1995 (reprint of
+the 2nd ed., Springer, 1978).
+- **[Jec03]** T. Jech. *Set Theory*. 3rd millennium ed., Springer Monographs in Mathematics, 2003.
 - **[Sto36]** M. H. Stone. *The Theory of Representations for Boolean Algebras*. Transactions of the
 American Mathematical Society, 40(1):37–111, 1936.
+- **[MT44]** J. C. C. McKinsey and A. Tarski. *The Algebra of Topology*. Annals of Mathematics,
+45(1):141–191, 1944.
 - **[Man18]** P. Mancosu. *The Origin of the Group in Logic and the Methodology of Science*. Journal
 of Humanistic Mathematics, 8(1):371–413, 2018.
 - **[Chu36]** A. Church. *An Unsolvable Problem of Elementary Number Theory*. American Journal of
