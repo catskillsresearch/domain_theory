@@ -293,4 +293,46 @@ theorem RecDecidable.and {p q : ℕ → Prop} (hp : RecDecidable p) (hq : RecDec
 theorem recDecidable_of_forall {p : ℕ → Prop} (h : ∀ n, p n) : RecDecidable p :=
   ⟨fun _ => 1, Nat.Primrec.const 1, fun n => ⟨fun _ => rfl, fun _ => h n⟩⟩
 
+/-! ## "Recursively enumerable" predicates (Scott's notion, Definition 7.2)
+
+Scott's Definition 7.2 asks for the neighbourhood relation `Xₙ f Yₘ` to be *recursively
+enumerable*. We model "recursively enumerable" choice-free as a **projection of a recursively
+decidable relation**: `p` is r.e. iff there is a recursively decidable `q` with
+`p n ↔ ∃ i, q ⟨i, n⟩` (the search variable `i` is paired with `n` via `Nat.pair`). This is the
+standard equivalent of Scott's prose description — "there is a primitive recursive `r` with
+`y = {Y_{r(i)} ∣ i ∈ ℕ}`": the projection form additionally represents the empty set (take `q`
+identically false), exactly as r.e. sets require. Every recursively decidable predicate is r.e.
+(`RecDecidable.re`, dropping the search variable), and r.e.-ness transfers across pointwise
+equivalence (`REPred.of_iff`). All choice-free. -/
+
+/-- A unary predicate `p : ℕ → Prop` is **recursively enumerable**: it is the projection of a
+recursively decidable relation, `p n ↔ ∃ i, q (Nat.pair i n)`. -/
+def REPred (p : ℕ → Prop) : Prop :=
+  ∃ q : ℕ → Prop, RecDecidable q ∧ ∀ n, p n ↔ ∃ i, q (Nat.pair i n)
+
+/-- A binary relation is recursively enumerable when its `Nat.pair`-coding is. -/
+def REPred₂ (r : ℕ → ℕ → Prop) : Prop :=
+  REPred fun t => r t.unpair.1 t.unpair.2
+
+/-- **Every recursively decidable predicate is recursively enumerable.** Use the decider as the
+relation `q ⟨i, n⟩ := p n` (a reindex of `p` along `unpair.2`, dropping the search variable `i`); the
+witness `i = 0` makes the projection trivial. -/
+theorem RecDecidable.re {p : ℕ → Prop} (hp : RecDecidable p) : REPred p := by
+  refine ⟨fun t => p t.unpair.2, hp.comp Nat.Primrec.right, fun n => ?_⟩
+  simp only [unpair_pair_snd]
+  exact ⟨fun h => ⟨0, h⟩, fun ⟨_, h⟩ => h⟩
+
+/-- A recursively decidable binary relation is recursively enumerable. -/
+theorem RecDecidable₂.re {r : ℕ → ℕ → Prop} (hr : RecDecidable₂ r) : REPred₂ r :=
+  RecDecidable.re hr
+
+/-- Recursive enumerability transfers across a pointwise logical equivalence. -/
+theorem REPred.of_iff {p q : ℕ → Prop} (h : ∀ n, q n ↔ p n) (hp : REPred p) : REPred q := by
+  obtain ⟨r, hr, hre⟩ := hp
+  exact ⟨r, hr, fun n => (h n).trans (hre n)⟩
+
+/-- An always-true predicate is recursively enumerable. -/
+theorem rePred_of_forall {p : ℕ → Prop} (h : ∀ n, p n) : REPred p :=
+  (recDecidable_of_forall h).re
+
 end Domain.Recursive
