@@ -17,12 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.22 is COMPLETE** (`Exercise622.lean`: the three domain
-equations `N ≅ {{0},{0,Λ}}⊕N`, `M ≅ {{Λ}}+M`, `N* ≅ N⊕(N⊗N*)` recognised as `GExpr` fixed points,
-each given a solution via 6.21/6.20 — see the dated checkpoint at the very end). **Exercise 6.21 is
-COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the 6-constructor functor
-algebra `GExpr`, its 6.20 fixed point, and the n-ary "several terms" generalization). Next open:
-**Exercise 6.23** (initial `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))` as a syntactic domain + `val(s)`),
+**Next concrete target:** **Exercise 6.23 is IN PROGRESS — Phase 1 COMPLETE** (`Exercise623.lean`:
+the concrete solution domain `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))` via a generic ScottSys
+colimit fixed point for rooted `GExpr` functors; structure iso `Texp(Exp)=Exp` proved. **Phases 2–4
+remain**: algebra decomposition into `s,u,v`, the evaluation homomorphism `val(s)`, and uniqueness ⟹
+`IsInitial` — see the dated checkpoint at the very end for the precise roadmap). **Exercise 6.22 is
+COMPLETE** (`Exercise622.lean`: the three domain equations recognised as `GExpr` fixed points).
+**Exercise 6.21 is COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the
+6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary generalization). Also open:
 **Exercise 6.24** (double fixed point `D ≅ D+(D×E)`, `E ≅ D+E`). Earlier completed milestones below
 for context. **Exercise 6.17 is COMPLETE — both parts** (`Exercise617.lean`,
 `Exercise617Gen.lean`). Part 1: `CisInitial : IsInitial Calg`, `C` is the initial `T`-algebra for
@@ -1620,3 +1622,60 @@ it is a legitimate datum domain for eq-3 — `N*` exists over the very `N` from 
 literals: `{[false],[]}` is `insert [false] {[]}`; `Λ ∈ master` is `Set.mem_insert_iff.mpr (Or.inr
 rfl)`, and for a `singletonSys Γ` the master *is* `Γ` so `Λ ∈ {Λ}` is `rfl`. (4) `Cnat`/`Cone` are
 the reusable "small constant domains" — `Cone` is the terminal object `𝟙`, handy for 6.23/6.24.
+
+## Checkpoint — 2026-06-21: Exercise 6.23 **Phase 1** COMPLETE (`Exercise623.lean`)
+
+Scott 6.23 asks to (a) *construe the initial solution of `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))` as a
+syntactic domain of expressions* (variables from `N`, two binary op-symbols `u,v`), and (b) show any
+strict `s : N → D` + ops `u,v : D×D → D` determine a **unique** evaluation `val(s) : Exp → D`. User
+chose the **full domain-theoretic initiality** route (à la Exercise 6.17), with `N` an **arbitrary
+rooted `ScottSys`** parameter.
+
+**Key architectural decision (important for whoever continues).** Theorem 6.14 (`Theorem614.lean`)
+already builds the initial algebra abstractly as the colimit `⋃ₙ Tⁿ({Γ})` — *but* it is stated over
+`Endofunctor DomainObj` with arbitrary carriers, so it is drowning in `HEq` carrier-transport, and
+the `GExpr` operations `⊕,⊗,+,×` are **`Str`-specific** (not a total endofunctor of `DomainObj` — the
+same obstruction `Exercise617` flagged). So we **cannot** instantiate the abstract Theorem 6.14. The
+chosen path is to **re-derive Theorem 6.14 concretely in the `ScottSys` framework**, where the token
+type is fixed at `Str` and every carrier equality is `rfl` (no `HEq`). The `GExpr` concrete
+continuity lemmas (`obj_subsystem`, `obj_continuous`, `map_continuous`, `map_id`, `map_comp` [needs
+`IsStrict g`], `map_isStrict`) are *exactly* the hypotheses needed and plug straight in.
+
+**Phase 1 delivered (a generic, reusable colimit fixed point for ANY rooted `GExpr` — also the engine
+for 6.24).** All choice-free; full `Domain` green (3092 jobs).
+- `gFix T = ⋃ₙ gIter T n` — the 6.20/6.21 token fixed point `Γ=tok(T({Γ}))`, as **explicit data**
+  (use this, not `gExists_*`, to stay choice-free when you need the witness).
+- `gGen T = {Γ}` (`singletonSys`); `gBase : {Γ} ◁ T({Γ})` (inlined `gExists_singleton_subsystem` body
+  at the explicit `Γ`).
+- tower `gTower T n = Tⁿ({Γ})` (`gChain` base `gBase`, step `obj_subsystem`); `gTower_le`;
+  `gTower_master` (all levels share master `Γ`).
+- `gColim T hT = ⋃ₙ Tⁿ({Γ})` (∅-free `ScottSys` over `Str`; `inter_mem` via `gTower_le`+`max`);
+  `gTower_sub_colim : Tⁿ({Γ}) ◁ 𝒟`.
+- **`gColim_obj_eq : T(gColim)=gColim`** (`ScottSys` equality). Membership half from `obj_continuous`
+  on the directed tower (`T(⋃Tⁿ)=⋃Tⁿ⁺¹`, and the `n=0` level is absorbed by one `gChain` step);
+  master half from `obj_subsystem (gTower_sub_colim 0)`. Helper `ScottSys.ext` (sys-equality ⟹ object
+  equality; `ne` is a `Prop`).
+- Instantiation: `Texp N = .oplus (.const N) (.sum (.prod .var .var) (.prod .var .var))`;
+  `Texp_rooted (hN:Λ∈tok N)`; `Exp N hN := gColim (Texp N) _`; **`Exp_structure_eq : Texp(Exp)=Exp`**
+  — the domain-equation iso (structure map = `idMap`).
+
+**Phases 2–4 remaining (the evaluation map + initiality). Recommended plan:**
+- **Phase 2 — algebras & decomposition.** Build a `Category` of `ScottSys` + **strict** maps (mirror
+  `Exercise617`'s `StrictDomainObj` instance but over fixed `Str`; `GExpr.map_comp` needs strict `g`,
+  so the strict-map category is forced). Make `Texp N` an `Endofunctor` of it (reuse `GExpr.map_id`,
+  `map_comp`, `map_isStrict`). A `Texp`-algebra `(D,k)` decomposes — via element-level injections of
+  `⊕`/`+`/`×` — into `s:N→D` (strict), `u,v:D×D→D`. The project has the *map* actions
+  `sumMapTok`/`prodMapTok`/`oplusMapTok`/`otimesMapTok` (6.21) already; element-level injections may
+  need adding (cf. `Exercise617`'s `sinj0/1/2`).
+- **Phase 3 — descent `val(s)`.** Mirror `Theorem614` lines ~285–362 concretely: `colimAlg` = `Exp`
+  with structure map `idMap` (from `Exp_structure_eq`); existence of a strict hom via the project's
+  concrete **Theorem 6.9** (`Theorem69.lean`, homomorphisms out of a fixed point `D ≅ T(D)`). `val(s)`
+  is that hom for the algebra `(D,s,u,v)`.
+- **Phase 4 — uniqueness ⟹ `IsInitial`.** Mirror `Theorem614` lines ~303–598 concretely: projections
+  `ρₙ = iₙ∘jₙ` from `gTower_sub_colim n` (Prop 6.12), `T(ρₙ)=ρₙ₊₁` (here MUCH easier than the abstract
+  `map_rho_heq`: no `HEq`, just `GExpr.map_comp`/`map_id`), `⋃ₙρₙ=I` (`iSupMap`), and `g∘ρₙ` is
+  `g`-independent (base `ρ₀=⊥` since `{Γ}` is one-point; step: homomorphism square). Conclude
+  uniqueness of strict homs ⟹ `IsInitial`.
+- **Known gotcha:** `oplusMapTok_comp`/`otimesMapTok_comp` (so `GExpr.map_comp`) REQUIRE strict `g` —
+  stay in the strict category; the `⊕` `N`-summand injection must respect the coalesced bottom
+  (collapse row), cf. 6.21's `oplusMapTok`.
