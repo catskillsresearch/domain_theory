@@ -129,4 +129,5 @@ import Domain.Neighborhood.Exercise617Gen
 import Domain.Neighborhood.Exercise618
 import Domain.Neighborhood.Exercise619
 import Domain.Neighborhood.Exercise619PartB
+import Domain.Neighborhood.Exercise621
 import Domain.InfoSys
