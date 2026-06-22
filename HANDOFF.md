@@ -17,11 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Exercise 6.23 is IN PROGRESS — Phase 1 COMPLETE** (`Exercise623.lean`:
-the concrete solution domain `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))` via a generic ScottSys
-colimit fixed point for rooted `GExpr` functors; structure iso `Texp(Exp)=Exp` proved. **Phases 2–4
-remain**: algebra decomposition into `s,u,v`, the evaluation homomorphism `val(s)`, and uniqueness ⟹
-`IsInitial` — see the dated checkpoint at the very end for the precise roadmap). **Exercise 6.22 is
+**Next concrete target:** **Exercise 6.23 is IN PROGRESS — Phases 1–3 COMPLETE + Phase 4 partial**
+(`Exercise623.lean`: the concrete solution domain `Exp` for `Exp ≅ N ⊕ ((Exp×Exp)+(Exp×Exp))`; the
+strict-map `Category ScottSys` + `Texp` as an `Endofunctor` + the algebra `ExpAlg`; the **evaluation
+homomorphism** `descAlgHom : AlgHom (ExpAlg N hN) B` for every algebra `B` (Scott's `val(s)`,
+existence), built as the Kleene fixed point `⋃ₙ k∘T(·)∘j`; and `descMap_le_algHom` (`val` is the
+**least** homomorphism). **Phase 4 remaining**: the reverse inequality `g ≤ val` (so `g = val` ⟹
+`IsInitial`) via the projection chain `ρₙ` and the crux lemma `GExpr.map ρₙ = ρₙ₊₁` — see the dated
+checkpoint at the very end for the precise roadmap). **Exercise 6.22 is
 COMPLETE** (`Exercise622.lean`: the three domain equations recognised as `GExpr` fixed points).
 **Exercise 6.21 is COMPLETE** (`Exercise621.lean`: coalesced sum `⊕`, smash product `⊗`, the
 6-constructor functor algebra `GExpr`, its 6.20 fixed point, and the n-ary generalization). Also open:
@@ -1679,3 +1682,75 @@ for 6.24).** All choice-free; full `Domain` green (3092 jobs).
 - **Known gotcha:** `oplusMapTok_comp`/`otimesMapTok_comp` (so `GExpr.map_comp`) REQUIRE strict `g` —
   stay in the strict category; the `⊕` `N`-summand injection must respect the coalesced bottom
   (collapse row), cf. 6.21's `oplusMapTok`.
+
+## Checkpoint — 2026-06-21: Exercise 6.23 **Phases 2–3 COMPLETE + Phase 4 partial** (`Exercise623.lean`)
+
+Continuing 6.23. Everything choice-free (`#print axioms ⊆ {propext, Quot.sound}`); full `Domain`
+green (3092 jobs). New content all in namespace `Domain.Neighborhood.Exercise619`; added
+`import Domain.Neighborhood.Theorem69` and `open Domain.Neighborhood.Exercise510` (for `StrictMap`,
+`IsStrict`, `isStrict_idMap`, `isStrict_constBot`, `isStrict_comp`).
+
+**Phase 2 — the strict-map category, the endofunctor, the algebra.**
+- `instance : Category ScottSys` — objects = `ScottSys` (∅-free systems over the *fixed* token type
+  `Str`), morphisms = `StrictMap A.sys B.sys`; `id`/`comp`/laws from Theorem 2.5 (`idMap_comp`,
+  `comp_idMap`, `comp_assoc`) + `isStrict_idMap`/`isStrict_comp`. The fixed carrier `Str` is exactly
+  what removes the `HEq` carrier-transport that made the abstract `Endofunctor DomainObj` (Thm 6.14)
+  unusable. Simp lemmas `ScottSys.id_val`/`ScottSys.comp_val` (both `rfl`).
+- `gFunctor (T : GExpr) : Endofunctor ScottSys` — `obj := T.obj`, `map := gFunctorMap T` (a strict
+  `f ↦ ⟨T.map f.1, T.map_isStrict …⟩`), functoriality from `GExpr.map_id`/`map_comp` (the latter's
+  `IsStrict g` is automatic — every morphism here is strict). `TexpF N := gFunctor (Texp N)`.
+- `isoOfObjEq` (identity iso from an object equality), `ExpIso : T(Exp)≅Exp` (= `isoOfObjEq
+  Exp_structure_eq`), and `ExpAlg N hN : TAlgebra (TexpF N)` with structure map `ExpIso.hom` (the
+  identity, since `T(Exp)=Exp`). This is the "construe the initial solution as a syntactic domain"
+  half.
+
+**Phase 3 — the evaluation homomorphism `val(s)` (existence).** Since the structure map `i` is the
+**identity** (`Exp_structure_eq`), the homomorphism equation `val∘i = k∘T(val)` is the fixed-point
+equation `val = k∘T(val)∘j`. Solved by **Kleene iteration directly** (no need to re-derive Thm 6.9's
+`homOp`/`strictFun` machinery):
+- raw helpers `algStr B := B.str.1`, `expHom`/`expInv` (the iso's `i`/`j` as raw maps, ascribed
+  through `StrictMap`), with `expInv_comp_expHom`/`expHom_comp_expInv` from the iso laws.
+- `descRel : ℕ → ApproximableMap Exp.sys D.sys` (`val₀ = constMap ⊥`,
+  `valₙ₊₁ = (algStr B)∘(T(valₙ))∘expInv`); `descRel_isStrict`, `constBot_le` (the `⊥` map is least),
+  `descRel_le_succ`/`descRel_mono` (increasing), `descDir`/`descDirLe`.
+- `descMap := iSupMap descRel descDir` (= `⋃ₙ valₙ`), `descMap_isStrict`.
+- `descMap_fix : descMap = (algStr B)∘(T(descMap))∘expInv` — the decisive step, via
+  `GExpr.map_continuous` (`T(⋃valₙ)=⋃T(valₙ)`) and the index-shift `⋃valₙ₊₁=⋃valₙ`.
+- `descComm : descMap∘expHom = (algStr B)∘T(descMap)` (conjugate `descMap_fix` by `i`, using
+  `j∘i=I`), packaged as **`descAlgHom : AlgHom (ExpAlg N hN) B`** — Scott's evaluation map exists.
+
+**Phase 4 (partial) — `descAlgHom` is the *least* homomorphism.**
+- `algHom_fix (g)` : every hom `g` is itself a fixed point `g = (algStr B)∘T(g)∘expInv` (from
+  `g.comm` rearranged by `i∘j=I`).
+- `descRel_le_algHom`/`descMap_le_algHom` : `val ≤ g` for every hom `g` (the Kleene iterates lie
+  below any fixed point; induction + monotonicity of `λh.k∘T(h)∘j`).
+
+**Phase 4 remaining — the reverse `g ≤ val` ⟹ `IsInitial`. Precise roadmap:**
+- Build `ρₙ = iₙ∘jₙ : Exp → Exp`, `iₙ = (gTower_sub_colim n).inj`, `jₙ = (gTower_sub_colim n).proj`
+  (Prop 6.12, `Subsystem.inj`/`proj`; these depend only on the two systems, not the `◁` proof).
+- **Crux lemma** `GExpr.map (h.inj) = (obj_subsystem h).inj` and the `proj` analogue, by induction
+  over the 6 constructors (this is the *concrete* `MonotoneAt.inj_heq`/`proj_heq` of Def 6.13). The
+  `const`/`var` cases are immediate (`idMap = refl.inj` by `idMap_rel`); the four binary cases need
+  `sumMapTok hA.inj hB.inj = (sumTok_subsystem hA hB).inj` etc. (match the tagged-token relations;
+  `⊕`/`⊗` carry the `≠Δ`/collapse-row conditions). From it, `GExpr.map ρₙ = ρₙ₊₁` (use
+  `GExpr.map_comp` [needs `iₙ` strict] + the equality `T(Exp)=Exp` = `gColim_obj_eq` to retype the
+  codomain; recall `gTower (n+1) = T.obj (gTower n)` is `rfl`).
+- Then mirror `Theorem614` concretely: `key_rho` (`ρₙ₊₁ = expHom∘T(ρₙ)∘expInv`), `⋃ₙρₙ = I`
+  (`iSupMap` + `rho_rel`-style description), `ρ₀ = ⊥` (since `{Γ}` is one-point), `g∘ρₙ`
+  `g`-independent and `= descRel n` (homomorphism square + `algHom_fix`), hence `g = ⋃ g∘ρₙ = ⋃
+  descRel n = descMap` ⟹ uniqueness ⟹ **`IsInitial (ExpAlg N hN)`**.
+- Optional (Scott's "explain the algebras"): decompose a structure map `k : T(D)→D` into `s:N→D`
+  (strict), `u,v:D×D→D` via element-level injections of `⊕`/`+`/`×` (cf. Ex 6.17's `sinj0/1/2`); then
+  `descAlgHom` for `(D,s,u,v)` *is* `val(s)`.
+
+**Lean gotchas this session (reuse next time).** (1) `f.1` on a `Category.Hom`-typed term often fails
+to reduce through the class projection (`instCategoryScottSys.1 X Y` "not of the form `C …`"); fix by
+**typing helpers with `StrictMap` directly** (defeq to `Hom`) or **ascribing** `(f : StrictMap _ _).1`.
+The `ScottSys.id_val`/`comp_val`/`gFunctorMap_val` simp lemmas (all `rfl`) bridge `⊚`/`id`/`gFunctor`
+to raw `.comp`/`idMap`/`GExpr.map`. (2) `congrArg Subtype.val g.comm` lands the categorical comm
+square at the raw `.comp` level **by defeq** — use it (and `show …`) instead of fighting `simp`.
+(3) `rw [hcomm]`/`rw [comp_assoc]` repeatedly failed with "pattern not found / unsolved `X=X`" on
+defeq-but-not-syntactic implicits (the `↑g.hom` vs `g.hom.1` display is a tell) — switch to
+**term-mode `calc` with `congrArg (fun m => m.comp …)`** and `(comp_assoc _ _ _).symm`, which bridge by
+defeq. (4) `StrictMap`/`isStrict_idMap`/`isStrict_constBot` live in `Exercise510`; `isStrict_comp`/
+`comp_mono_gen` in `Theorem69` — both imported/opened now.
