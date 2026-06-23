@@ -17,13 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Proposition 7.7 — DECIDERS (Milestone 2)**. The
-**foundational layer is DONE** (`Proposition77.lean`, green, wired, `⊆{propext,Quot.sound}`): see the
-**latest dated checkpoint at the very bottom** for the `Vsharp` enumeration, `mem_X`/`surj`/nonempty,
-and the per-parity intersection identities. **Remaining: build the primitive-recursive
-course-of-values deciders** (`interEq_computable`/`cons_computable`/`inter`) → assemble
-`ComputablePresentation (Dsharp D hD)` → Example 6.1 combinators (`λx.x^§`, `proj₀`) computable.
-Full decider design is in the bottom checkpoint. **Theorem 7.6 is DONE** (`fix:(D→D)→D`
+**Next concrete target:** **Lecture VII — Proposition 7.7 — Milestone 4 (Example 6.1 combinators)**.
+**Milestones 1–3 are DONE** (`Proposition77.lean`, green, wired): the foundational `Vsharp` layer,
+the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo evaluator,
+`dsharp_decider_spec`), and the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
+(**`D^§` effectively given whenever `D` is**). Data is choice-free `⊆{propext,Quot.sound}`; only the
+`Prop`-level correctness proofs pull `Classical.choice` (unavoidable — `Set` equality over arbitrary
+`α`). **Remaining: Example 6.1 combinators (`λx.x^§`, `proj₀`) as `ApproximableMap`s + `IsComputableMap`,
+then flip `arxiv.md`.** Full design is in the **latest dated checkpoint at the very bottom.** **Theorem 7.6 is DONE** (`fix:(D→D)→D`
 computable, `Theorem76.lean`, `fixMap_isComputable`, choice-free) — see the **latest dated checkpoint
 at the very bottom**. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
 given via `funPresentation`/`funSpace_isEffectivelyGiven`; `eval` computable `evalMap_isComputable`;
@@ -2775,3 +2776,51 @@ combined measure `w = Nat.pair n m` **strictly decreases** on every recursive ca
   domain-equation iso `dsharpEquiv` composed with `sum`/`prod` projections) before stating
   `IsComputableMap`. Exercise 7.17 is the *full* finish (all 6.2 combinators + strict `g:D^§→E`).
 - **Milestone 5 — flip `arxiv.md` row to Pass, axiom-audit all new decls, HANDOFF checkpoint.**
+
+---
+
+## Checkpoint — 2026-06-23 — Proposition 7.7 **Milestones 2+3 COMPLETE** (deciders + `dsharpPresentation`)
+
+`Domain/Neighborhood/Proposition77.lean` is **green**, wired into `Domain.lean` (already imported),
+zero `sorry`. The whole decider + presentation layer is built and `dsharp_isEffectivelyGiven` is
+proven: **if `D` is effectively given, so is `D^§`.**
+
+**Axiom audit (`#print axioms`):**
+- **Data is choice-free `⊆ {propext, Quot.sound}`:** `Vsharp`, `Vsharp_mem`, `Vsharp_surj`,
+  `Vsharp_zero`, `dsharpStep`, `gOf`, `intI` (and `listGet`/`rtbl` machinery).
+- **`Prop`-level correctness uses `Classical.choice`** (`dsharp_decider_spec`, `dsharp_intI_correct`,
+  `dsharp_interEq_iff`, and hence the bundled `dsharpPresentation`/`dsharp_isEffectivelyGiven`).
+  This is **unavoidable & allowed**: the proofs reason about `Set` equality / subset over an arbitrary
+  carrier `α` (no `DecidableEq`), so `Classical` enters via `omega`-on-`Set`-goals and friends. The
+  *data fields* (`X`, `inter`, `masterIdx`) of `dsharpPresentation` are all choice-free as audited
+  above; only the proof obligations pull choice.
+
+**What got built (Milestone 2a–2d, all in `Proposition77.lean`):**
+- **2a — generic primrec memo evaluator** (prototyped locally, not yet promoted to `Recursive.lean`):
+  `listGet c i := (decodeList c).getD i 0` (primrec via `foldCode` w/ countdown accumulator);
+  `rtbl step` reverse table (`rtbl 0 = 0`, `rtbl (w+1) = pair (step (pair w (rtbl step w))) (rtbl step w)+1`);
+  `gOf step w := step (pair w (rtbl step w))`. Key lemma `listGet_rtbl : v < w → listGet (rtbl step w) (w-1-v) = gOf step v` (strong induction). All `primrec_*` lemmas present.
+- **2b — combined `dsharpStep fcons feq finter`** computes a **packed triple** `packT e c ii` (eq-bit,
+  cons-bit, inter-idx) in one course-of-values pass over `w = pair n m`; accessors `eqB/consB/intI`;
+  9 parity cases via `selectFn` (no `if`). `primrec_dsharpStep` from `hfc_pr`/`hfe_pr`/`P.inter_primrec`.
+- **2c — `dsharp_decider_spec`** (the heart): strong induction on `pair i j` proving simultaneously
+  `consB = 1 ↔ ∃l, Vₗ⊆Vᵢ∩Vⱼ`, `Vsharp (intI …) = Vᵢ∩Vⱼ` (when consistent), `eqB = 1 ↔ Vᵢ=Vⱼ`. Needed
+  `Nat.pair`-monotonicity (`pair_lt_pair_of_lt`) for well-foundedness and `memS_sub_embZero`/
+  `memS_sub_embPair`/`Vsharp_eq_Gamma_iff` inversions.
+- **2d/3 — assembly**: `dsharp_intI_correct` (intersection-index correctness, `fcons`/`feq` irrelevant,
+  instantiated with `fun _ => 0`); `dsharp_interEq_iff` (7.1(i): `Vₙ∩Vₘ=Vₖ ↔ consB·eqB(intI,k)=1`);
+  `dsharpPresentation P hD : ComputablePresentation (Dsharp D hD)` (`X=Vsharp D P`, `masterIdx=0`,
+  `inter n m := intI (gOf (dsharpStep 0 0 P.inter) (pair n m))`); `dsharp_isEffectivelyGiven`.
+
+**Gotcha reminders that bit this session:** the file's `variable {D} (P : ComputablePresentation D)`
+makes **`P` the first explicit arg** of every helper that mentions it — call sites must pass it
+(`dsharp_decider_spec P fcons feq finter …`, etc.). And a top-level theorem that uses `P` only in its
+*body* (not its statement) must bind `P` **explicitly** in its own signature
+(`dsharp_isEffectivelyGiven (P : ComputablePresentation D) (hD …)`), since `variable` auto-inclusion
+keys off the **type**.
+
+**Next concrete target: Milestone 4** — Example 6.1 combinators as `ApproximableMap`s + computability.
+Scott does "a selection": `Xₙ (λx.x^§) Vₖ ↔ V_{2n+1} ⊆ Vₖ` (i.e. `embZero(Xₙ) ⊆ …`, recursively
+decidable ⟹ r.e.); `Vₘ proj₀ Vₖ ↔ k=0 ∨ ∃n. m=2n+2 ∧ V_{p n} ⊆ Vₖ`. Need the `ApproximableMap` forms
+(Example 6.1's `inSharp`/`pairSharp` are currently element-level) before stating `IsComputableMap`.
+Then **Milestone 5** flips `arxiv.md` Prop 7.7 row to Pass.
