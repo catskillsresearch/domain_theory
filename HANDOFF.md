@@ -18,11 +18,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
 **Next concrete target:** **Lecture VII — Theorem 7.5** (`(D₀→D₁)` effectively given; `eval`/`curry`
-computable; computable elements = computable maps) — **in progress**: scaffolding milestones 1–2 are
-green & audited (Def 7.1 extended with primrec `inter`/`masterIdx`; choice-free primrec list-fold engine
-`encodeList`/`decodeList`/`foldCode` in `Recursive.lean`). See the latest dated checkpoint at the bottom
-for exactly what landed and what remains (`Theorem75.lean` presentation, `eval`, elements=maps, `curry`).
-Theorem 7.4 is **DONE in full** (both halves, choice-free; see below).
+computable; computable elements = computable maps) — **in progress**. `Theorem75.lean` now exists,
+green & wired into `Domain.lean`, with the **mathematical core of Prop 3.9(i) fully formalized and
+choice-free** (`⊆ {propext, Quot.sound}`): the consistency condition, its characterization over coded
+entry-lists, and a choice-free *consistency decision principle* (`consChain_iff`). What **remains** is
+the recursion-theory *packaging* of those choice-free decision principles into `Nat.Primrec`
+characteristic functions, then assembling `funPresentation` and the combinators. See the **latest
+dated checkpoint at the very bottom** for exactly what landed in `Theorem75.lean` and the precise
+remaining plan. Theorem 7.4 is **DONE in full** (both halves, choice-free; see below).
 
 **`omega` / choice gotcha (important, cost me a debugging cycle):** `omega` invoked on a goal whose
 type is **not** arithmetic — e.g. a `Set` equality `A = B`, even when it closes the goal purely by a
@@ -2467,3 +2470,76 @@ in `𝒟₀` and `𝒟₁` + `{0,1}` consistency flags), and wrap in `RecDecidab
 by `funCons`, keeping the enumeration choice-free), then `eval`/elements=maps/`curry`.
 All primrec building blocks (`foldCode`, `bForall`, `pow`, `div2`/`mod2`, `inter`/`masterIdx`) are now
 in place — `Theorem75.lean` is unblocked.
+
+## Checkpoint 2026-06-22 — Theorem 7.5: `Theorem75.lean` created; Prop 3.9(i) math core DONE (choice-free)
+
+`Theorem75.lean` (ns `Domain.Neighborhood`) created and wired into `Domain.lean`. Full `lake build
+Domain` green, **zero `sorry`**, every new declaration audits `⊆ {propext, Quot.sound}` (choice-free).
+This lands the **mathematical heart** of Theorem 7.5 — Scott's Proposition 3.9(i), the function-space
+consistency condition — in three reusable, choice-free milestones. (The remaining work is
+recursion-theory *packaging* + assembly + the combinators; see "Remaining" below.)
+
+**Choice subtlety discovered (important).** The "obvious" keystone `(stepFun L).Nonempty ↔ ∀X∈𝒟₀,
+V₁.mem (interYs Δ₁ L X)` (routing through `leastMap`/`rel_interYs`) **pulls `Classical.choice`**,
+because `FunctionSpace.rel_interYs` does a `by_cases X ⊆ p.1` on an *undecidable* set inclusion. The
+fix that keeps everything `⊆ {propext, Quot.sound}`: phrase 3.9(i) over **explicit finite selections
+(sublists)** — where no inclusion case-split is needed — and, for the reverse direction, single out
+`{i ∣ X ⊆ Xᵢ}` using the **decidable `𝒟₀`-inclusion supplied by the presentation `P₀`** (`Nat.decEq`
+on `incl_computable`'s char function), never `Classical.dec`.
+
+**What landed in `Theorem75.lean` (all choice-free):**
+- **Milestone 1 — 3.9(i) forward.** `interList base M` (intersection of a finite list of nbhds inside
+  a base), `mem_interList`, `interList_subset_base`; `rel_interList_of_selection` (a witness map
+  `f ∈ stepFun L` relates a common lower nbhd `Z` of the *selected* inputs to the intersection of the
+  *selected* outputs — a finite `inter_right` fold over the explicit selection, **no `by_cases`**);
+  `interList_mem_of_stepFun_nonempty` (non-empty ⟹ selected-output-intersection is a nbhd).
+- **Milestone 2 — consistency characterization over coded entry-lists.** `funPair P₀ P₁ e =
+  (X₀_{e.unpair.1}, Y₁_{e.unpair.2})`, `funListOf P₀ P₁ el = el.map (funPair …)`, `funListOf_valid`;
+  **`stepFun_funListOf_nonempty_iff`** — `(stepFun (funListOf el)).Nonempty ↔ ∀ sub ⊑ el,
+  (∃ Z∈𝒟₀, ∀ e∈sub, Z ⊆ X₀_{e.1}) → V₁.mem (interList Δ₁ (sub.map (Y₁_{·.2})))`. Reverse direction
+  builds `leastMap`, discharging its `hcons` per-input by **filtering `el`** with the choice-free
+  decidable `𝒟₀`-inclusion test (`List.filter` + `decidable_of_iff` off `P₀.incl_computable`), proving
+  `interYs Δ₁ (funListOf el) X' = interList Δ₁ (filtered.map (Y₁_{·.2}))` by `Set.ext`.
+- **Milestone 3a — choice-free consistency *decision principle* (`section ConsChain`, generic over one
+  presentation `P : ComputablePresentation V`).** `interFrom P A js` (running left-accumulated
+  intersection of `A` with `X_j`, `j∈js`), `mem_interFrom`, `interFrom_subset`,
+  `interFrom_mem_of_witness` (a nbhd inside a finite running intersection makes it a nbhd);
+  `interFrom_eq_of_foldl` / `idxchain P js = js.foldl (P.inter ·) masterIdx` / `idxchain_spec` (the
+  `inter`-fold computes the genuine intersection *when consistent*, via `inter_spec` + prefix
+  consistency); and the headline **`consChain_iff`**: `(∀ j∈js, X_{idxchain js} ⊆ X_j) ↔ V.mem
+  (interFrom Δ js)`. **Key trick (avoids consistency-flag bookkeeping):** `X_{idxchain js}` is *always*
+  a nbhd (`mem_X`), so if it sits inside every selected `X_j` it witnesses consistency; conversely
+  `inter_spec` makes the chain exact when consistent. So consistency reduces to **one `inter`-fold +
+  one bounded inclusion check** — both primitive-recursive-friendly.
+
+**Remaining for Theorem 7.5 (precise plan; all the math is now in hand — what's left is recursion-theory
+packaging + assembly):**
+1. **`funCons` (consistency decider, `RecDecidable`).** Package the choice-free principles above into a
+   `Nat.Primrec` char function of the code `c`: `(stepFun (funListOf (decodeList c))).Nonempty ↔
+   ∀ b < 2^c, cons₀(selectMask b) → cons₁(selectMask b)` (`RecDecidable.bForall`, bound `2^c` via
+   `primrec_two_pow primrec_id`; the over-count past `length` is harmless). Each `cons₀/cons₁` =
+   `consChain_iff`: a first `foldCode` over `decodeList c` threading the bitmask `b` (read `%2`,
+   halved each entry via `halfParity`) that applies `P.inter` to the selected component to compute
+   `idxchain`, then a second `foldCode` AND-ing `isOne (incl-char (pair idxchain compIdx))` over the
+   selected entries. Connect via `foldCode_eq'` (→ `List.foldl`) + a `selectMask`↔bitmask induction +
+   `consChain_iff`/`stepFun_funListOf_nonempty_iff`. Relate `interList Δ (js.map X)` to
+   `interFrom Δ js` by `Set.ext` (both = `⋂ ∩ master`).
+2. **Inclusion decider (`RecDecidable₂ (Xₐ ⊆ X_b)` for funSpace).** `stepFun L ⊆ step Xk Yℓ ⟺
+   interYs Δ₁ L Xk ⊆ Yℓ` (`FunctionSpace.stepFun_subset_step_iff`, needs `L` consistent). Decider:
+   bounded-∀ over `L' = decodeList b` of `[interYs-fold over decodeList a selecting i with Xk⊆Xnᵢ
+   (decidable incl), inter₁ their Ymᵢ → index] ⊆ Yℓ` (one conditional `foldCode` per `(k,ℓ)∈L'`, **no
+   2^q**). `interEq` = inclusion both ways (`RecDecidable.and` + swap); `cons` = `funCons` of the append
+   code.
+3. **`funInter` (the presentation's primrec `inter`).** `X n ∩ X m = stepFun(L_n ++ L_m)`, so
+   `funInter c₁ c₂` = code of `decodeList c₁ ++ decodeList c₂`; need a primrec `appendCode` (a fold).
+   `masterIdx` = `0` (empty list ↦ `stepFun [] = univ` = `funSpace.master`). Junk-to-master enumeration:
+   `Xenum c = if funCons c = 1 then stepFun (funListOf (decodeList c)) else univ`.
+4. **Assemble `funPresentation : ComputablePresentation (funSpace V₀ V₁)`** + `funSpace_isEffectivelyGiven`
+   (`mem_X` via consistency ⟹ nbhd / else master; `surj` via `funListOf` of `P₀.surj`/`P₁.surj`
+   indices + forward consistency; `interEq`/`cons`/`inter`/`masterIdx` from 1–3).
+5. **`eval` computable** — Scott: `eval` is a *recursive* (decidable) set, because the function-space
+   nbhd has a minimal element `leastMap` (3.9(ii)) and `Xk eval Yℓ` reduces to `Xk f₀ Yℓ`, decidable.
+6. **Computable elements = computable maps** — "easy consequence": `φ.mem (X c) ↔ ∀ entries,
+   φ.mem (step …)`, so the element index set is r.e. iff the relation is (`toApproxMap`).
+7. **`curry` computable** (Scott defers the full relation to Ex 7.16; `FunctionSpace.curry` is in place).
+8. Update `arxiv.md` row for Theorem 7.5 to **Pass** once 1–7 land.
