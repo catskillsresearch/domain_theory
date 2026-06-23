@@ -275,6 +275,55 @@ theorem nat_mul_eq_one {a b : ℕ} : a * b = 1 ↔ a = 1 ∧ b = 1 := by
   refine ⟨fun h => ⟨Nat.dvd_one.mp ⟨b, h.symm⟩, Nat.dvd_one.mp ⟨a, ?_⟩⟩, fun h => by rw [h.1, h.2]⟩
   rw [Nat.mul_comm] at h; exact h.symm
 
+/-! ## Pointwise primitive-recursive arithmetic combinators
+
+`primrec_add`/`mul`/`sub` are `Nat.unpaired` forms; the `₂` variants below take two primitive
+recursive functions `f, g` and build `fun n => f n ⋆ g n` directly (composing through `Nat.pair`).
+These cut the `Nat.pair`/`unpair` plumbing in larger constructions (sum's intersection function and
+the list-fold engine). All choice-free. -/
+
+/-- `fun n => f n + g n` is primitive recursive. -/
+theorem primrec_add₂ {f g : ℕ → ℕ} (hf : Nat.Primrec f) (hg : Nat.Primrec g) :
+    Nat.Primrec (fun n => f n + g n) :=
+  (primrec_add.comp (hf.pair hg)).of_eq fun n => by
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+
+/-- `fun n => f n * g n` is primitive recursive. -/
+theorem primrec_mul₂ {f g : ℕ → ℕ} (hf : Nat.Primrec f) (hg : Nat.Primrec g) :
+    Nat.Primrec (fun n => f n * g n) :=
+  (primrec_mul.comp (hf.pair hg)).of_eq fun n => by
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+
+/-- `fun n => f n - g n` (truncated) is primitive recursive. -/
+theorem primrec_sub₂ {f g : ℕ → ℕ} (hf : Nat.Primrec f) (hg : Nat.Primrec g) :
+    Nat.Primrec (fun n => f n - g n) :=
+  (primrec_sub.comp (hf.pair hg)).of_eq fun n => by
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+
+/-- Choice-free primitive-recursive **selection**: `selectFn c a b = a` if `c = 1`, `= b` if `c = 0`
+(for a `{0,1}`-valued `c`), via `c * a + (1 - c) * b`. -/
+def selectFn (c a b : ℕ) : ℕ := c * a + (1 - c) * b
+
+@[simp] theorem selectFn_one (a b : ℕ) : selectFn 1 a b = a := by simp [selectFn]
+
+@[simp] theorem selectFn_zero (a b : ℕ) : selectFn 0 a b = b := by simp [selectFn]
+
+/-- `selectFn` of primitive-recursive `c, a, b` is primitive recursive. -/
+theorem primrec_selectFn {c a b : ℕ → ℕ} (hc : Nat.Primrec c) (ha : Nat.Primrec a)
+    (hb : Nat.Primrec b) : Nat.Primrec (fun n => selectFn (c n) (a n) (b n)) :=
+  primrec_add₂ (primrec_mul₂ hc ha) (primrec_mul₂ (primrec_sub₂ (Nat.Primrec.const 1) hc) hb)
+
+/-- `selectFn` driven by a decidable test through its `{0,1}` indicator is an `if`-then-else. -/
+@[simp] theorem selectFn_ite {c : Prop} [Decidable c] (a b : ℕ) :
+    selectFn (if c then 1 else 0) a b = if c then a else b := by
+  split <;> simp [selectFn]
+
+/-- The `{0,1}` indicator of `2 ≤ a`, written via truncated subtraction. -/
+theorem geTwo_bit (a : ℕ) : 1 - (2 - a) = if 2 ≤ a then 1 else 0 := by split <;> omega
+
+/-- The `{0,1}` indicator of `a = 0`, written via truncated subtraction. -/
+theorem eqZero_bit (a : ℕ) : 1 - a = if a = 0 then 1 else 0 := by split <;> omega
+
 /-! ## "Recursively decidable" predicates (Scott's notion, Definition 7.1)
 
 A predicate is recursively decidable when it has a primitive-recursive `{0,1}`-valued characteristic
@@ -500,5 +549,359 @@ theorem REPred.or {p q : ℕ → Prop} (hp : REPred p) (hq : REPred q) :
       rcases hw with ⟨hi, _⟩ | ⟨hi, _⟩
       · exact Or.inl ⟨w.unpair.2, hi⟩
       · exact Or.inr ⟨w.unpair.2, hi⟩
+
+/-! ## A choice-free primitive-recursive fold engine over `Nat`-coded lists
+
+Scott's function-space deciders (Theorem 7.5) range over *finite lists* of neighborhood indices.
+To stay choice-free we encode such a list as a single natural via `encodeList` and process it with a
+genuinely primitive-recursive `foldCode`. The key results are:
+
+* `encodeList`            — `List ℕ → ℕ`, with `l.length ≤ encodeList l` (`encodeList_length_le`);
+* `foldCode stp p z c`    — folds the list coded by `c`, threading an accumulator and a fixed
+                            parameter `p`, with `stp` the (coded) step function;
+* `foldCode_eq`           — `foldCode` on `encodeList l` equals the corresponding `List.foldl`;
+* `primrec_foldCode`      — `foldCode` is primitive recursive in all of its (primrec) inputs.
+
+`foldStep` walks one entry: the state is `pair remainingCode accumulator`; an empty remaining code
+(`= 0`) is a fixed point, otherwise it pops the head and applies `stp`. -/
+
+/-- `b ≤ pair a b` (choice-free; avoids mathlib's `Nat.right_le_pair` to keep the axiom set clean). -/
+theorem le_pair_right (a b : ℕ) : b ≤ Nat.pair a b := by
+  have hbb : b ≤ b * b := by
+    rcases Nat.eq_zero_or_pos b with h | h
+    · simp [h]
+    · exact Nat.le_mul_of_pos_left b h
+  unfold Nat.pair
+  split <;> omega
+
+/-- Encode a list of naturals as a single natural: `[] ↦ 0`, `a :: l ↦ pair a (encodeList l) + 1`.
+The `+1` keeps the empty list (code `0`) distinguishable from any nonempty list. -/
+def encodeList : List ℕ → ℕ
+  | [] => 0
+  | a :: l => Nat.pair a (encodeList l) + 1
+
+/-- The length of a list is bounded by its code; this is the fuel bound that lets a `c`-fold iterate
+enough times to consume the whole list coded by `c`. -/
+theorem encodeList_length_le : ∀ l : List ℕ, l.length ≤ encodeList l
+  | [] => Nat.le_refl 0
+  | a :: l => by
+    simp only [encodeList, List.length_cons]
+    have hrec := encodeList_length_le l
+    have hle : encodeList l ≤ Nat.pair a (encodeList l) := le_pair_right a (encodeList l)
+    omega
+
+/-- One step of the code-walking fold. The state `s = pair rc acc` carries the remaining code `rc`
+and accumulator `acc`. If `rc = 0` the state is a fixed point; otherwise `rc - 1 = pair head tail`,
+and the step pops `head`, recurses on `tail`, and updates `acc := stp (pair head (pair acc params))`. -/
+def foldStep (stp : ℕ → ℕ) (params s : ℕ) : ℕ :=
+  selectFn (1 - s.unpair.1) s
+    (Nat.pair (s.unpair.1 - 1).unpair.2
+      (stp (Nat.pair (s.unpair.1 - 1).unpair.1 (Nat.pair s.unpair.2 params))))
+
+/-- Empty remaining code: the fold state is unchanged. -/
+theorem foldStep_zero (stp : ℕ → ℕ) (params acc : ℕ) :
+    foldStep stp params (Nat.pair 0 acc) = Nat.pair 0 acc := by
+  unfold foldStep
+  simp only [unpair_pair_fst, unpair_pair_snd, Nat.sub_zero, selectFn_one]
+
+/-- Nonempty remaining code `pair a t + 1`: pop `a`, recurse on `t`, update the accumulator. -/
+theorem foldStep_pos (stp : ℕ → ℕ) (params a t acc : ℕ) :
+    foldStep stp params (Nat.pair (Nat.pair a t + 1) acc)
+      = Nat.pair t (stp (Nat.pair a (Nat.pair acc params))) := by
+  unfold foldStep
+  simp only [unpair_pair_fst, unpair_pair_snd]
+  have h1 : 1 - (Nat.pair a t + 1) = 0 := by omega
+  have h2 : Nat.pair a t + 1 - 1 = Nat.pair a t := by omega
+  rw [h1, h2, selectFn_zero, unpair_pair_fst, unpair_pair_snd]
+
+/-- Fold the list coded by `c`, threading accumulator `z` and parameter `params`. Implemented as
+`c`-fold iteration of `foldStep` from the initial state `pair c z`, projecting out the accumulator. -/
+def foldCode (stp : ℕ → ℕ) (params z c : ℕ) : ℕ :=
+  ((foldStep stp params)^[c] (Nat.pair c z)).unpair.2
+
+/-- `Nat.rec` with a counter-independent step is just function iteration (choice-free). Needed to
+bridge the `Nat.Primrec.prec` form (a `Nat.rec`) with `foldCode`'s `Function.iterate` form. -/
+theorem rec_const_iterate (f : ℕ → ℕ) (s : ℕ) :
+    ∀ k : ℕ, Nat.rec (motive := fun _ => ℕ) s (fun _ ih => f ih) k = f^[k] s
+  | 0 => rfl
+  | (k + 1) => by
+      rw [Function.iterate_succ_apply']
+      exact congrArg f (rec_const_iterate f s k)
+
+/-- Core correctness of the iteration: starting from `pair (encodeList l) acc`, after at least
+`l.length` steps the accumulator equals the `List.foldl` of the step over `l`. -/
+theorem foldStep_iterate (stp : ℕ → ℕ) (params : ℕ) :
+    ∀ (k : ℕ) (l : List ℕ) (acc : ℕ), l.length ≤ k →
+      ((foldStep stp params)^[k] (Nat.pair (encodeList l) acc)).unpair.2
+        = List.foldl (fun acc x => stp (Nat.pair x (Nat.pair acc params))) acc l := by
+  intro k
+  induction k with
+  | zero =>
+    intro l acc hlen
+    cases l with
+    | nil => simp only [Function.iterate_zero_apply, encodeList, unpair_pair_snd, List.foldl_nil]
+    | cons a l' => simp only [List.length_cons] at hlen; omega
+  | succ k ih =>
+    intro l acc hlen
+    rw [Function.iterate_succ_apply]
+    cases l with
+    | nil =>
+      rw [show encodeList ([] : List ℕ) = 0 from rfl, foldStep_zero]
+      exact ih [] acc (Nat.zero_le k)
+    | cons a l' =>
+      have hlen' : l'.length ≤ k := by simp only [List.length_cons] at hlen; omega
+      rw [show encodeList (a :: l') = Nat.pair a (encodeList l') + 1 from rfl, foldStep_pos,
+        ih l' (stp (Nat.pair a (Nat.pair acc params))) hlen', List.foldl_cons]
+
+/-- **Correctness of `foldCode`.** Folding the code of `l` equals the corresponding `List.foldl`. -/
+theorem foldCode_eq (stp : ℕ → ℕ) (params z : ℕ) (l : List ℕ) :
+    foldCode stp params z (encodeList l)
+      = List.foldl (fun acc x => stp (Nat.pair x (Nat.pair acc params))) z l := by
+  unfold foldCode
+  exact foldStep_iterate stp params (encodeList l) l z (encodeList_length_le l)
+
+/-- `n.unpair.2 ≤ n` (choice-free); the decreasing measure for `decodeList`. -/
+theorem unpair_snd_le (n : ℕ) : n.unpair.2 ≤ n := by
+  have h := le_pair_right n.unpair.1 n.unpair.2
+  rwa [pair_unpair] at h
+
+/-- Decode a natural back into a list of naturals, inverting `encodeList`. Well-founded on the
+remaining code (`c.unpair.2 ≤ c < c + 1`). -/
+def decodeList : ℕ → List ℕ
+  | 0 => []
+  | (c + 1) => c.unpair.1 :: decodeList c.unpair.2
+decreasing_by exact Nat.lt_succ_of_le (unpair_snd_le c)
+
+theorem decodeList_zero : decodeList 0 = [] := by rw [decodeList]
+
+theorem decodeList_succ (c : ℕ) :
+    decodeList (c + 1) = c.unpair.1 :: decodeList c.unpair.2 := by
+  rw [decodeList]
+
+/-- `encodeList ∘ decodeList = id`: every natural is the code of its decoded list. -/
+theorem encodeList_decodeList (c : ℕ) : encodeList (decodeList c) = c := by
+  induction c using Nat.strong_induction_on with
+  | _ c ih =>
+    cases c with
+    | zero => simp only [decodeList_zero, encodeList]
+    | succ d =>
+      rw [decodeList_succ, encodeList, ih d.unpair.2 (Nat.lt_succ_of_le (unpair_snd_le d)),
+        pair_unpair]
+
+/-- The decoded list is no longer than its code. -/
+theorem decodeList_length_le (c : ℕ) : (decodeList c).length ≤ c := by
+  induction c using Nat.strong_induction_on with
+  | _ c ih =>
+    cases c with
+    | zero => simp [decodeList_zero]
+    | succ d =>
+      rw [decodeList_succ, List.length_cons]
+      have hle := unpair_snd_le d
+      have := ih d.unpair.2 (Nat.lt_succ_of_le hle)
+      omega
+
+/-- **Correctness of `foldCode` on an arbitrary code.** `foldCode` over any natural `c` equals the
+`List.foldl` over the list `c` decodes to. -/
+theorem foldCode_eq' (stp : ℕ → ℕ) (params z c : ℕ) :
+    foldCode stp params z c
+      = List.foldl (fun acc x => stp (Nat.pair x (Nat.pair acc params))) z (decodeList c) := by
+  conv_lhs => rw [← encodeList_decodeList c]
+  rw [foldCode_eq]
+
+/-- `foldStep` (with the parameter packed into the state as `pair params state`) is primitive
+recursive whenever the step `stp` is. This is the workhorse for `primrec_foldCode`. -/
+theorem primrec_foldStepPacked {stp : ℕ → ℕ} (hstp : Nat.Primrec stp) :
+    Nat.Primrec (fun w => foldStep stp w.unpair.1 w.unpair.2) := by
+  have hparams : Nat.Primrec (fun w => w.unpair.1) := Nat.Primrec.left
+  have hstate : Nat.Primrec (fun w => w.unpair.2) := Nat.Primrec.right
+  have hrc : Nat.Primrec (fun w => w.unpair.2.unpair.1) := Nat.Primrec.left.comp Nat.Primrec.right
+  have hacc : Nat.Primrec (fun w => w.unpair.2.unpair.2) := Nat.Primrec.right.comp Nat.Primrec.right
+  have hcond : Nat.Primrec (fun w => 1 - w.unpair.2.unpair.1) :=
+    primrec_sub₂ (Nat.Primrec.const 1) hrc
+  have hrcm1 : Nat.Primrec (fun w => w.unpair.2.unpair.1 - 1) :=
+    primrec_sub₂ hrc (Nat.Primrec.const 1)
+  have hhead : Nat.Primrec (fun w => (w.unpair.2.unpair.1 - 1).unpair.1) :=
+    Nat.Primrec.left.comp hrcm1
+  have htail : Nat.Primrec (fun w => (w.unpair.2.unpair.1 - 1).unpair.2) :=
+    Nat.Primrec.right.comp hrcm1
+  have hinner : Nat.Primrec (fun w => Nat.pair w.unpair.2.unpair.2 w.unpair.1) := hacc.pair hparams
+  have harg : Nat.Primrec
+      (fun w => Nat.pair (w.unpair.2.unpair.1 - 1).unpair.1
+        (Nat.pair w.unpair.2.unpair.2 w.unpair.1)) := hhead.pair hinner
+  have hstpv : Nat.Primrec
+      (fun w => stp (Nat.pair (w.unpair.2.unpair.1 - 1).unpair.1
+        (Nat.pair w.unpair.2.unpair.2 w.unpair.1))) := hstp.comp harg
+  have helse : Nat.Primrec
+      (fun w => Nat.pair (w.unpair.2.unpair.1 - 1).unpair.2
+        (stp (Nat.pair (w.unpair.2.unpair.1 - 1).unpair.1
+          (Nat.pair w.unpair.2.unpair.2 w.unpair.1)))) := htail.pair hstpv
+  exact (primrec_selectFn hcond hstate helse).of_eq fun _ => rfl
+
+/-- **`foldCode` is primitive recursive** in all of its (primitive-recursive) inputs. -/
+theorem primrec_foldCode {stp : ℕ → ℕ} (hstp : Nat.Primrec stp)
+    {params z c : ℕ → ℕ} (hp : Nat.Primrec params) (hz : Nat.Primrec z) (hc : Nat.Primrec c) :
+    Nat.Primrec (fun n => foldCode stp (params n) (z n) (c n)) := by
+  have hfoldw : Nat.Primrec (fun w => foldStep stp w.unpair.1 w.unpair.2) :=
+    primrec_foldStepPacked hstp
+  have hg : Nat.Primrec (fun x => foldStep stp x.unpair.1.unpair.1 x.unpair.2.unpair.2) :=
+    (hfoldw.comp ((Nat.Primrec.left.comp Nat.Primrec.left).pair
+      (Nat.Primrec.right.comp Nat.Primrec.right))).of_eq fun _ => by
+        simp only [unpair_pair_fst, unpair_pair_snd]
+  have hprec := Nat.Primrec.prec Nat.Primrec.right hg
+  refine (Nat.Primrec.right.comp
+    (hprec.comp ((hp.pair (hc.pair hz)).pair hc))).of_eq fun n => ?_
+  simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+  rw [rec_const_iterate]
+  rfl
+
+/-! ## Primitive-recursive exponentiation (for the `2^q` subset bound)
+
+The funSpace consistency decider quantifies over all `2^q` subsets of a `q`-element step-list, so it
+needs `2^q` as a primitive-recursive bound. Choice-free (mathlib's `Nat.Primrec` lemmas for `^` route
+through classical `simp`). -/
+
+/-- `Nat.rec 1 (· * b)` computes `b ^ e` (choice-free). -/
+theorem recPow_eq (b : ℕ) :
+    ∀ e, Nat.rec (motive := fun _ => ℕ) 1 (fun _ ih => ih * b) e = b ^ e
+  | 0 => (pow_zero b).symm
+  | e + 1 => by rw [pow_succ]; exact congrArg (· * b) (recPow_eq b e)
+
+/-- **Exponentiation is primitive recursive** (`unpaired (b, e) ↦ b ^ e`), choice-free. -/
+theorem primrec_pow : Nat.Primrec (Nat.unpaired fun b e => b ^ e) := by
+  have hg : Nat.Primrec (fun w => w.unpair.2.unpair.2 * w.unpair.1) :=
+    primrec_mul₂ (Nat.Primrec.right.comp Nat.Primrec.right) Nat.Primrec.left
+  refine (Nat.Primrec.prec (Nat.Primrec.const 1) hg).of_eq (fun p => ?_)
+  simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+  exact recPow_eq p.unpair.1 p.unpair.2
+
+/-- `n ↦ 2 ^ g n` is primitive recursive when `g` is. -/
+theorem primrec_two_pow {g : ℕ → ℕ} (hg : Nat.Primrec g) : Nat.Primrec (fun n => 2 ^ g n) :=
+  (primrec_pow.comp ((Nat.Primrec.const 2).pair hg)).of_eq fun n => by
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+
+/-! ## Halving (`/2`, `%2`) for per-subset bit extraction
+
+The funSpace consistency fold walks a step-list while consuming a subset bitmask `b` one bit at a
+time: at each entry it reads `b % 2` (is this entry in the subset?) and recurses on `b / 2`. Only
+division/modulus by the literal `2` is needed — which `omega` discharges directly — so this stays
+choice-free without a general `div`/`mod`. Computed jointly by `halfParity n = pair (n/2) (n%2)`. -/
+
+/-- `halfParity n = pair (n / 2) (n % 2)`, built by structural recursion: from `(h, p)` for `n`, the
+value for `n+1` is `(h + p, 1 - p)` (carry on odd→even). -/
+def halfParity (n : ℕ) : ℕ :=
+  Nat.rec (motive := fun _ => ℕ) 0
+    (fun _ ih => Nat.pair (ih.unpair.1 + ih.unpair.2) (1 - ih.unpair.2)) n
+
+theorem halfParity_spec (n : ℕ) : halfParity n = Nat.pair (n / 2) (n % 2) := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    show Nat.pair ((halfParity n).unpair.1 + (halfParity n).unpair.2) (1 - (halfParity n).unpair.2)
+        = Nat.pair ((n + 1) / 2) ((n + 1) % 2)
+    rw [ih, unpair_pair_fst, unpair_pair_snd]
+    congr 1 <;> omega
+
+theorem primrec_halfParity : Nat.Primrec halfParity := by
+  have hIH : Nat.Primrec (fun w => w.unpair.2.unpair.2) := Nat.Primrec.right.comp Nat.Primrec.right
+  have hstep : Nat.Primrec (fun w => Nat.pair (w.unpair.2.unpair.2.unpair.1 + w.unpair.2.unpair.2.unpair.2)
+      (1 - w.unpair.2.unpair.2.unpair.2)) :=
+    (primrec_add₂ (Nat.Primrec.left.comp hIH) (Nat.Primrec.right.comp hIH)).pair
+      (primrec_sub₂ (Nat.Primrec.const 1) (Nat.Primrec.right.comp hIH))
+  refine ((Nat.Primrec.prec (Nat.Primrec.const 0) hstep).comp
+    ((Nat.Primrec.const 0).pair primrec_id)).of_eq (fun n => ?_)
+  simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd, id_eq]
+  rfl
+
+theorem primrec_div2 : Nat.Primrec (fun n => n / 2) :=
+  (Nat.Primrec.left.comp primrec_halfParity).of_eq fun n => by
+    rw [halfParity_spec, unpair_pair_fst]
+
+theorem primrec_mod2 : Nat.Primrec (fun n => n % 2) :=
+  (Nat.Primrec.right.comp primrec_halfParity).of_eq fun n => by
+    rw [halfParity_spec, unpair_pair_snd]
+
+/-! ## Bounded quantifiers for recursively decidable predicates
+
+Scott's function-space consistency decider (Theorem 7.5) is a *bounded universal* statement: a list of
+step-pairs is consistent iff for **every** subset (coded by a bitmask `b < 2^q`) a component condition
+holds. Bounded quantification of a recursively decidable predicate is again recursively decidable —
+choice-free, via an explicit `Nat.rec` fold of the `{0,1}` indicator. -/
+
+/-- Indicator of `v = 1`, as a `{0,1}`-valued primitive-recursive function. -/
+def isOne (v : ℕ) : ℕ := 1 - ((v - 1) + (1 - v))
+
+theorem isOne_le_one (v : ℕ) : isOne v ≤ 1 := by unfold isOne; omega
+
+theorem isOne_eq_one_iff (v : ℕ) : isOne v = 1 ↔ v = 1 := by
+  unfold isOne; constructor <;> (intro h; omega)
+
+theorem primrec_isOne : Nat.Primrec isOne :=
+  primrec_sub₂ (Nat.Primrec.const 1)
+    (primrec_add₂ (primrec_sub₂ primrec_id (Nat.Primrec.const 1))
+      (primrec_sub₂ (Nat.Primrec.const 1) primrec_id))
+
+/-- The `{0,1}`-valued bounded-`∀` indicator: `1` iff `g (pair i n) = 1` for all `i < N`. Folded
+right-to-left with `selectFn` so the result stays in `{0,1}`. -/
+def bForallFn (g : ℕ → ℕ) (n N : ℕ) : ℕ :=
+  Nat.rec (motive := fun _ => ℕ) 1 (fun i ih => selectFn ih (isOne (g (Nat.pair i n))) 0) N
+
+theorem bForallFn_le_one (g : ℕ → ℕ) (n N : ℕ) : bForallFn g n N ≤ 1 := by
+  induction N with
+  | zero => exact Nat.le_refl 1
+  | succ N ih =>
+    show selectFn (bForallFn g n N) (isOne (g (Nat.pair N n))) 0 ≤ 1
+    rcases (show bForallFn g n N = 0 ∨ bForallFn g n N = 1 by omega) with h | h
+    · rw [h, selectFn_zero]; exact Nat.zero_le 1
+    · rw [h, selectFn_one]; exact isOne_le_one _
+
+theorem bForallFn_eq_one_iff (g : ℕ → ℕ) (n N : ℕ) :
+    bForallFn g n N = 1 ↔ ∀ i, i < N → g (Nat.pair i n) = 1 := by
+  induction N with
+  | zero =>
+    constructor
+    · intro _ i hi; exact absurd hi (Nat.not_lt_zero i)
+    · intro _; rfl
+  | succ N ih =>
+    have hstep : bForallFn g n (N + 1)
+        = selectFn (bForallFn g n N) (isOne (g (Nat.pair N n))) 0 := rfl
+    have hle := bForallFn_le_one g n N
+    rw [hstep]
+    rcases (show bForallFn g n N = 0 ∨ bForallFn g n N = 1 by omega) with h0 | h1
+    · rw [h0, selectFn_zero]
+      constructor
+      · intro hcontra; exact absurd hcontra (by decide)
+      · intro hall
+        have hb : bForallFn g n N = 1 := ih.mpr (fun i hi => hall i (Nat.lt_succ_of_lt hi))
+        rw [h0] at hb; exact hb
+    · rw [h1, selectFn_one, isOne_eq_one_iff]
+      constructor
+      · intro hgN i hi
+        rcases (show i < N ∨ i = N by omega) with hlt | heq
+        · exact (ih.mp h1) i hlt
+        · subst heq; exact hgN
+      · intro hall; exact hall N (Nat.lt_succ_self N)
+
+/-- **Bounded universal quantifier preserves recursive decidability.** If `p` is recursively decidable
+and `bound` is primitive recursive, then `fun n => ∀ i < bound n, p (pair i n)` is recursively
+decidable (choice-free). -/
+theorem RecDecidable.bForall {p : ℕ → Prop} (hp : RecDecidable p) {bound : ℕ → ℕ}
+    (hb : Nat.Primrec bound) :
+    RecDecidable (fun n => ∀ i, i < bound n → p (Nat.pair i n)) := by
+  obtain ⟨f, hf, hfspec⟩ := hp
+  refine ⟨fun n => bForallFn f n (bound n), ?_, ?_⟩
+  · have hGfn : Nat.Primrec (fun w => selectFn w.unpair.2.unpair.2
+        (isOne (f (Nat.pair w.unpair.2.unpair.1 w.unpair.1))) 0) :=
+      primrec_selectFn (Nat.Primrec.right.comp Nat.Primrec.right)
+        (primrec_isOne.comp (hf.comp
+          ((Nat.Primrec.left.comp Nat.Primrec.right).pair Nat.Primrec.left)))
+        (Nat.Primrec.const 0)
+    have hprec := Nat.Primrec.prec (Nat.Primrec.const 1) hGfn
+    refine (hprec.comp (primrec_id.pair hb)).of_eq (fun n => ?_)
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd, id_eq]
+    rfl
+  · intro n
+    show (∀ i, i < bound n → p (Nat.pair i n)) ↔ bForallFn f n (bound n) = 1
+    rw [bForallFn_eq_one_iff]
+    exact ⟨fun h i hi => (hfspec _).mp (h i hi), fun h i hi => (hfspec _).mpr (h i hi)⟩
 
 end Domain.Recursive

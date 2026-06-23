@@ -101,6 +101,27 @@ def prodPresentation (P₀ : ComputablePresentation V₀) (P₁ : ComputablePres
     · rintro ⟨⟨k0, hk0⟩, ⟨k1, hk1⟩⟩
       exact ⟨Nat.pair k0 k1, by simpa only [unpair_pair_fst] using hk0,
         by simpa only [unpair_pair_snd] using hk1⟩
+  inter n m := Nat.pair (P₀.inter n.unpair.1 m.unpair.1) (P₁.inter n.unpair.2 m.unpair.2)
+  inter_primrec := by
+    have h0 : Nat.Primrec (fun t => P₀.inter t.unpair.1.unpair.1 t.unpair.2.unpair.1) :=
+      (P₀.inter_primrec.comp ((Nat.Primrec.left.comp Nat.Primrec.left).pair
+        (Nat.Primrec.left.comp Nat.Primrec.right))).of_eq fun t => by
+          simp only [unpair_pair_fst, unpair_pair_snd]
+    have h1 : Nat.Primrec (fun t => P₁.inter t.unpair.1.unpair.2 t.unpair.2.unpair.2) :=
+      (P₁.inter_primrec.comp ((Nat.Primrec.right.comp Nat.Primrec.left).pair
+        (Nat.Primrec.right.comp Nat.Primrec.right))).of_eq fun t => by
+          simp only [unpair_pair_fst, unpair_pair_snd]
+    exact h0.pair h1
+  inter_spec := by
+    rintro n m ⟨k, hk⟩
+    simp only [prodEnum_apply, unpair_pair_fst, unpair_pair_snd] at hk ⊢
+    rw [prodNbhd_inter] at hk ⊢
+    obtain ⟨h0, h1⟩ := prodNbhd_subset_iff.mp hk
+    rw [P₀.inter_spec ⟨_, h0⟩, P₁.inter_spec ⟨_, h1⟩]
+  masterIdx := Nat.pair P₀.masterIdx P₁.masterIdx
+  masterIdx_spec := by
+    simp only [prodEnum_apply, unpair_pair_fst, unpair_pair_snd, P₀.masterIdx_spec,
+      P₁.masterIdx_spec, prod_master]
 
 @[simp] theorem prodPresentation_X (P₀ : ComputablePresentation V₀) (P₁ : ComputablePresentation V₁)
     (t : ℕ) :
@@ -601,6 +622,92 @@ def sumPresentation (P₀ : ComputablePresentation V₀) (P₁ : ComputablePrese
     · -- na = M: left master (any nb)
       rw [sumEnum_master hna0 hna1, sumMaster_inter_sumEnum]
       exact ⟨fun _ => Or.inl ⟨hna0, hna1⟩, fun _ => ⟨s.unpair.2, subset_rfl⟩⟩
+  inter n m :=
+    selectFn (1 - (2 - n.unpair.1)) m
+      (selectFn (1 - (2 - m.unpair.1)) n
+        (selectFn (1 - n.unpair.1)
+          (Nat.pair 0 (P₀.inter n.unpair.2 m.unpair.2))
+          (Nat.pair 1 (P₁.inter n.unpair.2 m.unpair.2))))
+  inter_primrec := by
+    have hnTag : Nat.Primrec (fun t => t.unpair.1.unpair.1) :=
+      Nat.Primrec.left.comp Nat.Primrec.left
+    have hmTag : Nat.Primrec (fun t => t.unpair.2.unpair.1) :=
+      Nat.Primrec.left.comp Nat.Primrec.right
+    have hnIdx : Nat.Primrec (fun t => t.unpair.1.unpair.2) :=
+      Nat.Primrec.right.comp Nat.Primrec.left
+    have hmIdx : Nat.Primrec (fun t => t.unpair.2.unpair.2) :=
+      Nat.Primrec.right.comp Nat.Primrec.right
+    have hP0 : Nat.Primrec (fun t => Nat.pair 0 (P₀.inter t.unpair.1.unpair.2 t.unpair.2.unpair.2)) :=
+      (Nat.Primrec.const 0).pair ((P₀.inter_primrec.comp (hnIdx.pair hmIdx)).of_eq fun t => by
+        simp only [unpair_pair_fst, unpair_pair_snd])
+    have hP1 : Nat.Primrec (fun t => Nat.pair 1 (P₁.inter t.unpair.1.unpair.2 t.unpair.2.unpair.2)) :=
+      (Nat.Primrec.const 1).pair ((P₁.inter_primrec.comp (hnIdx.pair hmIdx)).of_eq fun t => by
+        simp only [unpair_pair_fst, unpair_pair_snd])
+    have hcnMaster : Nat.Primrec (fun t => 1 - (2 - t.unpair.1.unpair.1)) :=
+      primrec_sub₂ (Nat.Primrec.const 1) (primrec_sub₂ (Nat.Primrec.const 2) hnTag)
+    have hcmMaster : Nat.Primrec (fun t => 1 - (2 - t.unpair.2.unpair.1)) :=
+      primrec_sub₂ (Nat.Primrec.const 1) (primrec_sub₂ (Nat.Primrec.const 2) hmTag)
+    have hcnZero : Nat.Primrec (fun t => 1 - t.unpair.1.unpair.1) :=
+      primrec_sub₂ (Nat.Primrec.const 1) hnTag
+    exact primrec_selectFn hcnMaster Nat.Primrec.right
+      (primrec_selectFn hcmMaster Nat.Primrec.left
+        (primrec_selectFn hcnZero hP0 hP1))
+  inter_spec := by
+    rintro n m ⟨k, hk⟩
+    rcases tag_trichotomy n.unpair.1 with hna | hna | ⟨hna0, hna1⟩
+    · -- n is a left copy (tag 0)
+      rw [show 1 - (2 - n.unpair.1) = 0 by omega, selectFn_zero]
+      rcases tag_trichotomy m.unpair.1 with hmb | hmb | ⟨hmb0, hmb1⟩
+      · -- m left copy: consistent left ∩ left
+        rw [show 1 - (2 - m.unpair.1) = 0 by omega, selectFn_zero,
+          show 1 - n.unpair.1 = 1 by omega, selectFn_one,
+          sumEnum_zero (by rw [unpair_pair_fst]), unpair_pair_snd,
+          sumEnum_zero hna, sumEnum_zero hmb, inj₀_inter]
+        rw [sumEnum_zero hna, sumEnum_zero hmb, inj₀_inter] at hk
+        obtain ⟨X₂, hX₂mem, hX₂eq⟩ := mem_subset_inj₀ (sumEnum_mem (h₀ := h₀) (h₁ := h₁) k) hk
+        obtain ⟨j, hj⟩ := P₀.surj hX₂mem
+        rw [hX₂eq] at hk
+        have hjsub : P₀.X j ⊆ P₀.X n.unpair.2 ∩ P₀.X m.unpair.2 := by
+          rw [hj]; exact inj₀_subset_inj₀.mp hk
+        rw [P₀.inter_spec ⟨j, hjsub⟩]
+      · -- m right copy: inconsistent (∅), refute consistency
+        exfalso
+        rw [sumEnum_zero hna, sumEnum_one hmb, inj₀_inter_inj₁] at hk
+        obtain ⟨x, hx⟩ := sumEnum_nonempty (h₀ := h₀) (h₁ := h₁) k
+        exact absurd (hk hx) (Set.notMem_empty x)
+      · -- m master
+        rw [show 1 - (2 - m.unpair.1) = 1 by omega, selectFn_one,
+          sumEnum_master hmb0 hmb1, sumEnum_inter_sumMaster]
+    · -- n is a right copy (tag 1)
+      rw [show 1 - (2 - n.unpair.1) = 0 by omega, selectFn_zero]
+      rcases tag_trichotomy m.unpair.1 with hmb | hmb | ⟨hmb0, hmb1⟩
+      · -- m left copy: inconsistent
+        exfalso
+        rw [sumEnum_one hna, sumEnum_zero hmb, Set.inter_comm, inj₀_inter_inj₁] at hk
+        obtain ⟨x, hx⟩ := sumEnum_nonempty (h₀ := h₀) (h₁ := h₁) k
+        exact absurd (hk hx) (Set.notMem_empty x)
+      · -- m right copy: consistent right ∩ right
+        rw [show 1 - (2 - m.unpair.1) = 0 by omega, selectFn_zero,
+          show 1 - n.unpair.1 = 0 by omega, selectFn_zero,
+          sumEnum_one (by rw [unpair_pair_fst]), unpair_pair_snd,
+          sumEnum_one hna, sumEnum_one hmb, inj₁_inter]
+        rw [sumEnum_one hna, sumEnum_one hmb, inj₁_inter] at hk
+        obtain ⟨Y₂, hY₂mem, hY₂eq⟩ := mem_subset_inj₁ (sumEnum_mem (h₀ := h₀) (h₁ := h₁) k) hk
+        obtain ⟨j, hj⟩ := P₁.surj hY₂mem
+        rw [hY₂eq] at hk
+        have hjsub : P₁.X j ⊆ P₁.X n.unpair.2 ∩ P₁.X m.unpair.2 := by
+          rw [hj]; exact inj₁_subset_inj₁.mp hk
+        rw [P₁.inter_spec ⟨j, hjsub⟩]
+      · -- m master
+        rw [show 1 - (2 - m.unpair.1) = 1 by omega, selectFn_one,
+          sumEnum_master hmb0 hmb1, sumEnum_inter_sumMaster]
+    · -- n master
+      rw [show 1 - (2 - n.unpair.1) = 1 by omega, selectFn_one,
+        sumEnum_master hna0 hna1, sumMaster_inter_sumEnum]
+  masterIdx := Nat.pair 2 0
+  masterIdx_spec := by
+    rw [sumEnum_master (by rw [unpair_pair_fst]; decide) (by rw [unpair_pair_fst]; decide)]
+    rfl
 
 /-- **Theorem 7.4 (Scott 1981, PRG-19).** The sum of effectively given domains is effectively given. -/
 theorem sum_isEffectivelyGiven (g₀ : V₀.IsEffectivelyGiven) (g₁ : V₁.IsEffectivelyGiven) :

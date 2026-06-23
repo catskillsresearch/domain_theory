@@ -18,8 +18,11 @@ A session may begin after a context reset; chat memory is not durable, these fil
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
 **Next concrete target:** **Lecture VII — Theorem 7.5** (`(D₀→D₁)` effectively given; `eval`/`curry`
-computable; computable elements = computable maps). Theorem 7.4 is now **DONE in full** (both halves,
-choice-free; see below).
+computable; computable elements = computable maps) — **in progress**: scaffolding milestones 1–2 are
+green & audited (Def 7.1 extended with primrec `inter`/`masterIdx`; choice-free primrec list-fold engine
+`encodeList`/`decodeList`/`foldCode` in `Recursive.lean`). See the latest dated checkpoint at the bottom
+for exactly what landed and what remains (`Theorem75.lean` presentation, `eval`, elements=maps, `curry`).
+Theorem 7.4 is **DONE in full** (both halves, choice-free; see below).
 
 **`omega` / choice gotcha (important, cost me a debugging cycle):** `omega` invoked on a goal whose
 type is **not** arithmetic — e.g. a `Set` equality `A = B`, even when it closes the goal purely by a
@@ -2387,3 +2390,80 @@ declaration audits `⊆ {propext, Quot.sound}` (verified `sumPresentation`, `sum
 
 **Next:** Theorem 7.5 — the function-space `(D₀→D₁)` is effectively given; `eval`/`curry` computable;
 computable elements correspond to computable maps.
+
+## Checkpoint 2026-06-22 — Theorem 7.5 scaffolding: Def 7.1 extended + primrec list-fold engine
+
+Theorem 7.5 is a *major* multi-part theorem; building it incrementally in green, audited milestones.
+Two foundational milestones landed (full `lake build` green, zero `sorry`, all new decls audit
+`⊆ {propext, Quot.sound}` or no axioms):
+
+- **Milestone 1 — `ComputablePresentation` extended (Def 7.1).** Scott's function-space deciders must
+  *form* component intersections (locate the index `k` with `X_k = Xₙ ∩ Xₘ`), which the previous
+  `RecDecidable` (primrec-only, no unbounded search) could not produce. Decision (user): add a
+  **primitive-recursive intersection function** to the presentation rather than going general-recursive.
+  `Definition71.lean`'s `ComputablePresentation` now carries:
+  - `inter : ℕ → ℕ → ℕ`, `inter_primrec : Nat.Primrec (fun t => inter t.unpair.1 t.unpair.2)`,
+    `inter_spec : (∃ k, X k ⊆ X n ∩ X m) → X (inter n m) = X n ∩ X m`;
+  - `masterIdx : ℕ`, `masterIdx_spec : X masterIdx = V.master`.
+  Re-greened all instances: `unitPresentation` (`Definition71.lean`), `prodPresentation` (componentwise
+  `pair`), `sumPresentation` (tag-trichotomy via nested `selectFn`) in `Theorem74.lean`. New helpers in
+  `Recursive.lean`: `primrec_add₂/_mul₂/_sub₂`, `selectFn` (+`primrec_selectFn`, `selectFn_one/zero/ite`,
+  `geTwo_bit`, `eqZero_bit`).
+
+- **Milestone 2 — choice-free primrec list-fold engine (`Recursive.lean`).** The reusable core every
+  function-space decider will sit on. `Nat`-coded lists:
+  - `encodeList : List ℕ → ℕ` (`[] ↦ 0`, `a::l ↦ pair a (encodeList l) + 1`); `encodeList_length_le`;
+  - `decodeList : ℕ → List ℕ` (WF on the remaining code, `unpair_snd_le` the measure);
+    `decodeList_succ`, `encodeList_decodeList` (`encode∘decode = id`), `decodeList_length_le`;
+  - `foldStep`/`foldCode stp params z c` = `((foldStep stp params)^[c] (pair c z)).unpair.2`, i.e. fold
+    the list coded by `c` threading accumulator `z` + fixed parameter `params`, step function `stp`;
+  - **`foldCode_eq`** (`foldCode` on `encodeList l` = `List.foldl …`), **`foldCode_eq'`** (on an arbitrary
+    code via `decodeList`), and **`primrec_foldCode`** (`foldCode` is primrec in all primrec inputs — via
+    `rec_const_iterate` bridging `Nat.Primrec.prec`'s `Nat.rec` with the `Function.iterate` def, and
+    `primrec_foldStepPacked`). `le_pair_right` proved choice-free (avoids mathlib's classical
+    `Nat.right_le_pair`).
+
+**Remaining for 7.5 (next sessions):** (a) `funSpace` neighborhoods as coded lists of step-pairs `[X,Y]`;
+consistency decider (`stp` = component `cons`/`inter` over the entries, via `foldCode`) + inclusion
+decider → `ComputablePresentation (funSpace …)` (`Theorem75.lean`); (b) `eval` computable; (c) computable
+elements = computable maps; (d) `curry` (Scott defers fuller treatment to Ex 7.16); (e) wire into
+`Domain.lean`, update `arxiv.md` row to Pass.
+
+### Milestone 3 (2026-06-22) — bounded universal quantifier decider (`Recursive.lean`)
+
+The funSpace consistency condition (Prop 3.9(i), and Scott's proof of 7.5, p.121–122) is a **bounded
+universal**: a list of `q` step-pairs `[Xᵢ,Yᵢ]` is consistent in `(𝒟₀→𝒟₁)` iff **for every subset**
+`I ⊆ {0,…,q-1}` (coded as a bitmask `b < 2^q`), `{Xᵢ : i∈I}` consistent in `𝒟₀` ⟹ `{Yᵢ : i∈I}`
+consistent in `𝒟₁` (≤ `2·2^q` component checks). So the gateway primitive is bounded `∀`. Landed,
+green, audited `⊆ {propext, Quot.sound}` (the `Fn`s are pure data, no axioms):
+
+- `isOne v = 1 - ((v-1)+(1-v))` — the `{0,1}` indicator of `v = 1` (`isOne_eq_one_iff`, `isOne_le_one`,
+  `primrec_isOne`); needed because `RecDecidable` char functions are only *guaranteed* `=1`/`≠1`, not
+  literally `{0,1}`-valued, so folds must normalize each test.
+- `bForallFn g n N` — `Nat.rec`-fold of `selectFn ih (isOne (g (pair i n))) 0`, staying in `{0,1}`
+  (`bForallFn_le_one`), with `bForallFn_eq_one_iff : … = 1 ↔ ∀ i < N, g (pair i n) = 1`.
+- **`RecDecidable.bForall`** — if `p` is `RecDecidable` and `bound` is `Nat.Primrec`, then
+  `fun n => ∀ i < bound n, p (pair i n)` is `RecDecidable`. (The bounded-`∃` is not separately needed:
+  unbounded `∃` is already `REPred.proj`, and consistency is the `∀` form.)
+
+### Milestone 4 (2026-06-22) — primrec arithmetic for bit extraction (`Recursive.lean`)
+
+All green, audited `⊆ {propext, Quot.sound}` (`recPow_eq` only `propext`):
+
+- `primrec_pow : Nat.Primrec (unpaired fun b e => b ^ e)` (via `recPow_eq : Nat.rec 1 (·*b) e = b^e`,
+  choice-free; mathlib's `^` `Primrec` lemmas route through classical `simp`), plus
+  `primrec_two_pow : Nat.Primrec g → Nat.Primrec (fun n => 2 ^ g n)` for the `2^q` subset bound.
+- **Halving** `halfParity n = pair (n/2) (n%2)` (structural recursion, step `(h,p) ↦ (h+p, 1-p)`;
+  `halfParity_spec` proved with `omega`, which discharges `/2`,`%2` since the divisor is the literal
+  `2`), giving `primrec_div2`/`primrec_mod2`. **No general `div`/`mod` is needed**: the consistency
+  fold consumes the subset bitmask `b` one bit at a time via `b % 2` then `b / 2`.
+
+**Next for 7.5 (`Theorem75.lean`):** build the per-subset fold over `decodeList code` (via `foldCode`,
+param = bitmask `b` that is read `%2`/halved each entry; accumulator = running component-`inter` indices
+in `𝒟₀` and `𝒟₁` + `{0,1}` consistency flags), and wrap in `RecDecidable.bForall` (bound `2 ^ len` via
+`primrec_two_pow`) to obtain `funCons` (Prop 3.9(i)). Then the inclusion decider
+(`⋂{Yₘᵢ : Xₖ⊆Xₙᵢ} ⊆ Yₗ` via a conditional `foldCode` + `inter` + `incl_computable`), assemble
+`funPresentation : ComputablePresentation (funSpace …)` (junk-to-master on inconsistent codes, detected
+by `funCons`, keeping the enumeration choice-free), then `eval`/elements=maps/`curry`.
+All primrec building blocks (`foldCode`, `bForall`, `pow`, `div2`/`mod2`, `inter`/`masterIdx`) are now
+in place — `Theorem75.lean` is unblocked.

@@ -72,6 +72,22 @@ structure ComputablePresentation (V : NeighborhoodSystem α) where
   interEq_computable : RecDecidable₃ (fun n m k => X n ∩ X m = X k)
   /-- **7.1(ii)** — consistency `∃ k. X_k ⊆ Xₙ ∩ Xₘ` is recursively decidable in `n, m`. -/
   cons_computable : RecDecidable₂ (fun n m => ∃ k, X k ⊆ X n ∩ X m)
+  /-- A **primitive-recursive intersection function**: an index of `Xₙ ∩ Xₘ` whenever that
+  intersection is a neighbourhood (i.e. consistent). This makes explicit the operation that 7.1(i)
+  is *about*: in Scott's general-recursive reading of "recursively decidable" the index can be
+  recovered from `interEq_computable` by an (unbounded) search `μk. Xₙ ∩ Xₘ = X_k`, but that search
+  is not *primitive* recursive; for the function-space presentation (Theorem 7.5) we need to
+  *form* component intersections primitively, so we carry the function as part of the data of an
+  ("acceptable") computable presentation. Off the consistent domain `inter n m` may be junk. -/
+  inter : ℕ → ℕ → ℕ
+  /-- The intersection function is primitive recursive (on the `Nat.pair` coding of `n, m`). -/
+  inter_primrec : Nat.Primrec (fun t => inter t.unpair.1 t.unpair.2)
+  /-- `inter n m` indexes `Xₙ ∩ Xₘ` whenever that intersection is consistent. -/
+  inter_spec : ∀ {n m : ℕ}, (∃ k, X k ⊆ X n ∩ X m) → X (inter n m) = X n ∩ X m
+  /-- A fixed index of the master neighbourhood `Δ` (used to seed finite intersections). -/
+  masterIdx : ℕ
+  /-- `X masterIdx = Δ`. -/
+  masterIdx_spec : X masterIdx = V.master
 
 namespace ComputablePresentation
 
@@ -124,6 +140,11 @@ def unitPresentation : ComputablePresentation unitSys where
   interEq_computable := recDecidable_of_forall fun _ => Set.inter_self Set.univ
   cons_computable := recDecidable_of_forall fun _ =>
     ⟨0, by rw [Set.inter_self]⟩
+  inter _ _ := 0
+  inter_primrec := Nat.Primrec.zero
+  inter_spec _ := by rw [Set.inter_self]
+  masterIdx := 0
+  masterIdx_spec := rfl
 
 /-- **The one-point domain `𝟙` is effectively given.** -/
 theorem unitSys_isEffectivelyGiven : unitSys.IsEffectivelyGiven :=
