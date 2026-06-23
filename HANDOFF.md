@@ -17,8 +17,13 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Proposition 7.7** (`D`<sup>§</sup> effectively given; the
-Example 6.1 combinators computable) — `arxiv.md` line 4399. **Theorem 7.6 is DONE** (`fix:(D→D)→D`
+**Next concrete target:** **Lecture VII — Proposition 7.7 — DECIDERS (Milestone 2)**. The
+**foundational layer is DONE** (`Proposition77.lean`, green, wired, `⊆{propext,Quot.sound}`): see the
+**latest dated checkpoint at the very bottom** for the `Vsharp` enumeration, `mem_X`/`surj`/nonempty,
+and the per-parity intersection identities. **Remaining: build the primitive-recursive
+course-of-values deciders** (`interEq_computable`/`cons_computable`/`inter`) → assemble
+`ComputablePresentation (Dsharp D hD)` → Example 6.1 combinators (`λx.x^§`, `proj₀`) computable.
+Full decider design is in the bottom checkpoint. **Theorem 7.6 is DONE** (`fix:(D→D)→D`
 computable, `Theorem76.lean`, `fixMap_isComputable`, choice-free) — see the **latest dated checkpoint
 at the very bottom**. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
 given via `funPresentation`/`funSpace_isEffectivelyGiven`; `eval` computable `evalMap_isComputable`;
@@ -2702,3 +2707,71 @@ fold parameters. Also: list-recursive defs (`gLastOf`/`gStepsOK`/`chainDec`) red
 
 **Theorem 7.6 is DONE.** Next concrete target: **Proposition 7.7** (`D`<sup>§</sup> effectively given;
 Example 6.1 combinators computable) — `arxiv.md` line 4399.
+
+## Checkpoint 2026-06-23 (later still) — Proposition 7.7 FOUNDATIONAL LAYER done (Milestone 1)
+
+`Proposition77.lean` (ns `Domain.Neighborhood.Proposition77`) created, wired into `Domain.lean`, full
+`lake build Domain` green, **zero `sorry`**, zero warnings; `#print axioms` of `Vsharp`/`Vsharp_mem`/
+`Vsharp_surj`/`Vsharp_nonempty` is `{propext, Quot.sound}` (choice-free). **`arxiv.md` row stays `—`
+(NOT Pass) — the presentation is not yet built.** This is the math layer Scott waves at with "this
+proof is essentially an exercise"; the real content is the recursive enumeration + the structural
+intersection checks.
+
+**What landed (Milestone 1, all choice-free math over `Example61`'s `Dsharp D hD` on `List Bool × α`):**
+- **`Vsharp D P : ℕ → Set (List Bool × α)`** — Scott's enumeration `V₀=Γ`, `V_{2n+1}=embZero (P.X n)`,
+  `V_{2n+2}=embPair (V_{n.unpair.1}) (V_{n.unpair.2})`. Defined by **well-founded recursion** with
+  `termination_by k => k`; the children of `V_{2n+2}` are `V` at `(k-1)/2 = n`'s `unpair.1/.2`, both
+  `≤ n < k`, so it terminates. Needed a local **`unpair_fst_le`** (`n.unpair.1 ≤ n`, via local
+  `le_pair_left` — kept local, NOT in `Recursive.lean`, to avoid a full downstream rebuild).
+- Unfolding lemmas `Vsharp_zero`, `Vsharp_succ` (`rw [Vsharp]` works for the WF def), and the clean
+  `Vsharp_odd`/`Vsharp_even` (specialise via `omega` facts `(2n+1)%2=1`, `2n/2=n`, `(2n+2)=(2n+1)+1`).
+- **`Vsharp_mem`** (`MemS D (Vsharp D P k)`, i.e. each `Vₖ ∈ 𝒟^§`): strong induction; **choice gotcha**
+  — `Nat.even_or_odd` pulls `Classical.choice`! Replaced by a hand-rolled parity split
+  `(∃n,k=2n+1)∨(∃n,k=2n+2)` whose disjunct is chosen by `Nat.lt_or_ge (k%2) 1` with explicit witnesses
+  `⟨k/2-1, by omega⟩` / `⟨k/2, by omega⟩` (omega only proves the *arithmetic* equation, no choice).
+- **`Vsharp_surj`** (every `MemS` nbhd is some `Vₖ`): induction on `MemS`; `gamma↦0`, `zero hX↦2n+1`
+  (`P.surj hX` names `X=P.X n`), `pair↦2·(pair a b)+2` (`unpair_pair` recovers the two child indices).
+- **`Vsharp_nonempty`** (`memS_nonempty hD ∘ Vsharp_mem`).
+- **Per-parity intersection identities** (the actual 7.1(i)/(ii) "checks"): `Vsharp_zero_inter`/
+  `Vsharp_inter_zero` (`V₀=Γ` is `∩`-identity, via `memS_subset_gamma`); `Vsharp_odd_inter_odd`
+  (`= embZero (Xₐ∩X_b)`, throws the check back onto `D`); `Vsharp_odd_inter_even`/`Vsharp_even_inter_odd`
+  (`= ∅`, inconsistent); `Vsharp_even_inter_even` (`= embPair (V_{a.1}∩V_{b.1}) (V_{a.2}∩V_{b.2})`,
+  throws back to strictly-smaller subscripts). Straight from `Example61`'s `embZero_inter`/
+  `embPair_inter`/`embZero_inter_embPair`.
+
+**REMAINING for 7.7 (precise design — Milestones 2–5):**
+
+The deciders `interEq_computable : RecDecidable₃`, `cons_computable : RecDecidable₂`, and the primrec
+`inter` are **course-of-values recursive on the index trees**: e.g. `cons(2a+2,2b+2)=cons(a.1,b.1) ∧
+cons(a.2,b.2)`, `inter(2a+2,2b+2)=2·pair(inter(a.1,b.1))(inter(a.2,b.2))+2`,
+`inter(2a+1,2b+1)=2·(P.inter a b)+1`, leaf/node clashes inconsistent, `0` is `∩`-identity. The
+combined measure `w = Nat.pair n m` **strictly decreases** on every recursive call (`a.1 ≤ a < n`,
+`b.1 < m` ⟹ `pair(a.1,b.1) < pair(n,m)`), so this is a *unary* course-of-values on `w`.
+
+- **Milestone 2a — generic primrec memo evaluator** (new RT in `Recursive.lean`):
+  `rtbl step : ℕ → ℕ`, `rtbl 0 = 0`, `rtbl (t+1) = pair (step (pair t (rtbl t))) (rtbl t) + 1`
+  (reverse table, so the prec-step is a *cons* — no `snoc` needed), built from `Nat.Primrec.prec`;
+  `gOf step w := step (pair w (rtbl step w))`. To read `g v` (`v<w`) inside `step`, look up position
+  `w-1-v` of the reverse table `[g(w-1),…,g 0]` via a new **`listGet c i := (decodeList c).getD i 0`**
+  (primrec via a `foldCode` whose accumulator `pair countdown value` selects the `i`-th element). Prove
+  `gOf step w = step (pair w (encodeList ((List.range w).reverse.map (gOf step))))` or, more usefully,
+  `listGet (rtbl step w) (w-1-v) = gOf step v` for `v < w` (strong induction on `w`).
+- **Milestone 2b — `cons`/`inter`/`eq` step functions** over `w = pair n m` (decode `n=w.1,m=w.2`,
+  parity by `n%2`/`m%2`, leaf index `n/2`, node child-base `n/2-1`): instantiate `gOf` thrice. Leaf
+  cases delegate to `P`'s extracted primrec chars (`P.cons_computable`/`P.eq_computable`/`P.inter`).
+  Node cases AND/combine table lookups at `pair(a.1,b.1)`, `pair(a.2,b.2)`. Use `isOne`/`selectFn`/
+  `RecDecidable.natEq`/`.and` etc. (all already in `Recursive.lean`).
+- **Milestone 2c — correctness** by strong induction on `w`: `gCons (pair n m) = 1 ↔ ∃k, Vₖ⊆Vₙ∩Vₘ`
+  (use the per-parity `Vsharp_*_inter_*` lemmas + `memS_*` inversion; leaf↔`D`-consistency); likewise
+  `Vsharp (gInter (pair n m)) = Vₙ∩Vₘ` when consistent, and `gEq` for equality. Then
+  `interEq(n,m,k) ↔ cons(n,m) ∧ gEq(gInter(pair n m)) k` (or `Vₙ∩Vₘ=Vₖ` directly via `gEq`).
+- **Milestone 3 — `dsharpPresentation`/`dsharp_isEffectivelyGiven`**: assemble
+  `ComputablePresentation (Dsharp D hD)` (`X=Vsharp D P`, `masterIdx=0` since `V₀=Γ=master`,
+  `inter`/`inter_spec`/`interEq_computable`/`cons_computable` from 2c).
+- **Milestone 4 — combinators**: Scott does "a selection": **`X_n (λx.x^§) V_k ↔ V_{2n+1}⊆V_k`**
+  (`embZero(Xₙ)⊆`), recursively *decidable* (`incl` reindexed), hence r.e.; **`V_m proj₀ V_k ↔ k=0 ∨
+  ∃n. m=2n+2 ∧ V_{p n}⊆V_k`**. NB Example 6.1's combinators are currently *element-level*
+  (`inSharp`/`pairSharp`) — need their `ApproximableMap` forms (or read off the relation from the
+  domain-equation iso `dsharpEquiv` composed with `sum`/`prod` projections) before stating
+  `IsComputableMap`. Exercise 7.17 is the *full* finish (all 6.2 combinators + strict `g:D^§→E`).
+- **Milestone 5 — flip `arxiv.md` row to Pass, axiom-audit all new decls, HANDOFF checkpoint.**
