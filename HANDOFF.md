@@ -17,15 +17,13 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Theorem 7.5** (`(D₀→D₁)` effectively given; `eval`/`curry`
-computable; computable elements = computable maps) — **in progress**. `Theorem75.lean` now exists,
-green & wired into `Domain.lean`, with the **mathematical core of Prop 3.9(i) fully formalized and
-choice-free** (`⊆ {propext, Quot.sound}`): the consistency condition, its characterization over coded
-entry-lists, and a choice-free *consistency decision principle* (`consChain_iff`). What **remains** is
-the recursion-theory *packaging* of those choice-free decision principles into `Nat.Primrec`
-characteristic functions, then assembling `funPresentation` and the combinators. See the **latest
-dated checkpoint at the very bottom** for exactly what landed in `Theorem75.lean` and the precise
-remaining plan. Theorem 7.4 is **DONE in full** (both halves, choice-free; see below).
+**Next concrete target:** **Lecture VII — Theorem 7.6** (`fix:(D→D)→D` computable on effectively given
+`D`) — `arxiv.md` line 4377. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
+given via `funPresentation`/`funSpace_isEffectivelyGiven`; `eval` computable `evalMap_isComputable`;
+computable elements = computable maps `isComputableElement_funPresentation_iff`; `curry` computable
+`curry_isComputable`), green, wired into `Domain.lean`, every decl `⊆ {propext, Quot.sound}` — see the
+**latest dated checkpoint at the very bottom**. Theorem 7.4 is also **DONE in full** (both halves,
+choice-free; see below).
 
 **`omega` / choice gotcha (important, cost me a debugging cycle):** `omega` invoked on a goal whose
 type is **not** arithmetic — e.g. a `Set` equality `A = B`, even when it closes the goal purely by a
@@ -2543,3 +2541,106 @@ packaging + assembly):**
    φ.mem (step …)`, so the element index set is r.e. iff the relation is (`toApproxMap`).
 7. **`curry` computable** (Scott defers the full relation to Ex 7.16; `FunctionSpace.curry` is in place).
 8. Update `arxiv.md` row for Theorem 7.5 to **Pass** once 1–7 land.
+
+## Checkpoint 2026-06-23 — Theorem 7.5: consistency decider + appendCode + inclusion characterization DONE (choice-free)
+
+Recovered the clean pre-cutover base (`Theorem75.lean` @ commit `863547b`, 301 lines, Milestones
+1/2/3a) after a budget cutover to Composer left an **818-line, non-building, sorry-laden** working
+tree (saved for reference at `/tmp/composer_t75_blueprint.lean`; its HANDOFF/arxiv "landed/zero sorry"
+claims were false). Then built the next milestones for real — `lake build Domain` green, **zero
+`sorry`**, every new decl audits `⊆ {propext, Quot.sound}`.
+
+**What landed (on top of 1/2/3a):**
+- **Milestone 3b — bitmask sublist selection.** `bitSelect L b` (low bit = head), `bitSelect_sublist`,
+  `exists_bitSelect_lt` (every sublist is some `bitSelect L b`, `b < 2^len`),
+  `forall_sublist_iff_forall_bitmask` (∀-over-sublists ⇔ bounded ∀-over-`b < 2^c`, via
+  `decodeList_length_le`). Choice gotcha avoided: `0 < 2^n` via `rw [pow_zero]; exact Nat.one_pos`
+  and `Nat.pow_le_pow_right (Nat.le_succ 1) …` (NOT `simp`/`decide`, which pull `Classical.choice`).
+- **Milestone 3c — single-pass consistency fold (`section ConsFold`, generic `P`).** `consUpd` threads
+  `pair b (pair idx flag)`; at a *selected* entry it `P.inter`s the running index with the entry's
+  `projFn`-component and ANDs `flag` with the **binary** consistency test `isOne (fc …)`
+  (`fc` = `P.cons_computable` char). `consUpd_eval` (clean β-reduced step), `consUpd_foldl_flag_zero`
+  (0 persists), headline **`consUpd_foldl_spec`** (final flag = 1 ↔ `V.mem (interFrom P (X a) (selected
+  projFn))`, by induction generalising the start index `a`: `inter_spec` keeps `X a` exact along the
+  consistent prefix; `P.surj` turns a witnessing nbhd back into the `∃k` of `fc`). `consStp`/`consCharAt`
+  wrap it through `foldCode`; `consCharAt_spec`; **`primrec_consStp`** (KEY: build the primrec term with
+  *unannotated* `.comp`/`.pair` `have`s then one final `.of_eq … simp [unpair_pair_*]` — annotating the
+  reduced form forces non-defeq `unpair (pair …)` unification → `whnf` heartbeat timeout, the bug that
+  sank the Composer attempt); **`consFold_decidable`**.
+- **Milestone 3d — `funCons_decidable`.** `interList_X_eq_interFrom`, `antecedent_cons_iff` (Prop
+  3.9(i) antecedent ⇔ `interFrom` consistency in `𝒟₀`), `funConsequent_eq`; **`funCons_iff`**
+  (`(stepFun (funListOf (decodeList c))).Nonempty ↔ ∀ b<2^c, cons₀(bitSelect)→cons₁(bitSelect)`) and
+  **`funCons_decidable : RecDecidable (fun c ↦ (stepFun (funListOf (decodeList c))).Nonempty)`**
+  (`consFold_decidable P₀ (·.unpair.1)` ⇒ `consFold_decidable P₁ (·.unpair.2)` via `.not`/`.or`/`.em`,
+  wrapped in `RecDecidable.bForall (bound := fun n ↦ 2^n)`).
+- **Milestone 4 — `appendCode`.** `appendStep`/`appendStp`/`appendCode` (foldCode prepend),
+  `decodeList_appendCode` (codes `(decodeList b).reverse ++ decodeList a`), `primrec_appendCode`,
+  `funListOf_append`, **`stepFun_funListOf_appendCode`** (= `stepFun(funListOf da) ∩ stepFun(funListOf db)`,
+  via `ext` + `mem_stepFun`; reverse is harmless since `stepFun` is an intersection).
+- **Milestone 5a — inclusion CHARACTERISATION (choice-free).** `funListOf_cons`; **`rel_interYs_funList`**
+  — the *choice-free* re-proof of `FunctionSpace.rel_interYs` for a presented list (the library version
+  `by_cases X ⊆ Xᵢ` ⇒ `Classical.choice`; here the split is `P₀.incl_computable.em (pair n' e.1)` then
+  `simp [unpair_pair_*]`); `interYs_funList_mem_of_nonempty` (nonempty ⇒ the `leastMap` consistency
+  hypothesis `hcons`); **`stepFun_funListOf_subset_iff`** (`stepFun(funListOf ea) ⊆ stepFun(funListOf eb)
+  ↔ ∀ e'∈eb, interYs Δ₁ (funListOf ea) (X₀_{e'.1}) ⊆ X₁_{e'.2}`; forward tests `leastMap`, backward uses
+  the choice-free `rel_interYs_funList`).
+
+**REMAINING for 7.5 (precise; 5a's math is in hand, what's left is the primrec packaging + assembly):**
+1. **Milestone 5b — `RecDecidable₂ (Xenum a ⊆ Xenum b)`.** Compute the index of `interYs Δ₁ (funListOf
+   (decodeList a)) (X₀_{n'})` by a conditional-`inter` `foldCode` over `decodeList a` (select `e` with
+   `isOne(fincl0 (pair n' e.1))`, `P₁.inter` the running idx with `e.2`); prove
+   `foldl_cond_inter` (conditional fold = `idxchain` over the `filter`-`map`ped list), and
+   `interYs_eq_interFrom_filter` (`Set.ext` via `mem_interYs`/`mem_interFrom` + `hincl0`), so when
+   consistent (Milestone 1 forward gives the outputs are a nbhd) `P₁.X idx = interYs`. Then
+   `stepFun ⊆ stepFun ⟺ ∀ e'∈decodeList b, incl₁(idx(e'.1,a), e'.2)` — a `foldCode`-AND over
+   `decodeList b` (need a `bForallList`-style spec). Junk-handling: `Xenum c = if funCons c then
+   stepFun(funListOf(decodeList c)) else univ`, so the full incl decider case-splits on `funCons a`,
+   `funCons b` (both `RecDecidable`): `univ ⊆ Xb ⟺ funCons b ⇒ (db empty-ish)`… handle via the two
+   `funCons` flags. `interEq` = incl both ways; `cons` = `funCons (appendCode a b)`.
+2. **Milestone 6 — `funPresentation` + `funSpace_isEffectivelyGiven`.** `inter a b := selectFn
+   (isOne(funCons a)) (selectFn (isOne(funCons b)) (appendCode a b) a) b`; `masterIdx = 0`
+   (`Xenum 0 = univ`); `mem_X`/`surj` via `funListOf_valid`/`stepFun_funListOf_nonempty_iff` forward +
+   `P₀.surj`/`P₁.surj`; `inter_spec` via `stepFun_funListOf_appendCode`.
+3. **Milestone 7 — `eval` computable** (Scott: recursive set via `leastMap`/3.9(ii)).
+4. **Milestone 8 — computable elements = computable maps.**
+5. **Milestone 9 — `curry` computable** (Scott defers full relation to Ex 7.16).
+6. Flip `arxiv.md` row to **Pass** once 1–5 land.
+
+NOTE: `arxiv.md` row stays at its committed value (NOT Pass) until the theorem is fully complete.
+
+## Checkpoint 2026-06-23 (later) — Theorem 7.5 COMPLETE & CHOICE-FREE (all four parts)
+
+`Theorem75.lean` now lands **all four parts of Theorem 7.5**, full `lake build Domain` green, **zero
+`sorry`**, zero warnings in `Theorem75.lean`/`Recursive.lean`, every new decl audits
+`⊆{propext, Quot.sound}`. `arxiv.md` row flipped to **Pass** with a dense note. `Theorem75.lean` is
+wired into `Domain.lean`. Recovered the pre-cutover Milestones 5b/6/8 base (`Eq.le`/`.ge`→
+`Eq.subset`/`.superset` to kill `Classical.choice`; dropped an unused `hgN` from `mem_Xenum_iff`),
+then built 7 and 9.
+
+**What landed (on top of Milestones 1–6, 8):**
+- **Milestone 7 — `evalMap_isComputable`** (`IsComputableMap (prodPresentation funPresentation P₀) P₁
+  (evalMap V₀ V₁)`). `evalMap_rel_prodNbhd_iff`: `(F,X) eval Y ↔ F ⊆ [X,Y]` (every map in `F` relates
+  `X→Y` ⟺ `F ⊆ step X Y = {f∣f X Y}`, via `mem_step`). `Xenum_singleton`: `[X₀ⱼ,Y₁ₘ] = Xenum(⟨⟨j,m⟩,0⟩+1)`
+  (one-entry, always consistent — the step map witnesses). So eval reduces to the **decidable**
+  function-space inclusion `funPresentation.incl_computable` (= `RecDecidable (Xenum a ⊆ Xenum b)`, read
+  off by defeq since `funPresentation.X ≡ Xenum`) re-indexed by the primrec singleton-code map
+  `t ↦ ⟨t.1.1, ⟨⟨t.1.2,t.2⟩,0⟩+1⟩`; `.re`. Scott's "`eval` is a recursive set".
+- **Milestone 9 — `curry_isComputable`** (`IsComputableMap P₀ (funPresentation P₁ P₂ …) (curry g)` from
+  `hg : IsComputableMap (prodPresentation P₀ P₁) P₂ g`). `mem_Xenum_iff_map` (single-map analogue of
+  `mem_Xenum_iff`, via `mem_stepFun`) + `curry_rel`/`gSection_rel` give `curry_rel_Xenum_iff`:
+  `(X₀ₙ) curry(g)(Xenum c) ↔ (gN c=1 → ∀⟨j,k⟩∈decodeList c, X₀ₙ∪X₁ⱼ g X₂ₖ)`. The body is r.e. in the
+  **parameter** `n` and entry `e`, so this is r.e. by the new `REPred.forall_mem_decodeList₂`, guarded
+  by decidable consistency (`Decidable.imp_iff_not_or`, as in Milestone 8). Required importing
+  `Theorem74` (for `prodPresentation`).
+- **New choice-free RT in `Recursive.lean`:** `REPred.forall_mem_decodeList₂` — parameterised bounded
+  `∀`: `REPred₂ p → REPred (fun t ↦ ∀ e∈decodeList t.2, p t.1 e)`. Proof reduces to the existing
+  unparameterised `forall_mem_decodeList` by primitively re-coding `decodeList c` into the pairs
+  `⟨t.1,e⟩` (`mapPairCode`/`mapPairStp`/`mapPairStep`, a `foldCode` prepend threading the parameter via
+  the `params` slot; `decodeList_mapPairCode = ((decodeList c).map ⟨n,·⟩).reverse`, order-irrelevant
+  under `∀∈`), then `REPred.comp` + `REPred.of_iff` with `List.mem_reverse`/`List.mem_map`.
+
+**Dot-notation gotcha:** `hS.forall_mem_decodeList₂` fails because `hS : REPred₂ …` (head `REPred₂`) but
+the lemma lives in the `REPred` namespace — call `REPred.forall_mem_decodeList₂ hS` explicitly.
+
+**Theorem 7.5 is DONE.** Next concrete target: **Theorem 7.6** (`fix:(D→D)→D` computable on effectively
+given `D`) — `arxiv.md` line 4377.

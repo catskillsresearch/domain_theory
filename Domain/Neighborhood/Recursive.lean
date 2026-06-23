@@ -904,4 +904,278 @@ theorem RecDecidable.bForall {p : ℕ → Prop} (hp : RecDecidable p) {bound : �
     rw [bForallFn_eq_one_iff]
     exact ⟨fun h i hi => (hfspec _).mp (h i hi), fun h i hi => (hfspec _).mpr (h i hi)⟩
 
+/-- `decodeList ∘ encodeList = id` (the round-trip the other way from `encodeList_decodeList`). -/
+theorem decodeList_encodeList : ∀ l : List ℕ, decodeList (encodeList l) = l
+  | [] => by rw [encodeList, decodeList_zero]
+  | a :: l => by
+    rw [encodeList, decodeList_succ, unpair_pair_fst, unpair_pair_snd, decodeList_encodeList l]
+
+/-! ## Bounded universal quantification of an r.e. predicate over a coded list
+
+The "computable elements = computable maps" half of Theorem 7.5 needs r.e.-ness closed under
+`∀ e ∈ decodeList c, p e` for an r.e. `p`. Classically this is the standard "bounded `∀` of r.e. is
+r.e."; choice-free we realise the search for the finite tuple of witnesses as a *single* code `w`
+whose decoded list supplies one witness per list entry, threaded through a `foldCode`. -/
+
+/-- The pure (set-theoretic) witness-threading fold step. The accumulator is `pair remWitness flag`:
+at the list head `x` we pop a witness `i` (the `decodeList` head of `remWitness`, i.e.
+`(remWitness - 1).unpair.1`) with new remaining code `(remWitness - 1).unpair.2`, and `AND` the flag
+with `isOne (qc ⟨i, x⟩)`. -/
+def reForallF (qc : ℕ → ℕ) (acc x : ℕ) : ℕ :=
+  Nat.pair (acc.unpair.1 - 1).unpair.2
+    (selectFn acc.unpair.2 (isOne (qc (Nat.pair (acc.unpair.1 - 1).unpair.1 x))) 0)
+
+/-- The `foldCode`-form step (parameter unused), used to package `reForallF` primitive-recursively. -/
+def reForallStp (qc : ℕ → ℕ) (w : ℕ) : ℕ :=
+  Nat.pair (w.unpair.2.unpair.1.unpair.1 - 1).unpair.2
+    (selectFn w.unpair.2.unpair.1.unpair.2
+      (isOne (qc (Nat.pair (w.unpair.2.unpair.1.unpair.1 - 1).unpair.1 w.unpair.1))) 0)
+
+/-- The `{0,1}`-flag computed by threading witness code `w` through the list coded by `c`. -/
+def reForallChar (qc : ℕ → ℕ) (w c : ℕ) : ℕ :=
+  (foldCode (reForallStp qc) 0 (Nat.pair w 1) c).unpair.2
+
+theorem reForallStp_eq (qc : ℕ → ℕ) (acc x : ℕ) :
+    reForallStp qc (Nat.pair x (Nat.pair acc 0)) = reForallF qc acc x := by
+  unfold reForallStp reForallF
+  simp only [unpair_pair_fst, unpair_pair_snd]
+
+theorem reForallChar_eq (qc : ℕ → ℕ) (w c : ℕ) :
+    reForallChar qc w c
+      = (List.foldl (reForallF qc) (Nat.pair w 1) (decodeList c)).unpair.2 := by
+  have hfun : (fun (acc x : ℕ) => reForallStp qc (Nat.pair x (Nat.pair acc 0))) = reForallF qc := by
+    funext acc x; exact reForallStp_eq qc acc x
+  unfold reForallChar
+  rw [foldCode_eq', hfun]
+
+/-- **Core induction.** Threading witness code `w` through `l`, the final flag is `1` iff the start
+flag was `1` and, position by position, the `k`-th witness of `decodeList w` satisfies `qc`. -/
+theorem reForallF_foldl_eq_one_iff (qc : ℕ → ℕ) :
+    ∀ (l : List ℕ) (w flag : ℕ), flag ≤ 1 →
+      ((List.foldl (reForallF qc) (Nat.pair w flag) l).unpair.2 = 1 ↔
+        flag = 1 ∧ ∀ k, k < l.length →
+          qc (Nat.pair ((decodeList w).getD k 0) (l.getD k 0)) = 1) := by
+  intro l
+  induction l with
+  | nil =>
+    intro w flag _
+    simp only [List.foldl_nil, unpair_pair_snd, List.length_nil, Nat.not_lt_zero,
+      false_implies, implies_true, and_true]
+  | cons x l ih =>
+    intro w flag hflag
+    have hi : (decodeList w).getD 0 0 = (w - 1).unpair.1 := by
+      rcases w with _ | c
+      · have hz : ((0 : ℕ) - 1).unpair.1 = 0 := by
+          rw [Nat.zero_sub]; exact congrArg Prod.fst Nat.unpair_zero
+        rw [decodeList_zero, List.getD_nil, hz]
+      · rw [decodeList_succ, List.getD_cons_zero, Nat.add_sub_cancel]
+    have htail : ∀ k, (decodeList w).getD (k + 1) 0 = (decodeList (w - 1).unpair.2).getD k 0 := by
+      intro k
+      rcases w with _ | c
+      · have hz : ((0 : ℕ) - 1).unpair.2 = 0 := by
+          rw [Nat.zero_sub]; exact congrArg Prod.snd Nat.unpair_zero
+        rw [decodeList_zero, hz, decodeList_zero, List.getD_nil, List.getD_nil]
+      · rw [decodeList_succ, List.getD_cons_succ, Nat.add_sub_cancel]
+    have hstep : List.foldl (reForallF qc) (Nat.pair w flag) (x :: l)
+        = List.foldl (reForallF qc) (Nat.pair (w - 1).unpair.2
+            (selectFn flag (isOne (qc (Nat.pair (w - 1).unpair.1 x))) 0)) l := by
+      rw [List.foldl_cons]
+      congr 1
+      show reForallF qc (Nat.pair w flag) x = _
+      unfold reForallF
+      rw [unpair_pair_fst, unpair_pair_snd]
+    rw [hstep]
+    set flag' := selectFn flag (isOne (qc (Nat.pair (w - 1).unpair.1 x))) 0 with hflag'def
+    have hflag'le : flag' ≤ 1 := by
+      rw [hflag'def]
+      rcases (show flag = 0 ∨ flag = 1 by omega) with h | h
+      · rw [h, selectFn_zero]; exact Nat.zero_le 1
+      · rw [h, selectFn_one]; exact isOne_le_one _
+    rw [ih (w - 1).unpair.2 flag' hflag'le]
+    constructor
+    · rintro ⟨hf', hrest⟩
+      have hsplit : flag = 1 ∧ qc (Nat.pair (w - 1).unpair.1 x) = 1 := by
+        rw [hflag'def] at hf'
+        rcases (show flag = 0 ∨ flag = 1 by omega) with h | h
+        · rw [h, selectFn_zero] at hf'; exact absurd hf' (by decide)
+        · rw [h, selectFn_one, isOne_eq_one_iff] at hf'; exact ⟨h, hf'⟩
+      refine ⟨hsplit.1, fun k hk => ?_⟩
+      rcases k with _ | k'
+      · rw [List.getD_cons_zero, hi]; exact hsplit.2
+      · rw [List.getD_cons_succ, htail]
+        exact hrest k' (by simp only [List.length_cons] at hk; omega)
+    · rintro ⟨hflag1, hall⟩
+      have hhead : qc (Nat.pair (w - 1).unpair.1 x) = 1 := by
+        have := hall 0 (by simp only [List.length_cons]; omega)
+        rwa [List.getD_cons_zero, hi] at this
+      refine ⟨?_, fun k hk => ?_⟩
+      · rw [hflag'def, hflag1, selectFn_one, isOne_eq_one_iff]; exact hhead
+      · have := hall (k + 1) (by simp only [List.length_cons]; omega)
+        rwa [List.getD_cons_succ, htail] at this
+
+theorem reForallChar_eq_one_iff (qc : ℕ → ℕ) (w c : ℕ) :
+    reForallChar qc w c = 1 ↔
+      ∀ k, k < (decodeList c).length →
+        qc (Nat.pair ((decodeList w).getD k 0) ((decodeList c).getD k 0)) = 1 := by
+  rw [reForallChar_eq, reForallF_foldl_eq_one_iff qc (decodeList c) w 1 (Nat.le_refl 1)]
+  simp only [true_and]
+
+theorem primrec_reForallStp {qc : ℕ → ℕ} (hqc : Nat.Primrec qc) :
+    Nat.Primrec (reForallStp qc) := by
+  have hx : Nat.Primrec (fun w : ℕ => w.unpair.1) := Nat.Primrec.left
+  have hacc : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.right
+  have hrw : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1.unpair.1) :=
+    Nat.Primrec.left.comp hacc
+  have hflag : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1.unpair.2) :=
+    Nat.Primrec.right.comp hacc
+  have hpm : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1.unpair.1 - 1) :=
+    primrec_sub₂ hrw (Nat.Primrec.const 1)
+  have hi : Nat.Primrec (fun w : ℕ => (w.unpair.2.unpair.1.unpair.1 - 1).unpair.1) :=
+    Nat.Primrec.left.comp hpm
+  have hrw' : Nat.Primrec (fun w : ℕ => (w.unpair.2.unpair.1.unpair.1 - 1).unpair.2) :=
+    Nat.Primrec.right.comp hpm
+  have hcall : Nat.Primrec (fun w : ℕ =>
+      qc (Nat.pair (w.unpair.2.unpair.1.unpair.1 - 1).unpair.1 w.unpair.1)) :=
+    hqc.comp (hi.pair hx)
+  have hB : Nat.Primrec (fun w : ℕ =>
+      selectFn w.unpair.2.unpair.1.unpair.2
+        (isOne (qc (Nat.pair (w.unpair.2.unpair.1.unpair.1 - 1).unpair.1 w.unpair.1))) 0) :=
+    primrec_selectFn hflag (primrec_isOne.comp hcall) (Nat.Primrec.const 0)
+  exact (hrw'.pair hB).of_eq (fun _ => rfl)
+
+theorem primrec_reForallChar {qc : ℕ → ℕ} (hqc : Nat.Primrec qc) :
+    Nat.Primrec (fun t => reForallChar qc t.unpair.1 t.unpair.2) := by
+  have hfold := primrec_foldCode (primrec_reForallStp hqc) (Nat.Primrec.const 0)
+    (Nat.Primrec.left.pair (Nat.Primrec.const 1)) Nat.Primrec.right
+  exact (Nat.Primrec.right.comp hfold).of_eq (fun _ => rfl)
+
+/-- **Bounded `∀` over a coded list preserves recursive enumerability.** If `p` is r.e. then so is
+`fun c => ∀ e ∈ decodeList c, p e`: the finite tuple of per-entry witnesses is packed into a single
+search code `w`, and the `{0,1}` flag `reForallChar` makes the body recursively decidable. -/
+theorem REPred.forall_mem_decodeList {p : ℕ → Prop} (hp : REPred p) :
+    REPred (fun c => ∀ e ∈ decodeList c, p e) := by
+  obtain ⟨q, hq, hqe⟩ := hp
+  obtain ⟨qc, hqcp, hqcs⟩ := hq
+  -- per-entry: `p e ↔ ∃ j, qc ⟨j, e⟩ = 1`
+  have hpe : ∀ e, p e ↔ ∃ j, qc (Nat.pair j e) = 1 := by
+    intro e; rw [hqe e]; exact exists_congr (fun j => hqcs (Nat.pair j e))
+  -- membership gives an index whose `getD` recovers the element
+  have hmemgetD : ∀ (l : List ℕ) (e : ℕ), e ∈ l → ∃ k, k < l.length ∧ l.getD k 0 = e := by
+    intro l
+    induction l with
+    | nil => intro e he; cases he
+    | cons a l ih =>
+      intro e he
+      rcases List.mem_cons.mp he with rfl | he'
+      · exact ⟨0, by simp only [List.length_cons]; omega, by rw [List.getD_cons_zero]⟩
+      · obtain ⟨k, hk, hek⟩ := ih e he'
+        exact ⟨k + 1, by simp only [List.length_cons]; omega, by rw [List.getD_cons_succ]; exact hek⟩
+  refine ⟨fun t => reForallChar qc t.unpair.1 t.unpair.2 = 1,
+    ⟨fun t => reForallChar qc t.unpair.1 t.unpair.2, primrec_reForallChar hqcp,
+      fun _ => Iff.rfl⟩, fun c => ?_⟩
+  simp only [unpair_pair_fst, unpair_pair_snd]
+  constructor
+  · intro hall
+    -- build a witness list for `decodeList c`
+    have hwit : ∀ (l : List ℕ), (∀ e ∈ l, ∃ j, qc (Nat.pair j e) = 1) →
+        ∃ iws : List ℕ, ∀ k, k < l.length →
+          qc (Nat.pair (iws.getD k 0) (l.getD k 0)) = 1 := by
+      intro l
+      induction l with
+      | nil => intro _; exact ⟨[], fun k hk => absurd hk (Nat.not_lt_zero k)⟩
+      | cons e l ih =>
+        intro hh
+        obtain ⟨j, hj⟩ := hh e (List.mem_cons.mpr (Or.inl rfl))
+        obtain ⟨iws, hiws⟩ := ih (fun e' he' => hh e' (List.mem_cons.mpr (Or.inr he')))
+        refine ⟨j :: iws, fun k hk => ?_⟩
+        rcases k with _ | k'
+        · rw [List.getD_cons_zero, List.getD_cons_zero]; exact hj
+        · rw [List.getD_cons_succ, List.getD_cons_succ]
+          exact hiws k' (by simp only [List.length_cons] at hk; omega)
+    obtain ⟨iws, hiws⟩ := hwit (decodeList c) (fun e he => (hpe e).mp (hall e he))
+    refine ⟨encodeList iws, (reForallChar_eq_one_iff qc _ c).mpr (fun k hk => ?_)⟩
+    rw [decodeList_encodeList]; exact hiws k hk
+  · rintro ⟨w, hw⟩
+    rw [reForallChar_eq_one_iff] at hw
+    intro e he
+    obtain ⟨k, hk, hek⟩ := hmemgetD (decodeList c) e he
+    rw [hpe e]
+    refine ⟨(decodeList w).getD k 0, ?_⟩
+    have := hw k hk
+    rwa [hek] at this
+
+/-! ### Bounded `∀` over a coded list with a parameter (for `curry`, Theorem 7.5)
+
+`curry`'s neighbourhood relation is a bounded `∀ e ∈ decodeList c, p n e` whose body depends on a
+*parameter* `n` (the `𝒟₀`-index) as well as the list entry `e`. We reduce this to
+`REPred.forall_mem_decodeList` by primitively-recursively re-coding the list `decodeList c` into the
+list of pairs `⟨n, e⟩` (order is irrelevant under `∀ ∈`), so the parameterised body becomes the
+plain `fun s => p s.1 s.2` over the re-coded list. -/
+
+/-- Prepend the *pair* `⟨n, x⟩` onto the list coded by `acc`. -/
+def mapPairStep (n acc x : ℕ) : ℕ := Nat.pair (Nat.pair n x) acc + 1
+
+/-- `foldCode`-shaped wrapper of `mapPairStep` (parameter `n` threaded via the `params` slot). -/
+def mapPairStp (w : ℕ) : ℕ :=
+  mapPairStep w.unpair.2.unpair.2 w.unpair.2.unpair.1 w.unpair.1
+
+theorem mapPairStp_eq (n acc x : ℕ) :
+    mapPairStp (Nat.pair x (Nat.pair acc n)) = mapPairStep n acc x := by
+  unfold mapPairStp; simp only [unpair_pair_fst, unpair_pair_snd]
+
+theorem decodeList_mapPairStep (n acc x : ℕ) :
+    decodeList (mapPairStep n acc x) = Nat.pair n x :: decodeList acc := by
+  unfold mapPairStep; rw [decodeList_succ, unpair_pair_fst, unpair_pair_snd]
+
+theorem decodeList_foldl_mapPairStp (n : ℕ) (el : List ℕ) (acc : ℕ) :
+    decodeList (List.foldl (fun acc x => mapPairStp (Nat.pair x (Nat.pair acc n))) acc el)
+      = (el.map (Nat.pair n ·)).reverse ++ decodeList acc := by
+  induction el generalizing acc with
+  | nil => simp
+  | cons e el ih =>
+    rw [List.foldl_cons, ih, mapPairStp_eq, decodeList_mapPairStep, List.map_cons,
+      List.reverse_cons, List.append_assoc, List.singleton_append]
+
+/-- **`mapPairCode n c`** codes the list `(decodeList c).map ⟨n, ·⟩` (reversed). -/
+def mapPairCode (n c : ℕ) : ℕ := foldCode mapPairStp n 0 c
+
+theorem decodeList_mapPairCode (n c : ℕ) :
+    decodeList (mapPairCode n c) = ((decodeList c).map (Nat.pair n ·)).reverse := by
+  unfold mapPairCode
+  rw [foldCode_eq']
+  have h := decodeList_foldl_mapPairStp n (decodeList c) 0
+  rwa [decodeList_zero, List.append_nil] at h
+
+theorem primrec_mapPairStp : Nat.Primrec mapPairStp := by
+  have h1 : Nat.Primrec (fun w : ℕ => w.unpair.1) := Nat.Primrec.left
+  have h21 : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.right
+  have h22 : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.right
+  exact (Nat.Primrec.succ.comp ((h22.pair h1).pair h21)).of_eq (fun _ => rfl)
+
+theorem primrec_mapPairCode : Nat.Primrec (fun t => mapPairCode t.unpair.1 t.unpair.2) :=
+  (primrec_foldCode primrec_mapPairStp Nat.Primrec.left (Nat.Primrec.const 0)
+    Nat.Primrec.right).of_eq (fun _ => rfl)
+
+/-- **Parameterised bounded `∀` over a coded list preserves recursive enumerability.** If `p` is an
+r.e. binary relation then `fun t => ∀ e ∈ decodeList t.2, p t.1 e` is r.e.: re-code the list into the
+pairs `⟨t.1, e⟩` (`mapPairCode`) and apply the unparameterised `forall_mem_decodeList`. -/
+theorem REPred.forall_mem_decodeList₂ {p : ℕ → ℕ → Prop} (hp : REPred₂ p) :
+    REPred (fun t => ∀ e ∈ decodeList t.unpair.2, p t.unpair.1 e) := by
+  have hp' : REPred (fun s => p s.unpair.1 s.unpair.2) := hp
+  have hbase : REPred (fun c => ∀ e' ∈ decodeList c, p e'.unpair.1 e'.unpair.2) :=
+    hp'.forall_mem_decodeList
+  refine REPred.of_iff (fun t => ?_) (hbase.comp primrec_mapPairCode)
+  rw [decodeList_mapPairCode]
+  simp only [List.mem_reverse, List.mem_map]
+  constructor
+  · rintro hall e' ⟨e, he, rfl⟩
+    simp only [unpair_pair_fst, unpair_pair_snd]
+    exact hall e he
+  · intro hall e he
+    simpa only [unpair_pair_fst, unpair_pair_snd]
+      using hall (Nat.pair t.unpair.1 e) ⟨e, he, rfl⟩
+
 end Domain.Recursive
