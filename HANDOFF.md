@@ -17,13 +17,14 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Theorem 7.6** (`fix:(D→D)→D` computable on effectively given
-`D`) — `arxiv.md` line 4377. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
+**Next concrete target:** **Lecture VII — Proposition 7.7** (`D`<sup>§</sup> effectively given; the
+Example 6.1 combinators computable) — `arxiv.md` line 4399. **Theorem 7.6 is DONE** (`fix:(D→D)→D`
+computable, `Theorem76.lean`, `fixMap_isComputable`, choice-free) — see the **latest dated checkpoint
+at the very bottom**. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
 given via `funPresentation`/`funSpace_isEffectivelyGiven`; `eval` computable `evalMap_isComputable`;
 computable elements = computable maps `isComputableElement_funPresentation_iff`; `curry` computable
-`curry_isComputable`), green, wired into `Domain.lean`, every decl `⊆ {propext, Quot.sound}` — see the
-**latest dated checkpoint at the very bottom**. Theorem 7.4 is also **DONE in full** (both halves,
-choice-free; see below).
+`curry_isComputable`), green, wired into `Domain.lean`, every decl `⊆ {propext, Quot.sound}`.
+Theorem 7.4 is also **DONE in full** (both halves, choice-free; see below).
 
 **`omega` / choice gotcha (important, cost me a debugging cycle):** `omega` invoked on a goal whose
 type is **not** arithmetic — e.g. a `Set` equality `A = B`, even when it closes the goal purely by a
@@ -2644,3 +2645,60 @@ the lemma lives in the `REPred` namespace — call `REPred.forall_mem_decodeList
 
 **Theorem 7.5 is DONE.** Next concrete target: **Theorem 7.6** (`fix:(D→D)→D` computable on effectively
 given `D`) — `arxiv.md` line 4377.
+
+## Checkpoint 2026-06-23 (later still) — Theorem 7.6 COMPLETE & CHOICE-FREE (`fix` computable)
+
+`Theorem76.lean` (ns `Domain.Neighborhood`) created, wired into `Domain.lean`, full `lake build Domain`
+green, **zero `sorry`**, zero warnings in `Theorem76.lean`; `#print axioms` of `fixMap_isComputable`,
+`fixMap_rel_iff`, `fixElement_mem_iff_chain`, `fixChainChar_spec` all `{propext, Quot.sound}`
+(choice-free). `arxiv.md` row flipped to **Pass** with a dense note. **No new recursion theory was
+needed** — everything reuses Theorem 7.5's `Xenum`/`funPresentation`/`Xenum_singleton` and
+`Recursive.lean`'s `foldCode`/`selectFn`/`isOne`/`RecDecidable.natEq`/`.and`/`decodeList`/`encodeList`.
+
+**Headline:** `fixMap_isComputable (P : ComputablePresentation V) (gN incl eq …) : IsComputableMap
+(funPresentation P P gN incl incl eq …) P (fixMap V)` — mirrors `evalMap_isComputable`'s signature
+(takes the funSpace consistency char `gN` + `P`'s inclusion/equality chars `incl`/`eq` as hyps, the
+form that composes; there is no "extract-from-`IsEffectivelyGiven`" wrapper, same as `eval`).
+
+**Scott's proof structure** (line 4377): `⋂[X_{nᵢ},X_{mᵢ}] fix X_ℓ ↔ ∃` finite sequence
+`Δ=X_{k₀},…,X_{k_p}=X_ℓ` with each `⋂{X_{mᵢ}∣X_{kⱼ}⊆X_{nᵢ}}⊆X_{kⱼ₊₁}` — an `∃`-of-decidable, hence
+r.e. (genuinely r.e., **not** recursive — no bound on the sequence length).
+
+**What landed (all choice-free):**
+- **Math core — `fixMap_rel_iff`.** The funSpace nbhd `F=Xenum c` has least map
+  `ĝ=toApproxMap((funSpace V V).principal (Xenum_mem … c))`; `rel_iff_mem_principal` +
+  `fixMap_toElementMap` (Thm 4.2) + `mem_fixElement` (Thm 4.1) reduce `(fixMap V).rel (Xenum c)(P.X ℓ)`
+  to `∃n, (ĝⁿ).rel Δ (P.X ℓ)`. **Key decidability** `leastMap_Xenum_rel`: `ĝ.rel (P.X a)(P.X b) ↔
+  Xenum c ⊆ step (P.X a)(P.X b)` (via `toApproxMap_rel`+`mem_principal`; the funSpace-membership
+  conjunct is discharged by `step_mem`), and `[X_a,X_b]=Xenum(codePair a b)` (`Xenum_codePair` =
+  `Xenum_singleton` at the one-entry code `codePair a b = pair (pair a b) 0 + 1`), so the one-step test
+  is the **decidable** funSpace inclusion `Xenum c ⊆ Xenum(codePair a b)`.
+- **Chain over indices.** `gLastOf`/`gStepsOK g P a full` (consecutive `g.rel (P.X ·)(P.X ·)` along an
+  index list); `gStepsOK_sound` (chain ⟹ `(g^len).rel`, induction on the list using the **`iter_comm`
+  form** `g.iterMap (n+1) = (g.iterMap n).comp g` so the chain prepends), `gStepsOK_complete`
+  (`(gⁿ).rel (P.X a)(P.X ℓ)` ⟹ chain, induction on `n`, naming the intermediate nbhd `Y` via `P.surj`
+  as `P.X k`, prepending `k`); **`fixElement_mem_iff_chain`**: `ĝ.fixElement.mem (P.X ℓ) ↔ ∃full,
+  gStepsOK ĝ P masterIdx full ∧ P.X(gLastOf masterIdx full) ⊆ P.X ℓ`. **Design note:** the endpoint is
+  the *relaxed* `X_{last} ⊆ X_ℓ` (not `last = ℓ`) — this is what makes the `n=0` base of the
+  strengthened (arbitrary-start) completeness induction go through (`(g⁰).rel=idMap` gives only
+  `X_a ⊆ X_ℓ`), and soundness still closes via `(g^len).mono` widening the codomain.
+- **r.e. packaging.** The `∃full` is realised directly as the `REPred` search `∃i, q(pair i n)`:
+  `q` decodes `i`, runs one primrec `foldCode` `fixChainChar` (packed step `fixStp`, pure step
+  `fixPStep`; state `pair prevIdx flag`, parameter `c`, seed `pair masterIdx 1`), and checks
+  `flag=1 ∧ incl(pair lastIdx ℓ)=1`. `fixPStep_foldl_fst` (`.unpair.1` tracks `gLastOf`),
+  `fixPStep_foldl_snd` (`.unpair.2=1 ↔ start-flag=1 ∧ chainDec`), `fixChainChar_spec` package the fold;
+  `chainDec_iff_gStepsOK` bridges the `{0,1}`-flag chain `chainDec` (uses `fincl s=1`, the extracted
+  char of `funPresentation.incl_computable`) to `gStepsOK ĝ`. The final `RecDecidable q` is
+  `(RecDecidable.natEq … (const 1)).and (RecDecidable.natEq … (const 1))`; the `∃full ↔ ∃i` bijection is
+  `decodeList`/`encodeList` (`decodeList_encodeList`).
+
+**Gotcha (cost a rebuild):** declaring the fold helpers as `(fincl c i : ℕ)` instead of
+`(fincl : ℕ → ℕ) (c i : ℕ)` makes Lean silently coerce `fincl`-as-`ℕ` applied-as-a-function into
+`↑sorry` (a coercion `sorry`), which only surfaces as a downstream `assumption`/defeq failure with a
+mysterious `(↑sorry)` in the goal — **not** as a sorry warning. Watch the argument types of higher-order
+fold parameters. Also: list-recursive defs (`gLastOf`/`gStepsOK`/`chainDec`) reduce by defeq, so the
+`gLastOf b rest = gLastOf prev (b::rest)` cons-equality needs an explicit trailing `rfl` after the `rw`
+(rw's auto-`rfl` did not fire on the un-whnf'd RHS).
+
+**Theorem 7.6 is DONE.** Next concrete target: **Proposition 7.7** (`D`<sup>§</sup> effectively given;
+Example 6.1 combinators computable) — `arxiv.md` line 4399.

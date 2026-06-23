@@ -143,4 +143,5 @@ import Domain.Neighborhood.Definition71
 import Domain.Neighborhood.Definition72
 import Domain.Neighborhood.Theorem74
 import Domain.Neighborhood.Theorem75
+import Domain.Neighborhood.Theorem76
 import Domain.InfoSys
