@@ -242,6 +242,34 @@ theorem primrec_mul : Nat.Primrec (Nat.unpaired (· * ·)) :=
     simp only [unpair_pair_fst, unpair_pair_snd, Nat.unpaired]
     exact rec_mul _ _
 
+/-- The `prec` recursor for predecessor computes `n - 1`. -/
+private theorem rec_pred (n : ℕ) : Nat.rec 0 (fun y _ => y) n = n - 1 := by
+  cases n with
+  | zero => rfl
+  | succ k => rfl
+
+/-- Predecessor `n ↦ n - 1` is primitive recursive (choice-free; mathlib's `Nat.Primrec.pred` is
+classical). -/
+theorem primrec_pred : Nat.Primrec (fun n => n - 1) :=
+  ((Nat.Primrec.prec Nat.Primrec.zero (Nat.Primrec.left.comp Nat.Primrec.right)).comp
+    (primrec_id.pair primrec_id)).of_eq fun n => by
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd, id_eq]
+    exact rec_pred n
+
+/-- The `prec` recursor for truncated subtraction computes `a - b`. -/
+private theorem rec_sub (a b : ℕ) : Nat.rec a (fun _ IH => IH - 1) b = a - b := by
+  induction b with
+  | zero => rfl
+  | succ k ih => show Nat.rec a (fun _ IH => IH - 1) k - 1 = a - (k + 1); rw [ih]; omega
+
+/-- Truncated subtraction is primitive recursive (choice-free; mathlib's `Nat.Primrec.sub` is
+classical). -/
+theorem primrec_sub : Nat.Primrec (Nat.unpaired (· - ·)) :=
+  (Nat.Primrec.prec primrec_id
+    ((primrec_pred.comp Nat.Primrec.right).comp Nat.Primrec.right)).of_eq fun p => by
+    simp only [unpair_pair_snd, id_eq]
+    exact rec_sub _ _
+
 /-- `a * b = 1 ↔ a = 1 ∧ b = 1` over `ℕ` (choice-free; avoids the classical generic `mul_eq_one`). -/
 theorem nat_mul_eq_one {a b : ℕ} : a * b = 1 ↔ a = 1 ∧ b = 1 := by
   refine ⟨fun h => ⟨Nat.dvd_one.mp ⟨b, h.symm⟩, Nat.dvd_one.mp ⟨a, ?_⟩⟩, fun h => by rw [h.1, h.2]⟩
@@ -292,6 +320,59 @@ theorem RecDecidable.and {p q : ℕ → Prop} (hp : RecDecidable p) (hq : RecDec
 /-- An always-true predicate is recursively decidable (constant decider `1`). -/
 theorem recDecidable_of_forall {p : ℕ → Prop} (h : ∀ n, p n) : RecDecidable p :=
   ⟨fun _ => 1, Nat.Primrec.const 1, fun n => ⟨fun _ => rfl, fun _ => h n⟩⟩
+
+/-- **Equality of two primitive-recursive functions is recursively decidable.** The `{0,1}`-valued
+characteristic function is `1 - ((a t - b t) + (b t - a t))` (truncated subtraction), which is `1`
+exactly when `a t = b t`; primitive recursive via `primrec_sub`/`primrec_add`, and the biconditional
+is `omega` (which understands truncated subtraction). -/
+theorem RecDecidable.natEq {a b : ℕ → ℕ} (ha : Nat.Primrec a) (hb : Nat.Primrec b) :
+    RecDecidable (fun t => a t = b t) := by
+  refine ⟨fun t => Nat.unpaired (· - ·) (Nat.pair 1 (Nat.unpaired (· + ·)
+      (Nat.pair (Nat.unpaired (· - ·) (Nat.pair (a t) (b t)))
+        (Nat.unpaired (· - ·) (Nat.pair (b t) (a t)))))), ?_, fun t => ?_⟩
+  · exact primrec_sub.comp ((Nat.Primrec.const 1).pair (primrec_add.comp
+      ((primrec_sub.comp (ha.pair hb)).pair (primrec_sub.comp (hb.pair ha)))))
+  · simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+    constructor <;> intro h <;> omega
+
+/-- **Negation.** Recursive decidability is closed under `¬` (negate the `{0,1}` decider). -/
+theorem RecDecidable.not {p : ℕ → Prop} (hp : RecDecidable p) : RecDecidable (fun n => ¬ p n) := by
+  obtain ⟨f, hf, hfe⟩ := hp
+  refine ⟨fun n => Nat.unpaired (· - ·) (Nat.pair 1 (Nat.unpaired (· - ·) (Nat.pair 1
+      (Nat.unpaired (· + ·) (Nat.pair (Nat.unpaired (· - ·) (Nat.pair (f n) 1))
+        (Nat.unpaired (· - ·) (Nat.pair 1 (f n)))))))), ?_, fun n => ?_⟩
+  · exact primrec_sub.comp ((Nat.Primrec.const 1).pair (primrec_sub.comp
+      ((Nat.Primrec.const 1).pair (primrec_add.comp
+        ((primrec_sub.comp (hf.pair (Nat.Primrec.const 1))).pair
+          (primrec_sub.comp ((Nat.Primrec.const 1).pair hf)))))))
+  · show ¬ p n ↔ _
+    rw [hfe n]
+    simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+    constructor <;> intro h <;> omega
+
+/-- Every recursively decidable predicate is **decidable** (the decider is `f n = 1`, decidable
+equality on `ℕ`); useful for choice-free De Morgan. -/
+theorem RecDecidable.em {p : ℕ → Prop} (hp : RecDecidable p) (n : ℕ) : p n ∨ ¬ p n := by
+  obtain ⟨f, _, hfe⟩ := hp
+  rcases Nat.decEq (f n) 1 with h | h
+  · exact Or.inr (fun hp => h ((hfe n).mp hp))
+  · exact Or.inl ((hfe n).mpr h)
+
+/-- **Disjunction.** Recursive decidability is closed under `∨`, via choice-free De Morgan
+`p ∨ q ↔ ¬(¬p ∧ ¬q)` (the non-constructive direction uses `RecDecidable.em`). -/
+theorem RecDecidable.or {p q : ℕ → Prop} (hp : RecDecidable p) (hq : RecDecidable q) :
+    RecDecidable (fun n => p n ∨ q n) := by
+  refine RecDecidable.of_iff (fun n => ?_) (hp.not.and hq.not).not
+  constructor
+  · rintro (h | h) ⟨hnp, hnq⟩
+    · exact hnp h
+    · exact hnq h
+  · intro h
+    rcases hp.em n with hp' | hp'
+    · exact Or.inl hp'
+    · rcases hq.em n with hq' | hq'
+      · exact Or.inr hq'
+      · exact absurd ⟨hp', hq'⟩ h
 
 /-! ## "Recursively enumerable" predicates (Scott's notion, Definition 7.2)
 
@@ -389,5 +470,35 @@ theorem REPred.proj {p : ℕ → Prop} (hp : REPred p) :
     refine ⟨w.unpair.1, ?_⟩
     rw [hqe (Nat.pair w.unpair.1 n)]
     exact ⟨w.unpair.2, hw⟩
+
+/-- **Disjunction of r.e. predicates is r.e.** A witness `w` carries a tag `w.1 ∈ {0,1}` selecting
+which disjunct's search index `w.2` to use; the underlying relation is recursively decidable by
+`RecDecidable.or`/`.and`/`.natEq`. (Used for the sum-mapping `f + g` of Theorem 7.4.) -/
+theorem REPred.or {p q : ℕ → Prop} (hp : REPred p) (hq : REPred q) :
+    REPred (fun n => p n ∨ q n) := by
+  obtain ⟨a, ha, hae⟩ := hp
+  obtain ⟨b, hb, hbe⟩ := hq
+  refine ⟨fun u => (a (Nat.pair u.unpair.1.unpair.2 u.unpair.2) ∧ u.unpair.1.unpair.1 = 0)
+      ∨ (b (Nat.pair u.unpair.1.unpair.2 u.unpair.2) ∧ u.unpair.1.unpair.1 = 1), ?_, fun n => ?_⟩
+  · refine RecDecidable.or (RecDecidable.and ?_ ?_) (RecDecidable.and ?_ ?_)
+    · exact ha.comp ((Nat.Primrec.right.comp Nat.Primrec.left).pair Nat.Primrec.right)
+    · exact RecDecidable.natEq (Nat.Primrec.left.comp Nat.Primrec.left) (Nat.Primrec.const 0)
+    · exact hb.comp ((Nat.Primrec.right.comp Nat.Primrec.left).pair Nat.Primrec.right)
+    · exact RecDecidable.natEq (Nat.Primrec.left.comp Nat.Primrec.left) (Nat.Primrec.const 1)
+  · show p n ∨ q n ↔ _
+    rw [hae n, hbe n]
+    constructor
+    · rintro (⟨i, hi⟩ | ⟨i, hi⟩)
+      · refine ⟨Nat.pair 0 i, Or.inl ⟨?_, ?_⟩⟩
+        · simpa only [unpair_pair_fst, unpair_pair_snd] using hi
+        · simp only [unpair_pair_fst]
+      · refine ⟨Nat.pair 1 i, Or.inr ⟨?_, ?_⟩⟩
+        · simpa only [unpair_pair_fst, unpair_pair_snd] using hi
+        · simp only [unpair_pair_fst]
+    · rintro ⟨w, hw⟩
+      simp only [unpair_pair_fst, unpair_pair_snd] at hw
+      rcases hw with ⟨hi, _⟩ | ⟨hi, _⟩
+      · exact Or.inl ⟨w.unpair.2, hi⟩
+      · exact Or.inr ⟨w.unpair.2, hi⟩
 
 end Domain.Recursive

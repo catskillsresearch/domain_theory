@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`); rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element), and **Theorem 7.4 — BOTH halves** (`D₀×D₁` *and* `D₀+D₁` effectively given; `projᵢ`/`inᵢ`/`outᵢ`, `⟨f,g⟩`, `f×g`/`f+g` computable) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`, incl. truncated subtraction, `RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or`); rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,10 +17,25 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Theorem 7.4** (`D₀+D₁`, `D₀×D₁` effectively given when
-`D₀,D₁` are; the combinators `inᵢ`/`outᵢ`/`projᵢ` computable; `f+g`, `f×g` computable). Will need
-computable presentations of the sum/product systems (enumerate `Xⁱₙ` pairs, decide their
-intersection/consistency) and the r.e. closure layer below.
+**Next concrete target:** **Lecture VII — Theorem 7.5** (`(D₀→D₁)` effectively given; `eval`/`curry`
+computable; computable elements = computable maps). Theorem 7.4 is now **DONE in full** (both halves,
+choice-free; see below).
+
+**`omega` / choice gotcha (important, cost me a debugging cycle):** `omega` invoked on a goal whose
+type is **not** arithmetic — e.g. a `Set` equality `A = B`, even when it closes the goal purely by a
+contradiction among the `ℕ` hypotheses — **silently pulls `Classical.choice`** (it needs `Decidable`
+of the goal prop and falls back to `Classical`). Fix: `exfalso` first (then the goal is `False`,
+arithmetic-compatible) — `exfalso; omega` audits `⊆ {propext, Quot.sound}`. Same trap as `omega` on
+an `↔`. Also `Set.Nonempty.ne_empty` is classical; instead `obtain ⟨x,hx⟩ := …nonempty; rw [← h] at
+hx; exact absurd hx (Set.notMem_empty x)`.
+
+**Theorem 7.4 × half is COMPLETE and CHOICE-FREE** (`Theorem74.lean`): `prodPresentation P₀ P₁`
+(`W_k = X⁰_{k.1} ∪ X¹_{k.2}`, uniform so 7.1(i)/(ii) split into *conjunctions* of the factors'
+relations via `prodNbhd_inter`/`prodNbhd_subset_iff` — handled by `RecDecidable.and`/`.comp`/`.of_iff`,
+no new RT), `prod_isEffectivelyGiven`, `proj₀_isComputable`/`proj₁_isComputable` (recursive slice of
+`incl`), `paired_isComputable` (conjunction of two r.e.), `prodMap_isComputable` (`f×g=⟨f∘p₀,g∘p₁⟩`
+(Ex 3.19) + `comp_isComputable`). New choice-free RT in `Recursive.lean`: `primrec_pred`/`primrec_sub`,
+`RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or` — all `⊆ {propext, Quot.sound}`.
 **Proposition 7.3 is COMPLETE and CHOICE-FREE** (`Definition72.lean`): `idMap_isComputable`
 (identity), `comp_isComputable` (composition of computable maps — `∃l, Xₙ f Yₗ ∧ Yₗ g Zₖ` via
 `Q.surj`), and `apply_isComputableElement` (computable map ∘ computable element = computable element).
@@ -2300,3 +2315,75 @@ green (3101 jobs; only the pre-existing `Exercise617Gen` unused-`F` warning).
 sum/product systems: enumerate the tagged/paired neighbourhoods, decide intersection & consistency
 from the components' deciders) and the combinators `inᵢ`/`outᵢ`/`projᵢ`, `f+g`, `f×g` computable
 (now straightforward given the `REPred` closure layer).
+
+---
+
+### Checkpoint — Theorem 7.4 (× half) COMPLETE & CHOICE-FREE; + half pending; new RT layer
+
+`Theorem74.lean` (ns `Domain.Neighborhood`), wired into `Domain.lean`. Full `lake build` green; all
+new decls audit `⊆ {propext, Quot.sound}`.
+
+**Done (the `×` half of Theorem 7.4):**
+- `prodPresentation P₀ P₁ : ComputablePresentation (prod V₀ V₁)` — `W_k = X⁰_{k.unpair.1} ∪ X¹_{k.unpair.2}`
+  (Scott's one-one pairing `r=Nat.pair`, `p,q=unpair.1/2`), over `prod`/`prodNbhd` (`Product.lean`,
+  tokens `α⊕β`). The product is **uniform** (no tag analysis), so 7.1(i) (`interEq`) and 7.1(ii)
+  (`cons`) each decompose, via `prodNbhd_inter`/`prodNbhd_subset_iff`/`prodNbhd_eq_iff`, into a
+  **conjunction** of the two factors' relations on reindexed indices — recursively decidable by the
+  *existing* `RecDecidable.and`/`.comp`/`.of_iff` (no new recursion theory needed here).
+- `prod_isEffectivelyGiven`.
+- `proj₀_isComputable`/`proj₁_isComputable` — `(X⁰ₙ∪X¹ₘ) pᵢ Z ↔ (componentᵢ) ⊆ Z`, a recursive slice
+  of `incl_computable` (Scott's worked `proj₁` example), so r.e. via `.re`.
+- `paired_isComputable` — `Zₙ ⟨f,g⟩ (X⁰_k∪X¹_l) ↔ Zₙ f X⁰_k ∧ Zₙ g X¹_l`, conjunction of two r.e.
+- `prodMap_isComputable` (`f×g`) — via `f×g = ⟨f∘p₀, g∘p₁⟩` (Ex 3.19) + `comp_isComputable` (Prop 7.3);
+  no relation-bashing.
+
+**New choice-free recursion theory in `Recursive.lean` (built for the `+` half, all audited clean):**
+- `primrec_pred` / `primrec_sub` — truncated subtraction via the `prec` recursor (mathlib's
+  `Nat.Primrec.sub`/`.pred` are classical).
+- `RecDecidable.natEq` — equality of two primrec functions is recursively decidable (`{0,1}`-char
+  `1-((a-b)+(b-a))`).
+- `RecDecidable.not`, `RecDecidable.em` (an RD predicate is decidable; via `Nat.decEq`),
+  `RecDecidable.or` (choice-free De Morgan `p∨q ↔ ¬(¬p∧¬q)`).
+- `REPred.or` — disjunction of r.e. predicates is r.e. (the witness carries a `{0,1}` tag selecting
+  which disjunct's search index to use); this is the last of Scott's listed closure properties
+  ("conjunctions, disjunctions, substituting recursive functions, ∃ to the front").
+
+**GOTCHA (important, cost me an axiom-audit failure):** `omega` on an **`↔` goal** pulls
+`Classical.choice`, but on **implications** it is clean. Always prove biconditionals as
+`constructor <;> intro h <;> omega`. Also `eq_or_ne` is classical — use `Nat.decEq`.
+
+**Pending (the `+` / sum half of Theorem 7.4):** `sumPresentation` + `sum_isEffectivelyGiven`, then
+`inMap₀/₁`/`outMap₀/₁`/`sumMap` computable. The plan + intersection-table case analysis is written
+out in the "Next concrete target" section near the top of this file. The RT it needs is now in place.
+
+---
+
+## Checkpoint 2026-06-22 — Theorem 7.4 `+` (sum) half COMPLETE & CHOICE-FREE
+
+`Theorem74.lean` now closes the sum half; `lake build Domain` is green, zero `sorry`, and every new
+declaration audits `⊆ {propext, Quot.sound}` (verified `sumPresentation`, `sum_isEffectivelyGiven`,
+`inMap₀/₁_isComputable`, `outMap₀/₁_isComputable`, `sumMap_isComputable`, plus the helpers
+`sumEnum_eq_iff`/`eqSEdec`). What landed:
+
+- **`sumEnum P₀ P₁ t`** — tag enumeration over `Option(α⊕β)`: `tag 0 ↦ inj₀ X⁰_{t.2}`,
+  `tag 1 ↦ inj₁ X¹_{t.2}`, `tag ≥2 ↦ sumMaster` (`tag = t.unpair.1`, component `= t.unpair.2`);
+  with `sumEnum_zero/one/master`, `sumEnum_mem`, `sumEnum_nonempty`, distinctness lemmas
+  (`inj₀_eq_iff`, `inj₀_ne_sumMaster`, `inj₀_ne_inj₁_of_nonempty`, `inj₀_eq_inj₁_elim`), and the
+  master-absorption lemmas (`sumEnum_subset_sumMaster`, `sum{Master_inter,_inter_sumMaster}`).
+- **`sumEnum_eq_iff`** (equality of two sum-nbhds decoded into tag/component conditions) →
+  **`eqSEdec`** (recursively decidable, via `recDec_setEq₀/₁` + `RecDecidable.or/.and/.not/.natEq`).
+- **`sumPresentation`** / **`sum_isEffectivelyGiven`** — the `interEq`/`cons` deciders are a 9-branch
+  `tag_a × tag_b` case split (with a further 3-way `tag_c` split where the result is a left/right
+  copy), built from `eqSEdec`, `P₀/P₁.interEq/cons` slices, and the closure lemmas.
+- Combinators **`inMap₀/₁_isComputable`**, **`outMap₀/₁_isComputable`** (`out` decoded via `leftPart`/
+  `rightPart`, with `k₀/k₁` the surjective index of `Vᵢ.master`), **`sumMap_isComputable`** (`f+g`:
+  relation tag-decodes to `(m master) ∨ (both-left ∧ f.rel) ∨ (both-right ∧ g.rel)`, r.e. by
+  `REPred.or`/`.and`/`.comp`).
+
+**Two choice traps fixed during the audit (see also the top-of-file note):**
+1. `omega` closing a **non-arithmetic** goal (a `Set` equality) by contradiction pulls
+   `Classical.choice` — prefix `exfalso` (all such call sites in `Theorem74.lean` now do).
+2. `Set.Nonempty.ne_empty` is classical — replaced by `Set.notMem_empty` after `rw [← h]`.
+
+**Next:** Theorem 7.5 — the function-space `(D₀→D₁)` is effectively given; `eval`/`curry` computable;
+computable elements correspond to computable maps.
