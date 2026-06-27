@@ -1312,6 +1312,205 @@ theorem myLor_eq_lor (a b : ℕ) : myLor a b = a ||| b := by
   rw [ha0, hb0] at hAcc
   simpa using hAcc
 
+/-! ## Bounded quantifiers over a coded list preserving recursive *decidability*
+
+`reForallChar`/`REPred.forall_mem_decodeList` above handle bounded `∀` over `decodeList` for *r.e.*
+predicates (which need a witness search). When the body is already recursively *decidable* the story
+is simpler: fold the `{0,1}` decider over the list with a Boolean `AND` (for `∀`) or `OR` (for `∃`),
+no witness threading. These are exactly what Scott's Smyth power-domain equality relation
+(Proposition 7.10) needs: equality of two finite unions of down-sets unfolds to
+`(∀ a ∈ A, ∃ b ∈ B, …) ∧ (∀ b ∈ B, ∃ a ∈ A, …)`, a nested bounded ∀/∃ over coded lists. All
+choice-free. The list is coded by the *first* argument; the *second* argument is a free parameter
+threaded through the `foldCode` `params` slot. -/
+
+/-- AND-fold step (`foldCode` shape): `acc ↦ acc ∧ isOne (g ⟨head, params⟩)`. -/
+def allListStp (g : ℕ → ℕ) (w : ℕ) : ℕ :=
+  selectFn w.unpair.2.unpair.1 (isOne (g (Nat.pair w.unpair.1 w.unpair.2.unpair.2))) 0
+
+/-- OR-fold step (`foldCode` shape): `acc ↦ acc ∨ isOne (g ⟨head, params⟩)`. -/
+def existsListStp (g : ℕ → ℕ) (w : ℕ) : ℕ :=
+  selectFn w.unpair.2.unpair.1 1 (isOne (g (Nat.pair w.unpair.1 w.unpair.2.unpair.2)))
+
+/-- The `{0,1}` flag of the bounded `∀ e ∈ decodeList c, g ⟨e, p⟩ = 1`. -/
+def allListChar (g : ℕ → ℕ) (p c : ℕ) : ℕ := foldCode (allListStp g) p 1 c
+
+/-- The `{0,1}` flag of the bounded `∃ e ∈ decodeList c, g ⟨e, p⟩ = 1`. -/
+def existsListChar (g : ℕ → ℕ) (p c : ℕ) : ℕ := foldCode (existsListStp g) p 0 c
+
+theorem allListStp_eq (g : ℕ → ℕ) (acc x p : ℕ) :
+    allListStp g (Nat.pair x (Nat.pair acc p)) = selectFn acc (isOne (g (Nat.pair x p))) 0 := by
+  unfold allListStp; simp only [unpair_pair_fst, unpair_pair_snd]
+
+theorem existsListStp_eq (g : ℕ → ℕ) (acc x p : ℕ) :
+    existsListStp g (Nat.pair x (Nat.pair acc p)) = selectFn acc 1 (isOne (g (Nat.pair x p))) := by
+  unfold existsListStp; simp only [unpair_pair_fst, unpair_pair_snd]
+
+theorem allListChar_eq (g : ℕ → ℕ) (p c : ℕ) :
+    allListChar g p c
+      = List.foldl (fun acc x => selectFn acc (isOne (g (Nat.pair x p))) 0) 1 (decodeList c) := by
+  have hfun : (fun (acc x : ℕ) => allListStp g (Nat.pair x (Nat.pair acc p)))
+      = (fun acc x => selectFn acc (isOne (g (Nat.pair x p))) 0) := by
+    funext acc x; exact allListStp_eq g acc x p
+  unfold allListChar; rw [foldCode_eq', hfun]
+
+theorem existsListChar_eq (g : ℕ → ℕ) (p c : ℕ) :
+    existsListChar g p c
+      = List.foldl (fun acc x => selectFn acc 1 (isOne (g (Nat.pair x p)))) 0 (decodeList c) := by
+  have hfun : (fun (acc x : ℕ) => existsListStp g (Nat.pair x (Nat.pair acc p)))
+      = (fun acc x => selectFn acc 1 (isOne (g (Nat.pair x p)))) := by
+    funext acc x; exact existsListStp_eq g acc x p
+  unfold existsListChar; rw [foldCode_eq', hfun]
+
+/-- Core induction for the AND-fold: starting from `acc ≤ 1`, the fold is `1` iff `acc = 1` and every
+list entry passes the decider `g`. -/
+theorem allList_foldl_eq_one_iff (g : ℕ → ℕ) (p : ℕ) :
+    ∀ (l : List ℕ) (acc : ℕ), acc ≤ 1 →
+      (List.foldl (fun acc x => selectFn acc (isOne (g (Nat.pair x p))) 0) acc l = 1 ↔
+        acc = 1 ∧ ∀ x ∈ l, g (Nat.pair x p) = 1) := by
+  intro l
+  induction l with
+  | nil => intro acc _; simp only [List.foldl_nil, List.not_mem_nil, false_implies, implies_true,
+      and_true]
+  | cons x l ih =>
+    intro acc hacc
+    rw [List.foldl_cons]
+    set acc' := selectFn acc (isOne (g (Nat.pair x p))) 0 with hacc'
+    have hacc'le : acc' ≤ 1 := by
+      rw [hacc']
+      rcases (show acc = 0 ∨ acc = 1 by omega) with h | h
+      · rw [h, selectFn_zero]; exact Nat.zero_le 1
+      · rw [h, selectFn_one]; exact isOne_le_one _
+    rw [ih acc' hacc'le]
+    constructor
+    · rintro ⟨hacc'1, hrest⟩
+      have hsplit : acc = 1 ∧ g (Nat.pair x p) = 1 := by
+        rw [hacc'] at hacc'1
+        rcases (show acc = 0 ∨ acc = 1 by omega) with h | h
+        · rw [h, selectFn_zero] at hacc'1; exact absurd hacc'1 (by decide)
+        · rw [h, selectFn_one, isOne_eq_one_iff] at hacc'1; exact ⟨h, hacc'1⟩
+      refine ⟨hsplit.1, fun y hy => ?_⟩
+      rcases List.mem_cons.mp hy with rfl | hy'
+      · exact hsplit.2
+      · exact hrest y hy'
+    · rintro ⟨hacc1, hall⟩
+      have hhead : g (Nat.pair x p) = 1 := hall x (List.mem_cons.mpr (Or.inl rfl))
+      refine ⟨?_, fun y hy => hall y (List.mem_cons.mpr (Or.inr hy))⟩
+      rw [hacc', hacc1, selectFn_one, isOne_eq_one_iff]; exact hhead
+
+/-- Core induction for the OR-fold: starting from `acc ≤ 1`, the fold is `1` iff `acc = 1` or some
+list entry passes the decider `g`. -/
+theorem existsList_foldl_eq_one_iff (g : ℕ → ℕ) (p : ℕ) :
+    ∀ (l : List ℕ) (acc : ℕ), acc ≤ 1 →
+      (List.foldl (fun acc x => selectFn acc 1 (isOne (g (Nat.pair x p)))) acc l = 1 ↔
+        acc = 1 ∨ ∃ x ∈ l, g (Nat.pair x p) = 1) := by
+  intro l
+  induction l with
+  | nil => intro acc _; simp only [List.foldl_nil, List.not_mem_nil, false_and, exists_false,
+      or_false]
+  | cons x l ih =>
+    intro acc hacc
+    rw [List.foldl_cons]
+    set acc' := selectFn acc 1 (isOne (g (Nat.pair x p))) with hacc'
+    have hacc'le : acc' ≤ 1 := by
+      rw [hacc']
+      rcases (show acc = 0 ∨ acc = 1 by omega) with h | h
+      · rw [h, selectFn_zero]; exact isOne_le_one _
+      · rw [h, selectFn_one]
+    rw [ih acc' hacc'le]
+    constructor
+    · rintro (hacc'1 | ⟨y, hy, hyg⟩)
+      · rw [hacc'] at hacc'1
+        rcases (show acc = 0 ∨ acc = 1 by omega) with h | h
+        · rw [h, selectFn_zero, isOne_eq_one_iff] at hacc'1
+          exact Or.inr ⟨x, List.mem_cons.mpr (Or.inl rfl), hacc'1⟩
+        · exact Or.inl h
+      · exact Or.inr ⟨y, List.mem_cons.mpr (Or.inr hy), hyg⟩
+    · rintro (hacc1 | ⟨y, hy, hyg⟩)
+      · exact Or.inl (by rw [hacc', hacc1, selectFn_one])
+      · rcases List.mem_cons.mp hy with rfl | hy'
+        · refine Or.inl ?_
+          rw [hacc']
+          rcases (show acc = 0 ∨ acc = 1 by omega) with h | h
+          · rw [h, selectFn_zero, isOne_eq_one_iff]; exact hyg
+          · rw [h, selectFn_one]
+        · exact Or.inr ⟨y, hy', hyg⟩
+
+theorem allListChar_eq_one_iff (g : ℕ → ℕ) (p c : ℕ) :
+    allListChar g p c = 1 ↔ ∀ x ∈ decodeList c, g (Nat.pair x p) = 1 := by
+  rw [allListChar_eq, allList_foldl_eq_one_iff g p (decodeList c) 1 (Nat.le_refl 1)]
+  simp only [true_and]
+
+theorem existsListChar_eq_one_iff (g : ℕ → ℕ) (p c : ℕ) :
+    existsListChar g p c = 1 ↔ ∃ x ∈ decodeList c, g (Nat.pair x p) = 1 := by
+  rw [existsListChar_eq, existsList_foldl_eq_one_iff g p (decodeList c) 0 (Nat.zero_le 1)]
+  simp only [Nat.zero_ne_one, false_or]
+
+theorem primrec_allListStp {g : ℕ → ℕ} (hg : Nat.Primrec g) : Nat.Primrec (allListStp g) := by
+  have hacc : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.right
+  have hx : Nat.Primrec (fun w : ℕ => w.unpair.1) := Nat.Primrec.left
+  have hp : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.right
+  have hcall : Nat.Primrec (fun w : ℕ => isOne (g (Nat.pair w.unpair.1 w.unpair.2.unpair.2))) :=
+    primrec_isOne.comp (hg.comp (hx.pair hp))
+  exact (primrec_selectFn hacc hcall (Nat.Primrec.const 0)).of_eq fun _ => rfl
+
+theorem primrec_existsListStp {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    Nat.Primrec (existsListStp g) := by
+  have hacc : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.right
+  have hx : Nat.Primrec (fun w : ℕ => w.unpair.1) := Nat.Primrec.left
+  have hp : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.right
+  have hcall : Nat.Primrec (fun w : ℕ => isOne (g (Nat.pair w.unpair.1 w.unpair.2.unpair.2))) :=
+    primrec_isOne.comp (hg.comp (hx.pair hp))
+  exact (primrec_selectFn hacc (Nat.Primrec.const 1) hcall).of_eq fun _ => rfl
+
+theorem primrec_allListChar {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    Nat.Primrec (fun t => allListChar g t.unpair.2 t.unpair.1) :=
+  (primrec_foldCode (primrec_allListStp hg) Nat.Primrec.right (Nat.Primrec.const 1)
+    Nat.Primrec.left).of_eq fun _ => rfl
+
+theorem primrec_existsListChar {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    Nat.Primrec (fun t => existsListChar g t.unpair.2 t.unpair.1) :=
+  (primrec_foldCode (primrec_existsListStp hg) Nat.Primrec.right (Nat.Primrec.const 0)
+    Nat.Primrec.left).of_eq fun _ => rfl
+
+/-- **Bounded `∀` over a coded list preserves recursive decidability.** If `q` is a recursively
+decidable binary relation then `fun c p => ∀ e ∈ decodeList c, q e p` is too (the list is coded by
+the first argument, `p` is a free parameter). Choice-free. -/
+theorem RecDecidable₂.bForallList {q : ℕ → ℕ → Prop} (hq : RecDecidable₂ q) :
+    RecDecidable₂ (fun c p => ∀ e ∈ decodeList c, q e p) := by
+  obtain ⟨g, hgp, hgs⟩ := hq
+  refine ⟨fun t => allListChar g t.unpair.2 t.unpair.1, primrec_allListChar hgp, fun t => ?_⟩
+  show (∀ e ∈ decodeList t.unpair.1, q e t.unpair.2) ↔ allListChar g t.unpair.2 t.unpair.1 = 1
+  rw [allListChar_eq_one_iff]
+  refine forall_congr' fun e => forall_congr' fun _ => ?_
+  have := hgs (Nat.pair e t.unpair.2)
+  simp only [unpair_pair_fst, unpair_pair_snd] at this
+  exact this
+
+/-- **Bounded `∃` over a coded list preserves recursive decidability.** If `q` is a recursively
+decidable binary relation then `fun c p => ∃ e ∈ decodeList c, q e p` is too. Choice-free. -/
+theorem RecDecidable₂.bExistsList {q : ℕ → ℕ → Prop} (hq : RecDecidable₂ q) :
+    RecDecidable₂ (fun c p => ∃ e ∈ decodeList c, q e p) := by
+  obtain ⟨g, hgp, hgs⟩ := hq
+  refine ⟨fun t => existsListChar g t.unpair.2 t.unpair.1, primrec_existsListChar hgp, fun t => ?_⟩
+  show (∃ e ∈ decodeList t.unpair.1, q e t.unpair.2) ↔ existsListChar g t.unpair.2 t.unpair.1 = 1
+  rw [existsListChar_eq_one_iff]
+  refine exists_congr fun e => and_congr_right fun _ => ?_
+  have := hgs (Nat.pair e t.unpair.2)
+  simp only [unpair_pair_fst, unpair_pair_snd] at this
+  exact this
+
+/-- **Swap the two arguments** of a recursively decidable binary relation. -/
+theorem RecDecidable₂.swap {r : ℕ → ℕ → Prop} (hr : RecDecidable₂ r) :
+    RecDecidable₂ (fun a b => r b a) := by
+  have hswap : Nat.Primrec (fun t => Nat.pair t.unpair.2 t.unpair.1) :=
+    Nat.Primrec.right.pair Nat.Primrec.left
+  refine RecDecidable.of_iff (fun t => ?_) (hr.comp hswap)
+  simp only [unpair_pair_fst, unpair_pair_snd]
+
 /-- **Bitwise OR is primitive recursive** (the `Nat.unpaired` form), choice-free. -/
 theorem primrec_myLor : Nat.Primrec (fun t => myLor t.unpair.1 t.unpair.2) := by
   have hbase : Nat.Primrec

@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element), and **Theorem 7.4 — BOTH halves** (`D₀×D₁` *and* `D₀+D₁` effectively given; `projᵢ`/`inᵢ`/`outᵢ`, `⟨f,g⟩`, `f×g`/`f+g` computable) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`, incl. truncated subtraction, `RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or`, **and now a choice-free primitive-recursive bitwise OR `myLor`**); **Example 7.8 (the powerset `PN` is effectively given) COMPLETE & fully choice-free (`Example78.lean`)**; rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element), and **Theorem 7.4 — BOTH halves** (`D₀×D₁` *and* `D₀+D₁` effectively given; `projᵢ`/`inᵢ`/`outᵢ`, `⟨f,g⟩`, `f×g`/`f+g` computable) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`, incl. truncated subtraction, `RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or`, **and now a choice-free primitive-recursive bitwise OR `myLor`**); **Example 7.8 (the powerset `PN` is effectively given) COMPLETE & fully choice-free (`Example78.lean`)**; **Definition 7.9 (the Smyth power domain `ℙ𝒟` family: down-set `↓X`=Ex 1.20 `upSet`, preparation `𝒟†`=`powerSystem`, finite-union family `PDmem`, the two intersection remarks) COMPLETE & fully choice-free (`Definition79.lean`)**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,10 +17,13 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Example 7.8 is COMPLETE / Pass** (`PN` effectively given — see the latest
-dated checkpoint at the very bottom). Pick the next Lecture VII item: **Definition 7.9 / Proposition
-7.10** (the Smyth power domain `ℙ𝒟`), **Exercise 7.17** (the full combinator finish), or **Exercise
-7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable, building on `Example78.lean`).
+**Next concrete target:** **Proposition 7.10 is COMPLETE / Pass** (`Proposition710.lean`, green, wired
+— `ℙ𝒟` is a neighbourhood system `PowerDomain` and is effectively given whenever `𝒟` is, via
+`PowerDomain_isEffectivelyGiven`/`PDPresentation`; see the latest dated checkpoint at the very bottom).
+The obvious next items: **Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`,
+building directly on `Proposition710.lean`'s `Ypd`/`interCode`). Other open Lecture VII items: **Exercise 7.17**
+(the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
+building on `Example78.lean`), **Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
 `Vsharp` layer, the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo
 evaluator, `dsharp_decider_spec`), the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
@@ -2918,3 +2921,100 @@ and `nbhd_inter`/`nbhd_injective` are the foundation for **Exercise 7.23** (comb
 pulls `Classical.choice`; replace with an explicit finite case split (`Nat.mod_two_eq_zero_or_one`).
 Also, on `Set`, `(h : A = B).ge` to get `B ⊆ A` pulls `Classical.choice` — use `h.symm.subset`
 (`Eq.subset`) instead, which is axiom-free.
+
+---
+
+## Checkpoint 2026-06-27 — Definition 7.9 (Smyth power domain `ℙ𝒟` family) COMPLETE / Pass, choice-free
+
+**What landed.** `Domain/Neighborhood/Definition79.lean` (ns `Domain.Neighborhood.NeighborhoodSystem`),
+wired into `Domain.lean` (after `Example78`); `lake build Domain` green; **every declaration audits
+`⊆ {propext, Quot.sound}`** (the whole file is choice-free, *data and proofs*).
+
+**Math (Definition 7.9).** Scott's Smyth power domain `ℙ𝒟 = {⋃_{i<n}↓Xᵢ ∣ ∀i<n. Xᵢ∈𝒟}`, where the
+**down-set** `↓X = {Y∈𝒟∣Y⊆X}`. The key reuse: **`↓X` of §7 is *exactly* Exercise 1.20's `upSet`**
+(`Exercise120.lean`: `upSet X = {Y∈𝒟∣Y⊆X}`), and the **preparation `𝒟† = {↓X∣X∈𝒟}`** Scott uses to make
+the construct iso-invariant is *exactly* Ex 1.20's `powerSystem` (the positive system over tokens `Δ†=𝒟`).
+So Def 7.9 is "the closure of `𝒟†` under finite unions, including the empty union `∅` (`n=0`)".
+
+**What got built (all in `Definition79.lean`):**
+- **`dagger V := V.powerSystem`** (alias for `𝒟†`) + **`dagger_isomorphic : V ≅ᴰ V.dagger`** (reuses
+  `isomorphic_powerSystem`).
+- **`PDmem W := ∃ L:List(Set α), (∀X∈L, V.mem X) ∧ W=⋃_{X∈L} V.upSet X`** — the `ℙ𝒟` neighbourhood
+  family. Lists model Scott's "finite sequences of integers"; `L=[]` realizes the empty union `∅`.
+- **`mem_PDunion`** (`z∈⋃_{X∈L}↓X ↔ ∃X∈L, z∈↓X`, via `Set.mem_iUnion`+`exists_prop`), **`PDmem_empty`**,
+  **`PDmem_upSet`** (`X∈𝒟 ⟹ ↓X∈ℙ𝒟`), **`PDmem_master`** (`↓Δ`), **`PDmem_union`** (binary—hence
+  finite—union closure, list `++`).
+- **`PDmem_iff_fin`** — same family with Scott's literal `⋃_{i<n}` (`Fin n → Set α`); `List`↔`Fin` via
+  `List.ofFn`/`List.get`/`List.get_of_mem`/`List.mem_ofFn`+`Set.mem_range`.
+- Two displayed remarks: **`upSet_inter_nonempty_iff`** (`(↓X∩↓Y).Nonempty ↔ ∃Z∈𝒟,Z⊆X∩Y`, i.e. `{X,Y}`
+  consistent) and **`dagger_upSet_inter`** (consistent ⟹ `↓X∩↓Y=↓(X∩Y)∈𝒟†`). The unconditional set
+  identity `↓X∩↓Y=↓(X∩Y)` is Ex 1.20's `upSet_inter`.
+
+**Choice discipline (bit me once).** `simp` closing `∅=⋃_{X∈[]}↓X` and `↓X=⋃_{Y∈[X]}↓Y` silently pulls
+`Classical.choice` here. Fixed with explicit choice-free proofs: **`cases hX`** on `hX : X∈([]:List _)`
+(empty inductive, no constructors), `Set.notMem_empty`, `List.mem_singleton`. Also note `List.not_mem_nil`
+in this toolchain is the *applied* form `(a∈[])→False` (use `cases`/`(… h).elim`, not `not_mem_nil a`),
+and the term-mode `nomatch hX` mis-parsed inside an anonymous-constructor field — use tactic `cases hX`.
+
+**Next concrete target: Proposition 7.10** — package `ℙ𝒟` as `PowerDomain : NeighborhoodSystem (Set α)`
+(`mem := PDmem`, `master := upSet master`; `inter_mem` from distribution of `∩` over the finite union +
+`upSet_inter`; `sub_master` since each `↓Xᵢ ⊆ ↓Δ`), then its `ComputablePresentation` (enumerate finite
+sequences via `Nat.pair`/`decodeList`; intersection = the distributed double-union with empty terms
+thrown out, each `X_{nᵢ}∩X_{mⱼ}=X_{kᵢⱼ}` from `𝒟.inter`; equality decided by
+`↓X_k ⊆ ⋃_{i<q}↓X_{nᵢ} ↔ ∃i<q. X_k⊆X_{nᵢ}` — recursive by `𝒟.incl`). Reuse `Definition79.lean`'s
+`PDmem_union`/`mem_PDunion`/`upSet_inter`/`upSet_inter_nonempty_iff`.
+
+---
+
+### Checkpoint — 2026-06-27 — **Proposition 7.10 COMPLETE / Pass** (`Proposition710.lean`, green, wired, audited)
+
+`ℙ𝒟` is a neighbourhood system *and* effectively given whenever `𝒟` is. Built on `Definition79.lean`
+(`PDmem`, `PDmem_union`, `PDmem_master`, `mem_PDunion`) + Ex 1.20 `upSet`/`upSet_inter` + the choice-free
+recursion theory in `Recursive.lean`.
+
+**Part A — `PowerDomain : NeighborhoodSystem (Set α)`** (`mem := PDmem`, `master := ↓Δ`):
+- `upSetUnion_nil`/`upSetUnion_cons` (cons law for `⋃_{X∈L}↓X`).
+- `PDmem_upSet_inter` (`↓X∩↓Y ∈ ℙ𝒟`): rewrite `↓X∩↓Y=↓(X∩Y)` (`upSet_inter`), then **`by_cases V.mem (X∩Y)`** —
+  consistent ⟹ one down-set `PDmem_upSet`; else `↓(X∩Y)=∅` because `inter_mem` makes any `Z⊆X∩Y` force
+  `X∩Y∈𝒟`. **This `by_cases` is the SOLE `Classical` step.** It is genuinely unavoidable (membership in an
+  *arbitrary* system is not decidable) and lives only in the `inter_mem` **Prop** field — the data fields
+  `mem`/`master` are choice-free.
+- `PDmem_upSet_inter_biUnion` → `PDmem_biUnion_inter` → `PDmem_inter` (distribute `∩` over both finite
+  unions via `Set.*_inter_distrib_*`, then term-by-term). `sub_master` since each `↓X_a ⊆ ↓Δ`.
+
+**Part B — `PowerDomain_isEffectivelyGiven : V.IsEffectivelyGiven → V.PowerDomain.IsEffectivelyGiven`**,
+via `PDPresentation P cons hconsp hcons` (parametrised on `𝒟`'s primrec consistency decider `cons`,
+extracted **choice-free** from `P.cons_computable` inside the `Nonempty` proof — same pattern as
+`Theorem75.lean`'s `funPresentation`).
+- **Enumeration** `Ypd c := UPX (decodeList c) = ⋃_{a∈decodeList c} ↓X_a` (`Ypd 0=∅` via `decodeList_zero`;
+  `Ypd ⟨v,acc⟩+1 = ↓X_v ∪ Ypd acc` via `decodeList_succ`). `mem_X`/`Ypd_isPDmem` (list `(dl c).map P.X`),
+  `surj`/`PDmem_exists_Ypd`.
+- **Relation (i) — equality.** `Ypd_subset_iff : Y_c⊆Y_k ↔ ∀a∈dl c,∃b∈dl k, X_a⊆X_b` (key step
+  `upSet_subset_Ypd_iff`: a down-set lies in a finite union of down-sets iff its top is below one of them).
+  `subCode_computable` is `RecDecidable₂` via the **NEW** choice-free combinators
+  **`RecDecidable₂.bForallList`/`RecDecidable₂.bExistsList`** (bounded `∀/∃` over `decodeList`, added to
+  `Recursive.lean`) applied to `P.incl_computable.swap`. `eqCode_computable` = `subCode ∧ subCode.swap`
+  (`Ypd_eq_iff` = `Set.Subset.antisymm_iff`).
+- **Intersection code** `interCode cons n m` — nested `foldCode`: outer over `dl n`, inner over `dl m`,
+  prepending `P.inter a b` exactly on **consistent** pairs (`isOne (cons ⟨a,b⟩)` via `selectFn`). Step lemmas
+  `innerInterStp`/`outerInterStp` + `*_eq` (via `foldCode_eq'`). Correctness `Ypd_interCode : Y_{interCode n m}
+  = Y_n∩Y_m` via `Ypd_innerstep` (the `selectFn`/`isOne` `by_cases` is a **decidable ℕ-equality**, choice-free)
+  → `Ypd_innerfoldl`/`Ypd_innerInterCode`/`Ypd_outerfoldl`. Primrec via `primrec_foldCode`/`primrec_selectFn`/
+  `primrec_isOne`. `cons_computable` for `ℙ𝒟` is trivial (`∅∈ℙ𝒟` ⟹ every pair consistent; witness code `0`).
+
+**Axiom audit.** Pure data/recursion is choice-free: `interCode` *no axioms*; `Ypd`, `primrec_interCode`,
+`subCode_computable` `⊆{propext,Quot.sound}`. The bundled `def`s `PowerDomain`/`PDPresentation` and the
+`Prop`-valued `eqCode_computable`/`Ypd_interEq_computable`/`PowerDomain_isEffectivelyGiven` carry
+`Classical.choice`, confined to **Prop** obligations (the Part-A `inter_mem` split above + `RecDecidable`
+existentials / mathlib set lemmas) — consistent with the choice discipline.
+
+**Gotchas this session (all fixed).** (1) Auto-bound section vars: `P : ComputablePresentation V` pulls `V`
+into every `def`/`theorem` that mentions `P`, so the intersection-code defs are `V.innerInterStp P …`,
+`V.interCode P …` etc. — **must use `V.`-dot notation** at every call site (writing `interCode P …` feeds `P`
+as the `V` argument). (2) `(cons n m : ℕ)` accidentally typed `cons : ℕ` — write `(cons : ℕ → ℕ) (n m : ℕ)`.
+(3) `isOne_eq_one_iff` takes the value explicitly: `(isOne_eq_one_iff _).mpr h`. (4) The new bounded-quantifier
+lemmas were originally in the `RecDecidable` namespace but operate on `RecDecidable₂`, breaking dot notation —
+renamed to `RecDecidable₂.bForallList`/`bExistsList`.
+
+**Next concrete target: Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`), building
+directly on `Proposition710.lean`'s `Ypd`/`interCode`/`PowerDomain`.
