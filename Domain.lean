@@ -145,4 +145,5 @@ import Domain.Neighborhood.Theorem74
 import Domain.Neighborhood.Theorem75
 import Domain.Neighborhood.Theorem76
 import Domain.Neighborhood.Proposition77
+import Domain.Neighborhood.Combinators77
 import Domain.InfoSys

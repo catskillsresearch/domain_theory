@@ -17,14 +17,16 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Lecture VII — Proposition 7.7 — Milestone 4 (Example 6.1 combinators)**.
-**Milestones 1–3 are DONE** (`Proposition77.lean`, green, wired): the foundational `Vsharp` layer,
-the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo evaluator,
-`dsharp_decider_spec`), and the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
-(**`D^§` effectively given whenever `D` is**). Data is choice-free `⊆{propext,Quot.sound}`; only the
-`Prop`-level correctness proofs pull `Classical.choice` (unavoidable — `Set` equality over arbitrary
-`α`). **Remaining: Example 6.1 combinators (`λx.x^§`, `proj₀`) as `ApproximableMap`s + `IsComputableMap`,
-then flip `arxiv.md`.** Full design is in the **latest dated checkpoint at the very bottom.** **Theorem 7.6 is DONE** (`fix:(D→D)→D`
+**Next concrete target:** **Proposition 7.7 is COMPLETE / Pass** — pick the next Lecture VII item
+(e.g. **Example 7.8** `PN` effectively given, or **Exercise 7.17** the full combinator finish).
+**Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
+`Vsharp` layer, the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo
+evaluator, `dsharp_decider_spec`), the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
+(**`D^§` effectively given whenever `D` is**), **and** a selection of Example 6.1 combinators computable
+(`inSharpMap`/`inSharp_isComputable` for `λx.x^§`, `proj0Map`/`proj0_isComputable` for `proj₀`, each
+with an elementwise faithfulness theorem). All *data* is choice-free `⊆{propext,Quot.sound}`; only the
+`Prop`-level computability/correctness proofs pull `Classical.choice` (unavoidable — `Set` equality over
+arbitrary `α`). Full design is in the **two latest dated checkpoints at the very bottom.** **Theorem 7.6 is DONE** (`fix:(D→D)→D`
 computable, `Theorem76.lean`, `fixMap_isComputable`, choice-free) — see the **latest dated checkpoint
 at the very bottom**. **Theorem 7.5 is DONE in full** (all four parts: `(D₀→D₁)` effectively
 given via `funPresentation`/`funSpace_isEffectivelyGiven`; `eval` computable `evalMap_isComputable`;
@@ -2824,3 +2826,41 @@ Scott does "a selection": `Xₙ (λx.x^§) Vₖ ↔ V_{2n+1} ⊆ Vₖ` (i.e. `em
 decidable ⟹ r.e.); `Vₘ proj₀ Vₖ ↔ k=0 ∨ ∃n. m=2n+2 ∧ V_{p n} ⊆ Vₖ`. Need the `ApproximableMap` forms
 (Example 6.1's `inSharp`/`pairSharp` are currently element-level) before stating `IsComputableMap`.
 Then **Milestone 5** flips `arxiv.md` Prop 7.7 row to Pass.
+
+---
+
+## Checkpoint — 2026-06-23 — Proposition 7.7 **Milestone 4 COMPLETE → Prop 7.7 DONE / Pass** (`Combinators77.lean`)
+
+New module `Domain/Neighborhood/Combinators77.lean` (green, wired into `Domain.lean`, zero `sorry`).
+Both clauses of Prop 7.7 are now formalized: `D^§` effectively given (M1–3) **and** a selection of the
+Example 6.1 combinators computable (M4). `arxiv.md` Prop 7.7 row flipped to **Pass**.
+
+**`λx. x^§` (Scott's injection `inSharp`):** `inSharpMap : ApproximableMap D (Dsharp D hD)` with
+relation `X (λx.x^§) W ↔ 0·X ⊆ W` (`embZero X ⊆ W`); `inSharpMap_toElementMap` proves its elementwise
+action is Example 6.1's `inSharp` (so it genuinely is `λx.x^§`). **`inSharp_isComputable`**: the index
+relation is `embZero (P.X n) ⊆ V_m ↔ V_{2n+1} ⊆ V_m`, i.e. `dsharpPresentation.incl_computable`
+reindexed by the primrec `(n,m) ↦ (2n+1, m)`, hence (recursively decidable ⟹) r.e.
+
+**`proj₀` (first projection of the pair part):** `proj0Map : ApproximableMap (Dsharp D hD) (Dsharp D hD)`
+with relation `W proj₀ Z ↔ Z = Γ ∨ ∃ P Q, W = 1·P ∪ 2·Q ∧ P ⊆ Z`; `proj0_toElementMap_pairSharp`
+proves `proj₀(⟨x,y⟩^§) = x`. **`proj0_isComputable`**: `proj0_rel_Vsharp_iff` reduces the index
+relation to `k = 0 ∨ (m % 2 = 0 ∧ m ≠ 0 ∧ V_{(m/2-1).unpair.1} ⊆ V_k)` — a disjunction of the
+equality decider (`k=0`), parity deciders (`%2`, `≠0`), and `incl_computable` reindexed by the primrec
+left-child map `s ↦ pair ((s.1/2-1).unpair.1) s.2`; all recursively decidable, so `.re`.
+
+**Axioms:** the `ApproximableMap` **data** (`inSharpMap`, `proj0Map`) and **both faithfulness
+theorems** (`inSharpMap_toElementMap`, `proj0_toElementMap_pairSharp`) are choice-free
+`⊆ {propext, Quot.sound}`. Only `inSharp_isComputable`/`proj0_isComputable` pull `Classical.choice`
+(via `incl_computable` / `Set` reasoning over arbitrary `α`) — unavoidable, same as the M1–3 deciders.
+
+**Reusable patterns:** to characterize an `ApproximableMap`'s relation against `Vsharp` and conclude
+computability, mirror Theorem 7.4's `proj₀`/`in₀`: state the relation as a Boolean combination of
+`incl_computable`/`natEq`/`%2` deciders (reindexed by primrec maps), then `RecDecidable.of_iff … |>.re`.
+The `show REPred (fun s => f.rel (Vsharp … s.unpair.1) (Vsharp … s.unpair.2))` step relies on
+`(dsharpPresentation P hD).X = Vsharp D P` *definitionally*; the `@[simp] dsharpPresentation_X` handle
+normalizes the `incl_computable` predicate's `(dsharpPresentation …).X` to `Vsharp` so `simp` closes the
+`of_iff` reindex goals. **`Element.ext` must be used `apply`-style** (`apply Element.ext; intro W`); as a
+term `Element.ext (fun W => …)` mis-resolves its first explicit slot to a `NeighborhoodSystem`.
+
+**Prop 7.7 is now fully Pass.** Optional follow-on: **Exercise 7.17** (the *full* finish — all Example
+6.2 combinators + strict `g : D^§ → E`), which generalizes this selection.
