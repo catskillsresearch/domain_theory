@@ -17,11 +17,10 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Proposition 7.10 is COMPLETE / Pass** (`Proposition710.lean`, green, wired
-— `ℙ𝒟` is a neighbourhood system `PowerDomain` and is effectively given whenever `𝒟` is, via
-`PowerDomain_isEffectivelyGiven`/`PDPresentation`; see the latest dated checkpoint at the very bottom).
-The obvious next items: **Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`,
-building directly on `Proposition710.lean`'s `Ypd`/`interCode`). Other open Lecture VII items: **Exercise 7.17**
+**Next concrete target:** **Definition 7.11 is COMPLETE / Pass** (`Definition711.lean`, green, wired — finite-element
+joins `{x₀,…,x_{n-1}}` in `|ℙ𝒟|` via `PDfinJoin`/`PDsingleton`; see latest checkpoint at the very bottom).
+The obvious next item is **Proposition 7.12** (the join map is approximable/computable; `{x}∩{y}={x,y}`; `D ⊴ ℙD`
+via `λx.{x}` on finite elements — builds on `Definition711.lean`'s `PDsingleton`). Other open Lecture VII items: **Exercise 7.17**
 (the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
 building on `Example78.lean`), **Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
@@ -3018,3 +3017,29 @@ renamed to `RecDecidable₂.bForallList`/`bExistsList`.
 
 **Next concrete target: Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`), building
 directly on `Proposition710.lean`'s `Ypd`/`interCode`/`PowerDomain`.
+
+---
+
+### Checkpoint — 2026-06-27 — **Definition 7.11 COMPLETE / Pass** (`Definition711.lean`, green, wired, audited)
+
+Scott's finite-element join in `|ℙ𝒟|` from PRG-19 p.129:
+
+`{x₀,…,x_{n-1}} = { z ∈ |ℙ𝒟| ∣ ∃ X₀∈x₀ … ∃ X_{n-1}∈x_{n-1}. ⋃_{i<n}(↑X_i) ⊆ z }`
+
+(with Scott's note `∀ i<n. X_i ∈ z` left as documentation — the formal membership uses the union of down-sets).
+
+**Formalization (`Definition711.lean`, on `Proposition710.lean`'s `PowerDomain`).**
+- **`PDmemFinJoin xs W`** — membership: `∃ (X : Fin n → Set α) (∀ i, xs i).mem (X i)) ∧ PD.mem W ∧ ∀ i, ↓X_i ⊆ W`.
+- **`PDfinJoinZero = ⊥`** (`PDmem_finJoinZero`); **`PDfinJoinSucc xs`** packages the filter (filter axioms proved;
+  `inter_mem` uses **`upSet_inter`** from Ex 1.20).
+- **`PDfinJoin n xs`** — `n = 0` ⟹ `⊥`; else `PDfinJoinSucc`.
+- **`PDmem_finJoin`**, **`PDmem_finJoin_iUnion`** (Scott's displayed `⋃_{i<n} ↓X_i ⊆ W` via `Set.iUnion_subset`).
+- **`PDsingleton x = PDfinJoin 1 ![x]`** with **`PDmem_singleton`**.
+
+**Choice discipline.** Filter proofs choice-free; bundled `def`s inherit `Classical.choice` from `PowerDomain`
+(same Prop-level `inter_mem` pattern as Prop 7.10). Audited: `PDfinJoin`/`PDsingleton` `⊆{propext,Quot.sound,Classical.choice}`.
+
+**Deferred to Prop 7.12:** `{↑X} = ↑(↓X)` (`PDsingleton_principal`), intersection law `{x}∩{y}={x,y}`, approximability/computability
+of `λx₀,…,x_{n-1}.{x₀,…,x_{n-1}}`, and `D ⊴ ℙD`.
+
+**Next concrete target: Proposition 7.12.**

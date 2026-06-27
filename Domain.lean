@@ -149,4 +149,5 @@ import Domain.Neighborhood.Combinators77
 import Domain.Neighborhood.Example78
 import Domain.Neighborhood.Definition79
 import Domain.Neighborhood.Proposition710
+import Domain.Neighborhood.Definition711
 import Domain.InfoSys
