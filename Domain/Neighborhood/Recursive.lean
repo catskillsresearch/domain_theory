@@ -1,6 +1,8 @@
 import Mathlib.Data.Nat.Sqrt
 import Mathlib.Data.Nat.Pairing
+import Mathlib.Data.Nat.Bitwise
 import Mathlib.Computability.Partrec
+import Mathlib.Tactic.Ring
 
 /-!
 # A choice-free recursion theory for Lecture VII (Scott 1981, PRG-19)
@@ -1177,5 +1179,154 @@ theorem REPred.forall_mem_decodeList₂ {p : ℕ → ℕ → Prop} (hp : REPred�
   · intro hall e he
     simpa only [unpair_pair_fst, unpair_pair_snd]
       using hall (Nat.pair t.unpair.1 e) ⟨e, he, rfl⟩
+
+/-! ## Choice-free primitive-recursive bitwise OR (for Example 7.8, the powerset `PN`)
+
+Scott's Example 7.8 enumerates the finite subsets of `ℕ` by `Eₙ = {k ∣ n.testBit k}` and presents the
+powerset domain `PN` with neighbourhoods `ℕ ∖ Eₙ`. The intersection of two neighbourhoods is
+`(ℕ ∖ Eₙ) ∩ (ℕ ∖ Eₘ) = ℕ ∖ (Eₙ ∪ Eₘ) = ℕ ∖ E_{n ||| m}` (bitwise OR), and Scott notes that the
+relation `Eₙ ∪ Eₘ = E_k` is *recursive*. The presentation therefore needs `(n, m) ↦ n ||| m` as a
+**primitive-recursive** intersection function.
+
+mathlib's `Nat.lor` is defined through `Nat.bitwise`/`binaryRec`, none of which is exposed as a
+`Nat.Primrec`. We build it choice-free by *iterating* a fixed step `lorStep` (which strips the low
+bit of each argument, ORs them, and accumulates with a doubling weight). The result coincides with
+`Nat.lor` (`myLor_eq_lor`), so all the set-level facts can use mathlib's clean `Nat.testBit_lor`. -/
+
+/-- The low-bit OR `(x ||| y) % 2`, in arithmetic `{0,1}`-valued form (so it is primitive recursive
+without referring to `Nat.lor`). Equal to `(x ||| y) % 2` by `lowOr_eq_mod`. -/
+def lowOr (x y : ℕ) : ℕ := 1 - (1 - (x % 2 + y % 2))
+
+theorem primrec_lowOr : Nat.Primrec (fun t => lowOr t.unpair.1 t.unpair.2) := by
+  have hx : Nat.Primrec (fun t : ℕ => t.unpair.1 % 2) := primrec_mod2.comp Nat.Primrec.left
+  have hy : Nat.Primrec (fun t : ℕ => t.unpair.2 % 2) := primrec_mod2.comp Nat.Primrec.right
+  exact (primrec_sub₂ (Nat.Primrec.const 1)
+    (primrec_sub₂ (Nat.Primrec.const 1) (primrec_add₂ hx hy))).of_eq fun _ => rfl
+
+/-- `lowOr x y = (x ||| y) % 2`: both sides depend only on the low bits `x % 2`, `y % 2`. -/
+theorem lowOr_eq_mod (x y : ℕ) : lowOr x y = (x ||| y) % 2 := by
+  have key : ((x ||| y) % 2 = 1) ↔ (x % 2 = 1 ∨ y % 2 = 1) := by
+    have hb := Nat.testBit_lor x y 0
+    rw [Nat.testBit_zero, Nat.testBit_zero, Nat.testBit_zero] at hb
+    rw [← decide_eq_decide, hb, Bool.decide_or]
+  have e1 : (x ||| y) % 2 < 2 := Nat.mod_lt _ (by decide)
+  unfold lowOr
+  -- explicit case split avoids feeding `omega` an `↔`/disjunction (which pulls `Classical.choice`)
+  rcases Nat.mod_two_eq_zero_or_one x with hx | hx <;>
+    rcases Nat.mod_two_eq_zero_or_one y with hy | hy <;> rw [hx, hy]
+  · -- x%2=0, y%2=0 : `(x|||y)%2 ≠ 1`
+    have hne : (x ||| y) % 2 ≠ 1 := fun h => by rcases key.mp h with h' | h' <;> omega
+    omega
+  · -- x%2=0, y%2=1
+    rw [key.mpr (Or.inr hy)]
+  · -- x%2=1, y%2=0
+    rw [key.mpr (Or.inl hx)]
+  · -- x%2=1, y%2=1
+    rw [key.mpr (Or.inl hx)]
+
+/-- Packed iteration state `pair (pair curA curB) (pair weight acc)` for the bitwise-OR fold. -/
+def lorStep (s : ℕ) : ℕ :=
+  Nat.pair (Nat.pair (s.unpair.1.unpair.1 / 2) (s.unpair.1.unpair.2 / 2))
+    (Nat.pair (2 * s.unpair.2.unpair.1)
+      (s.unpair.2.unpair.2 + s.unpair.2.unpair.1 * lowOr s.unpair.1.unpair.1 s.unpair.1.unpair.2))
+
+theorem primrec_lorStep : Nat.Primrec lorStep := by
+  have hA : Nat.Primrec (fun s : ℕ => s.unpair.1.unpair.1) := Nat.Primrec.left.comp Nat.Primrec.left
+  have hB : Nat.Primrec (fun s : ℕ => s.unpair.1.unpair.2) := Nat.Primrec.right.comp Nat.Primrec.left
+  have hW : Nat.Primrec (fun s : ℕ => s.unpair.2.unpair.1) := Nat.Primrec.left.comp Nat.Primrec.right
+  have hAcc : Nat.Primrec (fun s : ℕ => s.unpair.2.unpair.2) := Nat.Primrec.right.comp Nat.Primrec.right
+  have hlow : Nat.Primrec (fun s : ℕ => lowOr s.unpair.1.unpair.1 s.unpair.1.unpair.2) :=
+    (primrec_lowOr.comp (hA.pair hB)).of_eq fun s => by
+      simp only [unpair_pair_fst, unpair_pair_snd]
+  exact (((primrec_div2.comp hA).pair (primrec_div2.comp hB)).pair
+    ((primrec_mul₂ (Nat.Primrec.const 2) hW).pair
+      (primrec_add₂ hAcc (primrec_mul₂ hW hlow)))).of_eq fun _ => rfl
+
+/-- The iterative bitwise OR: iterate `lorStep` `a + b` times (enough to consume every set bit of `a`
+and `b`) from the initial state, and read off the accumulator. -/
+def myLor (a b : ℕ) : ℕ :=
+  (lorStep^[a + b] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.2
+
+/-- One recursion step for `Nat.lor` on the low bit: `x ||| y = 2 (x/2 ||| y/2) + lowOr x y`. -/
+theorem lor_low_rec (x y : ℕ) : x ||| y = 2 * (x / 2 ||| y / 2) + lowOr x y := by
+  have hdiv : (x ||| y) / 2 = x / 2 ||| y / 2 := by
+    apply Nat.eq_of_testBit_eq
+    intro i
+    rw [← Nat.testBit_add_one, Nat.testBit_lor, Nat.testBit_lor, Nat.testBit_add_one,
+      Nat.testBit_add_one]
+  have hmod := lowOr_eq_mod x y
+  conv_lhs => rw [← Nat.div_add_mod (x ||| y) 2]
+  rw [hdiv, hmod]
+
+/-- **Invariant of the bitwise-OR iteration.** After `k` steps the two running arguments are
+`a / 2^k`, `b / 2^k`, the weight is `2^k`, and `acc + 2^k · (a/2^k ||| b/2^k) = a ||| b`. -/
+theorem lorStep_iter_spec (a b : ℕ) : ∀ k,
+    (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.1 = a / 2 ^ k ∧
+    (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.2 = b / 2 ^ k ∧
+    (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.1 = 2 ^ k ∧
+    (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.2 +
+        2 ^ k * (a / 2 ^ k ||| b / 2 ^ k) = a ||| b := by
+  intro k
+  induction k with
+  | zero =>
+    simp only [Function.iterate_zero_apply, unpair_pair_fst, unpair_pair_snd, pow_zero,
+      Nat.div_one, Nat.one_mul, Nat.zero_add, true_and]
+  | succ k ih =>
+    obtain ⟨hA, hB, hW, hAcc⟩ := ih
+    rw [Function.iterate_succ_apply']
+    have hdd : a / 2 ^ (k + 1) = (a / 2 ^ k) / 2 := by rw [Nat.div_div_eq_div_mul, ← pow_succ]
+    have hdd' : b / 2 ^ (k + 1) = (b / 2 ^ k) / 2 := by rw [Nat.div_div_eq_div_mul, ← pow_succ]
+    -- compute the four projections of one `lorStep`
+    have p11 : (lorStep (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0)))).unpair.1.unpair.1
+        = (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.1 / 2 := by
+      unfold lorStep; rw [unpair_pair_fst, unpair_pair_fst]
+    have p12 : (lorStep (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0)))).unpair.1.unpair.2
+        = (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.2 / 2 := by
+      unfold lorStep; rw [unpair_pair_fst, unpair_pair_snd]
+    have p21 : (lorStep (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0)))).unpair.2.unpair.1
+        = 2 * (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.1 := by
+      unfold lorStep; rw [unpair_pair_snd, unpair_pair_fst]
+    have p22 : (lorStep (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0)))).unpair.2.unpair.2
+        = (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.2
+          + (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.2.unpair.1
+            * lowOr (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.1
+                (lorStep^[k] (Nat.pair (Nat.pair a b) (Nat.pair 1 0))).unpair.1.unpair.2 := by
+      unfold lorStep; rw [unpair_pair_snd, unpair_pair_snd]
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · rw [p11, hA, Nat.div_div_eq_div_mul, ← pow_succ]
+    · rw [p12, hB, Nat.div_div_eq_div_mul, ← pow_succ]
+    · rw [p21, hW, ← pow_succ']
+    · rw [p22, hA, hB, hW, hdd, hdd', pow_succ, ← hAcc, lor_low_rec (a / 2 ^ k) (b / 2 ^ k)]
+      ring
+
+/-- **Correctness of the iterative bitwise OR.** `myLor a b = a ||| b`. -/
+theorem myLor_eq_lor (a b : ℕ) : myLor a b = a ||| b := by
+  unfold myLor
+  obtain ⟨_, _, _, hAcc⟩ := lorStep_iter_spec a b (a + b)
+  have ha0 : a / 2 ^ (a + b) = 0 :=
+    Nat.div_eq_of_lt (Nat.lt_of_lt_of_le Nat.lt_two_pow_self (Nat.pow_le_pow_right (by decide)
+      (Nat.le_add_right a b)))
+  have hb0 : b / 2 ^ (a + b) = 0 :=
+    Nat.div_eq_of_lt (Nat.lt_of_lt_of_le Nat.lt_two_pow_self (Nat.pow_le_pow_right (by decide)
+      (Nat.le_add_left b a)))
+  rw [ha0, hb0] at hAcc
+  simpa using hAcc
+
+/-- **Bitwise OR is primitive recursive** (the `Nat.unpaired` form), choice-free. -/
+theorem primrec_myLor : Nat.Primrec (fun t => myLor t.unpair.1 t.unpair.2) := by
+  have hbase : Nat.Primrec
+      (fun z => Nat.pair (Nat.pair z.unpair.1 z.unpair.2) (Nat.pair 1 0)) :=
+    (Nat.Primrec.left.pair Nat.Primrec.right).pair
+      ((Nat.Primrec.const 1).pair (Nat.Primrec.const 0))
+  have hstep : Nat.Primrec (fun w => lorStep w.unpair.2.unpair.2) :=
+    primrec_lorStep.comp (Nat.Primrec.right.comp Nat.Primrec.right)
+  have hprec := Nat.Primrec.prec hbase hstep
+  have hcount : Nat.Primrec (fun t => t.unpair.1 + t.unpair.2) :=
+    primrec_add₂ Nat.Primrec.left Nat.Primrec.right
+  refine ((Nat.Primrec.right.comp Nat.Primrec.right).comp
+    (hprec.comp (primrec_id.pair hcount))).of_eq fun t => ?_
+  simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd, id_eq]
+  rw [rec_const_iterate]
+  rfl
 
 end Domain.Recursive
