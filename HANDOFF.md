@@ -1,4 +1,4 @@
-# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element), and **Theorem 7.4 — BOTH halves** (`D₀×D₁` *and* `D₀+D₁` effectively given; `projᵢ`/`inᵢ`/`outᵢ`, `⟨f,g⟩`, `f×g`/`f+g` computable) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`, incl. truncated subtraction, `RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or`); rest of VI + VII–VIII transcribed & inventoried
+# Handoff — Scott 1981 (PRG-19): Lectures I–IV COMPLETE (IV spine Thm 4.1/4.2, Ex 4.3/4.4, Def 4.5 + Thm 4.6, **all Exercises 4.7–4.25**); **Lecture V COMPLETE** (Table 5.5, Thm 5.1/5.2/5.6, Prop 5.3/5.4, **Exercises 5.7–5.16 — including 5.16's full Thue–Morse `t`: unfolding, digit-sum-mod-2 (Lambek), and overlap-freeness**); **Lecture VI: Example 6.1 (D<sup>§</sup> ≅ D + (D<sup>§</sup>×D<sup>§</sup>)), Example 6.2 (`B ≅ B+B`, `C ≅ {{Λ}}+C+C`, the generalization `A ≅ Aⁿ + Aⁿ`, and eventually-periodic trees ↔ regular events via Myhill–Nerode) + categorical spine (Defs 6.3–6.5, Props 6.6–6.7) Definition 6.8 (functors *continuous on maps*, over the strict function space), and **Theorem 6.9 (homomorphisms out of a fixed point `D ≅ T(D)`)**, and **Theorem 6.14 (initial `T`-algebra: existence + uniqueness/initiality among strict algebras)**, **Lemma 6.15 (projection pair ⟹ `D ⊴ E`)** and **Theorem 6.16 (an initial `T`-algebra embeds in every solution: `D ⊴ E` for all `E ≅ T(E)`)** COMPLETE**; **Lecture VII: Definition 7.1 (computable presentation), Definition 7.2 (computable map / computable element), and Proposition 7.3 (identity + composition computable; computable map ∘ computable element), and **Theorem 7.4 — BOTH halves** (`D₀×D₁` *and* `D₀+D₁` effectively given; `projᵢ`/`inᵢ`/`outᵢ`, `⟨f,g⟩`, `f×g`/`f+g` computable) COMPLETE & CHOICE-FREE** over a bespoke choice-free recursion theory + r.e. closure layer (`Recursive.lean`, incl. truncated subtraction, `RecDecidable.natEq`/`.not`/`.em`/`.or`, `REPred.or`, **and now a choice-free primitive-recursive bitwise OR `myLor`**); **Example 7.8 (the powerset `PN` is effectively given) COMPLETE & fully choice-free (`Example78.lean`)**; rest of VI + VII–VIII transcribed & inventoried
 
 You are a Lean 4 proof engineer formalizing Dana Scott's 1981 *Lectures on a Mathematical Theory of
 Computation* (PRG-19) in:
@@ -17,8 +17,10 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Proposition 7.7 is COMPLETE / Pass** — pick the next Lecture VII item
-(e.g. **Example 7.8** `PN` effectively given, or **Exercise 7.17** the full combinator finish).
+**Next concrete target:** **Example 7.8 is COMPLETE / Pass** (`PN` effectively given — see the latest
+dated checkpoint at the very bottom). Pick the next Lecture VII item: **Definition 7.9 / Proposition
+7.10** (the Smyth power domain `ℙ𝒟`), **Exercise 7.17** (the full combinator finish), or **Exercise
+7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable, building on `Example78.lean`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
 `Vsharp` layer, the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo
 evaluator, `dsharp_decider_spec`), the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
@@ -2864,3 +2866,55 @@ term `Element.ext (fun W => …)` mis-resolves its first explicit slot to a `Nei
 
 **Prop 7.7 is now fully Pass.** Optional follow-on: **Exercise 7.17** (the *full* finish — all Example
 6.2 combinators + strict `g : D^§ → E`), which generalizes this selection.
+
+---
+
+## Checkpoint 2026-06-27 — Example 7.8 (`PN` effectively given) COMPLETE / Pass, fully choice-free
+
+**What landed.** `Domain/Neighborhood/Example78.lean` (ns `Domain.Neighborhood.Example78`) +
+a new choice-free primitive-recursive **bitwise OR** layer at the end of
+`Domain/Neighborhood/Recursive.lean`. Wired into `Domain.lean`; `lake build Domain` green; **every
+declaration — including the presentation *data* — audits `⊆ {propext, Quot.sound}`.**
+
+**Math (the powerset domain `PN`).** Scott enumerates the finite subsets of `ℕ` by
+`Eₙ = {k ∣ ∃ i,j. i<2ᵏ ∧ n=i+2ᵏ+j·2ᵏ⁺¹}`, which is just "`k` is a set bit of `n`" = `Nat.testBit n k`.
+The neighbourhoods are the *cofinite* sets `nbhd n := {k ∣ n.testBit k = false} = ℕ ∖ Eₙ` (so
+`nbhd 0 = ℕ = Δ`, `nbhd_zero`). Key facts:
+- **`nbhd_inter n m : nbhd n ∩ nbhd m = nbhd (n ||| m)`** — Scott's `Eₙ ∪ Eₘ = E_k` with `k = n ||| m`
+  (bitwise OR); proof is `Nat.testBit_lor` + `Bool.or_eq_false_iff` after `Set.ext`.
+- **`nbhd_injective`** — `Nat.eq_of_testBit_eq` (the converse-inclusion ordering Scott mentions; we
+  only need injectivity).
+- **`PN : NeighborhoodSystem ℕ`** (`mem Y := ∃ n, Y = nbhd n`, master `ℕ`); closed under ∩ by
+  `nbhd_inter`, so *any two neighbourhoods are consistent* (`PN_consistent`) — Scott's remark.
+- **`PNpres : ComputablePresentation PN`**: enumeration `nbhd`; intersection function = `myLor`
+  (below); 7.1(i) `nbhd n ∩ nbhd m = nbhd k ↔ (n ||| m) = k` is decided by `RecDecidable.natEq`
+  (equality of two primrec functions, then `nbhd_injective`); 7.1(ii) is always-true
+  (`recDecidable_of_forall`). **`PN_isEffectivelyGiven`** packages it.
+
+**New recursion theory — choice-free primitive-recursive `n ||| m` (`Recursive.lean`).** mathlib's
+`Nat.lor` is not exposed as a `Nat.Primrec`, so we build our own and bridge to `Nat.lor`:
+- `lowOr x y := 1 - (1 - (x%2 + y%2))` (the `{0,1}` low-bit OR); `lowOr_eq_mod : lowOr x y = (x|||y)%2`
+  via `Nat.testBit_lor`+`Nat.testBit_zero` and an **explicit `Nat.mod_two_eq_zero_or_one` case split**
+  (NOT `omega` on the `↔` — that pulls `Classical.choice`, the documented gotcha).
+- `lorStep` (packed state `pair (pair curA curB) (pair weight acc)`) strips the low bit of each arg,
+  ORs them (`lowOr`), and accumulates with a doubling weight; `myLor a b` iterates it `a+b` times and
+  reads `acc`.
+- `lor_low_rec : x ||| y = 2·(x/2 ||| y/2) + lowOr x y` (one-step law, via `Nat.div_add_mod` and a
+  `testBit` computation of `(x|||y)/2`).
+- `lorStep_iter_spec` — the invariant `acc_k + 2ᵏ·(a/2ᵏ ||| b/2ᵏ) = a ||| b` (with `curA_k = a/2ᵏ`,
+  weight `2ᵏ`); at `k = a+b` both args are `0` (since `a < 2^a ≤ 2^(a+b)`, `Nat.lt_two_pow_self`), giving
+  **`myLor_eq_lor : myLor a b = a ||| b`**.
+- **`primrec_myLor : Nat.Primrec (fun t => myLor t.unpair.1 t.unpair.2)`** — from `Nat.Primrec.prec`
+  (base = init state, step = `lorStep`), bridged to `Function.iterate` by `rec_const_iterate`.
+- All of `primrec_lowOr`, `primrec_lorStep`, `lowOr_eq_mod`, `myLor_eq_lor`, `primrec_myLor` audit
+  `⊆ {propext, Quot.sound}`. Added imports to `Recursive.lean`: `Mathlib.Data.Nat.Bitwise`,
+  `Mathlib.Tactic.Ring`.
+
+**Reusable.** `Recursive.myLor`/`myLor_eq_lor`/`primrec_myLor` are a general choice-free
+primitive-recursive bitwise-OR usable elsewhere. The set-theoretic neighbourhood `Example78.nbhd`
+and `nbhd_inter`/`nbhd_injective` are the foundation for **Exercise 7.23** (combinators on `PN`).
+
+**Gotcha reconfirmed:** `omega` fed an `↔` (or a goal/hyp whose decidability it can't see) silently
+pulls `Classical.choice`; replace with an explicit finite case split (`Nat.mod_two_eq_zero_or_one`).
+Also, on `Set`, `(h : A = B).ge` to get `B ⊆ A` pulls `Classical.choice` — use `h.symm.subset`
+(`Eq.subset`) instead, which is axiom-free.
