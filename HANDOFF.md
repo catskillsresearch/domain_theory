@@ -27,8 +27,21 @@ built by least fixed point: inductive **`InS`** (`S` = closure of `Σ`/`{σ}`/`c
 **`emb_injective`**. **Deliberately NOT mechanised (discussed in docstring, no `sorry`):** *effectively
 given* (the regular-event decision algebra — needs automata decision procedures rebuilt choice-free in
 `Recursive.lean`; relation (ii) consistency ≡ non-emptiness by positivity) and the *infinite-word*
-fixed-point equations (Scott poses them as open investigations). See the **latest dated checkpoint at
-the very bottom**.
+fixed-point equations (Scott poses them as open investigations). **Follow-up `Exercise722Regular.lean`
+adds the regular-event layer**: syntax `SExpr` (`Σ`/`{σ}`/`·`/`∩`), `denote`, **decidable word
+membership** (`matchesB`/`decidableMemDenote`), and the characterization
+`InS X ↔ ∃e, denote e=X ∧ X.Nonempty` — making the "regular events" hint precise. **The choice-free
+decision layer (Route A: explicit `Fintype` automata) is now built across THREE files**:
+`Exercise722DFA.lean` (leaf DFAs `sigmaDFA`/`singleDFA` + `interDFA`/`complDFA`),
+`Exercise722Cat.lean` (**the concatenation εNFA `catEps` + `catEps_accepts = concat`, the crux mathlib
+lacks**, via the closed-form `catEps_mem_eval_iff`), and `Exercise722Decide.lean` (`NFAinter` product,
+the uniform **`toNFA : SExpr → NFA Bool (autState e)` with `toNFA_accepts : (toNFA e).accepts =
+denote e`**, and **`denote_eq_empty_iff`** reducing Def-7.1 relation (ii) to finite-state
+reachability). All `⊆{propext,Quot.sound}` (incl. a hand-rolled choice-free `dfaToNFA_accepts`, since
+mathlib's `DFA.toNFA_correct` pulls `Classical.choice`). Remaining: turn the `∀x` in
+`denote_eq_empty_iff` into a terminating search (reachability Finset, or pigeonhole pump-down +
+`matchesB`), equivalence (needs `Finset`-state determinization), and the `RecDecidable`/`Nat.Primrec`
+bridge. See the **two latest dated checkpoints at the very bottom**.
 
 **Just completed — Exercise 7.21 is DONE** (`Exercise721.lean` green, wired, zero `sorry`). Headline
 combinator **`papply : ℙ(D→E) → (ℙD → ℙE)`** = the Smyth power-domain lift of evaluation:
@@ -3904,3 +3917,191 @@ mechanises the **algebraic core** and *discusses* the other two (in the docstrin
 **Next concrete target:** Exercise 7.23 (finish `PN` of Example 7.8; `fun`/`graph` + `∩`/`∪`/`+`
 computable) — see `Example78.lean`. Or the deferred 7.22 effectively-given decision procedure if the
 choice-free automata layer is built out.
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 regular-event layer (`Exercise722Regular.lean`)
+
+`Exercise722Regular.lean` (ns `Domain.Neighborhood.Exercise722`, imports `Exercise722`) green, wired,
+zero `sorry`, **fully choice-free `⊆{propext,Quot.sound}`** (audit: `matchesB_iff`,
+`decidableMemDenote`, `inS_eq_range_denote` = `{propext,Quot.sound}`; `InS_denote_of_nonempty`,
+`InS_exists_denote`, `inS_iff_exists_denote` depend on **no axioms**).
+
+**What this adds toward "effectively given" (Scott's regular-event hint).**
+- **`SExpr`** (`deriving DecidableEq`): the syntax of `S`-terms — `sigma` (`Σ`), `single σ` (`{σ}`),
+  `cat` (`·`), `cap` (`∩`). A regex fragment with `·`,`∩`,`Σ` only (**no** `∪`/complement/`∗`).
+- **`denote : SExpr → Set (List Bool)`** (`= univ`/`{σ}`/`concat`/`∩`), with `@[simp]` unfolds.
+- **Decidable membership** (the computational core of "regular event"): `matchesB : SExpr → List Bool
+  → Bool` (cat case = `(List.range (|w|+1)).any` over cut points; cap = `&&`), `matchesB_iff`
+  (`mem_concat_iff_split` splits `w = w.take i ++ w.drop i` via `List.take_left`/`drop_left`/
+  `take_append_drop`), ⟹ `instance decidableMemDenote : DecidablePred (·∈denote e)`.
+- **Soundness/completeness**: `InS_denote_of_nonempty` (non-empty denotation ∈ `S`; non-emptiness
+  propagates *down* to subterms, needed for the `cap`→`InS.inter` nonemptiness arg) and
+  `InS_exists_denote` (every `S`-member is a denotation), giving **`inS_iff_exists_denote : InS X ↔
+  ∃ e, denote e = X ∧ X.Nonempty`** and `inS_eq_range_denote : {X|InS X} = denote '' {e|nonempty}`.
+
+**Why full Def-7.1 effective givenness is NOT here (the hard wall, documented).** `RecDecidable p =
+∃ f, Nat.Primrec f ∧ ∀n, p n ↔ f n = 1` — needs a genuine **primitive-recursive** decider; classical
+`Decidable` does NOT lift to it. The two index relations are automata-complete:
+- **(ii) consistency** `∃k.X_k⊆Xₙ∩Xₘ` ≡ (positivity, `Ssys_isPositive`) **∩-non-emptiness** of
+  `denote(cap eₙ eₘ)` — needs product-automaton reachability (no structural recursion: `Σ{0}Σ∩Σ{1}Σ`
+  non-empty vs `{00}∩{11}` empty), and a bounded-`matchesB` search needs a *proven* DFA length bound.
+- **(i)** `Xₙ∩Xₘ=X_k` is **language equivalence**, and is **NOT** reducible to ∩-emptiness because the
+  class lacks complement/`\` (`L₁⊆L₂ ⟺ L₁\L₂=∅`). Needs a regular-equivalence procedure (minimal
+  DFAs / Myhill–Nerode; `Example62Regular.lean` has the Myhill–Nerode infra).
+Even building the *enumeration* `X:ℕ→Set` onto `S` needs decidable emptiness (to map empty syntax
+denotations back into `S`). mathlib gaps: `Language.IsRegular` has `.inf`/`.add`/`.compl` but **no
+`.mul`** (concat closure) and no decidability; `RegularExpression` has `·`/`∪`/`∗` but **no `∩`**.
+So the remaining work = a choice-free primitive-recursive subset-construction + product + reachability
++ pumping bound in `Recursive.lean`, then `matchesB` over a bounded word set. Sizeable; left for later.
+
+**Reusable gotchas:** `Set.mem_singleton_iff` needs `import Mathlib.Data.Set.Insert` (not pulled by
+`Mathlib.Data.Set.Basic`); `deriving Encodable`/auto `Countable` for a custom inductive is NOT
+available (dropped the instance — countability is a prose remark); `matchesB` recurses structurally on
+the `SExpr` arg with the word generalized (`induction e generalizing w`).
+
+**Update — emptiness vs. equivalence settled (does NOT complete 7.22).** Added to
+`Exercise722Regular.lean` (all `⊆{propext,Quot.sound}`): `emptyExpr := cap {0} {1}` with
+`denote_emptyExpr = ∅` (so `∅` is fragment-denotable though `∉ S`); `empty_iff_equiv_emptyExpr`
+(relation (ii) = ¬(equivalence to `∅`)); `interEq_iff` (relation (i) = language equivalence
+`denote(cap eₙ eₘ)=denote e_k`, no axioms); `denote_catSigmaSigma` (`Σ·Σ=Σ` — `denote` not injective,
+so (i) is NOT syntactic code-equality); and the **decisive counterexample** `sigma_ne_containsZero`
+(`Σ ≠ Σ{0}Σ`, witness `[1]`, proved by `decide` on `matchesB`). **Conclusion: an emptiness decider
+does NOT complete 7.22.** Both relations reduce to *language equivalence on `SExpr`*; equivalence is
+strictly stronger than fragment-emptiness because the fragment lacks complement/`\` (`L₁⊆L₂ ⟺
+L₁\L₂=∅`): deciding `Σ = Σ{0}Σ` needs to detect a word in `Σ ∩ (Σ{0}Σ)ᶜ = {1}*`, and `{1}*` is not a
+fragment expression. Scott's claim is **still true** (regex-with-`∩` equivalence IS decidable, and a
+primrec `inter n m := code(cap eₙ eₘ)` exists trivially since `denote(cap a b)=denote a ∩ denote b`),
+so 7.22 is not "asking too much" — but completing it needs a full choice-free regular-language
+**equivalence** decider (product/complement DFA or a derivative bisimulation with a finiteness/termination
+proof), not merely emptiness. That equivalence decider is the remaining (large) automata sub-project;
+`decide`-by-`matchesB` already settles any *fixed* word, so it handles concrete instances.
+
+---
+
+## Checkpoint 2026-06-28 (PM) — Exercise 7.22 DFA layer (Route A leaf automata) — `Exercise722DFA.lean`
+
+**New file `Domain/Neighborhood/Exercise722DFA.lean` — green, wired, zero `sorry`, fully choice-free
+`⊆{propext,Quot.sound}`** (audited: `sigmaDFA_accepts`, `singleDFA_accepts`, `singleDFA_evalFrom`,
+`interDFA_accepts`, `complDFA_accepts` all `[propext, Quot.sound]`).
+
+**Why this file / what changed in the plan.** Investigating the choice-free decision procedure for the
+two Definition-7.1 relations (both reduced in `Exercise722Regular.lean` to **language equivalence on
+`SExpr`**), I scoped mathlib's automata library and found the difficulty is **not** distributed as a
+tidy "steps 1–3 easy / step 4 = finiteness hard". Two decisive facts:
+- With **explicit `Fintype` DFA states (Route A)**, state-space finiteness is *structural* (it is the
+  `Fintype` instance) — there is **no separate Brzozowski/ACI finiteness theorem to prove**. So the
+  "hard step 4" essentially disappears.
+- mathlib gives intersection/complement **for free** (`DFA.inter`/`accepts_inter`, `DFA.compl`/
+  `accepts_compl`), but has **no language-concatenation automaton** (no NFA/εNFA/regex concat→DFA).
+  So the genuine crux migrates *into* steps 1–2: building an **εNFA concatenation** for `cat` and
+  proving `accepts = denote a * denote b` (via `εNFA.IsPath`/`isPath_append`, mathlib has the path
+  API). That is the large, high-compute proof.
+
+**Delivered (Medium pass) — the tractable Route-A pieces, all proved choice-free:**
+- `sigmaDFA : DFA Bool Unit`, `sigmaDFA_accepts : .accepts = Set.univ` (+ `…_denote = denote .sigma`).
+- `singleDFA σ : DFA Bool (Option (Fin (|σ|+1)))` (`none` = dead sink; `some i` = "read the length-`i`
+  prefix of `σ`"); key lemma `singleDFA_evalFrom` (from `some k`, reading `w` reaches `some (k+|w|)`
+  **iff `w <+: σ.drop k`**, else dead — the `List.IsPrefix` phrasing avoids all in-type `Fin` index
+  proofs; uses `List.drop_eq_getElem_cons`, `List.cons_prefix_cons`, `IsPrefix.eq_of_length`); hence
+  **`singleDFA_accepts : .accepts = {σ}`** (+ `…_denote`). `singleDFA_evalFrom_none` = dead sink.
+- `inter_eval` (product DFA evaluates componentwise — choice-free, avoids mathlib's classical
+  `accepts_inter`) ⟹ **`interDFA_accepts`** (`(M₁.inter M₂).accepts = denote (.cap a b)` from
+  component correctness). **`complDFA_accepts`** (`Mᶜ.accepts = (denote a)ᶜ`, choice-free, defeq).
+- Sanity `example`s confirming the state types carry **`Fintype` *and* `DecidableEq`** (`Unit`,
+  `Option (Fin _)`, products) — so the eventual emptiness/equivalence search is decidable data.
+
+**Reusable gotchas (new):** (1) `DFA.accepts : Language`, but goals often pick `Set.instMembership`
+not `Language.instMembershipList` — `rw [DFA.mem_accepts]`/`Set.mem_inter_iff` then fail to match;
+work via `show … eval … ∈ … accept` + defeq `exact`/`Iff.rfl` instead. (2) `rw`'s trailing
+reducible-transparency `rfl` won't close `Language`-vs-`Set` defeq goals (`{σ}={σ}`, `Xᶜ=Xᶜ`); an
+**explicit `rfl`** tactic (default transparency) does. (3) Don't `rw` the `dite` *condition* when the
+`then`-branch's value has a proof depending on it (motive failure) — instead prove a `condiff : cond₁ ↔
+cond₂` and discharge each side with `dif_pos`/`dif_neg`, closing the index with `Fin.ext`+`omega`.
+(4) `Fintype (Option (Fin _))` is not pulled by `Mathlib.Computability.DFA`; needs
+`import Mathlib.Data.Fintype.Option`.
+
+**Remaining for a high-compute session (the real crux + the bridge):**
+1. **`cat` concatenation automaton** (εNFA with ε-links accept_a→start_b; `St (cat a b)=St a ⊕ St b`)
+   + correctness `accepts = denote a * denote b` via `εNFA.mem_accepts_iff_exists_path`/`isPath_append`.
+   This is the hard proof; everything else composes off it.
+2. A **`Finset`-state subset construction** (mathlib's `NFA.n` determinizes to `Set σ`, which lacks
+   `DecidableEq`) so the determinized `cat` DFA keeps `DecidableEq` states.
+3. The uniform `toDFA : (e:SExpr) → DFA Bool (St e)` recursion + `denote e = (toDFA e).accepts`.
+4. **Decision**: emptiness = "no accept state reachable" (finite search over `Fintype` states);
+   equivalence via `inter`+`compl`+emptiness (symmetric difference). Then the **`RecDecidable`/`Nat.Primrec`
+   bridge** (encode the finite automaton + reachability search as a primitive-recursive function in
+   the bespoke `Recursive.lean` theory) — this, not finiteness, is now the last choice-discipline-
+   sensitive obligation for true Def-7.1 effective givenness.
+
+---
+
+## Checkpoint 2026-06-28 (late) — Exercise 7.22 step 4: the concatenation automaton + `denote e = accepts`
+
+**Two new files, green, wired, zero `sorry`, fully choice-free `⊆{propext,Quot.sound}`** (audited):
+`Domain/Neighborhood/Exercise722Cat.lean` and `Domain/Neighborhood/Exercise722Decide.lean`.
+
+This is the high-compute "step 4". After scoping mathlib I found the difficulty is **not** "leaves
+easy / finiteness hard": with explicit **`Fintype`-state automata**, finiteness is structural (it's
+the `Fintype` instance). The real crux is the **concatenation automaton**, which mathlib lacks
+entirely (it has `DFA.inter`/`compl`, NFA/εNFA/DFA, εNFA `IsPath` API, but **no language-concat
+construction**, and **no automata emptiness/equivalence decider**). Also note `DecidableEq (Set σ)` is
+**not** choice-free, so mathlib's `NFA.n` determinization (to `Set σ`) is useless for a choice-free
+decision — hence the **NFA-centric, decide-emptiness-by-reachability** architecture (determinization is
+only needed for *equivalence*/relation (i), deferred).
+
+**`Exercise722Cat.lean` — the concatenation automaton (CRUX):** `catEps M₁ M₂ : εNFA Bool (σ₁ ⊕ σ₂)`
+= copy of `M₁` on `inl`, `M₂` on `inr`, with **ε-edges from every `M₁`-accept to every `M₂`-start**
+(encoded as a set-builder `{t | s ∈ M₁.accept ∧ t ∈ inr '' M₂.start}` — **not** `if…then…else`, which
+needs `Decidable (s ∈ M₁.accept)`). Proven:
+- `catEps_mem_εClosure_iff` — the only ε-edges go `inl`-accept → `inr`-start, so `εClosure T` adds
+  `inr '' M₂.start` exactly when `T` holds an `inl`-accept state.
+- **`catEps_mem_eval_iff`** (the engine, ~90-line induction via `List.reverseRecOn` +
+  `εNFA.mem_stepSet_iff`): the reachable `inl`-states mirror `M₁.eval x`; the reachable `inr`-states
+  are exactly `⋃` over prefix-splits `x = u ++ v` with `u ∈ M₁.accepts` of `M₂.eval v`. (Avoids
+  `IsPath` path-surgery; the only fiddly list step is `v = v' ++ [c] ⟹ c = a ∧ x = u ++ v'` via
+  `List.append_inj'`.)
+- **`catEps_accepts : (catEps M₁ M₂).accepts = concat M₁.accepts M₂.accepts`** (project's `concat`).
+
+**`Exercise722Decide.lean` — assembly + reduction:**
+- `NFAinter` (NFA product, mathlib has no NFA intersection) + `NFAinter_mem_eval_iff` /
+  `NFAinter_mem_accepts_iff` (componentwise, ∩ of languages).
+- `autState : SExpr → Type` (`Unit` / `Option (Fin (|σ|+1))` / `×` / `⊕`) with
+  `instFintypeAutState` (recursive `Fintype` instance); **`toNFA : (e) → NFA Bool (autState e)`**
+  (leaves = `DFA.toNFA` of `Exercise722DFA`'s `sigmaDFA`/`singleDFA`; `cap` = `NFAinter`;
+  `cat` = `(catEps … ….).toNFA`).
+- **`toNFA_accepts : (toNFA e).accepts = denote e`** — every fragment language is recognised by an
+  explicit `Fintype` automaton (the constructive, choice-free form of Scott's "the sets in `S` are
+  regular events"). Leaf cases use **`dfaToNFA_accepts`**, a hand-rolled **choice-free** replacement
+  for mathlib's `DFA.toNFA_correct` (which pulls `Classical.choice`!), proved via
+  `dfaToNFA_eval : M.toNFA.eval x = {M.eval x}`.
+- **`denote_eq_empty_iff : denote e = ∅ ↔ ∀ s ∈ (toNFA e).accept, ∀ x, s ∉ (toNFA e).eval x`**
+  (+ generic `nfa_accepts_nonempty_iff`). This **reduces Definition 7.1 relation (ii)** (consistency,
+  ≡ `∩`-non-emptiness by positivity of `Ssys`) to **reachability over the finite state set
+  `autState e`** — the only non-finite quantifier (`∀ x`) is what a reachability search eliminates.
+
+**Reusable gotchas (new):** (1) `if s ∈ (someSet) then…` needs `Decidable` — use a set-builder
+instead to stay choice-free. (2) **mathlib's `DFA.toNFA_correct`, `DFA.toNFA_evalFrom_match` pull
+`Classical.choice`** — reprove choice-free via `eval = {det-eval}`. (3) For recursive `def f : SExpr →
+NFA …`, `rw [f]`/`simp only [f]` is flaky and the `accepts` projection across `Language`/`Set` blocks
+mathlib `accepts`-lemmas; use `change … = …` to the unfolded form then `rw` with **explicit args**
+(`dfaToNFA_accepts (singleDFA σ)`) and finish defeq goals with an explicit term (`Iff.rfl`,
+`(Set.mem_inter_iff …).symm`). (4) `Set.eq_empty_iff_forall_notMem` (not `…not_mem`). (5) recursive
+`Fintype` instance: `instFintypeAutState | .cap a b => by letI := … a; letI := … b; exact inferInstance`.
+
+**What remains for true Def-7.1 effective givenness (well-scoped, NOT a finiteness proof):**
+1. Turn `denote_eq_empty_iff`'s `∀ x` into a **terminating decision**. Two clean routes:
+   (a) **Finset reachability fixpoint** over `autState e` — needs `DecidablePred` for membership in
+   `(toNFA e).step`/`.start` (decidable through `εNFA.toNFA`'s εClosure; provable by induction on `e`),
+   then `reachable = closure` computed in `≤ card` iterations, giving `Decidable` emptiness directly;
+   (b) **pigeonhole pump-down** (`M.accepts.Nonempty → ∃ x ∈ accepts, |x| < Fintype.card σ`, via
+   `NFA.Path` loop-excision + `Fintype.exists_ne_map_eq_of_card_lt`) ⟹ emptiness = "no short word
+   matches", decided by the **already-built `matchesB`** (`Exercise722Regular`) over the finite set of
+   words of length `< card`. Route (b) reuses `matchesB`/`decidableMemDenote` and needs no new
+   `DecidablePred` step instances.
+2. Relation (i) `Xₙ ∩ Xₘ = X_k` (language **equivalence**) additionally needs determinization +
+   complement: a **`Finset`-state subset construction** (mathlib's `NFA.n` → `Set σ` is choice-unsafe
+   for `DecidableEq`), then `inter`+`compl`+emptiness on the symmetric difference.
+3. The **`RecDecidable`/`Nat.Primrec` bridge** (encode the finite automaton + the reachability/bounded
+   search as a primitive-recursive characteristic function in the bespoke `Recursive.lean`). This —
+   not finiteness — is the last choice-discipline-sensitive obligation.

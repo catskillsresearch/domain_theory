@@ -162,4 +162,8 @@ import Domain.Neighborhood.Exercise719
 import Domain.Neighborhood.Exercise720
 import Domain.Neighborhood.Exercise721
 import Domain.Neighborhood.Exercise722
+import Domain.Neighborhood.Exercise722Regular
+import Domain.Neighborhood.Exercise722DFA
+import Domain.Neighborhood.Exercise722Cat
+import Domain.Neighborhood.Exercise722Decide
 import Domain.InfoSys
