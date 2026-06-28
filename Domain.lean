@@ -156,4 +156,5 @@ import Domain.Neighborhood.Exercise714
 import Domain.Neighborhood.Exercise715
 import Domain.Neighborhood.Exercise716
 import Domain.Neighborhood.Exercise717
+import Domain.Neighborhood.Exercise717Part2
 import Domain.InfoSys

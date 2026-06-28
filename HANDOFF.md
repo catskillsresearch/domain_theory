@@ -17,6 +17,13 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
+**Just completed — Exercise 7.17 is DONE (both parts)** (`Exercise717.lean` + `Exercise717Part2.lean`
+green, wired, zero `sorry`). Part 2 builds the universal strict catamorphism `g : D^§ → E` as a
+neighbourhood relation `GRel u v` → `ApproximableMap gMap`, proves the defining equations `gMap_in`/
+`gMap_pair` + `gMap_strict` (choice-free `⊆{propext,Quot.sound}`), and `gMap_isComputable` via a fresh
+course-of-values **certificate evaluator** `gEval` with soundness/completeness. See the **latest dated
+checkpoint at the very bottom** for the full design + gotchas.
+
 **Just completed — Exercise 7.13 is DONE** (`Exercise713.lean` green, wired, zero `sorry`, **fully
 choice-free `⊆{propext,Quot.sound}` including the reconstruction isomorphism**). Full equivalence
 "effectively given domain ⇔ an `INCL(n,m)` relation on `ℕ`": abstract **`InclStructure`** (INCL +
@@ -3538,10 +3545,52 @@ The two `*_isComputable` proofs carry `Classical.choice` (Prop-level only — in
   (substituting them away), so refer to the **earlier** names (`A0 B0`) afterwards — this bit once
   (got "Unknown identifier `A`").
 
-**Next concrete target: Exercise 7.17 Part 2 — the universal strict catamorphism `g : D^§ → E`.** For
-`E` effectively given with computable `u : D → E`, `v : E×E → E`, the unique strict `g` with
-`g(in x)=u(x)`, `g(pair(y,z))=v(g y, g z)` is computable. This is a fold over the tree algebra: build
-`g`'s neighbourhood relation by recursion on the `D^§`-neighbourhood shape (Γ↦master_E; `0X` ↦ `u`'s
-relation on `X`; `1P∪2Q` ↦ `∃Z₁ Z₂, P g Z₁ ∧ Q g Z₂ ∧ ⟨Z₁,Z₂⟩ v Z`), and show it r.e. via a fresh
-course-of-values recursion over `D^§`-codes (reuse `Vsharp`'s `nat_shape`/`pair_lt_pair_of_lt`
-well-foundedness machinery from `Proposition77.lean`). Comparable in size to `Proposition77.lean`.
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.17 **Part 2 DONE** (`Exercise717Part2.lean`); Ex 7.17 now **Pass**
+
+`Exercise717Part2.lean` green, wired into `Domain.lean`, zero `sorry`, full `lake build Domain` green.
+This completes **all of Exercise 7.17**.
+
+**What it proves.** For `E` effectively given (presentation `Q`) with computable `u : D → E` and
+`v : E×E → E`, the unique strict catamorphism `g : D^§ → E` (`g(in x)=u(x)`, `g(pair y z)=v(g y,g z)`)
+is a computable map: `gMap_isComputable`.
+
+**Construction.**
+- **`GRel u v`** (inductive nbhd relation): `Γ ↦ Δ_E` / `0·X ↦ u.rel X` / `1·P∪2·Q ↦ ∃Z₁ Z₂,
+  P g Z₁ ∧ Q g Z₂ ∧ ⟨Z₁,Z₂⟩ v Z`. No separate top-clause (`gRel_master = GRel.gamma rfl`).
+- **`gMap`** : the `ApproximableMap` wrapping `GRel`; inversion lemmas `gRel_{gamma,embZero,embPair}_inv`
+  (need `hD : ∀X,D.mem X→X.Nonempty` + `Classical`); faithfulness **`gMap_in`/`gMap_pair`** and
+  **`gMap_strict`** (all choice-free `⊆{propext,Quot.sound}`).
+- **Certificate evaluator** (computability): `gEval = gOf (gStep fe fU fV mIdx)`, a **fresh**
+  course-of-values memo over `w = ⟨n, cert⟩` (NOT `dsharpStep`: the same sub-nbhd may fold to
+  *different* outputs in different tree positions, so the certificate must mirror the derivation tree).
+  `cert` decodes to `⟨out, wit, lcert, rcert⟩`; `gStep` branches on the `Vsharp` shape `n` (0 / 2a+1 /
+  2a+2), the node case reading the two children's `⟨okBit,outIdx⟩` from the memo table via
+  `listGet_rtbl`. `primrec_gStep` (primrec when `fe`/`fU`/`fV` are).
+- **`Nat.pair` monotonicity** for the child-code `< w` measure: `pair_lt_pair_left`,
+  `pair_le_pair_right`, `pair_lt_pair_of_lt_le` (in this file) + new **`le_pair_left`** in
+  `Recursive.lean` (next to `le_pair_right`).
+- **`gEval_sound`** (strong induction on `w`) / **`gEval_complete`** (strong induction on `n`,
+  `maxHeartbeats 1000000` for the giant decoded-`cert` terms) ⟹
+  `GRel(Vₙ)(Yₘ) ↔ ∃cert, gEval⟨n,cert⟩.ok=1 ∧ Y_{cert.out}=Yₘ`.
+- **`gMap_isComputable`**: deciders `fe`/`fU`/`fV` read off `Q.eq_computable` and the r.e. relations
+  of `u`/`v` (with `prodPresentation_X` aligning `v`'s domain `⟨k1,k2⟩ ↦ prodNbhd(Y_{k1})(Y_{k2})`);
+  then `RecDecidable.and`/`.re` for the certificate body, `REPred.proj` for `∃cert`, `REPred.of_iff`
+  bridged by sound+complete.
+
+**Axiom audit (`#print axioms`):** `gMap_in`, `gMap_pair`, `gMap_strict` are choice-free
+`⊆{propext,Quot.sound}`; `gMap_isComputable` carries `Classical.choice` (Prop-level only — inherited
+from the `GRel` inversion lemmas' `Set` reasoning over arbitrary `α`,`β`), exactly as Part 1's
+`*_isComputable`.
+
+**Reusable patterns / gotchas:**
+- `gEval`-form memo lookup: wrap `listGet_rtbl` as **`listGet_rtbl_gEval`** so the result is
+  syntactically `gEval …` (not `gOf (gStep …)`), or `gEval_out`/`hok` rewrites won't match.
+- `set_option … in` must precede the **docstring**, not sit between docstring and `theorem`.
+- `unpair_snd_snd_fst_le _` can't unify against a literal `Nat.pair`-tower bound — prove `certL ≤ ⟨…⟩`
+  directly by chaining `le_pair_left`/`le_pair_right`.
+- After `rw [hokL, hokR]` the `1*1*fV` collapse: use `simp only [Nat.one_mul]` (a fixed count of
+  `Nat.one_mul` rewrites is brittle because `1*1` reduces reducibly).
+
+**Next concrete target:** Exercise 7.18 (effective isomorphism; effective `Tok ≅`) or continue VII/VIII.

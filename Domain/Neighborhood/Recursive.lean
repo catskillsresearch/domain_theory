@@ -576,6 +576,11 @@ theorem le_pair_right (a b : ℕ) : b ≤ Nat.pair a b := by
   unfold Nat.pair
   split <;> omega
 
+/-- `a ≤ pair a b` (choice-free). -/
+theorem le_pair_left (a b : ℕ) : a ≤ Nat.pair a b := by
+  unfold Nat.pair
+  split <;> omega
+
 /-- Encode a list of naturals as a single natural: `[] ↦ 0`, `a :: l ↦ pair a (encodeList l) + 1`.
 The `+1` keeps the empty list (code `0`) distinguishable from any nonempty list. -/
 def encodeList : List ℕ → ℕ
