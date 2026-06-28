@@ -119,6 +119,49 @@ instance instFintypeAutState : (e : SExpr) → Fintype (autState e)
       letI := instFintypeAutState a; letI := instFintypeAutState b
       exact inferInstanceAs (Fintype (autState a ⊕ autState b))
 
+instance instDecidableEqAutState : (e : SExpr) → DecidableEq (autState e)
+  | .sigma => inferInstanceAs (DecidableEq Unit)
+  | .single σ => inferInstanceAs (DecidableEq (Option (Fin (σ.length + 1))))
+  | .cap a b => by
+      letI := instDecidableEqAutState a; letI := instDecidableEqAutState b
+      exact inferInstanceAs (DecidableEq (autState a × autState b))
+  | .cat a b => by
+      letI := instDecidableEqAutState a; letI := instDecidableEqAutState b
+      exact inferInstanceAs (DecidableEq (autState a ⊕ autState b))
+
+example : DecidableEq (autState (.sigma : SExpr)) := inferInstance
+example : DecidableEq (autState (.single [true, false] : SExpr)) := inferInstance
+
+/-- A crude upper bound on `Fintype.card (autState e)` (used to bound word search length). -/
+def autStateCard : SExpr → ℕ
+  | .sigma => 1
+  | .single σ => σ.length + 2
+  | .cap a b => autStateCard a * autStateCard b
+  | .cat a b => autStateCard a + autStateCard b
+
+theorem autStateCard_le_card (e : SExpr) : autStateCard e ≤ Fintype.card (autState e) := by
+  induction e with
+  | sigma => simp [autStateCard, autState]
+  | single σ =>
+    have heq : autStateCard (.single σ) = Fintype.card (autState (.single σ)) := by
+      simp only [autStateCard, autState]
+      have h1 : Fintype.card (Option (Fin (σ.length + 1))) =
+          Fintype.card (Fin (σ.length + 1)) + 1 :=
+        Fintype.card_option (α := Fin (σ.length + 1))
+      have h2 : Fintype.card (Fin (σ.length + 1)) = σ.length + 1 :=
+        Fintype.card_fin (σ.length + 1)
+      calc σ.length + 2
+          = (σ.length + 1) + 1 := rfl
+        _ = Fintype.card (Fin (σ.length + 1)) + 1 := (congrArg (fun n => n + 1) h2).symm
+        _ = Fintype.card (Option (Fin (σ.length + 1))) := h1.symm
+    exact Nat.le_of_eq heq
+  | cap a b ih_a ih_b =>
+    simp only [autStateCard, autState]
+    exact (Nat.mul_le_mul ih_a ih_b).trans (Fintype.card_prod (autState a) (autState b)).ge
+  | cat a b ih_a ih_b =>
+    simp only [autStateCard, autState]
+    exact (Nat.add_le_add ih_a ih_b).trans (Fintype.card_sum (α := autState a) (β := autState b)).ge
+
 /-- The uniform automaton for a fragment expression: leaves from `Exercise722DFA.lean`, `cap` by the
 product construction, `cat` by the concatenation automaton (`Exercise722Cat.lean`). -/
 def toNFA : (e : SExpr) → NFA Bool (autState e)

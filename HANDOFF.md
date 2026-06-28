@@ -16,6 +16,9 @@ A session may begin after a context reset; chat memory is not durable, these fil
 4. Build with `lake build Domain` (filter output: `| grep -vE 'LEAN_PATH|trace:' | tail`).
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
+6. **To finish Exercise 7.22 decider in Composer bites:** `@Exercise722-Composer-Run.md` only
+   (one @ per session, no pasting — agent picks next ☐ from progress tracker). Reference:
+   `Exercise722-Composer-Playbook.md` (extended notes, same content).
 
 **Just completed — Exercise 7.22 (algebraic core) is DONE** (`Exercise722.lean` green, wired, zero
 `sorry`, **fully choice-free `⊆{propext,Quot.sound}`**). Scott's domain over `Σ={0,1}*=List Bool`
@@ -4105,3 +4108,26 @@ mathlib `accepts`-lemmas; use `change … = …` to the unfolded form then `rw` 
 3. The **`RecDecidable`/`Nat.Primrec` bridge** (encode the finite automaton + the reachability/bounded
    search as a primitive-recursive characteristic function in the bespoke `Recursive.lean`). This —
    not finiteness — is the last choice-discipline-sensitive obligation.
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 Composer C1: `instDecidableEqAutState`
+
+**Session C1** (`@Exercise722-Composer-Run.md`): added recursive **`instDecidableEqAutState :
+(e : SExpr) → DecidableEq (autState e)`** in `Exercise722Decide.lean`, mirroring
+`instFintypeAutState` (base cases via `inferInstanceAs`; `cap`/`cat` by recursive `letI` + product/sum
+instances). Two sanity `example`s: `.sigma` and `.single [true, false]`. **`lake build
+Domain.Neighborhood.Exercise722Decide`** green, zero `sorry`. No new theorems — axiom audit N/A.
+**Next Composer session:** C2 (`autStateCard` + bound) or C3 (`wordsUpTo`) — both unblocked.
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 Composer C2: `autStateCard` + bound
+
+**Session C2** (`@Exercise722-Composer-Run.md`): added **`autStateCard : SExpr → ℕ`** (sigma→1,
+single→|σ|+2, cap→product, cat→sum) and **`autStateCard_le_card : autStateCard e ≤ Fintype.card (autState
+e)`** in `Exercise722Decide.lean`. Proof: sigma/single by simp+card lemmas; cap/cat by
+`Nat.mul_le_mul`/`Nat.add_le_add` chained with `Fintype.card_prod`/`Fintype.card_sum`. **`lake build
+Domain.Neighborhood.Exercise722Decide`** green, zero `sorry`. No new axioms beyond
+`⊆{propext,Quot.sound}`. **Next Composer session:** C3 (`wordsUpTo`) — no prerequisites; C4 blocked
+until C2+C3 both ☑ (C2 now done).
