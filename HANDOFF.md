@@ -36,6 +36,16 @@ headline decls fully choice-free `⊆{propext,Quot.sound}`**). Both halves: **Ha
 (`y=⋃ᵢ↑Y_{t(i)}` with `t` primrec + decreasing, via running intersections `tFun Q r₀` built with
 `Nat.Primrec.prec`). See the **latest dated checkpoint at the very bottom**.
 
+**Just completed — Exercise 7.16 is DONE** (`Exercise716.lean` green, wired, zero `sorry`, **fully
+choice-free `⊆{propext,Quot.sound}`**). Completes the proof of Theorem 7.5: writes `curry` out as a
+neighbourhood relation (`curryComb_rel`, via the *least map* `toApproxMap_principal_mem`) and settles
+Scott's question — **`curry` is a *recursive* (recursively decidable) set, not merely r.e.**, just like
+`eval`. Reuses Table 5.5's combinator `curryC` (no redefinition). The code-level relation reduces to a
+*bounded* double-`∀` over `decodeList` whose atom is product-function-space inclusion (`incl_computable`,
+decidable); see `curryComb_rel_recDecidable`/`curryComb_isComputable`. Helper `curryStepCode`
+(`Xenum`-singleton) + reductions `mem_Xenum_iff_map`/`curry_rel_Xenum_iff`/`Xenum_singleton`. See the
+**latest dated checkpoint at the very bottom**.
+
 **Just completed — Exercise 7.15 is DONE incl. ALL combinators** (`Exercise715.lean` green, wired,
 zero `sorry`). All three constructs effectively given: **`⊗`/`⊕`** via Scott's *bare* Def 7.1
 (`ScottPresentation`, no primrec `inter` — provably impossible under bottom-collapse;
@@ -68,7 +78,7 @@ PRG-19 p.129–130, but his proof glosses the empty-union edge case: a monotone 
 must send `⊤_{ℙ𝒟}=↑∅` to a greatest element of `\|𝒟\|`, which a general bounded-complete domain
 lacks. The claim holds iff `\|𝒟\|` has a top, e.g. `∅∈𝒟`.) Other open Lecture VII items:
 **Exercise 7.14** (the post-Def-7.2 r.e. facts + `y=⋃↑Y_{t(i)}` decreasing-primrec form),
-**Exercise 7.16** (`curry` as a neighbourhood relation: recursive or r.e.?), **Exercise 7.17**
+**Exercise 7.17**
 (the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
 building on `Example78.lean`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
@@ -3440,3 +3450,37 @@ analogue of `IsComputableMap`).
   combinators are `{propext, Classical.choice, Quot.sound}` — `Classical.choice` is Prop-level only,
   inherited from the classical `osumEnum`/`smashEnum` properness branch (the *data* — systems and
   presentations — stays choice-free; this is the documented `⊗`/`⊕` posture).
+
+### Checkpoint 2026-06-28 — Exercise 7.16 COMPLETE (`curry` is a *recursive* set)
+
+`Exercise716.lean` green, wired into `Domain.lean`, zero `sorry`, **fully choice-free
+`⊆{propext,Quot.sound}` (data and proofs)**. Completes the proof of Theorem 7.5 by writing `curry` out
+as a neighbourhood relation and settling Scott's question.
+
+**Answer:** `curry` is a **recursive (recursively decidable) set**, not merely r.e. — exactly as Scott
+shows for `eval`.
+
+- **Reuse, not redefine.** The `curry` *combinator* already exists as `Table55.curryC V₀ V₁ V₂ =
+  ofIso (curryIso V₀ V₁ V₂)` (Thm 2.7 on Thm 3.12's order-iso `curryIso`; faithfulness
+  `curryC_toApproxMap`). `Exercise716.lean` imports `Table55` and reuses these. (Initial draft had
+  duplicated `curryIso`/`curryComb` — caught by a whole-project name clash with `Table55`; removed.)
+- **(1) `curry` as a relation between neighbourhoods — `curryComb_rel`:**
+  `G curryC H ↔ mem G ∧ mem H ∧ ∀ g∈G, curry g∈H`. Key new lemma `toApproxMap_principal_mem`: the
+  *least map* `toApproxMap ↑G` of a function-space neighbourhood `G` lies in `G`. Forward direction
+  feeds that least map through `curryEquiv`'s monotonicity + up-closure of `H`; backward applies the
+  ∀-hypothesis to it. This reduces the `∀ g∈G` to a single check on the least map.
+- **(2) Recursive decidability — `curryComb_rel_recDecidable` / `curryComb_isComputable`:** relative
+  to the Theorem-7.5 function-space presentations `PA=(𝒟₀×𝒟₁→𝒟₂)`, `PB=(𝒟₀→(𝒟₁→𝒟₂))`, inner
+  `Pc=(𝒟₁→𝒟₂)` (all via `funPresentation`/`funConsChar`), the relation on codes unfolds to
+  `X_PA n curryC X_PB m ↔ gNb m=1 → ∀ e∈⟦m⟧, gNc e₂=1 → ∀ e'∈⟦e₂⟧, X_PA n ⊆ X_PA (curryStepCode e₁ e')`.
+  - Each `X_PA n ⊆ X_PA (curryStepCode …)` is product-function-space **inclusion** — recursively
+    *decidable* via `PA.incl_computable` (this is the crux: decidable, not just r.e.).
+  - `curryStepCode a e'` codes the one-entry step `[⟨X_a, Y_{e'₁}⟩, Z_{e'₂}]`, an `Xenum`-singleton
+    over `prodPresentation P₀ P₁` (`Xenum_singleton` + `prodPresentation_X`); primrec via
+    `primrec_curryStepCode`.
+  - The two nested `∀`s are **bounded** over `decodeList` (`RecDecidable₂.bForallList`); the `gNb`/`gNc`
+    consistency guards via `RecDecidable.natEq` + `Decidable.imp_iff_not_or`.
+  - Reduction lemmas (from `Theorem75.lean`): `mem_Xenum_iff_map`, `curry_rel_Xenum_iff`,
+    `Xenum_singleton`. Concludes `IsComputableMap PA PB (curryC …)` via `RecDecidable₂.re`.
+- **Axiom audit:** `curryComb_rel`, `curryComb_rel_recDecidable`, `curryComb_isComputable` all
+  `⊆ {propext, Quot.sound}` (choice-free — no `Classical.choice`).
