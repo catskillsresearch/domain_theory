@@ -17,6 +17,25 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
+**Just completed — Exercise 7.20 is DONE** (`Exercise720.lean` green, wired, zero `sorry`). The
+flattening combinator **`union : ℙ(ℙD) → ℙD`** (the power-domain monad multiplication `μ`):
+**`unionMap`** with rep-independent `rel A B := ℙℙD.PDmem A ∧ ℙD.PDmem B ∧ ∀ S∈A, ∀ X∈S, ∃ Y∈B, X⊆Y`,
+matching Scott's display `∀i<n∀j<m_i∃k<q. X_{ij}⊆Y_k` (`unionMap_rel_fin`). **Computable — in fact
+recursively decidable** (`unionMap_isComputable`, reduces on codes to a nested bounded `∀∀∃` via one
+extra `bForallList` over Prop 7.10's `subCode_computable`; the `ℙℙD` presentation is a *double*
+`PDPresentation` with inner `ℙ𝒟`-cons `= fun _ => 1`). Discussion: `union({{x},{y,z}})={x,y,z}`;
+`ℙℙD ≇ ℙD` in general. All decls `⊆{propext,Classical.choice,Quot.sound}` (choice Prop-level,
+inherited from the power domain, as in 7.19). See the **latest dated checkpoint at the very bottom**.
+
+**Just completed — Exercise 7.19 is DONE** (`Exercise719.lean` green, wired, zero `sorry`). `D↦ℙD` is
+a functor: **`PFmap f : ℙD→ℙE`** (rep-independent `rel A B := PDmem A ∧ PDmem B ∧ ∀X∈A,∃Y∈B, X f Y`,
+matching Scott's `∀i<n∃j<m. Xᵢ f Yⱼ` via `PFmap_rel_fin`), approximable, with functor laws
+`PFmap_idMap`/`PFmap_comp` (the latter builds the middle nbhd via choice-free `comp_witness`).
+**`ℙf` is computable when `f` is** (`PFmap_isComputable*`, new `bExists_decodeList_re` +
+`REPred.forall_mem_decodeList₂`). All decls `⊆{propext,Classical.choice,Quot.sound}` — the choice is
+Prop-level and **inherited** from `ℙ𝒟`'s ∩-closure (Prop 7.10), not added here. See the **latest
+dated checkpoint at the very bottom**.
+
 **Just completed — Exercise 7.17 is DONE (both parts)** (`Exercise717.lean` + `Exercise717Part2.lean`
 green, wired, zero `sorry`). Part 2 builds the universal strict catamorphism `g : D^§ → E` as a
 neighbourhood relation `GRel u v` → `ApproximableMap gMap`, proves the defining equations `gMap_in`/
@@ -79,9 +98,15 @@ rel `V_{2·t+2}⊆V_k` via `Vsharp_even`). Data + faithfulness `⊆{propext,Quot
 universal strict `g:D^§→E`** (catamorphism + computability). See the **latest dated checkpoint at the
 very bottom**.
 
+**Just completed — Exercise 7.18 is DONE** (`Exercise718.lean` green, wired, zero `sorry`, **fully
+choice-free `⊆{propext,Quot.sound}` including computability**). Part 1: defines *effective
+isomorphism* (`EffectiveIso` = mutually inverse computable approximable maps; `EffectivelyIsomorphic`;
+`EffectivelyIsomorphic.isomorphic : D≅ᴰE`). Part 2: `D∞ ≅ (D∞)∞` is effective — reindexing maps
+`Fmap`/`Gmap` (recursively *decidable*) over `iterPresentation`, inverse laws via `reindexF`/
+`reindexG`. See the **latest dated checkpoint at the very bottom**.
+
 **Next concrete target: open Lecture VII items** —
-**Exercise 7.17 Part 2** (the universal strict `g : D^§ → E`), **Exercise 7.18**
-(define *effective isomorphism*; would tighten Ex 7.13's "essentially the same"), **Exercise 7.23**
+**Exercise 7.19** (`D↦PD` is a functor), **Exercise 7.23**
 (finish `PN`). The Ex-7.13 infra to reuse: `ComputablePresentation`,
 `incl_computable`/`cons_computable`/`inter`, `RecDecidable`/`REPred`, and now the
 `InclStructure`/`ofPresentation`/`reconIso` layer in `Exercise713.lean`.
@@ -3593,4 +3618,153 @@ from the `GRel` inversion lemmas' `Set` reasoning over arbitrary `α`,`β`), exa
 - After `rw [hokL, hokR]` the `1*1*fV` collapse: use `simp only [Nat.one_mul]` (a fixed count of
   `Nat.one_mul` rewrites is brittle because `1*1` reduces reducibly).
 
-**Next concrete target:** Exercise 7.18 (effective isomorphism; effective `Tok ≅`) or continue VII/VIII.
+**Next concrete target:** ~~Exercise 7.18~~ DONE (see below) — continue VII/VIII (Exercise 7.19 `D↦PD`
+functor; Exercise 7.23 finish `PN`).
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.18 DONE (effective isomorphism; `D∞ ≅ (D∞)∞` effective)
+
+`Exercise718.lean` (ns `Domain.Neighborhood.Exercise718`) green, wired into `Domain.lean`, zero
+`sorry`, **fully choice-free `⊆{propext,Quot.sound}` — data AND every Prop, including computability.**
+Axiom audit confirmed for all of `iterSys_effectivelyIsomorphic_iterIter`, `iterSys_isomorphic_iterIter`,
+`Fmap_isComputable`, `Gmap_isComputable`, `Gmap_comp_Fmap`, `Fmap_comp_Gmap`,
+`EffectivelyIsomorphic.isomorphic`.
+
+**Part 1 — "complete the sentence".** `EffectiveIso P Q` = a pair of mutually inverse approximable
+maps `toMap:D→E`, `invMap:E→D`, **both `IsComputableMap`** (Def 7.2), with `invMap.comp toMap = I_D`
+and `toMap.comp invMap = I_E`. `EffectivelyIsomorphic P Q := Nonempty (EffectiveIso P Q)`. Derived
+`EffectiveIso.toDomainIso : |D| ≃o |E|` (elementwise maps inverse via `← toElementMap_comp` +
+`left_inv`/`right_inv` + `toElementMap_idMap`; monotone via `toElementMap_mono`; `map_rel_iff'`
+needs a `show e.toMap.toElementMap x ≤ … ` to bridge the just-built structure's coe — defeq but not
+syntactic) ⟹ `EffectivelyIsomorphic.isomorphic : D ≅ᴰ E`.
+
+**Part 2 — `D∞ ≅ (D∞)∞` effective.** `D∞ = iterSys V` (tokens `ℕ×α`), `(D∞)∞ = iterSys (iterSys V)`
+(tokens `ℕ×(ℕ×α)`). Iso = index reindexing along `Nat.pair`/`unpair`: `x_{i,j} = x_{pair i j}`.
+- **`fiber2 S i j := fiber (fiber S i) j`** (double-indexed fiber; `fiber2_master`, `fiber2_inter`,
+  `fiber2_mono`, `mem_fiber2_of_mem`).
+- **`Fmap`** `W F S ↔ mem ∧ mem ∧ ∀ i j, fiber W (pair i j) ⊆ fiber2 S i j`;
+  **`Gmap`** `S G W ↔ mem ∧ mem ∧ ∀ k, fiber2 S (unpair k).1 (unpair k).2 ⊆ fiber W k`.
+  Full `ApproximableMap` structure; `inter_right` uses the reindex witness for the consistency
+  `Z ⊆ X∩Y` (iterSys is NOT closed under arbitrary binary ∩, so the witness is essential).
+- **Reindex constructions** `reindexF W` (`fiber2 = fiber W (pair i j)`) / `reindexG S`
+  (`fiber = fiber2 S (unpair k)`), with `reindexF_subset_iff`/`reindexG_subset_iff` (the workhorses
+  for `inter_right` + the inverse laws) and membership `reindexF_mem`/`reindexG_mem`.
+- **Inverse laws** `Gmap_comp_Fmap`/`Fmap_comp_Gmap` (`ApproximableMap.ext` on the `comp` rels; `⇐`
+  supplies `reindexF W` / `reindexG S` as the `∃` witness; key step `pair_unpair`/`unpair_pair`).
+- **`reindexG` cofinite-`Δ` bound is CHOICE-FREE:** the uniform inner max over `i < No` is built by
+  a `Prop`-level induction **`exists_inner_bound`** (`obtain ⟨Mn,_⟩ := (hS.1 n).2` per step, `max M Mn`
+  — no `Exists.choose`!), plus a local strict-monotone **`pair_lt_pair_of_lt`** (copied from
+  `Proposition77` to dodge that heavy import) so `i<No ∧ j<M ⟹ pair i j < pair No M`, hence
+  `k ≥ pair No M ⟹` inactive.
+- **Computability `Fmap_isComputable`/`Gmap_isComputable` (recursively DECIDABLE, so `.re`):** over
+  `iterPresentation P` / `iterPresentation (iterPresentation P)`. `fiber2_iterEnum_iter` reads the
+  double fiber as `P.X (iterIdx P (iterIdx (iterᴾ) m i) j)`. The relations reduce
+  (`Fmap_rel_enum_iff`/`Gmap_rel_enum_iff`) to BOUNDED `incl_computable`: anything past the coded
+  fiber length is `Δ` (`iterIdx_ge`, and `(iterPresentation P).masterIdx = 0` by `rfl` ⟹ inner code
+  `0` ⟹ `iterIdx P 0 j = masterIdx` ⟹ `Δ`), so `LHS ⊆ Δ` trivially. `G` = one `RecDecidable.bForall`
+  over `k < n`; `F` = a **nested** `bForall` (`hp₂.bForall hbound₂` for `j < iterIdx (iterᴾ) m i`,
+  then `.bForall hbound₁` for `i < m`). Index funcs are `primrec_nthCode.comp (… .pair …)` +
+  `of_eq` to fold `iterIdx`/`nthCode`.
+- **Packaging:** `iterIterEffectiveIso P : EffectiveIso (iterPresentation P)
+  (iterPresentation (iterPresentation P))` ⟹ `iterSys_effectivelyIsomorphic_iterIter` + corollary
+  `iterSys_isomorphic_iterIter : iterSys V ≅ᴰ iterSys (iterSys V)`.
+
+**Gotchas worth keeping:** (1) `ComputablePresentation` has **no** `sub_master` field — use
+`V.sub_master (P.mem_X _)`. (2) `iterSys` is not ∩-closed without a consistency witness; every
+`inter_right`/`inter_mem` here threads a `reindex*` witness. (3) For the `≃o` `map_rel_iff'`, the
+freshly-constructed structure's function coe is only *defeq* to `e.toMap.toElementMap` — open with
+`show … ≤ …` before `rw`.
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.19 DONE (`D ↦ ℙD` is a functor; `Exercise719.lean`)
+
+`Exercise719.lean` (ns `Domain.Neighborhood`) green, wired into `Domain.lean`, zero `sorry`, full
+`lake build Domain` green.
+
+**What it proves.** For `f : D → E` (approximable), the functorial action **`PFmap f : ℙD → ℙE`** on
+the Smyth power domain (Def 7.9 / Prop 7.10), proved approximable, functorial, and computability-
+preserving.
+
+**Construction & key lemmas.**
+- **`PFmap f`** : `ApproximableMap V.PowerDomain W.PowerDomain` with the *representation-independent*
+  relation `rel A B := V.PDmem A ∧ W.PDmem B ∧ ∀ X ∈ A, ∃ Y ∈ B, f.rel X Y`. `@[simp] PFmap_rel`.
+  - `master_rel`: from `f.master_rel` + `f.mono` (any `X ⊆ Δ_D` maps to `Δ_E`).
+  - `inter_right`: witness `Y ∩ Y'` lands in `B ∩ B'` because the power domain is **downward closed**
+    (new `NeighborhoodSystem.PDmem_down`); plus `f.inter_right`.
+  - `mono`: trivial (body only quantifies over set membership; `B ⊆ B'`).
+  - helpers `PDmem_mem` (members of a `ℙ𝒟`-nbhd are `𝒟`-nbhds), `PDmem_down` (downward closure).
+- **Scott's display** `PFmap_rel_fin`: `(ℙf).rel (⋃_{X∈L₁}↓X)(⋃_{Y∈L₂}↓Y) ↔ ∀ X∈L₁, ∃ Y∈L₂, X f Y`
+  (the `∀i<n∃j<m. Xᵢ f Yⱼ` of the exercise) — equiv by `mono` both ways + generators are members.
+- **Functor laws**: `PFmap_idMap` (`ℙ I_D = I_{ℙD}`; body `∀X∈A,∃Y∈B,X⊆Y` ↔ `A⊆B` by `PDmem_down`),
+  `PFmap_comp` (`ℙ(g∘f)=ℙg∘ℙf`). Fwd of `comp` builds the middle `ℙE`-nbhd `⋃_{Y∈M}↓Y` from a list
+  `M` gathered by **choice-free** list recursion `comp_witness` (`obtain` per `cons`, Prop goal).
+- **Computability (Scott's "if f computable, is ℙf?")**: **yes**. `PFmap_rel_Ypd_iff` reduces the
+  relation on Prop-7.10 codes (`Y_c = ⋃_{a∈dl c}↓Xₐ`) to `∀ a∈dl c, ∃ b∈dl d, Xₐ f Y_b`. r.e. via the
+  new **`bExists_decodeList_re`** (bounded `∃` over `decodeList` preserves r.e.: decidable
+  list-membership `b ∈ decodeList d` ∧ r.e. body `R a b`, then `REPred.proj`) followed by
+  `REPred.forall_mem_decodeList₂` (param bounded `∀`) + a `Nat.pair`-swap reindex. `PFmap_isComputable`
+  packages it as `IsComputableMap (PDPresentation …)(PDPresentation …)(PFmap f)` (defeq: `PDPresentation.X = Ypd`).
+- Discussion in docstring: `λf.ℙf` exists in spirit (monotone/continuous in `f`); `ℙf({x,y})={f x,f x'}`.
+
+**Axiom audit (`#print axioms`):** ALL decls are `⊆ {propext, Classical.choice, Quot.sound}`. The
+`Classical.choice` is **Prop-level and entirely inherited** from `ℙ𝒟`'s ∩-closure (Prop 7.10
+`PDmem_upSet_inter`, the `by_cases V.mem (X∩Y)`); the new content of this file adds no further choice
+(the `Recursive.lean` r.e. layer is choice-free, so `PFmap_isComputable*` add only `hf`'s axioms).
+
+**Gotchas:** (1) `V.PowerDomain` itself carries `Classical.choice` (Prop 7.10), so anything over it
+inherits it — don't claim choice-free for power-domain maps. (2) `REPred.forall_mem_decodeList₂` takes
+`hp : REPred₂ p`; call it as `REPred.forall_mem_decodeList₂ hInner` (not dot notation — head is
+`REPred₂`). (3) `mem_Ypd`/`mem_PDunion` destructure straight to `⟨a, ha, hmem, hsub⟩` (the `upSet`
+membership is defeq to the `And`).
+
+**Next concrete target:** Exercise 7.20 (`union : ℙ(ℙD)→ℙD` combinator; is it computable?
+`ℙ(ℙD) ≅ ℙD`?), Exercise 7.21, or Exercise 7.23 (finish `PN`).
+
+---
+
+## Checkpoint — Sunday Jun 28, 2026 — Exercise 7.20 DONE (`union : ℙ(ℙD) → ℙD`)
+
+`Exercise720.lean` green, wired into `Domain.lean`, zero `sorry`; full `lake build Domain` green.
+
+**What it is:** the **multiplication `μ : ℙℙD → ℙD`** of the Smyth power-domain monad — the
+*flattening* combinator. Builds directly on Definition 7.9 / Proposition 7.10 (`PowerDomain`, `Ypd`,
+`PDPresentation`) and Exercise 7.19's lemmas (`PDmem_mem`, `PDmem_down`).
+
+- **`unionMap (V) : ApproximableMap V.PowerDomain.PowerDomain V.PowerDomain`**, rep-independent
+  relation `rel A B := ℙℙD.PDmem A ∧ ℙD.PDmem B ∧ ∀ S ∈ A, ∀ X ∈ S, ∃ Y ∈ B, X ⊆ Y`. Approximable:
+  `master_rel` sends every `X` below `↓Δ` (witness `Δ`, `sub_master`); `inter_right` narrows the
+  witness to `Y ∩ Y'` — a `D`-nbhd because `X ⊆ Y∩Y'` witnesses consistency (`V.inter_mem`), landing
+  in `B ∩ B'` by `PDmem_down` (the Ex-7.19 downward-closure lemma); `mono` immediate.
+- **Scott's display** `unionMap_rel_fin`: for nested lists `LS : List (List 𝒟)`, `LY : List 𝒟`,
+  `union.rel (⋃_{l∈LS} ↓_{ℙD}(⋃_{X∈l}↓X)) (⋃_{Y∈LY}↓Y) ↔ ∀ l∈LS, ∀ X∈l, ∃ Y∈LY, X ⊆ Y` — exactly
+  `∀ i<n ∀ j<m_i ∃ k<q. X_{ij} ⊆ Y_k`. (Two readings coincide by `PDmem_down` at *both* levels.)
+- **Computable? YES — recursively decidable.** `unionMap_rel_Ypd_iff` reduces the relation on
+  `ℙℙ𝒟`/`ℙ𝒟` codes to the nested bounded quantifier `∀ c∈dl n, ∀ a∈dl c, ∃ b∈dl m, Xₐ ⊆ X_b`, which
+  is `RecDecidable₂` via `(V.subCode_computable P).bForallList` (one extra `bForallList` on top of
+  Prop 7.10's `subCode_computable`), hence r.e. (`.re`). `unionMap_isComputable` packages it as
+  `IsComputableMap (V.PowerDomain.PDPresentation (V.PDPresentation P consV …) (fun _=>1) …)
+  (V.PDPresentation P consV …) (unionMap V)`. The **inner `cons` for `ℙ𝒟`** (needed to build the
+  `ℙℙ𝒟` presentation) is the **constant `fun _ => 1`**, correct because the empty union (`code 0`,
+  `Y₀ = ∅`) is below every `ℙ𝒟`-nbhd (witness `k = 0`, `Ypd_zero`).
+- **Discussion answers (docstring):** `union({{x},{y,z}}) = {x,y,z}` (set-theoretic union of the
+  member-sets); `ℙℙD ≇ ℙD` in general (`ℙ` not idempotent — `union` collapses `{{x},{y}}` and
+  `{{x,y}}` to the same `{x,y}`, so it is not injective on elements).
+
+**Axiom audit:** all four decls `⊆ {propext, Classical.choice, Quot.sound}`. `Classical.choice` is
+Prop-level and **entirely inherited** from the power domain (`PowerDomain`/`PowerDomain.PowerDomain`
+via Prop 7.10 `PDmem_upSet_inter`'s `by_cases`); this file adds **no** further choice, exactly as in
+Exercise 7.19.
+
+**Gotchas:** (1) the `ℙℙD` presentation is a *double* `PDPresentation`; supply the inner `ℙ𝒟`
+consistency decider explicitly as `(fun _ => 1, Nat.Primrec.const 1, hspec)` with `hspec` proved via
+`Ypd_zero` + `empty_subset` (`code 0` always below). (2) `unionMap_rel_Ypd_iff` is stated for a
+*generic* `Q : ComputablePresentation V.PowerDomain` with `hQ : ∀ c, Q.X c = V.Ypd P c`, so the
+final `IsComputableMap` passes `hQ := fun _ => rfl` (the `PDPresentation.X = Ypd` field is defeq).
+(3) for the `PDmem A` obligation in `unionMap_rel_fin`, build the witness list as `LS.map (fun l =>
+⋃ X∈l, ↓X)` and prove the union equality with `simp only [Set.mem_iUnion, List.mem_map, exists_prop]`
+(a bare `rw [mem_PDunion]` mis-unifies on the nested `upSet (⋃…)` body).
+
+**Next concrete target:** Exercise 7.21 (`ℙ(D→E) → (ℙD → ℙE)` non-trivial combinator?; isos among
+`D→ℙE`, `ℙ(D×E)`, `ℙD×ℙE`?), or Exercise 7.23 (finish `PN`: `fun`/`graph` computable).
