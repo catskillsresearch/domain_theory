@@ -17,6 +17,19 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
+**Just completed — Exercise 7.22 (algebraic core) is DONE** (`Exercise722.lean` green, wired, zero
+`sorry`, **fully choice-free `⊆{propext,Quot.sound}`**). Scott's domain over `Σ={0,1}*=List Bool`
+built by least fixed point: inductive **`InS`** (`S` = closure of `Σ`/`{σ}`/`concat`/*non-empty* `∩`),
+`InS.nonempty` ⟹ **`Ssys`** a **positive neighbourhood system** (`ofPositive`, master `Δ=Σ=univ`;
+`Ssys_isPositive`). Bespoke `concat X Y={a++b}` (own mono/assoc/singleton/nonempty lemmas, to keep
+`∩`/`univ`/`{σ}` native `Set` ops). **Multiplication `mulElem`** (`xy={Z∈S∣∃X∈x∃Y∈y,XY⊆Z}`) a filter,
+**`mulElem_assoc`** ⟹ `|S|` a semigroup; **`emb σ={X∈S∣σ∈X}`** with **`emb_mul`** (homomorphism) +
+**`emb_injective`**. **Deliberately NOT mechanised (discussed in docstring, no `sorry`):** *effectively
+given* (the regular-event decision algebra — needs automata decision procedures rebuilt choice-free in
+`Recursive.lean`; relation (ii) consistency ≡ non-emptiness by positivity) and the *infinite-word*
+fixed-point equations (Scott poses them as open investigations). See the **latest dated checkpoint at
+the very bottom**.
+
 **Just completed — Exercise 7.21 is DONE** (`Exercise721.lean` green, wired, zero `sorry`). Headline
 combinator **`papply : ℙ(D→E) → (ℙD → ℙE)`** = the Smyth power-domain lift of evaluation:
 **`papplyEval V W : ApproximableMap₂ ℙ(funSpace V W) ℙV ℙW`** with `rel Φ A B := … ∧ ∀G∈Φ,∀X∈A,∃Y∈B,
@@ -3835,3 +3848,59 @@ choice-free); `papplyEval`, `papply`, `papplyEval_step_witness`, `papplyEval_rel
 `papplyEval_isComputable` all `= {propext, Classical.choice, Quot.sound}` — choice Prop-level and
 **inherited** from the power domain (Prop 7.10 `PDmem_upSet_inter`'s `by_cases`), none added, exactly
 as Exercises 7.19/7.20.
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 algebraic core DONE (`Exercise722.lean`)
+
+`Exercise722.lean` (ns `Domain.Neighborhood.Exercise722`) green, wired into `Domain.lean`, zero
+`sorry`. **Every headline decl is fully choice-free `⊆{propext,Quot.sound}`** (axiom audit confirmed
+for `Ssys`, `Ssys_isPositive`, `InS.nonempty` (no axioms), `mulElem`, `mulElem_assoc`, `emb`,
+`emb_mul`, `emb_injective`). Imports just `Basic` + `Mathlib.Data.Set.Insert`.
+
+**Scope decision (read before "finishing" 7.22).** Scott's Exercise 7.22 has four parts; this file
+mechanises the **algebraic core** and *discusses* the other two (in the docstring, NOT as `sorry`):
+
+1. **Least-fixed-point family `S`** — DONE as the inductive predicate `InS : Set (List Bool) → Prop`
+   with constructors `univ` (`Σ=Set.univ`), `singleton σ` (`{σ}`), `mul` (`concat X Y`), `inter`
+   (`X∩Y` *with a non-emptiness hypothesis*). Tokens `Σ={0,1}* = List Bool`.
+2. **Positive neighbourhood system** — DONE. `InS.nonempty` (induction: `Σ`/`{σ}` non-empty, `concat`
+   preserves it, `inter` carries it) is exactly what makes the system positive. `Ssys` built by
+   `NeighborhoodSystem.ofPositive InS Set.univ InS.univ (fun {X} _ => Set.subset_univ X) (pos)` where
+   `pos X Y hX hY = ⟨(·.nonempty), InS.inter hX hY⟩`. `Ssys_isPositive` proved *directly* by `intro`
+   (NOT via `ofPositive_isPositive _ _ _ _ _` — those `_`s can't be inferred from the bare goal
+   `Ssys.IsPositive` because `Ssys` is an opaque `def`).
+3. **Multiplication / semigroup** — DONE. `mulElem x y` (mem `Z := InS Z ∧ ∃X, x.mem X ∧ ∃Y, y.mem Y
+   ∧ concat X Y ⊆ Z`) is a filter; `master_mem` uses `X=Y=Σ`; `inter_mem` uses witnesses `X₁∩X₂∈x`,
+   `Y₁∩Y₂∈y` (filter closure) + `concat_mono` + positivity (`Z₁∩Z₂∈S` because the non-empty
+   `concat(X₁∩X₂)(Y₁∩Y₂)` sits inside it). `mulElem_assoc` via `concat_assoc` (`rw [← concat_assoc]` /
+   `rw [concat_assoc]`) + `concat_mono`.
+4. **Embedding homomorphism** — DONE. `emb σ` (mem `X := InS X ∧ σ∈X`); `emb_mul : emb(σ++τ) =
+   mulElem (emb σ)(emb τ)` (fwd witnesses `{σ},{τ}` via `concat_singleton`; bwd `append_mem_concat`);
+   `emb_injective` (`emb σ = emb τ ⟹ emb τ.mem {σ} ⟹ τ=σ`).
+
+**NOT mechanised (genuine gaps, documented honestly — left for a future session):**
+- **"Effectively given"** (Definition 7.1). The hint: each `S`-member is a *regular event*, and the
+  set algebra of regular events is decidable. An enumeration would Gödel-number the finite syntax of
+  `S`-terms; Scott's relations (i) `Xₙ∩Xₘ=X_k` and (ii) consistency `∃k.X_k⊆Xₙ∩Xₘ` (≡ non-emptiness
+  of `Xₙ∩Xₘ` **by positivity**) are decidable via DFA emptiness/equivalence. Mechanising that inside
+  the project's bespoke **choice-free** recursion theory (`Recursive.lean`) means rebuilding the
+  automata decision procedures primitively — a large separate effort. mathlib's `Language.IsRegular`
+  has `.inf`/`.add`/`.compl` but **no `.mul` (concatenation closure)** and no decidability, so even a
+  classical regularity proof needs the regex↔DFA bridge. (cf. `Example62Regular.lean` for the
+  Myhill–Nerode infra already present.)
+- **Infinite-word equations** `σ⃗σ⃗=σ⃗?`, `σ⃗σ⃗σ⃗=σ⃗?`, `σ⃗1⃗σ⃗1⃗=σ⃗1⃗?`, `01⃗01⃗01⃗01⃗=01⃗01⃗?` —
+  Scott poses these as open *investigations* (least-fixed-point/total elements under `mulElem`).
+
+**Gotchas worth keeping:**
+- `Set.mem_singleton_iff` lives in `Mathlib.Data.Set.Insert`, which `Basic`'s `Mathlib.Data.Set.Basic`
+  does **not** transitively import — add `import Mathlib.Data.Set.Insert` explicitly.
+- `Language α := Set (List α)` is a (non-`abbrev`) `def`, so the `Mul`/`Inter`/`Singleton` instance
+  resolution does **not** see through it; rather than fight that, this file uses a bespoke `concat` on
+  `Set (List Bool)` so `∩`/`univ`/`{σ}` stay the native `Set` ops the nbhd-system API expects.
+- Proving `IsPositive` of an `ofPositive`-built system: go `by intro …` (defeq unfolds `Ssys.mem` to
+  `InS`), don't try to back out the args of `ofPositive_isPositive`.
+
+**Next concrete target:** Exercise 7.23 (finish `PN` of Example 7.8; `fun`/`graph` + `∩`/`∪`/`+`
+computable) — see `Example78.lean`. Or the deferred 7.22 effectively-given decision procedure if the
+choice-free automata layer is built out.
