@@ -17,7 +17,34 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Proposition 7.12 is now fully RESOLVED** (`Proposition712.lean` is green, wired, zero `sorry`). Parts A, B, D hold for every `𝒟`; **Part C (`D ⊴ ℙD`) is FALSE in general and is now formalized as a counterexample** (`Counterexample712C.vshape_not_trianglelefteq_powerDomain`). See the **2026-06-27 "Prop 7.12 Part C REFUTED" checkpoint at the very bottom** for the full argument. (The earlier `ofMono`/`pdListSup` projection-pair attempt could not work: a monotone retraction `ℙ𝒟→𝒟` would send `⊤_{ℙ𝒟}=↑∅` to a top of `\|𝒟\|`, which need not exist — that was the real obstruction, not plumbing.) Other open Lecture VII items: **Exercise 7.17**
+**Just completed — Exercise 7.13 is DONE** (`Exercise713.lean` green, wired, zero `sorry`, **fully
+choice-free `⊆{propext,Quot.sound}` including the reconstruction isomorphism**). Full equivalence
+"effectively given domain ⇔ an `INCL(n,m)` relation on `ℕ`": abstract **`InclStructure`** (INCL +
+primrec `meetIdx`/`topIdx` witnesses + `INCL`/`CONS`/`MEET` recursively decidable + axioms (i)–(iv)
+as `axiom_i..iv`); **(⇐)** hint system `Sₙ={m∣INCL m n}` (`toSystem`/`toPresentation`/
+`toSystem_isEffectivelyGiven`, key `toNbhd_subset_iff : Sₙ⊆Sₖ↔INCL n k`); **(⇒)** `ofPresentation`
+(`INCL n m:=Xₙ⊆Xₘ`, with `meet_iff_interEq : MEET↔Xₙ∩Xₘ=Xₖ`); **round-trip A**
+`ofPresentation_toPresentation_INCL`; **round-trip B** `reconstruct_isomorphic : toSystem
+(ofPresentation P) ≅ᴰ V` (answers "essentially any effectively given system?" — yes), via
+`reconElem`/`reconElemInv`/`reconIso`. See the **latest dated checkpoint at the very bottom**.
+
+**Next concrete target: open Lecture VII items** — **Exercise 7.14** (the post-Def-7.2 r.e. facts +
+`y=⋃↑Y_{t(i)}` decreasing-primrec form), **Exercise 7.16** (`curry` as a neighbourhood relation:
+recursive or r.e.?), **Exercise 7.17** (the full combinator finish for `D^§`), **Exercise 7.18**
+(define *effective isomorphism*; would tighten Ex 7.13's "essentially the same"), **Exercise 7.23**
+(finish `PN`). The Ex-7.13 infra to reuse: `ComputablePresentation`,
+`incl_computable`/`cons_computable`/`inter`, `RecDecidable`/`REPred`, and now the
+`InclStructure`/`ofPresentation`/`reconIso` layer in `Exercise713.lean`.
+
+**Just completed — Proposition 7.12 is fully RESOLVED** (`Proposition712.lean` green, wired, zero
+`sorry`). Parts A, B, D hold for every `𝒟`; **Part C (`D ⊴ ℙD`) is FALSE in general and is formalized
+as a counterexample** (`Counterexample712C.vshape_not_trianglelefteq_powerDomain`). See the
+**"Prop 7.12 Part C REFUTED" checkpoint near the bottom**. (Scott's text *does* assert `D≅D†⊴ℙD` on
+PRG-19 p.129–130, but his proof glosses the empty-union edge case: a monotone retraction `ℙ𝒟→𝒟`
+must send `⊤_{ℙ𝒟}=↑∅` to a greatest element of `\|𝒟\|`, which a general bounded-complete domain
+lacks. The claim holds iff `\|𝒟\|` has a top, e.g. `∅∈𝒟`.) Other open Lecture VII items:
+**Exercise 7.14** (the post-Def-7.2 r.e. facts + `y=⋃↑Y_{t(i)}` decreasing-primrec form),
+**Exercise 7.16** (`curry` as a neighbourhood relation: recursive or r.e.?), **Exercise 7.17**
 (the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
 building on `Example78.lean`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
@@ -3130,3 +3157,130 @@ under the present definitions.
 **Axiom audit.** `Vshape ⊆{propext,Quot.sound}`, `improperTop` no axioms; the `Prop`-valued
 counterexample lemmas + A/B/D maps `⊆{propext,Quot.sound,Classical.choice}` (choice inherited from
 `PowerDomain.inter_mem`'s `by_cases`, Prop-level only). `lake build Domain` green.
+
+---
+
+## Checkpoint 2026-06-27 — **Exercise 7.13 — next target** (abstract `INCL` characterization of effectively given domains)
+
+**Status: NOT STARTED.** This is the next concrete work item now that Prop 7.12 is resolved. No file
+yet; suggested `Domain/Neighborhood/Exercise713.lean`, ns `Domain.Neighborhood.Exercise713`, wire into
+`Domain.lean` after `Proposition712`.
+
+**Scott's exact statement (PRG-19 p.130).** "Show that an effectively given domain can always be
+identified with a relation `INCL(n,m)` on integers, where the two derived relations
+- `CONS(n,m) :↔ ∃k. INCL(k,n) ∧ INCL(k,m)`  (consistency), and
+- `MEET(n,m,k) :↔ ∀j. (INCL(j,k) ↔ INCL(j,n) ∧ INCL(j,m))`  (binary meet / intersection)
+
+are both **recursively decidable**, and where the axioms hold:
+- (i)   `∀n. INCL(n,n)`                                   (reflexive)
+- (ii)  `∀n m k. INCL(n,m) ∧ INCL(m,k) → INCL(n,k)`        (transitive)
+- (iii) `∃m ∀n. INCL(n,m)`                                 (a greatest code `m` — the master `Δ`)
+- (iv)  `∀n m. CONS(n,m) → ∃k. MEET(n,m,k)`               (consistent pairs have a meet)
+
+Hint: consider the neighbourhood system `𝒟 = { {m∈ℕ ∣ INCL(m,n)} ∣ n∈ℕ }`. Is this essentially any
+effectively given system?"
+
+**Reading / what to formalize.** `INCL(n,m)` is the integer image of `Xₙ ⊆ Xₘ`. The exercise is an
+**equivalence (both directions)**:
+- **(⇒)** From `P : ComputablePresentation V` (an effectively given `𝒟`) produce
+  `INCL n m := P.X n ⊆ P.X m` and show it is recursively decidable (this is essentially
+  `P.incl_computable` — already a `RecDecidable₂`), that `CONS`/`MEET` are recursively decidable
+  (`CONS` = `P.cons`/consistency decider; `MEET` from the intersection function `P.inter` +
+  `P.interEq`-style equality), and that axioms (i)–(iv) hold (refl/trans of `⊆`; master `P.masterIdx`
+  for (iii); `inter` witness for (iv)).
+- **(⇐)** From any `INCL` relation on `ℕ` with `CONS`/`MEET` recursively decidable and (i)–(iv), build
+  the neighbourhood system `Sᵢ := {m ∣ INCL(m,n)}` (the hint's `𝒟`), show `Sₙ ⊆ Sₖ ↔ INCL(n,k)`
+  (← by `INCL(m,n)→INCL(m,k)` via (ii); → because `n∈Sₙ` by (i)), that it is a genuine
+  `NeighborhoodSystem` (master from (iii); conditional `inter_mem` from (iv)+`MEET`), and that it is
+  **effectively given** (a `ComputablePresentation`) with enumeration `n ↦ Sₙ`, intersection from
+  `MEET`, equality/inclusion from `INCL`/its decidability. Finally that the two passes are mutually
+  inverse "up to effective isomorphism" (this is where **Exercise 7.18**'s notion of *effective
+  isomorphism* would tighten "essentially the same"; for 7.13 a round-trip
+  `INCL ↦ 𝒟 ↦ INCL` equality and a `𝒟 ≅ᴰ`-level statement should suffice).
+
+**Infrastructure to reuse (all already in the repo).**
+- `ComputablePresentation V` (`Definition71.lean`): fields `X : ℕ→Set α`, `mem_X`, `surj`,
+  `incl_computable : RecDecidable₂ (fun n m ↦ X n ⊆ X m)` (i.e. `INCL`!), `cons_computable`,
+  `inter`/`interEq`, `masterIdx`/`masterIdx_spec`. This is *literally* the data 7.13 abstracts.
+- `Recursive.lean`: `RecDecidable`/`RecDecidable₂`/`REPred`, `.and`/`.of_iff`/`.comp`,
+  `RecDecidable.natEq`, bounded `∀/∃` (`bForall`, `bForallList`/`bExistsList`), `recDecidable_of_forall`.
+  `MEET` needs an **unbounded `∀j`** that is nonetheless decidable — handle it the way Prop 7.10's
+  `interCode`/equality does: reduce `MEET(n,m,k)` to a *finite* check via the meet **witness/index**
+  (the `inter` code) rather than a literal `∀j`, i.e. `MEET(n,m,k) ↔ Xₖ = Xₙ∩Xₘ` decided by the
+  presentation's `interEq`. (Scott states `MEET` as `∀j[…]`, but on an effectively given system it is
+  decidable precisely because the meet is computed by `inter`.)
+- For the (⇐) construction, mirror `Definition71.lean`'s `unitSys_isEffectivelyGiven` /
+  `Example78.lean`'s `PN` for how to assemble a `ComputablePresentation` from a primrec relation.
+
+**Choice discipline.** The `INCL`/`CONS`/`MEET` deciders and the assembled presentation *data* should
+stay `⊆{propext,Quot.sound}` (build on the choice-free `Recursive.lean` layer, **not** mathlib's
+recursion theory). `Set`-equality/membership reasoning over an arbitrary carrier will pull
+`Classical.choice` at the `Prop` level only (same pattern as 7.4/7.5/7.10). Watch the documented
+traps: `omega` on an `↔`/`Set`-goal and `simp` closing `Set` identities both silently pull choice.
+
+**Definition of done (per `.cursor/rules/handoff-discipline.mdc`).** `lake build` green, zero `sorry`,
+axiom audit on the headline decls, append a dated checkpoint here, flip the `arxiv.md` 7.13 row to
+**Pass** with a dense note, wire the new module into `Domain.lean`.
+
+---
+
+## Checkpoint 2026-06-27 (latest) — **Exercise 7.13 COMPLETE / Pass** (`Exercise713.lean`, green, wired, audited, **fully choice-free**)
+
+The full equivalence "an effectively given domain ⇔ a recursive `INCL(n,m)` relation on `ℕ`", in
+both directions plus both round-trips. **All declarations — data *and* Prop — audit
+`⊆{propext,Quot.sound}`** (stronger than this target's plan anticipated; the only subtle step,
+`toNbhd_inter_eq_iff`, uses `exact iff_comm` instead of `tauto` to avoid `Classical.choice`).
+
+**The abstract data — `InclStructure`.** A relation `INCL : ℕ → ℕ → Prop` plus, following the project
+convention that `ComputablePresentation` carries `inter` as *primrec data* (rather than recovering it
+by an unbounded μ-search), the **witnesses** `meetIdx : ℕ→ℕ→ℕ` (primrec) and `topIdx : ℕ`. Fields:
+`incl_dec`/`cons_dec`/`meet_dec` (`RecDecidable₂`/`RecDecidable₂`/`RecDecidable₃` of `INCL`, of
+`CONS n m := ∃k,INCL k n∧INCL k m`, of `MEET n m k := ∀j,INCL j k↔(INCL j n∧INCL j m)`),
+`meetIdx_primrec`, and Scott's axioms `incl_refl`/`incl_trans`/`topIdx_spec`/`meetIdx_spec`. The
+literal existential axioms are re-derived as theorems `axiom_i`/`axiom_ii`/`axiom_iii`
+(`⟨topIdx,topIdx_spec⟩`)/`axiom_iv` (`⟨meetIdx n m, meetIdx_spec h⟩`).
+
+**(⇐) the hint system.** `toNbhd n := {m ∣ INCL m n}` (`Sₙ`). Crux **`toNbhd_subset_iff : Sₙ⊆Sₖ ↔
+INCL n k`** (→ `n∈Sₙ` by reflexivity (i); ← transitivity (ii)). **`toSystem`** (`mem Y:=∃n,Y=Sₙ`,
+master `Δ=Set.univ=S_{topIdx}` by `toNbhd_top`; `inter_mem` supplies `meetIdx n m` and uses (iv)
+through **`toNbhd_inter_eq_iff : Sₙ∩Sₘ=Sₖ ↔ MEET n m k`**). **`toPresentation`**: rel 7.1(i) decided
+by `meet_dec` via `toNbhd_inter_eq_iff`, rel 7.1(ii) by `cons_dec` via
+**`toNbhd_subset_inter_iff : Sₖ⊆Sₙ∩Sₘ ↔ INCL k n∧INCL k m`** + `exists_congr`, `inter:=meetIdx`,
+`masterIdx:=topIdx`. ⟹ **`toSystem_isEffectivelyGiven`**.
+
+**(⇒) from a presentation.** **`ofPresentation P : InclStructure`** with `INCL n m := P.X n ⊆ P.X m`,
+`meetIdx:=P.inter`, `topIdx:=P.masterIdx`. refl/trans of `⊆`; `topIdx_spec` is `V.sub_master`;
+`incl_dec:=P.incl_computable`, `cons_dec` from `P.cons_computable` (`subset_inter_iff` per `k`). The
+**only** nontrivial decider is `MEET`: lemma **`meet_iff_interEq : (∀j, Xⱼ⊆Xₖ↔(Xⱼ⊆Xₙ∧Xⱼ⊆Xₘ)) ↔
+(Xₙ∩Xₘ=Xₖ)`** (⇒ `MEET` at `j=k` gives `Xₖ⊆Xₙ∩Xₘ`, a consistency witness ⟹ `Xₙ∩Xₘ∈𝒟` by
+`V.inter_mem` ⟹ `surj` enumerates it as `Xₚ`, and `MEET` at `j=p` gives `Xₙ∩Xₘ=Xₚ⊆Xₖ`; ⇐
+`subset_inter_iff`), composed with `P.interEq_computable` for `meet_dec`. (`meet_iff_interEq`
+itself audits `⊆{propext,Quot.sound}` despite using `surj`/`inter_mem`.)
+
+**Round-trip A.** **`ofPresentation_toPresentation_INCL I n m : (ofPresentation I.toPresentation).INCL
+n m ↔ I.INCL n m`** — `INCL↦𝒟↦INCL` recovers `INCL` exactly (it is defeq `I.toNbhd n ⊆ I.toNbhd m`,
+then `toNbhd_subset_iff`).
+
+**Round-trip B (the headline "essentially any effectively given system?" — YES).**
+**`reconstruct_isomorphic P : toSystem (ofPresentation P) ≅ᴰ V`**, where
+`reconstruct P := (ofPresentation P).toSystem`. Built powerIso-style (cf. `Exercise120.lean`) from the
+mutually inverse, order-(co)preserving **`reconElem P x := {Sₙ ∣ x.mem Xₙ}`** and
+**`reconElemInv P y := {Xₙ ∣ y.mem Sₙ}`**, packaged as **`reconIso : |V| ≃o |reconstruct P|`**; the
+theorem returns `reconIso.symm`. Glue lemma **`ofPresentation_toNbhd_eq_iff : Sₙ=Sₘ ↔ Xₙ=Xₘ`** (from
+`toNbhd_subset_iff` + `Set.Subset.antisymm_iff`). Subtlety in `reconElemInv.inter_mem`: V-side
+consistency of `(n,m)` is recovered from the *S*-side meet index `p` (`y.sub (y.inter_mem …)` gives
+`Sₙ∩Sₘ=Sₚ`, and `p∈Sₚ` ⟹ `Xₚ⊆Xₙ` and `Xₚ⊆Xₘ`, the needed witness for `V.inter_mem`); then `surj`
+gives the V-index. (Exercise 7.18's *effective* isomorphism would upgrade this `≅ᴰ` to an effective
+iso, tightening Scott's "essentially".)
+
+**Gotchas.** (1) `RecDecidable₃`'s coding order is `(n,m,k) ↦ pair n (pair m k)`; `MEET` and `interEq`
+share it, so `RecDecidable.of_iff (fun t => lemma … t.unpair.1 t.unpair.2.unpair.1 t.unpair.2.unpair.2)
+hp` lines up directly (beta-defeq). (2) Orientation of `toNbhd_inter_eq_iff.mpr`: it yields
+`Sₙ∩Sₘ=S_{meetIdx}` (good for `inter_mem`'s `∃k,X∩Y=Sₖ`), so `inter_spec` (which wants
+`X(inter)=Xₙ∩Xₘ`) needs `.symm`. (3) `tauto`/`simp`-closing-`Set`-identities and `omega`-on-`↔`
+silently pull `Classical.choice`; `iff_comm`/explicit `subset_inter_iff` keep it clean.
+
+**Axiom audit.** `toSystem`, `toPresentation`, `ofPresentation`, `reconElem`, `reconElemInv`,
+`toSystem_isEffectivelyGiven`, `ofPresentation_toPresentation_INCL`, `reconstruct_isomorphic`,
+`meet_iff_interEq` — **all** `⊆{propext,Quot.sound}`. `lake build Domain` green; zero `sorry`; wired
+into `Domain.lean` after `Proposition712`.
