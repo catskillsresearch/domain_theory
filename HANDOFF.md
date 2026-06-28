@@ -17,9 +17,9 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Proposition 7.12 is PARTIAL / Pass (A,B,D)** (`Proposition712.lean`, green, wired — singleton/binary join maps approximable & computable; `{x,y}={x}∩{y}`; **`D ⊴ ℙD` deferred**; see latest checkpoint at the very bottom). Other open Lecture VII items: **Exercise 7.17**
+**Next concrete target:** **Proposition 7.12 is now fully RESOLVED** (`Proposition712.lean` is green, wired, zero `sorry`). Parts A, B, D hold for every `𝒟`; **Part C (`D ⊴ ℙD`) is FALSE in general and is now formalized as a counterexample** (`Counterexample712C.vshape_not_trianglelefteq_powerDomain`). See the **2026-06-27 "Prop 7.12 Part C REFUTED" checkpoint at the very bottom** for the full argument. (The earlier `ofMono`/`pdListSup` projection-pair attempt could not work: a monotone retraction `ℙ𝒟→𝒟` would send `⊤_{ℙ𝒟}=↑∅` to a top of `\|𝒟\|`, which need not exist — that was the real obstruction, not plumbing.) Other open Lecture VII items: **Exercise 7.17**
 (the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
-building on `Example78.lean`), **Prop 7.12 Part C** (`D ⊴ ℙD` via projection pair).
+building on `Example78.lean`).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
 `Vsharp` layer, the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo
 evaluator, `dsharp_decider_spec`), the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
@@ -3055,3 +3055,78 @@ Scott's PRG-19 p.129 Prop 7.12: the finite join map `λx₀,…,x_{n-1}.{x₀,�
 **Choice discipline.** All proofs choice-free modulo inherited `PowerDomain.inter_mem` (`Classical.choice` in Prop fields only). Audited: main decls `⊆{propext,Quot.sound,Classical.choice}`.
 
 **Next concrete target: Prop 7.12 Part C (`D ⊴ ℙD`).**
+
+---
+
+### Checkpoint — 2026-06-27 (later) — **Prop 7.12 Part C WIP / working tree RED** (`Proposition712.lean` does NOT build)
+
+**Status: do not trust the working copy.** `Proposition712.lean` is uncommitted and **red**: `lake build Domain.Neighborhood.Proposition712` → **21 errors, 0 `sorry`**, file grew **~390 → 718 lines**. A subagent fix-loop on Part C was **interrupted mid-edit**. Parts A/B/D were green at the last *committed* `HEAD`; `git diff`/`git stash` recovers the green A/B/D file. Decide first: **(a) restart Part C from the committed green file, or (b) finish the lemmas below.**
+
+**The route being attempted (sound on paper, Scott `D ≅ D† ⊴ ℙD`).** Build the retraction `j : ℙ𝒟 → 𝒟†` with Ex 2.8 **`ofMono`** from an *element-level* map `PDdaggerRetractElem W hW : |𝒟†|`, instead of a token relation (which we already know fails `inter_right`/`mono`, see the earlier checkpoint). The element value is the principal filter `↑(pdListSup L)` where `L` is a witness list for `W∈ℙ𝒟` and `pdListSup` (= `PDlistFoldSup V.master`) folds the generators with
+`pdFoldSupStep master acc z := if z⊆acc then acc else if acc⊆z then z else master`
+— i.e. it keeps the larger of `acc,z` under `⊆`, and **collapses to `master` (=⊥ in info order) when they are incomparable.** Intuition: the bluntest `Y∈𝒟` with `W ⊆ ↓Y`. The one case that matters for `j∘i=I` is a **single generator**: `pdListSup [X] = X` (`PDlistFoldSup_singleton`, *proved*), so `j(↓X)=↑X`.
+
+**What compiles (and is reusable):** everything through `PDdaggerInj` (the injection `↓X↦↓X`, `S⊆W`) and `Isomorphic.trianglelefteq_trans` (transports `⊴` along `D≅D†`) — these are unchanged and fine. `pdFoldSupStep_ge_acc/_mem/_ge_z`, `PDlistFoldSup_mem`, `PDlistFoldSup_singleton` build.
+
+**Where it's stuck (the 21 errors cluster in the multi-generator fold lemmas + `ofMono` plumbing):**
+- `pdFoldSupStep_mono_acc` (line ~284): `simp` leaves unsolved goals on the 4-way `by_cases` over `z⊆acc/acc⊆z/z⊆acc'/acc'⊆z` (monotonicity of one fold step in `acc`).
+- `pdFoldSup_foldl_ub` (~302–305): `List.mem_cons_self` arity / `Type mismatch` on the cons branch upper-bound recursion.
+- `PDlistFoldSup_eq_of_upSet` (~446/466), `PDlistFoldSup_sup_sub_of_union` (~495–521), `PDlistFoldSup_upSet_mono` (~554/556): the `rewrite … upSet …` steps don't find the pattern; these are the **core monotonicity lemma** `W'⊆W → pdListSup uses … ⊆ …` feeding `PDdaggerRetractElem_mono`.
+- `PDdaggerRetractElem_mono` (~575), `PDdaggerRetract_toElementMap_principal` (~592/594), `PDdaggerRetract_comp_inj` / `PDdaggerInj_comp_retract_le`, `dagger_trianglelefteq_powerDomain` (~634): downstream `ofMono` glue (`toElementMap_ofMono_principal`, `eq_of_toElementMap_principal`) — blocked until the fold lemmas land.
+
+**⚠️ Choice-discipline regression to fix.** The current `PDdaggerRetractElem` uses **`Classical.choose hW`** to extract the witness list `L` from `W∈ℙ𝒟` (`∃ L, …`), so `PDdaggerRetract` is **`noncomputable` and pulls `Classical.choice` into *data*** — this violates `.cursor/rules/handoff-discipline.mdc` (data must be `⊆{propext,Quot.sound}`). Two ways out: (i) prove the fold value is **independent of the chosen list** (any two witness lists for the same `W` give the same `↓(pdListSup L)` because `↓(pdListSup L)` is determined by `W` as the least down-set ⊇ `W`), then phrase `PDdaggerRetractElem` via that canonical value; or (ii) accept choice here and **call it out** (Prop-level only) — but it's currently in `def`, not a proof, so (i) is preferred.
+
+**Recommended restart (if not finishing the above):** keep `ofMono` + `pdListSup`, but (1) make `PDdaggerRetractElem` choice-free by defining the value as `↑(⋂{Y∈𝒟 ∣ W⊆↓Y})`-style canonical token or by `pdListSup`-of-`Classical.choose` *only inside `Prop`* via a `rel` characterization; (2) prove the single clean monotonicity lemma `W'⊆W → W ⊆ ↓(pdListSup L) → W' ⊆ ↓(pdListSup L')` first and derive `_mono` from it; (3) the two projection-pair laws then follow from `PDlistFoldSup_singleton` (`j∘i=I`) and `PDdaggerRetractElem_upSet_subset` (`i∘j⊑I`) — both already drafted near lines 532/596.
+
+---
+
+## Checkpoint 2026-06-27 (latest) — **Prop 7.12 Part C REFUTED** (`D ⊴ ℙD` is FALSE in general); `Proposition712.lean` GREEN again
+
+**Resolution of the WIP above.** The `ofMono`/`pdListSup` projection-pair route was **not** stuck on
+plumbing — it was attempting to prove a **false** theorem. `PDdaggerRetractElem_mono` is *genuinely
+unprovable*: with `pdListSup [] = Δ` we get `j(∅)=↑Δ=⊥`, but `∅ ⊆ ↓X` forces `j(↓X)=↑X ≤ j(∅)=⊥`,
+i.e. `↑X ≤ ⊥`, false unless `X=Δ`. The deeper reason: `∅` (the empty union, always in `ℙ𝒟` by
+`PDmem_empty`) is the **top** `↑∅ = ⊤_{ℙ𝒟}` of `|ℙ𝒟|`, and any monotone (approximable) retraction
+`ℙ𝒟→𝒟` must send `⊤_{ℙ𝒟}` to an upper bound of all of `|𝒟|` = a greatest element of `|𝒟|`, which a
+general bounded-complete domain does **not** have.
+
+**What landed (green, wired, zero `sorry`).** `Proposition712.lean` restored to the committed green
+**Parts A/B/D** (verbatim) + a new **`namespace Counterexample712C`** formalizing the refutation. The
+broken 718-line Part C WIP is gone. Added one import: `Domain.Neighborhood.Lemma615` (for `⊴`/`◁`).
+
+**The counterexample (clean invariant: "has a greatest element").**
+- **`HasTop E := ∃ t:E.Element, ∀ x, x ≤ t`.**
+- **`improperTop` / `hasTop_of_inter_closed`** — an *unconditionally* ∩-closed system (∀XY,
+  `mem X→mem Y→mem(X∩Y)`, **no** witness needed) has the improper filter (= all neighbourhoods) as a
+  greatest element. (Data `improperTop` audits **no axioms**.)
+- **`powerDomain_hasTop`** — `ℙ𝒟` is unconditionally ∩-closed (`PDmem_inter`; the empty union always
+  supplies the missing witness), so `|ℙ𝒟|` *always* has a top.
+- **`subsystem_inter_closed`** — `D'◁ℙ𝒟` inherits unconditional ∩-closure (Def 6.10 `inter_closed`,
+  routed through the always-true `ℙ𝒟.mem(X∩Y)`).
+- **`hasTop_of_iso`** — `≅ᴰ` is an order-iso of element lattices (`OrderIso.le_iff_le` +
+  `apply_symm_apply`), so it transports `HasTop`.
+- ⟹ **`hasTop_of_trianglelefteq_powerDomain : D ⊴ E.PowerDomain → HasTop D`** (destruct `⊴` into
+  `D'◁ℙ𝒟 ∧ D≅ᴰD'`, chain the three facts).
+- **`Vshape : NeighborhoodSystem Bool`** — the flat 2-point domain, `mem X := X=univ ∨ X={true} ∨
+  X={false}`, master `univ`. `inter_mem` holds (the only non-trivial pair `{true}∩{false}=∅` has **no**
+  neighbourhood witness `Z⊆∅`, so condition (ii) is vacuous there). **Data `Vshape` audits
+  `⊆{propext,Quot.sound}`** (choice-free: the bad inter cases discharge via
+  `obtain ⟨z,hz⟩ := hZne; exact absurd (hZsub hz) (Set.notMem_empty z)`, **not** `Set.Nonempty.ne_empty`).
+- **`Vshape_not_hasTop`** — a top `t` would contain `{true}` and `{false}` (from `↑{true},↑{false} ≤ t`),
+  hence `{true}∩{false}=∅ ∈ t` by `t.inter_mem`, but `∅∉Vshape` (`Vshape_not_mem_empty`).
+- **`vshape_not_trianglelefteq_powerDomain : ¬(Vshape ⊴ Vshape.PowerDomain)`** — the headline.
+
+**When Part C *does* hold.** `D ⊴ ℙ𝒟` is true exactly when `|𝒟|` has a greatest element, e.g. when
+`∅∈𝒟` (then `↑∅=⊤_{|𝒟|}`). The surviving "half" of Scott's would-be projection pair is the singleton
+**injection** `PDsingletonApproxMap` (Part A), which is fine for every `𝒟`.
+
+**Faithfulness note.** This refutes Scott's *as-formalized* claim only because Definition 7.9 (this
+project, faithful to Scott's text "the finite unions can be empty, `n=0`") puts `∅∈ℙ𝒟`. A variant
+`ℙ𝒟` restricted to **non-empty** unions (`n≥1`) would not be unconditionally ∩-closed (`↓A∩↓B` can be
+`∅∉ℙ𝒟`), removing the forced top — but that would break the committed-green Prop 7.10 / Def 7.11 and
+deviate from the transcribed Definition 7.9. Left as-is; the counterexample is the correct outcome
+under the present definitions.
+
+**Axiom audit.** `Vshape ⊆{propext,Quot.sound}`, `improperTop` no axioms; the `Prop`-valued
+counterexample lemmas + A/B/D maps `⊆{propext,Quot.sound,Classical.choice}` (choice inherited from
+`PowerDomain.inter_mem`'s `by_cases`, Prop-level only). `lake build Domain` green.

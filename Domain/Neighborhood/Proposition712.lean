@@ -4,6 +4,7 @@ import Domain.Neighborhood.ApproximableExercises
 import Domain.Neighborhood.Product
 import Domain.Neighborhood.Proposition710
 import Domain.Neighborhood.Theorem74
+import Domain.Neighborhood.Lemma615
 import Mathlib.Tactic
 
 /-!
@@ -15,7 +16,9 @@ Scott states, right after Definition 7.11:
 > and is computable if `D` is effectively given. Moreover, the map `λ x. {x}` shows that
 > `D ⊴ ℙD`, and we also have `{x₀, …, x_{n-1}} = {x₀} ∩ … ∩ {x_{n-1}}` as an intersection of filters.
 
-This file delivers Parts A, B, and D in full; Part C (`D ⊴ ℙD`) is documented below as deferred.
+This file delivers Parts A, B, and D **in full**. Part C (`D ⊴ ℙD`) turns out to be **false in
+general** under the present definition of `ℙ𝒟` (Definition 7.9), and we **formalize a
+counterexample** instead — see `Counterexample712C` at the bottom.
 
 ## Part A — the singleton map `λ x. {x}` is approximable
 
@@ -31,11 +34,30 @@ Scott's proof on principal inputs `{↑X} ∩ {↑Y} = {↑X, ↑Y}` unfolds to
 `↓X ∩ ↓Y = ↑(↓X ∩ ↓Y)` via `upSet_inter`, then to the binary join. The general law
 `PDfinJoin_inter` follows by induction on `n`.
 
-## Part C — `D ⊴ ℙD`
+## Part C — `D ⊴ ℙD` is FALSE in general (counterexample)
 
-Scott notes `D ≅ D† ⊴ ℙD` (Exercise 1.20's preparation `𝒟†` is a subsystem of `ℙ𝒟` — every
-down-set `↓X` lies in `ℙ𝒟`, and intersection of down-sets stays a down-set when consistent).
-Combined with `dagger_isomorphic : D ≅ D†` this gives `singleton_trianglelefteq : D ⊴ ℙD`.
+Scott's closing remark "`λ x. {x}` shows `D ⊴ ℙD`" does **not** hold for an arbitrary neighbourhood
+system `𝒟` once `ℙ𝒟` is taken to include the **empty union `∅`** (Definition 7.9's `n = 0` case,
+`PDmem_empty`). The obstruction is structural:
+
+* `ℙ𝒟` is **unconditionally** closed under intersection (`PDmem_inter`; the empty union always
+  supplies the missing consistency witness), so `|ℙ𝒟|` has a **greatest element** — the improper
+  filter consisting of *all* `ℙ𝒟`-neighbourhoods (`Counterexample712C.hasTop_of_inter_closed`).
+* Any subsystem `D' ◁ ℙ𝒟` inherits that unconditional ∩-closure (`Definition 6.10`'s
+  `inter_closed`), so `|D'|` **also** has a greatest element.
+* `D ⊴ ℙ𝒟` means `D ≅ᴰ D'` for some `D' ◁ ℙ𝒟`, and `≅ᴰ` is an order-isomorphism of element
+  lattices, which transports "has a greatest element" back to `|D|`.
+
+So `D ⊴ ℙ𝒟` forces `|D|` to have a greatest element. But the two-point **flat** domain `Vshape`
+(neighbourhoods `Δ = {true, false}`, `{true}`, `{false}`, with `{true} ∩ {false} = ∅ ∉ 𝒟`) has two
+incomparable maximal elements and hence **no** greatest element. Therefore
+`Vshape ⋬ Vshape.PowerDomain` (`Counterexample712C.vshape_not_trianglelefteq_powerDomain`).
+
+This is exactly the wall the projection-pair route hit: a monotone (approximable) retraction
+`ℙ𝒟 → 𝒟` would have to send `⊤_{ℙ𝒟} = ↑∅` to an upper bound of all of `|𝒟|`, i.e. to a greatest
+element of `|𝒟|`, which need not exist. Scott's claim is correct precisely when `|𝒟|` has a top
+(equivalently `𝒟` has a least neighbourhood), e.g. when `∅ ∈ 𝒟`; the singleton injection itself
+(`PDsingletonApproxMap`) is the surviving "one half" of the would-be projection pair.
 
 ## Part D — computability when `D` is effectively given
 
@@ -217,17 +239,6 @@ theorem finJoinMap_prod_toElementMap (x y : V.Element) :
   simp only [prod_mem_prodNbhd, inl_preimage_prodNbhd, inr_preimage_prodNbhd]
   exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨prod_mem_prodNbhd hX hY, h⟩⟩
 
-/-! ### Part C — `D ⊴ ℙD` (deferred).
-
-Scott's `D ⊴ ℙD` via `λ x. {x}` is the projection-pair step (Lemma 6.15): a retraction
-`ℙ𝒟 → 𝒟` with `j ∘ i = id_𝒟` and `i ∘ j ≤ id_{ℙ𝒟}`. The natural token-level retraction
-(read a `ℙ𝒟`-token as `↑X` when it is a down-set `↓X`, else `⊥`) is **not** `ofMono`-monotone
-on all of `ℙ𝒟`: when `↓A, ↓B ∈ 𝒟†` but `A ∩ B ∉ 𝒟`, we have `↓A ∩ ↓B ∈ ℙ𝒟` while
-`↓A ∩ ↓B ∉ 𝒟†` (Definition 6.10 `inter_closed` for `𝒟† ◁ ℙ𝒟` also fails for the same reason).
-The injection half is `PDsingletonApproxMap` below; the retraction + `singleton_trianglelefteq`
-remain for a follow-up (direct `ApproximableMap` fields or a `Dprime`-style image subsystem).
--/
-
 /-! ### Part D — computability. -/
 
 variable (P : ComputablePresentation V)
@@ -298,5 +309,138 @@ theorem PDfinJoinApproxMap₂_isComputable (cons : ℕ → ℕ) (hconsp : Nat.Pr
       refine ⟨prod_mem_prodNbhd (P.mem_X _) (P.mem_X _), h1, h2⟩) ((hs.comp hra).and (hs.comp hrb))
 
 end NeighborhoodSystem
+
+/-! ## Part C — counterexample: `D ⊴ ℙD` fails for the flat two-point domain.
+
+The argument isolates a single domain invariant — *having a greatest element* — that `ℙ𝒟` (with the
+empty union) always satisfies but a general `𝒟` need not, and that is preserved under both `◁` and
+`≅ᴰ`. -/
+
+namespace Counterexample712C
+
+open NeighborhoodSystem
+
+variable {γ δ : Type*}
+
+/-- A domain *has a greatest element* if some element dominates every other. Order-isomorphisms and
+the inclusion order on filters transport this property. -/
+def HasTop (E : NeighborhoodSystem γ) : Prop := ∃ t : E.Element, ∀ x : E.Element, x ≤ t
+
+/-- **The improper filter.** When a system `E` is *unconditionally* closed under intersection, the
+family of *all* its neighbourhoods is a genuine filter — the greatest element of `|E|`. -/
+def improperTop (E : NeighborhoodSystem γ)
+    (hcl : ∀ {X Y : Set γ}, E.mem X → E.mem Y → E.mem (X ∩ Y)) : E.Element where
+  mem := E.mem
+  sub h := h
+  master_mem := E.master_mem
+  inter_mem h1 h2 := hcl h1 h2
+  up_mem _ hY _ := hY
+
+/-- An unconditionally ∩-closed system has a greatest element. -/
+theorem hasTop_of_inter_closed (E : NeighborhoodSystem γ)
+    (hcl : ∀ {X Y : Set γ}, E.mem X → E.mem Y → E.mem (X ∩ Y)) : HasTop E :=
+  ⟨improperTop E hcl, fun x X hX => x.sub hX⟩
+
+/-- A subsystem of an unconditionally ∩-closed system is itself unconditionally ∩-closed: the
+`◁`-clause `inter_closed` routes the intersection through `E`. -/
+theorem subsystem_inter_closed {D E : NeighborhoodSystem γ} (h : D ◁ E)
+    (hE : ∀ {X Y : Set γ}, E.mem X → E.mem Y → E.mem (X ∩ Y))
+    {X Y : Set γ} (hX : D.mem X) (hY : D.mem Y) : D.mem (X ∩ Y) :=
+  h.inter_closed hX hY (hE (h.sub hX) (h.sub hY))
+
+/-- **`HasTop` transports across domain isomorphisms.** An order-iso `|D| ≃o |D'|` carries the
+greatest element of `|D'|` to that of `|D|`. -/
+theorem hasTop_of_iso {D : NeighborhoodSystem γ} {D' : NeighborhoodSystem δ}
+    (e : D.Element ≃o D'.Element) (h : HasTop D') : HasTop D := by
+  obtain ⟨t, ht⟩ := h
+  refine ⟨e.symm t, fun x => ?_⟩
+  rw [← e.le_iff_le, e.apply_symm_apply]
+  exact ht (e x)
+
+/-- **`ℙ𝒟` is unconditionally closed under intersection** (`PDmem_inter`; the empty union always
+supplies the consistency witness). Hence `|ℙ𝒟|` always has a greatest element. -/
+theorem powerDomain_hasTop (V : NeighborhoodSystem γ) : HasTop V.PowerDomain :=
+  hasTop_of_inter_closed V.PowerDomain (fun hX hY => V.PDmem_inter hX hY)
+
+/-- **`D ⊴ ℙ𝒟` forces `|D|` to have a greatest element.** This is the obstruction behind Part C. -/
+theorem hasTop_of_trianglelefteq_powerDomain {D : NeighborhoodSystem γ} {E : NeighborhoodSystem δ}
+    (h : D ⊴ E.PowerDomain) : HasTop D := by
+  obtain ⟨D', hsub, ⟨e⟩⟩ := h
+  have hPcl : ∀ {X Y : Set (Set δ)}, E.PowerDomain.mem X → E.PowerDomain.mem Y →
+      E.PowerDomain.mem (X ∩ Y) := fun hX hY => E.PDmem_inter hX hY
+  exact hasTop_of_iso e (hasTop_of_inter_closed D' (subsystem_inter_closed hsub hPcl))
+
+/-! ### The flat two-point domain `Vshape`, with no greatest element. -/
+
+/-- `{true} ∩ {false} = ∅` in `Set Bool`. -/
+private theorem tf_inter : ({true} : Set Bool) ∩ {false} = ∅ := by
+  ext b
+  simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, iff_false, not_and]
+  rintro rfl h; exact absurd h (by decide)
+
+/-- `{false} ∩ {true} = ∅` in `Set Bool`. -/
+private theorem ft_inter : ({false} : Set Bool) ∩ {true} = ∅ := by
+  ext b
+  simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_empty_iff_false, iff_false, not_and]
+  rintro rfl h; exact absurd h (by decide)
+
+/-- The flat two-point domain over `Bool`: the neighbourhoods are the master `Δ = {true, false}`
+and the two singletons `{true}`, `{false}`. Since `{true} ∩ {false} = ∅` and `∅` is not a
+neighbourhood (and has no neighbourhood subset), condition (ii) holds only vacuously there — this is
+a genuine Scott neighbourhood system whose two singletons are *inconsistent*. -/
+def Vshape : NeighborhoodSystem Bool where
+  mem X := X = Set.univ ∨ X = {true} ∨ X = {false}
+  master := Set.univ
+  master_mem := Or.inl rfl
+  sub_master _ := Set.subset_univ _
+  inter_mem := by
+    rintro X Y Z hX hY hZ hZsub
+    -- every neighbourhood is nonempty, so a witness `Z ⊆ X ∩ Y = ∅` is impossible
+    have hZne : Z.Nonempty := by
+      rcases hZ with rfl | rfl | rfl
+      · exact ⟨true, Set.mem_univ true⟩
+      · exact ⟨true, rfl⟩
+      · exact ⟨false, rfl⟩
+    obtain ⟨z, hz⟩ := hZne
+    rcases hX with rfl | rfl | rfl <;> rcases hY with rfl | rfl | rfl
+    · exact Or.inl (by rw [Set.inter_self])
+    · exact Or.inr (Or.inl (by rw [Set.univ_inter]))
+    · exact Or.inr (Or.inr (by rw [Set.univ_inter]))
+    · exact Or.inr (Or.inl (by rw [Set.inter_univ]))
+    · exact Or.inr (Or.inl (by rw [Set.inter_self]))
+    · rw [tf_inter] at hZsub; exact absurd (hZsub hz) (Set.notMem_empty z)
+    · exact Or.inr (Or.inr (by rw [Set.inter_univ]))
+    · rw [ft_inter] at hZsub; exact absurd (hZsub hz) (Set.notMem_empty z)
+    · exact Or.inr (Or.inr (by rw [Set.inter_self]))
+
+theorem Vshape_mem_true : Vshape.mem {true} := Or.inr (Or.inl rfl)
+theorem Vshape_mem_false : Vshape.mem {false} := Or.inr (Or.inr rfl)
+
+/-- `∅` is not a `Vshape`-neighbourhood (each neighbourhood is nonempty). -/
+theorem Vshape_not_mem_empty : ¬ Vshape.mem (∅ : Set Bool) := by
+  rintro (h | h | h)
+  · exact Set.empty_ne_univ h
+  · exact absurd h.symm (Set.singleton_ne_empty true)
+  · exact absurd h.symm (Set.singleton_ne_empty false)
+
+/-- **`|Vshape|` has no greatest element.** A greatest element would contain both `{true}` and
+`{false}`, hence (by `inter_mem`) their intersection `∅`, which is not a neighbourhood. -/
+theorem Vshape_not_hasTop : ¬ HasTop Vshape := by
+  rintro ⟨t, ht⟩
+  have htt : t.mem {true} :=
+    ht (Vshape.principal Vshape_mem_true) {true} ⟨Vshape_mem_true, subset_rfl⟩
+  have htf : t.mem {false} :=
+    ht (Vshape.principal Vshape_mem_false) {false} ⟨Vshape_mem_false, subset_rfl⟩
+  have hint : t.mem (({true} : Set Bool) ∩ {false}) := t.inter_mem htt htf
+  rw [tf_inter] at hint
+  exact Vshape_not_mem_empty (t.sub hint)
+
+/-- **Proposition 7.12, Part C is FALSE in general.** The flat two-point domain `Vshape` is *not* a
+subdomain of its own Smyth power domain: `Vshape ⋬ ℙ(Vshape)`. (Contrast Parts A, B, D, which hold
+for every `𝒟`.) -/
+theorem vshape_not_trianglelefteq_powerDomain : ¬ (Vshape ⊴ Vshape.PowerDomain) := fun h =>
+  Vshape_not_hasTop (hasTop_of_trianglelefteq_powerDomain h)
+
+end Counterexample712C
 
 end Domain.Neighborhood
