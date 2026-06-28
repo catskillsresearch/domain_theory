@@ -62,9 +62,18 @@ documented). **Watch:** mathlib's `grind`-proved `List.getD_eq_default`/`getD_eq
 `getD_append(_right)` pull `Classical.choice` — re-proved choice-free as `getD_*_cf` in `Recursive.lean`.
 See the **latest dated checkpoint at the very bottom**.
 
+**Just completed — Exercise 7.17 Part 1 is DONE** (`Exercise717.lean` green, wired, zero `sorry`).
+Clause 1 of 7.17 — "complete 7.7 including *all* the Example 6.1 combinators of `D^§`". Adds the rest
+of the combinator set beyond `Combinators77.lean`'s selection (`inSharp`+`proj₀`): **`proj1Map`** (2nd
+projection, `proj1_toElementMap_pairSharp`/`proj1_isComputable`) and **`pairSharpMap`** (the joint
+pairing `D^§×D^§→D^§`, `pairSharpMap_toElementMap : pair(x,y)↦⟨x,y⟩^§`/`pairSharp_isComputable`, index
+rel `V_{2·t+2}⊆V_k` via `Vsharp_even`). Data + faithfulness `⊆{propext,Quot.sound}`; the two
+`*_isComputable` carry `Classical.choice` (as in Combinators77). **Remaining for 7.17 Part 2: the
+universal strict `g:D^§→E`** (catamorphism + computability). See the **latest dated checkpoint at the
+very bottom**.
+
 **Next concrete target: open Lecture VII items** —
-**Exercise 7.16** (`curry` as a neighbourhood relation:
-recursive or r.e.?), **Exercise 7.17** (the full combinator finish for `D^§`), **Exercise 7.18**
+**Exercise 7.17 Part 2** (the universal strict `g : D^§ → E`), **Exercise 7.18**
 (define *effective isomorphism*; would tighten Ex 7.13's "essentially the same"), **Exercise 7.23**
 (finish `PN`). The Ex-7.13 infra to reuse: `ComputablePresentation`,
 `incl_computable`/`cons_computable`/`inter`, `RecDecidable`/`REPred`, and now the
@@ -3484,3 +3493,55 @@ shows for `eval`.
     `Xenum_singleton`. Concludes `IsComputableMap PA PB (curryC …)` via `RecDecidable₂.re`.
 - **Axiom audit:** `curryComb_rel`, `curryComb_rel_recDecidable`, `curryComb_isComputable` all
   `⊆ {propext, Quot.sound}` (choice-free — no `Classical.choice`).
+
+---
+
+## Checkpoint — 2026-06-28 — Exercise 7.17 **Part 1 COMPLETE** (all Example 6.1 combinators of `D^§`)
+
+New module `Domain/Neighborhood/Exercise717.lean` (ns `Domain.Neighborhood.Proposition77`, green,
+wired into `Domain.lean`, zero `sorry`). This is **clause 1 of Exercise 7.17** — "complete 7.7
+including *all* the combinators of 6.1". (Scott's text prints "6.2"; the construct is Example **6.1**,
+and 7.7 itself says "all the combinators of Example 6.1", so we read it as 6.1.) `Combinators77.lean`
+had done the *selection* `inSharp`(`λx.x^§`) + `proj₀`; this finishes the set.
+
+**What landed (continuing the `Proposition77` namespace, reusing `Vsharp`/`dsharpPresentation`):**
+- **`proj1Map`** — pair-part *second* projection `D^§ → D^§`, the exact mirror of `Combinators77`'s
+  `proj0Map` with the second `embPair` component: `W proj₁ Z ↔ Z=Γ ∨ ∃P Q, W=1·P∪2·Q ∧ Q⊆Z`.
+  Faithfulness **`proj1_toElementMap_pairSharp : proj₁(⟨x,y⟩^§)=y`**. Computability
+  **`proj1_isComputable`** via `proj1_rel_Vsharp_iff`: index rel `k=0 ∨ (m%2=0 ∧ m≠0 ∧
+  V_{(m/2-1).unpair.2}⊆V_k)` — same shape as `proj0` but the **right** child (`.unpair.2`), so the
+  primrec reindex uses `Nat.Primrec.right.comp …`. Disjunction of `natEq`/parity/`incl` deciders ⟹ `.re`.
+- **`pairSharpMap`** — Scott's pairing constructor `pair : D^§ × D^§ → D^§` as a **joint** map out of
+  `prod (Dsharp D hD) (Dsharp D hD)` (so over `α⊕α`, using `Product.lean`'s `prodNbhd`/`prod`/`pair`).
+  Relation `rel V W ↔ (prod).mem V ∧ MemS W ∧ ∃A B, MemS A ∧ MemS B ∧ V=prodNbhd A B ∧ embPair A B⊆W`.
+  `master_rel` works because `embPair Γ Γ ⊆ Γ` (`embPair_subset_Gamma`). Faithfulness
+  **`pairSharpMap_toElementMap : pairSharpMap.toElementMap (pair x y) = pairSharp D hD x y`** (the
+  product element pairing maps to Example 6.1's `pairSharp`; forward via up-closure of `pairSharp`,
+  backward splits `W=Γ` / `W=embPair P Q`). Computability **`pairSharp_isComputable`** via
+  `pairSharp_rel_Vsharp_iff`: on indices the relation collapses (by `prodNbhd_injective` +
+  **`Vsharp_even`**: `embPair (V_{p t})(V_{q t}) = V_{2·t+2}`) to `V_{2·t+2} ⊆ V_k` — a slice of
+  `dsharpPresentation.incl_computable` reindexed by primrec `s ↦ ⟨2·s.unpair.1+2, s.unpair.2⟩`, hence r.e.
+
+With `inSharpMap`/`proj0Map` this is the **full** combinator set of the domain equation
+`D^§ ≅ D + (D^§ × D^§)`: injections `in`,`pair` and pair-part projections `proj₀`,`proj₁`.
+
+**Axiom audit (`#print axioms`):** `proj1Map`, `pairSharpMap`, and **both faithfulness theorems**
+(`proj1_toElementMap_pairSharp`, `pairSharpMap_toElementMap`) are choice-free `⊆ {propext, Quot.sound}`.
+The two `*_isComputable` proofs carry `Classical.choice` (Prop-level only — inherited from
+`incl_computable` / `Set` reasoning over arbitrary `α`), exactly as in `Combinators77.lean`.
+
+**Reusable patterns / gotchas:**
+- For the joint pairing's index iff, `rw [pairSharpMap_rel, prodPresentation_X, Vsharp_even]` then the
+  `∃A B, V=prodNbhd A B`-witness is pinned by `prodNbhd_injective`; the `(dsharpPresentation P hD).X k`
+  vs `Vsharp D P k` mismatch is **defeq** (handled by `simp [dsharpPresentation_X]` / `rfl`).
+- `obtain ⟨rfl, rfl⟩ := prodNbhd_injective heq` eliminates the **later**-introduced pair `A B`
+  (substituting them away), so refer to the **earlier** names (`A0 B0`) afterwards — this bit once
+  (got "Unknown identifier `A`").
+
+**Next concrete target: Exercise 7.17 Part 2 — the universal strict catamorphism `g : D^§ → E`.** For
+`E` effectively given with computable `u : D → E`, `v : E×E → E`, the unique strict `g` with
+`g(in x)=u(x)`, `g(pair(y,z))=v(g y, g z)` is computable. This is a fold over the tree algebra: build
+`g`'s neighbourhood relation by recursion on the `D^§`-neighbourhood shape (Γ↦master_E; `0X` ↦ `u`'s
+relation on `X`; `1P∪2Q` ↦ `∃Z₁ Z₂, P g Z₁ ∧ Q g Z₂ ∧ ⟨Z₁,Z₂⟩ v Z`), and show it r.e. via a fresh
+course-of-values recursion over `D^§`-codes (reuse `Vsharp`'s `nat_shape`/`pair_lt_pair_of_lt`
+well-foundedness machinery from `Proposition77.lean`). Comparable in size to `Proposition77.lean`.
