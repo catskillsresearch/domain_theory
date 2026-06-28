@@ -151,4 +151,5 @@ import Domain.Neighborhood.Definition79
 import Domain.Neighborhood.Proposition710
 import Domain.Neighborhood.Definition711
 import Domain.Neighborhood.Proposition712
+import Domain.Neighborhood.Exercise713
 import Domain.InfoSys
