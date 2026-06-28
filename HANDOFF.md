@@ -17,12 +17,9 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
-**Next concrete target:** **Definition 7.11 is COMPLETE / Pass** (`Definition711.lean`, green, wired — finite-element
-joins `{x₀,…,x_{n-1}}` in `|ℙ𝒟|` via `PDfinJoin`/`PDsingleton`; see latest checkpoint at the very bottom).
-The obvious next item is **Proposition 7.12** (the join map is approximable/computable; `{x}∩{y}={x,y}`; `D ⊴ ℙD`
-via `λx.{x}` on finite elements — builds on `Definition711.lean`'s `PDsingleton`). Other open Lecture VII items: **Exercise 7.17**
+**Next concrete target:** **Proposition 7.12 is PARTIAL / Pass (A,B,D)** (`Proposition712.lean`, green, wired — singleton/binary join maps approximable & computable; `{x,y}={x}∩{y}`; **`D ⊴ ℙD` deferred**; see latest checkpoint at the very bottom). Other open Lecture VII items: **Exercise 7.17**
 (the full combinator finish), **Exercise 7.23** (finish `PN`: `fun`/`graph`/`∩`/`∪`/`+` computable,
-building on `Example78.lean`), **Def 7.11 / Prop 7.12** (finite-element joins `{x₀,…,x_{n-1}}` in `ℙ𝒟`).
+building on `Example78.lean`), **Prop 7.12 Part C** (`D ⊴ ℙD` via projection pair).
 **Prop 7.7 is fully DONE** across `Proposition77.lean` + `Combinators77.lean` (green, wired): the
 `Vsharp` layer, the primitive-recursive course-of-values deciders (`dsharpStep`/`gOf`/`intI` memo
 evaluator, `dsharp_decider_spec`), the assembled `dsharpPresentation` + `dsharp_isEffectivelyGiven`
@@ -3039,7 +3036,22 @@ Scott's finite-element join in `|ℙ𝒟|` from PRG-19 p.129:
 **Choice discipline.** Filter proofs choice-free; bundled `def`s inherit `Classical.choice` from `PowerDomain`
 (same Prop-level `inter_mem` pattern as Prop 7.10). Audited: `PDfinJoin`/`PDsingleton` `⊆{propext,Quot.sound,Classical.choice}`.
 
-**Deferred to Prop 7.12:** `{↑X} = ↑(↓X)` (`PDsingleton_principal`), intersection law `{x}∩{y}={x,y}`, approximability/computability
-of `λx₀,…,x_{n-1}.{x₀,…,x_{n-1}}`, and `D ⊴ ℙD`.
+**Superseded by Prop 7.12 checkpoint below** (`{↑X}=↑(↓X)`, intersection law, approximability/computability).
 
-**Next concrete target: Proposition 7.12.**
+---
+
+### Checkpoint — 2026-06-27 — **Proposition 7.12 PARTIAL / Pass (A,B,D)** (`Proposition712.lean`, green, wired, audited)
+
+Scott's PRG-19 p.129 Prop 7.12: the finite join map `λx₀,…,x_{n-1}.{x₀,…,x_{n-1}} : Dⁿ→ℙD` is approximable and computable when `D` is effectively given; `{x₀,…,x_{n-1}} = {x₀}∩…∩{x_{n-1}}`; and `λx.{x}` shows `D ⊴ ℙD`.
+
+**Formalization (`Proposition712.lean`, on `Definition711.lean` + `Proposition710.lean`).**
+- **Part A:** **`PDsingletonApproxMap`** via Ex 2.8 **`ofMono`** (`↑X↦{↑X}`); **`PDsingleton_mono`**; **`PDsingletonApproxMap_toElementMap`**; **`PDsingleton_principal`** (`{↑X}=↑(↓X)`).
+- **Part B:** filter meet **`PDsingletonMeet`**; **`PDfinJoin_pair`** / **`PDfinJoin_inter_two`** (binary `{x,y}={x}∩{y}`); **`PDfinJoinApproxMap₂`** + **`finJoinMap_prod`** (`ofMap₂` on `D×D`).
+- **Part C — DEFERRED:** `D ⊴ ℙD` (Lemma 6.15 projection pair). Naive token retraction `↓X↦↑X else ⊥` is not **`ofMono`**-monotone when `↓A∩↓B∈ℙ𝒟` but `A∩B∉𝒟`; `𝒟† ◁ ℙ𝒟` also fails **`inter_closed`**. Injection half is **`PDsingletonApproxMap`**.
+- **Part D:** **`PDsingletonApproxMap_rel_Ypd_iff`** (`∃b∈dl k, X_n⊆X_b`); **`singleton_isComputable`**; **`PDfinJoinApproxMap₂_isComputable`** (two singleton tests, `proj₀`-style reindexing).
+
+**Gotchas.** (1) Avoid `singletonMap`/`finJoinMap₂` names inside `namespace NeighborhoodSystem` with `(V := V)` — Lean parses as structure field projection. (2) Use **`PDext`** / `@Element.ext (Set α) V.PowerDomain` for `|ℙ𝒟|` extensionality. (3) **`RecDecidable₂.bExistsList.swap`** for correct pair-coding of bounded `∃` over decode lists in computability proofs.
+
+**Choice discipline.** All proofs choice-free modulo inherited `PowerDomain.inter_mem` (`Classical.choice` in Prop fields only). Audited: main decls `⊆{propext,Quot.sound,Classical.choice}`.
+
+**Next concrete target: Prop 7.12 Part C (`D ⊴ ℙD`).**
