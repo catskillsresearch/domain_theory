@@ -36,7 +36,23 @@ headline decls fully choice-free `⊆{propext,Quot.sound}`**). Both halves: **Ha
 (`y=⋃ᵢ↑Y_{t(i)}` with `t` primrec + decreasing, via running intersections `tFun Q r₀` built with
 `Nat.Primrec.prec`). See the **latest dated checkpoint at the very bottom**.
 
-**Next concrete target: open Lecture VII items** — **Exercise 7.15** (finish 7.4 for `⊗`,`⊕`,`D^∞`),
+**Just completed — Exercise 7.15 is DONE incl. ALL combinators** (`Exercise715.lean` green, wired,
+zero `sorry`). All three constructs effectively given: **`⊗`/`⊕`** via Scott's *bare* Def 7.1
+(`ScottPresentation`, no primrec `inter` — provably impossible under bottom-collapse;
+`smash_isEffectivelyGivenS`/`osum_isEffectivelyGivenS`, classical input localised to the enumeration),
+and **`D`<sup>∞</sup>** `= iterSys V` via the *full* `ComputablePresentation` **fully choice-free
+`⊆{propext,Quot.sound}`** (`iterSys_isEffectivelyGiven`/`iterPresentation`; codes = fiber-index lists,
+`inter` tabulated with the new `Recursive.tabCode`/`nthCode`; combinator `projN_isComputable`).
+**Combinators now at full Theorem-7.4 parity:** **`⊕`** has `osumInMap₀/₁` (in), `osumOutMap₀/₁` (out),
+`osumMap` (`f⊕g`); **`⊗`** has `smashProj₀/₁` (proj), `smashPaired` (`⟨a,b⟩⊗`), `smashMap` (`f⊗g`);
+**`D`<sup>∞</sup>** has `projN` (`head=projN 0`) — every `*_isComputable` proven via `IsComputableMapS`.
+Axiom audit: `projN_isComputable ⊆ {propext, Quot.sound}` (choice-free); the `⊗`/`⊕` combinators carry
+`Classical.choice` (Prop-level only — inherited from the classical `smashEnum`/`osumEnum` branch, as
+documented). **Watch:** mathlib's `grind`-proved `List.getD_eq_default`/`getD_eq_getElem`/
+`getD_append(_right)` pull `Classical.choice` — re-proved choice-free as `getD_*_cf` in `Recursive.lean`.
+See the **latest dated checkpoint at the very bottom**.
+
+**Next concrete target: open Lecture VII items** —
 **Exercise 7.16** (`curry` as a neighbourhood relation:
 recursive or r.e.?), **Exercise 7.17** (the full combinator finish for `D^§`), **Exercise 7.18**
 (define *effective isomorphism*; would tighten Ex 7.13's "essentially the same"), **Exercise 7.23**
@@ -3345,3 +3361,82 @@ from the meet being in `y` (`hk.subset` of `Q.surj (y.sub (y.inter_mem ..))`). (
 **Axiom audit.** `repred_range_primrec`, `repred_exists_primrec_range`, `repred₂_exists_primrec_enum`,
 `computableElement_eq_decreasing_iUnion_principal` — **all** `⊆{propext,Quot.sound}`. `lake build
 Domain` green; zero `sorry`; wired into `Domain.lean` after `Exercise713`.
+
+---
+
+## 2026-06-28 — Exercise 7.15 COMPLETE (`⊗`, `⊕`, `D`<sup>∞</sup> effectively given) — `Exercise715.lean`
+
+`lake build Domain` green, zero `sorry`, wired into `Domain.lean` after `Exercise714`. All three
+remaining 7.4-style constructs are now effectively given.
+
+**Scott's *bare* Definition 7.1 for `⊗`/`⊕`.** The smash/coalesced bottom-collapse makes a
+**primitive-recursive `inter` function provably impossible** (a consistent `(a,b)` may need to detect
+that `b` is *secretly* the master, i.e. decide `Xb=Δ₀`?, which is r.decidable but not primrec). So the
+file introduces **`ScottPresentation`** = `ComputablePresentation` minus the `inter`/`masterIdx` data
+fields (Scott's literal Def 7.1: just enumeration `X` + relations (i),(ii) recursively decidable), with
+`IsEffectivelyGivenS`/`IsComputableMapS`. Results:
+- **`smash_isEffectivelyGivenS`** (`smashEnum`/`smashPresentation`): (i),(ii) reduce to the components'
+  deciders + properness tests; the *only* classical input is the enumeration `smashEnum` (branches on
+  the set-equality properness test).
+- **`osum_isEffectivelyGivenS`**: `osum : NeighborhoodSystem (Option (α⊕β))` (coalesced sum over the
+  separated-sum machinery), `osumEnum`/`osumPresentation`; (i) reduces to `sumPresentation.interEq` via
+  a primrec reindex `r`, (ii) by direct case analysis. Same choice localisation as smash.
+
+**`D`<sup>∞</sup> `= iterSys V` (Ex 3.16) — full `ComputablePresentation`, FULLY CHOICE-FREE
+`⊆{propext,Quot.sound}` (data *and* proofs).** It is *uniform* (every cylinder is a genuine member, no
+deletion), so a primrec `inter` exists. **`iterSys_isEffectivelyGiven`** via **`iterPresentation P`**:
+- **Coding.** A code `t` codes a finite fiber-index list (`Recursive.decodeList`); fiber `j` of the
+  enumerated nbhd is `P.X (iterIdx P t j)`, where **`iterIdx P t j := nthCode t j P.masterIdx`** reads
+  the `j`-th entry, defaulting to `masterIdx` (so all but finitely many fibers are `Δ`).
+  `fiber (iterEnum P t) j = P.X (iterIdx P t j)` is **`rfl`** (key simp lemma `fiber_iterEnum`).
+- **Relations (i),(ii)** reduce to **bounded coordinate checks** over `j < n+m(+k)`:
+  `iterEnum_inter_eq_iff` / `iterEnum_cons_iff` (beyond the bound every fiber is `Δ`, handled by
+  `iterIdx_ge`), fed to **`RecDecidable.bForall`** after reindexing into `P.interEq_computable` /
+  `P.cons_computable` (the per-coordinate decider; reindex built from `primrec_nthCode`).
+- **`inter` = `iterInter P n m`** tabulates `P.inter` coordinate-wise: `tabCode (interG P) ⟨n+m,⟨n,m⟩⟩
+  (n+m)` (`interG P s = P.inter (iterIdx (s.2.1) s.1) (iterIdx (s.2.2) s.1)`). `tabCode_nth_lt`/`_ge`
+  give `iterInter_idx_lt`/`_ge`; `inter_spec` via `P.inter_spec` at each consistent coordinate.
+- **`masterIdx := 0`** (empty list ⟹ all-`Δ` ⟹ `iterSys` master). **`surj`** via **`exists_list_fiber`**
+  (induction on `N` building `[idx of fiber 0,…,fiber N-1]`, `P.surj` per coordinate, choice-free).
+- **Combinator `projN_isComputable`** — the coordinate projections `projN n` (Ex 3.16; `head=projN 0`)
+  are `IsComputableMap (iterPresentation P) P (projN V n)`: relation `W (projN n) X ↔
+  fiber W n ⊆ X ↔ X_{iterIdx t n} ⊆ X_b`, a slice of `incl_computable` (mirrors `proj₀_isComputable`).
+
+**New choice-free infra in `Recursive.lean`** (all `⊆{propext,Quot.sound}`):
+- **`nthCode c i d`** (i-th entry of list-code `c`, default `d`): `nthCode_eq` (= `(decodeList c).getD i d`)
+  via `foldCode`/`nthCode_foldl`; `primrec_nthCode`.
+- **`tabCode g a B`** (tabulate `[g⟨0,p⟩…g⟨B-1,p⟩]` for `a=⟨B,p⟩`) via genuine **`Nat.Primrec.prec`**
+  step `tabStep`: `decodeList_tabCode`, `tabCode_nth_lt`/`tabCode_nth_ge`, `primrec_tabCode`.
+- **⚠️ `Classical.choice` gotcha & fix.** Mathlib's `List.getD_eq_getElem`, `List.getD_eq_default`,
+  `List.getD_append(_right)` are **`grind`-proved ⟹ pull `Classical.choice`**. They silently tainted
+  `tabCode_nth_*` and the whole `D`<sup>∞</sup> presentation. **Fixed by re-proving the slice by
+  structural induction** (only the clean `getD_nil`/`getD_cons_zero`/`getD_cons_succ`/`getElem_map`/
+  `getElem_range`): `getD_eq_default_cf`, `getD_append_cf`, `getD_append_right_cf`, `getD_map_range_cf`,
+  `getD_eq_getElem_cf`. Audit `nthCode_eq`/`decodeList_encodeList` were already clean; after the swap so
+  are `tabCode_nth_*`, `iterPresentation`, `iterSys_isEffectivelyGiven`, `projN_isComputable`.
+
+**Remaining for 7.15:** `⊗`/`⊕` combinators (smash strict-pair; `in`/`out` for coalesced `⊕`) — the
+`D`<sup>∞</sup> combinator (`projN`) is done. These would use `IsComputableMapS` (the bare-presentation
+analogue of `IsComputableMap`).
+
+### Checkpoint 2026-06-28 — Exercise 7.15 combinators COMPLETE (full Theorem-7.4 parity)
+
+`Exercise715.lean` green, wired, zero `sorry`. Closed the combinator gap flagged in the line above.
+
+- **Coalesced `⊕` (mirrors `+`):** `osumInMap₀`/`osumInMap₁` (injections), `osumOutMap₀`/`osumOutMap₁`
+  (projections via `leftPart`/`rightPart`), `osumMap` (`f⊕g`) — all `*_isComputable` via
+  `IsComputableMapS`. `osumMap`'s `rel` branches: codomain master (collapse) ∨ proper `inj₀`-pair via
+  `f.rel` ∨ proper `inj₁`-pair via `g.rel`; computability is a `RecDecidable` tag/properness skeleton
+  `∨`-glued with `f`/`g`'s r.e. relations (`Hf`/`Hg`). New helper lemmas: `osum_eq_master_of_inj₀/₁master`,
+  `osum_mem_subset_inj₀/₁`. (`inter_right`'s master branch wants `Set.inter_eq_self_of_subset_right` —
+  `Set.inter_eq_right.mpr` mis-orients against `osum`'s `sumMaster` vs `.master`.)
+- **Smash `⊗` (mirrors `×`):** `smashProj₀`/`smashProj₁` (projections; same `Sum.inl⁻¹'W⊆X'` relation as the
+  product `proj`, valid since every smash member is a `prodNbhd`; computable via `smashEnum_eq_eff` +
+  `incl_computable`), `smashPaired` (`⟨a,b⟩⊗`, strict pairing — proper image factors else master),
+  `smashMap` (`f⊗g`). `smashPaired_isComputable` needs **no** effective-index bridge: the proper branch
+  reads `smashEnum`'s *raw* factors, so it's `¬proper(m) ∨ (proper(m) ∧ a.rel(n,m₀) ∧ b.rel(n,m₁))`.
+- **`D`<sup>∞</sup>:** `projN` (`head=projN 0`) — already done.
+- **Axiom audit:** `projN_isComputable ⊆ {propext, Quot.sound}` (choice-free). The five `⊕` and three `⊗`
+  combinators are `{propext, Classical.choice, Quot.sound}` — `Classical.choice` is Prop-level only,
+  inherited from the classical `osumEnum`/`smashEnum` properness branch (the *data* — systems and
+  presentations — stays choice-free; this is the documented `⊗`/`⊕` posture).

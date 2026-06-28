@@ -1528,4 +1528,209 @@ theorem primrec_myLor : Nat.Primrec (fun t => myLor t.unpair.1 t.unpair.2) := by
   rw [rec_const_iterate]
   rfl
 
+/-! ## Random access and tabulation of coded lists (for the iterate `𝒟^∞`, Exercise 7.15)
+
+`𝒟^∞`-neighbourhoods are finitely-supported sequences of `𝒟`-neighbourhoods, coded as a list of
+component indices. The presentation's relations index *positions* of the list, so we need
+primitive-recursive list **indexing** `nthCode c i d = (decodeList c).getD i d` and a **tabulation**
+`tabCode g p B` coding `[g⟨0,p⟩, …, g⟨B-1,p⟩]` (used for the intersection function). Both choice-free,
+both built from the existing `foldCode`/`Nat.Primrec.prec` engine. -/
+
+/-- `foldCode`-shaped indexing step. State `pair counter result`, parameter the target index `i`;
+bump the counter and overwrite the result exactly when `counter = i` (via the `{0,1}` equality bit
+`1 - ((counter - i) + (i - counter))`). -/
+def nthStp (w : ℕ) : ℕ :=
+  Nat.pair (w.unpair.2.unpair.1.unpair.1 + 1)
+    (selectFn (1 - ((w.unpair.2.unpair.1.unpair.1 - w.unpair.2.unpair.2)
+        + (w.unpair.2.unpair.2 - w.unpair.2.unpair.1.unpair.1)))
+      w.unpair.1 w.unpair.2.unpair.1.unpair.2)
+
+theorem nthStp_val (i x s r : ℕ) :
+    nthStp (Nat.pair x (Nat.pair (Nat.pair s r) i))
+      = Nat.pair (s + 1) (selectFn (1 - ((s - i) + (i - s))) x r) := by
+  unfold nthStp; simp only [unpair_pair_fst, unpair_pair_snd]
+
+/-- **Primitive-recursive indexing into a coded list.** `nthCode c i d = (decodeList c).getD i d`. -/
+def nthCode (c i d : ℕ) : ℕ := (foldCode nthStp i (Nat.pair 0 d) c).unpair.2
+
+theorem nthCode_foldl (i : ℕ) : ∀ (l : List ℕ) (s r : ℕ),
+    (List.foldl (fun acc x => nthStp (Nat.pair x (Nat.pair acc i))) (Nat.pair s r) l).unpair.2
+      = if i < s then r else l.getD (i - s) r := by
+  intro l
+  induction l with
+  | nil => intro s r; simp only [List.foldl_nil, unpair_pair_snd, List.getD_nil]; split <;> rfl
+  | cons x l ih =>
+    intro s r
+    rw [List.foldl_cons, nthStp_val, ih (s + 1) (selectFn (1 - ((s - i) + (i - s))) x r)]
+    by_cases h : i = s
+    · subst h
+      have he : (1 : ℕ) - ((i - i) + (i - i)) = 1 := by omega
+      rw [he, selectFn_one, if_neg (lt_irrefl i), if_pos (Nat.lt_succ_self i), Nat.sub_self,
+        List.getD_cons_zero]
+    · by_cases h2 : i < s
+      · have he : (1 : ℕ) - ((s - i) + (i - s)) = 0 := by omega
+        rw [he, selectFn_zero, if_pos h2, if_pos (Nat.lt_succ_of_lt h2)]
+      · have he : (1 : ℕ) - ((s - i) + (i - s)) = 0 := by omega
+        rw [he, selectFn_zero, if_neg h2, if_neg (show ¬ i < s + 1 by omega),
+          show i - s = (i - (s + 1)) + 1 by omega, List.getD_cons_succ]
+
+theorem nthCode_eq (c i d : ℕ) : nthCode c i d = (decodeList c).getD i d := by
+  unfold nthCode
+  rw [foldCode_eq']
+  have h := nthCode_foldl i (decodeList c) 0 d
+  rw [if_neg (Nat.not_lt_zero i), Nat.sub_zero] at h
+  exact h
+
+theorem primrec_nthStp : Nat.Primrec nthStp := by
+  have hcount : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1.unpair.1) :=
+    Nat.Primrec.left.comp (Nat.Primrec.left.comp Nat.Primrec.right)
+  have hi : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.right
+  have hx : Nat.Primrec (fun w : ℕ => w.unpair.1) := Nat.Primrec.left
+  have hres : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1.unpair.2) :=
+    Nat.Primrec.right.comp (Nat.Primrec.left.comp Nat.Primrec.right)
+  have hbit : Nat.Primrec (fun w : ℕ => 1 - ((w.unpair.2.unpair.1.unpair.1 - w.unpair.2.unpair.2)
+      + (w.unpair.2.unpair.2 - w.unpair.2.unpair.1.unpair.1))) :=
+    primrec_sub₂ (Nat.Primrec.const 1)
+      (primrec_add₂ (primrec_sub₂ hcount hi) (primrec_sub₂ hi hcount))
+  exact ((Nat.Primrec.succ.comp hcount).pair (primrec_selectFn hbit hx hres)).of_eq fun _ => rfl
+
+/-- `nthCode` is primitive recursive in `(c, i, d)` (coded as `pair c (pair i d)`). -/
+theorem primrec_nthCode : Nat.Primrec
+    (fun t => nthCode t.unpair.1 t.unpair.2.unpair.1 t.unpair.2.unpair.2) := by
+  have hfold := primrec_foldCode primrec_nthStp (Nat.Primrec.left.comp Nat.Primrec.right)
+    ((Nat.Primrec.const 0).pair (Nat.Primrec.right.comp Nat.Primrec.right)) Nat.Primrec.left
+  exact (Nat.Primrec.right.comp hfold).of_eq fun _ => rfl
+
+/-- `tabCode`'s recursion step, in the `Nat.Primrec.prec` packaging: the state is
+`pair a (pair y IH)` with `a = pair B p`; it prepends `g⟨B-1-y, p⟩` onto the tail `IH`. -/
+def tabStep (g : ℕ → ℕ) (w : ℕ) : ℕ :=
+  Nat.pair (g (Nat.pair (w.unpair.1.unpair.1 - 1 - w.unpair.2.unpair.1) w.unpair.1.unpair.2))
+    w.unpair.2.unpair.2 + 1
+
+theorem tabStep_val (g : ℕ → ℕ) (a y IH : ℕ) :
+    tabStep g (Nat.pair a (Nat.pair y IH))
+      = Nat.pair (g (Nat.pair (a.unpair.1 - 1 - y) a.unpair.2)) IH + 1 := by
+  unfold tabStep; simp only [unpair_pair_fst, unpair_pair_snd]
+
+/-- **Primitive-recursive tabulation.** With `a = pair B p`, `tabCode g a B` codes the list
+`[g⟨0,p⟩, g⟨1,p⟩, …, g⟨B-1,p⟩]` (length `B`). Built directly from the `prec` step `tabStep`. -/
+def tabCode (g : ℕ → ℕ) (a B : ℕ) : ℕ :=
+  Nat.rec (motive := fun _ => ℕ) 0 (fun y IH => tabStep g (Nat.pair a (Nat.pair y IH))) B
+
+/-- After `K ≤ B` steps the accumulated code decodes to the indices `B-K, …, B-1`. -/
+theorem decodeList_tabCode_aux (g : ℕ → ℕ) (B p : ℕ) :
+    ∀ K, K ≤ B → decodeList (Nat.rec (motive := fun _ => ℕ) 0
+        (fun y IH => tabStep g (Nat.pair (Nat.pair B p) (Nat.pair y IH))) K)
+      = (List.range' (B - K) K).map (fun j => g (Nat.pair j p)) := by
+  intro K
+  induction K with
+  | zero => intro _; simp [decodeList_zero]
+  | succ K ih =>
+    intro hK
+    have hKB : K ≤ B := Nat.le_of_succ_le hK
+    show decodeList (tabStep g (Nat.pair (Nat.pair B p) (Nat.pair K
+      (Nat.rec (motive := fun _ => ℕ) 0
+        (fun y IH => tabStep g (Nat.pair (Nat.pair B p) (Nat.pair y IH))) K)))) = _
+    rw [tabStep_val]
+    simp only [unpair_pair_fst, unpair_pair_snd]
+    rw [decodeList_succ, unpair_pair_fst, unpair_pair_snd, ih hKB,
+      show B - (K + 1) = B - 1 - K by omega, List.range'_succ, List.map_cons,
+      show B - 1 - K + 1 = B - K by omega]
+
+theorem decodeList_tabCode (g : ℕ → ℕ) (B p : ℕ) :
+    decodeList (tabCode g (Nat.pair B p) B) = (List.range B).map (fun j => g (Nat.pair j p)) := by
+  have h := decodeList_tabCode_aux g B p B (le_refl B)
+  rw [Nat.sub_self, ← List.range_eq_range'] at h
+  exact h
+
+/-! ### Choice-free `List.getD` facts.
+
+Mathlib's `List.getD_eq_getElem`/`List.getD_eq_default`/`getD_append`(`_right`) are proved by `grind`,
+which pulls `Classical.choice`. We re-prove the slice we need by structural induction (using only the
+choice-free `getD_nil`/`getD_cons_zero`/`getD_cons_succ`), so the `D^∞` presentation stays
+`⊆ {propext, Quot.sound}`. -/
+
+/-- Choice-free `getD`-as-`getElem` in range. -/
+theorem getD_eq_getElem_cf {β : Type*} (l : List β) (d : β) :
+    ∀ {n : ℕ} (h : n < l.length), l.getD n d = l[n] := by
+  induction l with
+  | nil => intro n h; exact absurd h (Nat.not_lt_zero n)
+  | cons a t ih =>
+    intro n h
+    cases n with
+    | zero => rw [List.getD_cons_zero, List.getElem_cons_zero]
+    | succ m => rw [List.getD_cons_succ, List.getElem_cons_succ]; exact ih _
+
+/-- Choice-free default-out-of-range. -/
+theorem getD_eq_default_cf {β : Type*} (l : List β) (d : β) :
+    ∀ {n : ℕ}, l.length ≤ n → l.getD n d = d := by
+  induction l with
+  | nil => intro n _; exact List.getD_nil
+  | cons a t ih =>
+    intro n h
+    cases n with
+    | zero => exact absurd h (by rw [List.length_cons]; exact Nat.not_succ_le_zero _)
+    | succ m => rw [List.getD_cons_succ]; exact ih (by rw [List.length_cons] at h; omega)
+
+/-- Choice-free `getD` of a left append. -/
+theorem getD_append_cf {β : Type*} (l l' : List β) (d : β) :
+    ∀ {n : ℕ}, n < l.length → (l ++ l').getD n d = l.getD n d := by
+  induction l with
+  | nil => intro n h; exact absurd h (Nat.not_lt_zero n)
+  | cons a t ih =>
+    intro n h
+    cases n with
+    | zero => rw [List.cons_append, List.getD_cons_zero, List.getD_cons_zero]
+    | succ m =>
+      rw [List.cons_append, List.getD_cons_succ, List.getD_cons_succ]
+      exact ih (by rw [List.length_cons] at h; omega)
+
+/-- Choice-free `getD` of a right append. -/
+theorem getD_append_right_cf {β : Type*} (l l' : List β) (d : β) :
+    ∀ {n : ℕ}, l.length ≤ n → (l ++ l').getD n d = l'.getD (n - l.length) d := by
+  induction l with
+  | nil => intro n _; rw [List.nil_append, List.length_nil, Nat.sub_zero]
+  | cons a t ih =>
+    intro n h
+    cases n with
+    | zero => exact absurd h (by rw [List.length_cons]; exact Nat.not_succ_le_zero _)
+    | succ m =>
+      rw [List.cons_append, List.getD_cons_succ, List.length_cons, Nat.succ_sub_succ]
+      exact ih (by rw [List.length_cons] at h; omega)
+
+/-- Choice-free `getD` of a mapped `range`. -/
+theorem getD_map_range_cf {β : Type*} (h : ℕ → β) (d : β) {B i : ℕ} (hi : i < B) :
+    ((List.range B).map h).getD i d = h i := by
+  have hlen : ((List.range B).map h).length = B := by rw [List.length_map, List.length_range]
+  rw [getD_eq_getElem_cf _ d (by rw [hlen]; exact hi), List.getElem_map, List.getElem_range]
+
+theorem tabCode_nth_lt {g : ℕ → ℕ} {B p i : ℕ} (hi : i < B) (d : ℕ) :
+    nthCode (tabCode g (Nat.pair B p) B) i d = g (Nat.pair i p) := by
+  rw [nthCode_eq, decodeList_tabCode, getD_map_range_cf]; exact hi
+
+theorem tabCode_nth_ge {g : ℕ → ℕ} {B p i : ℕ} (hi : B ≤ i) (d : ℕ) :
+    nthCode (tabCode g (Nat.pair B p) B) i d = d := by
+  rw [nthCode_eq, decodeList_tabCode, getD_eq_default_cf]
+  rw [List.length_map, List.length_range]; exact hi
+
+theorem primrec_tabStep {g : ℕ → ℕ} (hg : Nat.Primrec g) : Nat.Primrec (tabStep g) := by
+  have hB : Nat.Primrec (fun w : ℕ => w.unpair.1.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.left
+  have hp : Nat.Primrec (fun w : ℕ => w.unpair.1.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.left
+  have hk : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.1) :=
+    Nat.Primrec.left.comp Nat.Primrec.right
+  have hih : Nat.Primrec (fun w : ℕ => w.unpair.2.unpair.2) :=
+    Nat.Primrec.right.comp Nat.Primrec.right
+  have hidx : Nat.Primrec (fun w : ℕ => w.unpair.1.unpair.1 - 1 - w.unpair.2.unpair.1) :=
+    primrec_sub₂ (primrec_sub₂ hB (Nat.Primrec.const 1)) hk
+  exact (Nat.Primrec.succ.comp ((hg.comp (hidx.pair hp)).pair hih)).of_eq fun _ => rfl
+
+/-- `tabCode g · ·` is primitive recursive in `(a, B)` (coded `pair a B`), whenever `g` is. -/
+theorem primrec_tabCode {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    Nat.Primrec (fun t => tabCode g t.unpair.1 t.unpair.2) :=
+  (Nat.Primrec.prec (Nat.Primrec.const 0) (primrec_tabStep hg)).of_eq fun t => by
+    simp only [Nat.unpaired]; rfl
+
 end Domain.Recursive
