@@ -17,6 +17,21 @@ A session may begin after a context reset; chat memory is not durable, these fil
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
    end-of-item checklist that keeps this file + `arxiv.md` current).
 
+**Just completed — Exercise 7.21 is DONE** (`Exercise721.lean` green, wired, zero `sorry`). Headline
+combinator **`papply : ℙ(D→E) → (ℙD → ℙE)`** = the Smyth power-domain lift of evaluation:
+**`papplyEval V W : ApproximableMap₂ ℙ(funSpace V W) ℙV ℙW`** with `rel Φ A B := … ∧ ∀G∈Φ,∀X∈A,∃Y∈B,
+(eval V W).rel G X Y` (the two-variable analogue of Ex 7.19's `ℙf`), made `papplyB = ofMap₂ papplyEval`
+and **curried (Thm 3.12)** to the exact type `papply = curry papplyB`. Non-trivial
+(`papplyEval_step_witness`: `↓[X₀,Y₀] papply ↓X₀ ↦ ↓Y₀`). **Computable when `eval` is**
+(`papplyEval_isComputable`, reduces on Prop-7.10 codes to `∀g∈dl,∀x∈dl,∃y∈dl, eval(…)` via the new
+**choice-free** helper `re_forallG_forallX_existsY` = `bExists_decodeList_re` + `forall_mem_decodeList₂`×2;
+base `heval` = Thm 7.5 `evalMap_isComputable`). Docstring answers the other 3 questions: Q2 (no isos
+among `D→ℙE`, `ℙ(D×E)`, `ℙD×ℙE` in general — `ℙ` doesn't distribute over `×`), Q3 (yes, relational
+composition `ℙ(D×E)×ℙ(E×F)→ℙ(D×F)`, same Smyth-lift recipe), Q4 (`ℙN⊴PN`, the finitary/computable core,
+not isomorphic). Helper `⊆{propext,Quot.sound}`; all other decls carry Prop-level `Classical.choice`
+inherited from the power domain (none added, as in 7.19/7.20). See the **latest dated checkpoint at
+the very bottom**.
+
 **Just completed — Exercise 7.20 is DONE** (`Exercise720.lean` green, wired, zero `sorry`). The
 flattening combinator **`union : ℙ(ℙD) → ℙD`** (the power-domain monad multiplication `μ`):
 **`unionMap`** with rep-independent `rel A B := ℙℙD.PDmem A ∧ ℙD.PDmem B ∧ ∀ S∈A, ∀ X∈S, ∃ Y∈B, X⊆Y`,
@@ -3766,5 +3781,57 @@ final `IsComputableMap` passes `hQ := fun _ => rfl` (the `PDPresentation.X = Ypd
 ⋃ X∈l, ↓X)` and prove the union equality with `simp only [Set.mem_iUnion, List.mem_map, exists_prop]`
 (a bare `rw [mem_PDunion]` mis-unifies on the nested `upSet (⋃…)` body).
 
-**Next concrete target:** Exercise 7.21 (`ℙ(D→E) → (ℙD → ℙE)` non-trivial combinator?; isos among
-`D→ℙE`, `ℙ(D×E)`, `ℙD×ℙE`?), or Exercise 7.23 (finish `PN`: `fun`/`graph` computable).
+**Next concrete target:** Exercise 7.20 is superseded by 7.21 below. Remaining §7 exercises:
+Exercise 7.22 (algebraists' least-fixed-point domain over `{0,1}*`), Exercise 7.23 (finish `PN` of
+Ex 7.8: `fun`/`graph` computable), Exercise 7.24 (LUCID stream operators).
+
+---
+
+## Checkpoint — Sunday Jun 28, 2026 — Exercise 7.21 DONE (`ℙ(D→E) → (ℙD → ℙE)` and friends)
+
+`Exercise721.lean` (ns `Domain.Neighborhood`) green, wired into `Domain.lean`, zero `sorry`; full
+`lake build Domain` green.
+
+**What it is.** Scott's 7.21 is four open-ended questions. We formalize the **headline (Q1)** in full
+and answer Q2–Q4 in the docstring.
+
+**Q1 — `papply : ℙ(D→E) → (ℙD → ℙE)` (yes, non-trivial).** The **Smyth power-domain lift of
+evaluation** (Thm 3.11 `eval : (D→E) × D → E`):
+- **`papplyEval V W : ApproximableMap₂ (funSpace V W).PowerDomain V.PowerDomain W.PowerDomain`**,
+  `rel Φ A B := ℙfun Φ ∧ ℙD A ∧ ℙE B ∧ ∀ G∈Φ, ∀ X∈A, ∃ Y∈B, (eval V W).rel G X Y`. Two-variable
+  analogue of Ex 7.19's `ℙf` (one level: `∀X∈A,∃Y∈B, X f Y`). Approximable: `master_rel` (witness
+  `Δ_E`, members extracted by `simp [PowerDomain_master, mem_upSet]`), `inter_right` (witness `Y∩Y'`
+  via `eval.inter_right` + Ex-7.19 downward closure `PDmem_down`), `mono`.
+- **`papplyB = ofMap₂ papplyEval`** (map out of `prod ℙfun ℙD → ℙE`), then **`papply = curry papplyB`**
+  (Thm 3.12 `curry`) has the *exact* type `ApproximableMap (funSpace V W).PowerDomain
+  (funSpace V.PowerDomain W.PowerDomain)` = `ℙ(D→E) → (ℙD→ℙE)`.
+- **Non-trivial:** `papplyEval_step_witness` — for any `X₀∈D, Y₀∈E`,
+  `(papplyEval).rel (↓[X₀,Y₀]) (↓X₀) (↓Y₀)` (the functions sending `X₀↦Y₀`, applied to `X₀`, give `Y₀`;
+  uses `step_mem`, `mem_step`, `f.mono`).
+- **Computable when `eval` is** (`papplyEval_isComputable`): `papplyEval_rel_Ypd_iff` reduces the
+  relation on Prop-7.10 codes to `∀g∈dl Φc, ∀x∈dl Ac, ∃y∈dl Bc, eval(Pf.X g)(P.X x)(Q.X y)`, r.e. by
+  the **new choice-free helper `re_forallG_forallX_existsY`** (`⊆{propext,Quot.sound}`): three nested
+  bounded quantifiers over an r.e. body, built by `bExists_decodeList_re` (Ex 7.19) then
+  `REPred.forall_mem_decodeList₂` twice, with four primrec re-indexings (`hm1`..`hm4`, each closed by
+  `REPred.of_iff … ; simp only [unpair_pair_fst, unpair_pair_snd]`). Base predicate `heval` (eval
+  r.e. on codes) **must be passed explicitly with `(R := …)`** — HOU can't infer it; `heval` itself is
+  Thm 7.5's `evalMap_isComputable` transported through `funPresentation` to the ternary relation.
+
+**Q2–Q4 (docstring discussion).** Q2: no isos among `D→ℙE`, `ℙ(D×E)`, `ℙD×ℙE` in general (Smyth `ℙ`
+doesn't distribute over `×`; `⟨ℙp₀,ℙp₁⟩ : ℙ(D×E)→ℙD×ℙE` forgets correlation — `{(d₁,e₁),(d₂,e₂)}` and
+`{(d₁,e₂),(d₂,e₁)}` share marginals). Q3: yes, relational composition `ℙ(D×E)×ℙ(E×F)→ℙ(D×F)` (Smyth
+lift; middle witness gathered as Ex-7.19 `comp_witness`) — same recipe as `papply`. Q4: `ℙN⊴PN`
+(finitely-generated/computable core; `PN` = ideal completion of Ex 7.8), not isomorphic.
+
+**Gotchas worth keeping:** (1) `Y ∈ V.upSet X` is *defeq* to `V.mem Y ∧ Y ⊆ X` — `obtain ⟨_,_⟩ := h`
+works directly; `mem_upSet.mp` does NOT resolve under `open NeighborhoodSystem` (it's `Exercise120`'s,
+`V`-explicit). (2) `re_forallG_forallX_existsY heval` fails by higher-order unification — supply
+`(R := fun g x y => …)`. (3) `REPred₂ X` is defeq to `REPred (fun t => X t.1 t.2)`; declare the
+`hR2`/`hF`/`hG` steps with `show REPred …` then `REPred.of_iff`, and read `hE`/`hFfull`/`hGfull` back
+as plain `REPred` so `.comp` (which is `REPred.comp`, not `REPred₂.comp`) resolves.
+
+**Axiom audit (`#print axioms`):** `re_forallG_forallX_existsY ⊆ {propext, Quot.sound}` (fully
+choice-free); `papplyEval`, `papply`, `papplyEval_step_witness`, `papplyEval_rel_Ypd_iff`,
+`papplyEval_isComputable` all `= {propext, Classical.choice, Quot.sound}` — choice Prop-level and
+**inherited** from the power domain (Prop 7.10 `PDmem_upSet_inter`'s `by_cases`), none added, exactly
+as Exercises 7.19/7.20.
