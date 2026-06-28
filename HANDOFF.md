@@ -28,8 +28,16 @@ as `axiom_i..iv`); **(⇐)** hint system `Sₙ={m∣INCL m n}` (`toSystem`/`toPr
 (ofPresentation P) ≅ᴰ V` (answers "essentially any effectively given system?" — yes), via
 `reconElem`/`reconElemInv`/`reconIso`. See the **latest dated checkpoint at the very bottom**.
 
-**Next concrete target: open Lecture VII items** — **Exercise 7.14** (the post-Def-7.2 r.e. facts +
-`y=⋃↑Y_{t(i)}` decreasing-primrec form), **Exercise 7.16** (`curry` as a neighbourhood relation:
+**Just completed — Exercise 7.14 is DONE** (`Exercise714.lean` green, wired, zero `sorry`, **all four
+headline decls fully choice-free `⊆{propext,Quot.sound}`**). Both halves: **Half 1** the
+"non-empty r.e. ⇔ range of a primrec function" facts after Def 7.2 (`repred_range_primrec`,
+`repred_exists_primrec_range` via `r w:=selectFn (isOne (qc w)) w.2 a`, and the map form
+`repred₂_exists_primrec_enum`); **Half 2** `computableElement_eq_decreasing_iUnion_principal`
+(`y=⋃ᵢ↑Y_{t(i)}` with `t` primrec + decreasing, via running intersections `tFun Q r₀` built with
+`Nat.Primrec.prec`). See the **latest dated checkpoint at the very bottom**.
+
+**Next concrete target: open Lecture VII items** — **Exercise 7.15** (finish 7.4 for `⊗`,`⊕`,`D^∞`),
+**Exercise 7.16** (`curry` as a neighbourhood relation:
 recursive or r.e.?), **Exercise 7.17** (the full combinator finish for `D^§`), **Exercise 7.18**
 (define *effective isomorphism*; would tighten Ex 7.13's "essentially the same"), **Exercise 7.23**
 (finish `PN`). The Ex-7.13 infra to reuse: `ComputablePresentation`,
@@ -3284,3 +3292,56 @@ silently pull `Classical.choice`; `iff_comm`/explicit `subset_inter_iff` keep it
 `toSystem_isEffectivelyGiven`, `ofPresentation_toPresentation_INCL`, `reconstruct_isomorphic`,
 `meet_iff_interEq` — **all** `⊆{propext,Quot.sound}`. `lake build Domain` green; zero `sorry`; wired
 into `Domain.lean` after `Proposition712`.
+
+---
+
+## Checkpoint 2026-06-27 (latest) — **Exercise 7.14 COMPLETE / Pass** (`Exercise714.lean`, green, wired, audited, **fully choice-free**)
+
+The two halves of the exercise: (1) the recursion-theory facts after Definition 7.2 about primitive
+recursive functions witnessing r.e.-ness, and (2) every computable element as a *decreasing* union of
+finite (principal) elements. **All four headline declarations audit `⊆{propext,Quot.sound}`** — Half 2
+included (better than the plan anticipated). Wired into `Domain.lean` after `Exercise713`.
+
+**Half 1 — "a non-empty set is r.e. iff it is the range of a primitive recursive function."** Stated
+against the project's choice-free r.e. model `REPred p := ∃q, RecDecidable q ∧ ∀n, p n↔∃i,q⟨i,n⟩`:
+- **`repred_range_primrec`** (⇐): the range `fun n => ∃i, r i=n` of a primrec `r` is r.e. — the
+  relation `q t := r t.1 = t.2` is recursively decidable by `RecDecidable.natEq (hr.comp .left) .right`,
+  and `∃i, r i=n` is its projection (defeq after `unpair_pair`).
+- **`repred_exists_primrec_range`** (⇒): a *non-empty* `REPred p` with witness `a` (`p a`) is the
+  range of the primrec **`r w := selectFn (isOne (qc w)) w.unpair.2 a`** (`qc` = the `{0,1}` decider
+  of the underlying `q`, normalised by `isOne` so it is exactly `{0,1}`-valued). Key lemma
+  `hrw_mem : ∀w, p (r w)` — on a code `w=⟨i,n⟩` with `qc w=1` it returns `n` (and `q w`⟹`p n` via
+  `hqe`+`pair_unpair`), otherwise it returns the fall-back `a∈p`. The **fall-back is exactly why
+  non-emptiness is required** (an empty r.e. set is not a range). Primrec via `primrec_selectFn`/
+  `primrec_isOne`/`Nat.Primrec.const`.
+- **`repred₂_exists_primrec_enum`** (the map form `f={(X_{s(i)},Y_{r(i)})}`): a non-empty `REPred₂ p`
+  is enumerated by a *pair* of primrec functions, `p n m ↔ ∃i, s i=n ∧ r i=m`, by applying the ⇒
+  direction to the `Nat.pair`-coded relation and splitting the range fn `pf` into `s i:=(pf i).1`,
+  `r i:=(pf i).2` (round-trips by `pair_unpair`/`unpair_pair`).
+
+**Half 2 — `computableElement_eq_decreasing_iUnion_principal`.** For a computable element `y` of an
+effectively given `W` (`IsComputableElement Q y`, i.e. `{m∣Yₘ∈y}` r.e.), produces `t:ℕ→ℕ` with
+`Nat.Primrec t`, **decreasing** `Q.X(t(i+1))⊆Q.X(t i)`, and the union law
+`y.mem Z ↔ ∃i, (W.principal (Q.mem_X (t i))).mem Z` (Scott's `y=⋃{↑Y_{t(i)}}`, Factoid 1.7b form).
+Construction: the index set is non-empty because every filter contains `Δ` (`y.master_mem` +
+`Q.surj W.master_mem` ⟹ witness `m₀`), so Half 1 lists it as the range of primrec `r₀`. To force
+decrease, take running intersections **`tFun Q r₀`** (`def` via `Nat.rec`: `t 0=r₀0`,
+`t(i+1)=Q.inter (t i) (r₀(i+1))`), which is primrec by genuine **`Nat.Primrec.prec`** with a
+counter-dependent step (`primrec_tFun`, mirroring `RecDecidable.bForall`'s `prec`+`simp;rfl` pattern;
+the step `g` is `Q.inter_primrec.comp (proj_IH.pair (r₀∘succ∘proj_y))`). Each `Yₜ₍ᵢ₎` is the meet of
+`Yᵣ₀₍₀₎..Yᵣ₀₍ᵢ₎` so (a) stays in `y` (`ht_mem`, by `y.inter_mem` + `Q.inter_spec`, the consistency
+witness `hcons` being the meet itself via `y.sub (y.inter_mem ..)` + `Q.surj`), (b) decreases
+(`ht_dec` from `ht_eq`+`Set.inter_subset_left`), (c) is cofinal `Q.X(t i)⊆Q.X(r₀ i)` (`ht_sub_r`).
+Union (→): `Z∈y` ⟹ `Q.surj`/`r₀`-spec give `i` with `Q.X(r₀ i)=Z`, and `ht_sub_r i` ⟹ `Q.X(t i)⊆Z`;
+(←) `y.up_mem (ht_mem i)`.
+
+**Gotchas.** (1) Lambda witnesses `⟨i, by …⟩` for `∃i, s i=n` leave a **beta-redex**
+`(fun i => (pf i).unpair.1) i = n`; `rw` won't fire — insert `show (pf i).unpair.1 = n` (goal) /
+`change … at hs` (hyp) to beta-reduce first. Same for `selectFn`'s enumerator: `show selectFn … = n`
+before `rw [hqc1, selectFn_one, unpair_pair_snd]`. (2) `Q.inter_spec` needs `∃k, Xₖ⊆Xₙ∩Xₘ`; supply it
+from the meet being in `y` (`hk.subset` of `Q.surj (y.sub (y.inter_mem ..))`). (3) `tFun_zero`/
+`tFun_succ` hold by `rfl` because `tFun` is a thin wrapper over `Nat.rec` (not `brecOn`).
+
+**Axiom audit.** `repred_range_primrec`, `repred_exists_primrec_range`, `repred₂_exists_primrec_enum`,
+`computableElement_eq_decreasing_iUnion_principal` — **all** `⊆{propext,Quot.sound}`. `lake build
+Domain` green; zero `sorry`; wired into `Domain.lean` after `Exercise713`.
