@@ -64,17 +64,17 @@ You are a Lean 4 proof engineer in `/home/catskills/Desktop/domain_theory` (math
 |---------|------|--------|-------|
 | C1 | `instDecidableEqAutState` | ☑ | — |
 | C2 | `autStateCard` + bound | ☑ | C1 |
-| C3 | `wordsUpTo` + `anyMatchesB` | ☐ | — |
-| C4 | short-word bound (pumping) | ☐ | C2, C3 |
-| C5 | `decideEmptyB` + `Decidable` | ☐ | C4 |
-| C6 | `consistentB` (relation ii) | ☐ | C5 |
-| C7a | document interEq gap | ☐ | C5 |
+| C3 | `wordsUpTo` + `anyMatchesB` | ☑ | — |
+| C4 | short-word bound (pumping) | ☑ | C2, C3 |
+| C5 | `decideEmptyB` + `Decidable` | ☑ | C4 |
+| C6 | `consistentB` (relation ii) | ☑ | C5 |
+| C7a | document interEq gap | ☑ | C5 |
 | C7b | full equivalence | DEFER | Opus |
-| C8 | `SsysX` enumeration | ☐ | C5 |
+| C8 | `SsysX` enumeration | ☑ | C5 |
 | C9 | `RecDecidable₂` consistency | ☐ | C6, C8 |
 | C10 | `ComputablePresentation` | ☐ | C9 |
-| C11 | infinite-word prose | ☐ | — |
-| C12 | arxiv + audit | ☐ | C6+ |
+| C11 | infinite-word prose | ☑ | — |
+| C12 | arxiv + audit | ☑ | C6+ |
 
 **Targets:** C1–C6 + C11 = Scott A−. C1–C6 + C8–C10 = Def 7.1 (ii) mechanized.
 

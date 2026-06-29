@@ -1,5 +1,6 @@
 import Domain.Neighborhood.Exercise722DFA
 import Domain.Neighborhood.Exercise722Cat
+import Domain.Neighborhood.Exercise722Words
 
 /-!
 # Exercise 7.22 — every fragment expression has a `Fintype` automaton (`denote e = accepts`)
@@ -26,6 +27,8 @@ open scoped Computability
 open Sum Set
 
 variable {σ₁ σ₂ : Type}
+
+section NFAinterLemmas
 
 /-! ## NFA intersection (product) -/
 
@@ -63,6 +66,8 @@ theorem NFAinter_mem_accepts_iff (x : List Bool) :
     exact ⟨⟨p.1, hp.1, hpe.1⟩, ⟨p.2, hp.2, hpe.2⟩⟩
   · rintro ⟨⟨s, hs, hse⟩, ⟨t, ht, hte⟩⟩
     exact ⟨(s, t), ⟨hs, ht⟩, (NFAinter_mem_eval_iff M₁ M₂ x (s, t)).mpr ⟨hse, hte⟩⟩
+
+end NFAinterLemmas
 
 /-! ## Choice-free DFA → NFA recognition
 
@@ -217,6 +222,276 @@ theorem denote_eq_empty_iff (e : SExpr) :
     rw [← toNFA_accepts e] at hx
     obtain ⟨s, hs, hse⟩ := hx
     exact h s hs x hse
+
+/-! ## Short-word search (Session C4)
+
+If an `n`-state NFA accepts some word, it accepts one of length `< n` (pigeonhole on a concrete
+accepting path). This is tighter than mathlib's `NFA.pumping_lemma`, which bounds via `card (Set σ)`.
+-/
+
+section ShortWord
+
+variable {σ : Type} [Fintype σ] {M : NFA Bool σ}
+
+/-- State after reading the first `n` symbols along a concrete path (`n ≤ x.length`). -/
+def pathStateAtAux {s t : σ} {x : List Bool} : M.Path s t x → ∀ n, n ≤ x.length → σ
+  | .nil s, 0, _ => s
+  | .nil _, n + 1, hn => (Nat.not_succ_le_zero n hn).elim
+  | .cons _ s' _ _ _ _ p', 0, _ => s'
+  | .cons _ _ _ _ _ _ p', n + 1, hn =>
+      pathStateAtAux p' n (Nat.le_of_succ_le_succ hn)
+
+def pathStateAt {s t : σ} {x : List Bool} (p : M.Path s t x) (n : ℕ) (hn : n ≤ x.length) : σ :=
+  pathStateAtAux p n hn
+
+@[simp] theorem pathStateAt_zero {s t : σ} {x : List Bool} (p : M.Path s t x) :
+    pathStateAt p 0 (Nat.zero_le _) = s := by
+  cases x with
+  | nil =>
+    cases p <;> simp [pathStateAt, pathStateAtAux]
+  | cons a xs =>
+    cases p with
+    | cons _ s' _ _ _ _ _ => simp [pathStateAt, pathStateAtAux]
+
+theorem pathStateAt_succ {sMid s' u : σ} {a : Bool} {xs : List Bool}
+    (hstep : sMid ∈ M.step s' a) (p' : M.Path sMid u xs) (n : ℕ) (hn : n ≤ xs.length) :
+    pathStateAt (.cons sMid s' u a xs hstep p') (n + 1) (Nat.succ_le_succ hn) =
+      pathStateAt p' n hn := by
+  simp [pathStateAt, pathStateAtAux]
+
+theorem pathStateAt_last {s t : σ} {x : List Bool} (p : M.Path s t x) :
+    pathStateAt p x.length (Nat.le_refl _) = t := by
+  induction p with
+  | nil s => simp [pathStateAt, pathStateAtAux]
+  | cons sMid s' u a xs hstep p' ih =>
+    simp [pathStateAt, pathStateAtAux, List.length_cons]
+    exact ih
+
+/-- Append two paths meeting at the middle state. -/
+def pathAppend {s u t : σ} {a b : List Bool} (p : M.Path s u a) (p' : M.Path u t b) :
+    M.Path s t (a ++ b) :=
+  match p with
+  | .nil _ => p'
+  | .cons sMid s' _ a' xs hstep p'' =>
+      .cons sMid s' _ a' (xs ++ b) hstep (pathAppend p'' p')
+
+structure PathSplit {s t : σ} {x : List Bool} (p : M.Path s t x) (n : ℕ) (hn : n ≤ x.length) where
+  u : σ
+  hp : M.Path s u (x.take n)
+  ht : M.Path u t (x.drop n)
+  hu : pathStateAt p n hn = u
+
+noncomputable def pathAppend_take_drop {s t : σ} {x : List Bool} (p : M.Path s t x) (n : ℕ)
+    (hn : n ≤ x.length) : PathSplit p n hn := by
+  revert n hn
+  induction p with
+  | nil s =>
+    intro n hn
+    have hn0 : n = 0 := Nat.eq_zero_of_le_zero hn
+    subst hn0
+    exact { u := s, hp := .nil s, ht := .nil s, hu := by rfl }
+  | cons sMid s' u a xs hstep p' ih =>
+    intro n hn
+    cases n with
+    | zero =>
+      exact { u := s', hp := .nil s', ht := .cons sMid s' u a xs hstep p', hu := by rfl }
+    | succ n' =>
+      have hn' : n' ≤ xs.length := by simpa [List.length_cons] using hn
+      have split := ih n' hn'
+      exact {
+        u := split.u
+        hp := .cons sMid s' split.u a (xs.take n') hstep split.hp
+        ht := split.ht
+        hu := by rw [pathStateAt_succ hstep p' n' hn']; exact split.hu
+      }
+
+theorem mem_accepts_of_path {s t : σ} {x : List Bool} (hs : s ∈ M.start) (ht : t ∈ M.accept)
+    (p : M.Path s t x) : x ∈ M.accepts := by
+  rw [NFA.accepts_iff_exists_path]
+  exact ⟨s, hs, t, ht, ⟨p⟩⟩
+
+theorem accepts_skip_loop {s t : σ} {x : List Bool} {i j : ℕ}
+    (hi : i ≤ x.length) (hj : j ≤ x.length) (_hij : i < j)
+    (hs : s ∈ M.start) (ht : t ∈ M.accept) (hp : M.Path s t x)
+    (heq : pathStateAt hp i hi = pathStateAt hp j hj) :
+    x.take i ++ x.drop j ∈ M.accepts := by
+  let splitI := pathAppend_take_drop hp i hi
+  let splitJ := pathAppend_take_drop hp j hj
+  have hqq' : splitI.u = splitJ.u := by rw [← splitI.hu, heq, splitJ.hu]
+  exact mem_accepts_of_path hs ht (pathAppend splitI.hp (hqq' ▸ splitJ.ht))
+
+theorem accepts_card_zero (hσ : Fintype.card σ = 0) {w : List Bool} (hw : w ∈ M.accepts) : False := by
+  rw [NFA.mem_accepts] at hw
+  obtain ⟨t, ht, hte⟩ := hw
+  rw [NFA.mem_evalFrom_iff_exists (S := M.start) (s := t) (x := w)] at hte
+  obtain ⟨s, hs, _⟩ := hte
+  exact (Fintype.card_eq_zero_iff.mp hσ).elim s
+
+theorem accepts_shorten_step {x : List Bool} (hx : x ∈ M.accepts)
+    (hlen : Fintype.card σ ≤ x.length) :
+    ∃ y, y ∈ M.accepts ∧ y.length < x.length := by
+  rw [NFA.accepts_iff_exists_path] at hx
+  obtain ⟨s, hs, t, ht, ⟨hp⟩⟩ := hx
+  obtain ⟨i, j, hne, heq⟩ :=
+    Fintype.exists_ne_map_eq_of_card_lt
+      (f := fun k : Fin (x.length + 1) => pathStateAt hp k.val (Nat.le_of_lt_succ k.isLt))
+      (by rw [Fintype.card_fin]; exact Nat.lt_succ_iff.mpr hlen)
+  have hval : i.val ≠ j.val := fun h => hne (Fin.ext h)
+  rcases Nat.lt_or_gt_of_ne hval with hij | hij
+  · refine ⟨x.take i.val ++ x.drop j.val, ?_, ?_⟩
+    · exact accepts_skip_loop (by omega) (by omega) hij hs ht hp heq
+    · have hi' : i.val ≤ x.length := by omega
+      have hj' : j.val ≤ x.length := by omega
+      have : j.val - i.val > 0 := Nat.sub_pos_of_lt hij
+      simp [List.length_append, List.length_take, List.length_drop, hi', hj']
+      omega
+  · refine ⟨x.take j.val ++ x.drop i.val, ?_, ?_⟩
+    · exact accepts_skip_loop (by omega) (by omega) hij hs ht hp heq.symm
+    · have hi' : i.val ≤ x.length := by omega
+      have hj' : j.val ≤ x.length := by omega
+      have : i.val - j.val > 0 := Nat.sub_pos_of_lt hij
+      simp [List.length_append, List.length_take, List.length_drop, hj', hi']
+      omega
+
+theorem exists_accepted_word_short (h : M.accepts.Nonempty) :
+    ∃ w, w.length < Fintype.card σ ∧ w ∈ M.accepts := by
+  by_cases hσ : Fintype.card σ = 0
+  · obtain ⟨x, hx⟩ := h
+    exact (accepts_card_zero hσ hx).elim
+  · obtain ⟨x, hx⟩ := h
+    exact Nat.strongRecOn x.length
+      (motive := fun n =>
+        ∀ w, w.length = n → w ∈ M.accepts → ∃ u, u.length < Fintype.card σ ∧ u ∈ M.accepts)
+      (fun n ih w hwlen hw => by
+        by_cases hlt : n < Fintype.card σ
+        · exact ⟨w, hwlen ▸ hlt, hw⟩
+        · have hge : Fintype.card σ ≤ n := Nat.not_lt.mp hlt
+          obtain ⟨y, hy, hylt⟩ := accepts_shorten_step hw (hwlen.symm ▸ hge)
+          exact ih y.length (Nat.lt_of_lt_of_eq hylt hwlen) y rfl hy)
+      x rfl hx
+
+theorem nfa_accepts_nonempty_iff_short :
+    M.accepts.Nonempty ↔ ∃ w, w ∈ wordsUpTo (Fintype.card σ) ∧ w ∈ M.accepts := by
+  constructor
+  · intro h
+    obtain ⟨w, hwlt, hw⟩ := exists_accepted_word_short h
+    refine ⟨w, ?_, hw⟩
+    rw [mem_wordsUpTo]
+    omega
+  · intro ⟨w, _, hw⟩
+    exact ⟨w, hw⟩
+
+theorem autStateCard_eq_card (e : SExpr) : autStateCard e = Fintype.card (autState e) := by
+  induction e with
+  | sigma => simp [autStateCard, autState]
+  | single σ =>
+    simp only [autStateCard, autState]
+    have h1 : Fintype.card (Option (Fin (σ.length + 1))) =
+        Fintype.card (Fin (σ.length + 1)) + 1 :=
+      Fintype.card_option (α := Fin (σ.length + 1))
+    have h2 : Fintype.card (Fin (σ.length + 1)) = σ.length + 1 :=
+      Fintype.card_fin (σ.length + 1)
+    calc autStateCard (.single σ)
+        = σ.length + 2 := rfl
+      _ = (σ.length + 1) + 1 := rfl
+      _ = Fintype.card (Fin (σ.length + 1)) + 1 := (congrArg (fun n => n + 1) h2).symm
+      _ = Fintype.card (Option (Fin (σ.length + 1))) := h1.symm
+  | cap a b ih_a ih_b =>
+    simp [autStateCard, autState, ih_a, ih_b]
+    exact (Fintype.card_prod (autState a) (autState b)).symm
+  | cat a b ih_a ih_b =>
+    simp [autStateCard, autState, ih_a, ih_b]
+    exact (Fintype.card_sum (α := autState a) (β := autState b)).symm
+
+theorem denote_nonempty_iff_short (e : SExpr) :
+    (denote e).Nonempty ↔ ∃ w ∈ wordsUpTo (autStateCard e), matchesB e w = true := by
+  have hc : autStateCard e = Fintype.card (autState e) := autStateCard_eq_card e
+  constructor
+  · intro hne
+    rw [← toNFA_accepts e] at hne
+    obtain ⟨w, hwlt, hw⟩ := exists_accepted_word_short hne
+    refine ⟨w, ?_, ?_⟩
+    · rw [mem_wordsUpTo, hc]; omega
+    · rw [matchesB_iff, ← toNFA_accepts e]; exact hw
+  · intro ⟨w, hwmem, hmatch⟩
+    rw [mem_wordsUpTo, hc] at hwmem
+    exact ⟨w, (matchesB_iff e w).mp hmatch⟩
+
+end ShortWord
+
+/-! ## Emptiness decider (Session C5) -/
+
+/-- Search `wordsUpTo (autStateCard e)` for a word accepted by `matchesB e`. -/
+def decideNonemptyB (e : SExpr) : Bool :=
+  anyMatchesB e (wordsUpTo (autStateCard e))
+
+/-- Decidable emptiness of `denote e` via bounded word search. -/
+def decideEmptyB (e : SExpr) : Bool := !decideNonemptyB e
+
+@[simp] theorem decideNonemptyB_iff (e : SExpr) :
+    decideNonemptyB e = true ↔ (denote e).Nonempty := by
+  simp [decideNonemptyB, anyMatchesB, List.any_eq_true, denote_nonempty_iff_short]
+
+@[simp] theorem decideEmptyB_iff (e : SExpr) :
+    decideEmptyB e = true ↔ denote e = ∅ := by
+  rw [decideEmptyB, Bool.not_eq_true_eq_eq_false, ← Bool.eq_false_eq_not_eq_true,
+    decideNonemptyB_iff, Set.not_nonempty_iff_eq_empty]
+
+instance decidableEmptyDenote (e : SExpr) : Decidable (denote e = ∅) :=
+  if h : decideEmptyB e then .isTrue (decideEmptyB_iff e |>.mp h)
+  else .isFalse fun he => h (decideEmptyB_iff e |>.mpr he)
+
+#eval decideEmptyB (.cap (.single [false]) (.single [true])) -- should be `true` (disjoint singletons)
+
+/-! ## Consistency decider (Session C6) — Definition 7.1 relation (ii)
+
+For `X, Y ∈ S`, Scott's consistency `∃ Z ∈ S, Z ⊆ X ∩ Y` is equivalent to `(X ∩ Y).Nonempty`
+by positivity (`Ssys_isPositive`). On syntax, this is non-emptiness of `denote (cap a b)`. -/
+
+/-- Decides relation (ii) on a pair of expressions: `true` iff `denote a ∩ denote b` is non-empty. -/
+def consistentB (a b : SExpr) : Bool := !decideEmptyB (.cap a b)
+
+@[simp] theorem consistentB_iff (a b : SExpr) :
+    consistentB a b = true ↔ (denote (.cap a b)).Nonempty := by
+  have h : consistentB a b = decideNonemptyB (.cap a b) := by
+    simp [consistentB, decideEmptyB, decideNonemptyB]
+  rw [h, decideNonemptyB_iff]
+
+@[simp] theorem capNonempty_iff_consistent (a b : SExpr) :
+    (denote a ∩ denote b).Nonempty ↔ consistentB a b = true := by
+  rw [← denote_cap, consistentB_iff]
+
+/-- **Definition 7.1 (ii) for encoded neighbourhoods:** when `denote a`, `denote b ∈ S`,
+`consistentB` agrees with membership of the intersection in `S`. -/
+theorem consistentB_iff_Ssys (a b : SExpr) (ha : InS (denote a)) (hb : InS (denote b)) :
+    consistentB a b = true ↔ InS (denote a ∩ denote b) := by
+  rw [← denote_cap, consistentB_iff]
+  exact Iff.symm (Ssys_isPositive (Ssys_mem.mpr ha) (Ssys_mem.mpr hb))
+
+/-! ## Relation (i) `interEq` — what `decideEmptyB` / `consistentB` do *not* decide (Session C7a)
+
+**Definition 7.1 (i)** on an encoded presentation is the ternary relation
+`Xₙ ∩ Xₘ = Xₖ`. On `SExpr` syntax this is *exactly regular-language equivalence*
+(`interEq_iff` in `Exercise722Regular.lean`):
+
+  `denote a ∩ denote b = denote k  ↔  denote (cap a b) = denote k`.
+
+Relation (ii) consistency is now mechanised (`consistentB` / `decideEmptyB` on `cap a b`).
+Relation (i) is **strictly harder**: it asks whether two *different* syntactic caps denote the
+*same* language, not merely whether their intersection is empty.
+
+**Why emptiness alone is insufficient.** The fragment is not closed under complement or set-difference
+(`L₁ ⊆ L₂ ↔ L₁ \ L₂ = ∅` needs `\`). The concrete obstruction is `sigma_ne_containsZero`:
+`denote .sigma ≠ denote containsZero` (witness `[true] ∈ Σ` but `[true] ∉ Σ·{0}·Σ`), yet no
+fragment-emptiness query on `cap`/`cat`/`single`/`sigma` alone exposes this inequality — detecting
+`Σ \ "contains 0"` needs the complement language `{1}*`, which is **not expressible** in the
+fragment. Hence `decideEmptyB` and `consistentB` cannot decide (i).
+
+**What a full (i) decider would need (Session C7b, DEFER).** Language equivalence
+`denote e₁ = denote e₂` reduces to emptiness of the symmetric difference, hence to deciding
+`(e₁ ∩ e₂ᶜ)` and `(e₂ ∩ e₁ᶜ)` — i.e. **complement** (`complDFA` exists) wired into a uniform
+`toDFA` / product construction, or an alternative such as Myhill–Nerode bisimulation on the
+`autState` types. Until C7b lands, `Ssys_partially_effectively_given` will carry (ii) only. -/
 
 end Exercise722
 

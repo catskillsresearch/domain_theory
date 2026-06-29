@@ -18,7 +18,8 @@ A session may begin after a context reset; chat memory is not durable, these fil
    end-of-item checklist that keeps this file + `arxiv.md` current).
 6. **To finish Exercise 7.22 decider in Composer bites:** `@Exercise722-Composer-Run.md` only
    (one @ per session, no pasting — agent picks next ☐ from progress tracker). Reference:
-   `Exercise722-Composer-Playbook.md` (extended notes, same content).
+   `Exercise722-Composer-Playbook.md` (extended notes, same content). **Composer tracker (2026-06-28):**
+   C1–C8 ☑, C11 ☑, C12 ☑; **C9 BLOCKED** (`RecDecidable₂`/`Nat.Primrec` port); C10 waits on C9; C7b DEFER.
 
 **Just completed — Exercise 7.22 (algebraic core) is DONE** (`Exercise722.lean` green, wired, zero
 `sorry`, **fully choice-free `⊆{propext,Quot.sound}`**). Scott's domain over `Σ={0,1}*=List Bool`
@@ -4131,3 +4132,95 @@ e)`** in `Exercise722Decide.lean`. Proof: sigma/single by simp+card lemmas; cap/
 Domain.Neighborhood.Exercise722Decide`** green, zero `sorry`. No new axioms beyond
 `⊆{propext,Quot.sound}`. **Next Composer session:** C3 (`wordsUpTo`) — no prerequisites; C4 blocked
 until C2+C3 both ☑ (C2 now done).
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 Composer C3: `wordsUpTo` + `anyMatchesB`
+
+**Session C3** (`@Exercise722-Composer-Run.md`): new **`Domain/Neighborhood/Exercise722Words.lean`**
+with **`wordsUpTo n`** (all `List Bool` of length ≤ `n`), **`mem_wordsUpTo : w ∈ wordsUpTo n ↔ w.length
+≤ n`** (induction on `n`; append/flatMap split), and **`anyMatchesB e ws := ws.any (matchesB e)`**.
+`#eval anyMatchesB .sigma (wordsUpTo 0)` = `true`. Wired in `Domain.lean`. **`lake build
+Domain.Neighborhood.Exercise722Words`** green, zero `sorry`. No new theorems beyond the characterisation
+— axiom audit N/A (`mem_wordsUpTo` choice-free by construction). **Next Composer session:** C4
+(short-word bound via pumping; needs C2 ☑ + C3 ☑).
+
+---
+
+## Checkpoint 2026-06-28 — Exercise 7.22 Composer C4 BLOCKED
+
+**Session C4** (`@Exercise722-Composer-Run.md`): attempted **`exists_accepted_word_short` /
+`nfa_accepts_nonempty_iff_short` / `denote_nonempty_iff_short`** in `Exercise722Decide.lean`. Partial
+progress: **`mem_pumped_ac`** (extract `a++c` from `{a}{b}*{c}`) and pumping branch of
+`accepts_shorter_word` type-check; **`autStateCard_eq_card`** (needed for `denote_nonempty_iff_short`
+with `wordsUpTo (autStateCard e)`) also drafted. **Blocker:** mathlib **`NFA.pumping_lemma`** bounds
+`|a|+|b|` by **`Fintype.card (Set σ)`** (2^|σ|), not **`|σ|`**; the playbook's tight bound needs a
+**path/pigeonhole** shorten on **`NFA.Path`** (skip loop → `a++c` accepted). Custom helpers
+(`statesList`, `appendPath`, `exists_split`, `statesList_get_append`) did not reach green after multiple
+build-fix passes (appendPath typing, `Exists.choose` on nested `∃`, `statesList_get` induction).
+**Reverted** `Exercise722Decide.lean` to pre-C4 (`git checkout --`). **`lake build
+Domain.Neighborhood.Exercise722Decide`** green again. Progress tracker C4 stays ☐. **Retry:** finish
+path helpers (see playbook § Skeleton C4) or re-@ for **C11** (infinite-word prose, no prerequisites).
+
+---
+
+## Checkpoint 2026-06-28 (retry) — Exercise 7.22 Composer C4 BLOCKED (path API)
+
+**Session C4 retry:** built **`pathStateAt` / `pathAppend` / `pathAppend_take_drop`** (dependent
+`∃ w hp ht, pathStateAt = w` — avoids `∧` on `Path` **Type**), **`mem_evalFrom_of_path`**, **`accepts_skip_loop`**
+(via `take i ++ drop j`), **`accepts_shorten_step`** (pigeonhole on `pathStateAt`), **`exists_accepted_word_short`**
+(`Nat.strongRecOn`), plus **`autStateCard_eq_card`** / **`denote_nonempty_iff_short`**. **Blockers:** (1)
+`cases p with | cons … =>` — pattern binders not visible to subsequent `let`/`match` lines (persistent
+`Unknown identifier` on `start`/`ys`/…); (2) **`hu.trans heqi.symm`** typing for skip-loop state equality;
+(3) **`accepts_card_zero`** / **`mem_evalFrom`** `rw` alignment with `Language`/`Set.iUnion`. Reverted
+again (`git checkout -- Domain/Neighborhood/Exercise722Decide.lean`); **`lake build
+Domain.Neighborhood.Exercise722Decide`** green. C4 stays ☐. **Next:** fix `pathAppend_take_drop` with
+`match p, n with | .cons …, 0 =>` in a single term (no `cases`+`let`), or use **`NFA.Path.rec`**;
+alternatively `@` for **C11**.
+
+---
+
+**2025-06-28 — Exercise 7.22 Composer C11 PASS (infinite-word prose).** Expanded `Exercise722.lean`
+docstring § *Infinite words*: define `σ⃗` as `{X ∈ S | ∀n, σⁿ ∈ X}` aligned with `mulElem`/`emb`; prose
+verdicts on Scott's four equations — **`σ⃗ σ⃗ = σ⃗` YES**, **`σ⃗ σ⃗ σ⃗ = σ⃗` YES**, **`σ⃗ 1⃗ σ⃗ 1⃗ = σ⃗ 1⃗`
+YES** (idempotency for single-letter / `σ1`-period streams), **`01⃗ 01⃗ 01⃗ 01⃗ = 01⃗ 01⃗` NO** (period-2
+case: `τ⃗² ⊊ τ⃗⁴`; counterexample neighbourhood containing only `τ^{4k}`). Left/right fixed-point
+symmetry noted. No Lean proofs added (docstring only). **`lake build Domain.Neighborhood.Exercise722`**
+green. C11 ☑. **Next:** C4 retry (short-word bound) or C5 when C4 passes.
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C4 PASS (short-word bound).** Added `Exercise722Words` import +
+**ShortWord** section in `Exercise722Decide.lean`: path-based pigeonhole (`pathStateAt`, `pathAppend`,
+`PathSplit` / `pathAppend_take_drop`, `accepts_skip_loop`, `accepts_shorten_step`,
+`exists_accepted_word_short`, `nfa_accepts_nonempty_iff_short`, `autStateCard_eq_card`,
+`denote_nonempty_iff_short`). Bound is **`|w| < Fintype.card σ`** (tighter than mathlib
+`NFA.pumping_lemma`'s `2^|σ|`). **`lake build Domain.Neighborhood.Exercise722Decide`** green, zero
+`sorry`. Axiom audit: `denote_nonempty_iff_short` uses **`Classical.choice`** (via
+`Fintype.exists_ne_map_eq_of_card_lt` / noncomputable path split) — acceptable for **Prop-level**
+lemmas; **C5 `decideEmptyB` stays computable** via `matchesB`. C4 ☑. **Next:** C5 (`decideEmptyB`).
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C5 PASS (`decideEmptyB`).** Added **`decideNonemptyB`** /
+**`decideEmptyB`** (`anyMatchesB e (wordsUpTo (autStateCard e))`), **`decideNonemptyB_iff`**, **`decideEmptyB_iff`**, and **`decidableEmptyDenote`** in `Exercise722Decide.lean`. `#eval decideEmptyB (.cap (.single [false]) (.single [true]))` = `true`. **`lake build Domain.Neighborhood.Exercise722Decide`** green, zero `sorry`. **Computational core is choice-free** (`matchesB`/`anyMatchesB`); iff lemmas inherit **`Classical.choice`** from C4's `denote_nonempty_iff_short` (Prop-level only — the **Bool function** does not invoke choice at runtime). C5 ☑. **Next:** C6 (`consistentB`).
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C6 PASS (`consistentB`).** Added **`consistentB a b := !decideEmptyB (.cap a b)`**, **`consistentB_iff`**, **`capNonempty_iff_consistent`**, and **`consistentB_iff_Ssys`** (links Bool decider to Def 7.1 (ii) via **`Ssys_isPositive`** / **`Ssys_mem`**). Fix: apply **`Ssys_isPositive`** with implicit `X,Y` — pass **`Ssys_mem.mpr ha`** not `(denote a)`. **`lake build Domain.Neighborhood.Exercise722Decide`** green, zero `sorry`. **`consistentB`** is computable; iff lemmas inherit **`Classical.choice`** from C5 (Prop-level). C6 ☑. **Next:** C7a (interEq docstring) or C8 (`SsysX` enumeration).
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C7a PASS (interEq gap documented).** Added § *Relation (i) `interEq`* docstring at end of `Exercise722Decide.lean`: (i) = language equivalence (`interEq_iff`); (ii) mechanised via `consistentB`; emptiness insufficient (`sigma_ne_containsZero` / complement not in fragment); full (i) decider deferred to C7b (compl + symmetric difference or bisimulation). Docstring only, no new proofs. **`lake build Domain.Neighborhood.Exercise722Decide`** green. C7a ☑. **Next:** C8 (`SsysX` enumeration) or C12 (arxiv, needs C6+).
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C8 PASS (`SsysX` enumeration).** New **`Exercise722Presentation.lean`**: Gödel **`SExpr.encode`**, fuelled **`decodeFuel`/`SExpr.decode`**, index **`SExpr.index = pair (encode e) (sexprDepth e)`**, **`SsysX n`** (non-empty `denote e` via `decideNonemptyB`, junk/empty → `Σ`), **`SsysX_mem`**, **`SsysX_surj`**. Wired in **`Domain.lean`**. **`lake build Domain.Neighborhood.Exercise722Presentation`** green, zero `sorry`. Axiom audit: **`SsysX_mem`/`SsysX_surj` ⊆ `{propext, Classical.choice, Quot.sound}`** (choice inherited from `decideNonemptyB_iff`). C8 ☑. **Next:** C9 (`RecDecidable₂` consistency) or C12.
+
+---
+
+**2026-06-28 — SESSION C9 BLOCKED (`RecDecidable₂` consistency).** Partial C9 in **`Exercise722Presentation.lean`**: **`ssysActive`**, **`safeDecodeActive`**, **`ssysConsistentB`**, **`ssys_cons_positivity`**, **`ssys_cons_iff`**, **`ssysConsistentB_iff`**, **`ssys_cons_char_iff`** (Scott (ii) ↔ `consistentB` on safe decode ↔ `ssysConsistentB`). **`lake build Domain.Neighborhood.Exercise722Presentation`** green, zero `sorry`. Axioms: **`ssys_cons_char_iff` ⊆ `{propext, Classical.choice, Quot.sound}`**. **Blocker:** `Ssys_cons_computable : RecDecidable₂ (fun n m => ∃ k, SsysX k ⊆ SsysX n ∩ SsysX m)` needs a **`Nat.Primrec` port** of `decideNonemptyB`/`consistentB` on Gödel-coded indices (`selectFn`/`isOne` char function + `primrec_Ssys_consChar`); same gap as `Exercise722DFA.lean` “decision bridge”. Attempted `Ssys_consChar`/`ssysActiveN`/`ssysCapConsistentN` proofs hit `simp` recursion / WHNF timeout on `selectFn_ite` linkage. C9 tracker stays ☐. **Retry:** add primrec emptiness/consistency on `(code,fuel)` in `Presentation.lean` (or shared `Recursive.lean` helper), then `RecDecidable.of_iff` + `Ssys_consChar`. **Next:** C9 retry or C12 (arxiv audit, needs C6+ only).
+
+---
+
+**2026-06-28 — Exercise 7.22 Composer C12 PASS (arxiv + audit).** Updated **`arxiv.md`** Exercise 7.22 row: Composer C1–C6/C7a/C8/C9-partial/C11 status; **`decideEmptyB_iff`/`consistentB_iff` axiom audit** (`⊆ {propext, Classical.choice, Quot.sound}`, choice inherited); **Still open** C9–C10/C7b. **`HANDOFF.md`** Resume Protocol Composer tracker line updated. **`lake build Domain`** green. C12 ☑. **Next:** C9 retry (`Nat.Primrec` bridge) or C10 (after C9).

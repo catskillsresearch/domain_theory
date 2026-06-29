@@ -166,4 +166,6 @@ import Domain.Neighborhood.Exercise722Regular
 import Domain.Neighborhood.Exercise722DFA
 import Domain.Neighborhood.Exercise722Cat
 import Domain.Neighborhood.Exercise722Decide
+import Domain.Neighborhood.Exercise722Words
+import Domain.Neighborhood.Exercise722Presentation
 import Domain.InfoSys
