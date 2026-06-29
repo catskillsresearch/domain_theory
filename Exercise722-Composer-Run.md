@@ -309,7 +309,7 @@ Do not execute unless user explicitly requests and budget allows.
 **BUILD:** `lake build Domain.Neighborhood.Exercise722Presentation`  
 **Needs:** C6 ☑, C8 ☑
 
-**TASK:** `Ssys_cons_computable : RecDecidable₂ (fun n m => ∃ k, SsysX k ⊆ SsysX n ∩ SsysX m)` via `RecDecidable.of_iff` + `consistentB`.
+**TASK:** `Ssys_cons_computable : RecDecidable₂ (fun n m => ∃ k, SsysX k ⊆ SsysX n ∩ SsysX m)` via `RecDecidable.of_iff` + `ssysConsistentB` + a **`Nat.Primrec`** char (not just `Bool`). Import **`Exercise722Presentation`** decode — do **not** duplicate encode/decode in a monolith. Reuse **`Recursive.lean`** `bExistsFn` / `primrec_ite`. **If stuck >30 min:** STOP, HANDOFF "C9 BLOCKED".
 
 ---
 

@@ -19,7 +19,7 @@ A session may begin after a context reset; chat memory is not durable, these fil
 6. **To finish Exercise 7.22 decider in Composer bites:** `@Exercise722-Composer-Run.md` only
    (one @ per session, no pasting — agent picks next ☐ from progress tracker). Reference:
    `Exercise722-Composer-Playbook.md` (extended notes, same content). **Composer tracker (2026-06-28):**
-   C1–C8 ☑, C11 ☑, C12 ☑; **C9 BLOCKED** (`RecDecidable₂`/`Nat.Primrec` port); C10 waits on C9; C7b DEFER.
+   C1–C8 ☑, C11 ☑, C12 ☑; **C9 BLOCKED** (needs `Nat.Primrec` char for `ssysConsistentB`; monolith `Exercise722Primrec.lean` abandoned 2026-06-29); C10 waits on C9; C7b DEFER.
 
 **Just completed — Exercise 7.22 (algebraic core) is DONE** (`Exercise722.lean` green, wired, zero
 `sorry`, **fully choice-free `⊆{propext,Quot.sound}`**). Scott's domain over `Σ={0,1}*=List Bool`
@@ -4224,3 +4224,7 @@ lemmas; **C5 `decideEmptyB` stays computable** via `matchesB`. C4 ☑. **Next:**
 ---
 
 **2026-06-28 — Exercise 7.22 Composer C12 PASS (arxiv + audit).** Updated **`arxiv.md`** Exercise 7.22 row: Composer C1–C6/C7a/C8/C9-partial/C11 status; **`decideEmptyB_iff`/`consistentB_iff` axiom audit** (`⊆ {propext, Classical.choice, Quot.sound}`, choice inherited); **Still open** C9–C10/C7b. **`HANDOFF.md`** Resume Protocol Composer tracker line updated. **`lake build Domain`** green. C12 ☑. **Next:** C9 retry (`Nat.Primrec` bridge) or C10 (after C9).
+
+---
+
+**2026-06-29 — Exercise 7.22 C9: failed monolith removed; situation restated.** **Deleted** untracked **`Exercise722Primrec.lean`** (~840 lines, never green, ~88 errors): duplicated `SExpr` encode/decode from **`Exercise722Presentation.lean`**, attempted full **`matchesBCode`/`decideNonemptyBCode`** stack — blocked by `List.mapM` API drift, `Nat.pair` bounds, cascading `primrec_*` errors. **Not wired** into `Domain.lean`. **Kept (green):** **`Recursive.lean`** additions — **`isZero`/`primrec_isZero`**, **`primrec_le`**, **`primrec_max`**, **`primrec_ite`**, **`bExistsFn`** (+ lemmas); **`lake build Domain`** green. **Still green:** C1–C8, C11, C12; Presentation logical C9 layer (`ssys_cons_char_iff`). **Still open:** `Ssys_cons_computable`, C10, C7b. **Viable C9 retry:** small primrec char in/after **`Exercise722Presentation.lean`**, importing existing decode — not a monolith. C9/C10 tracker ☐.

@@ -847,6 +847,40 @@ theorem primrec_isOne : Nat.Primrec isOne :=
     (primrec_add₂ (primrec_sub₂ primrec_id (Nat.Primrec.const 1))
       (primrec_sub₂ (Nat.Primrec.const 1) primrec_id))
 
+/-- `{0,1}` test for `n = 0`. -/
+def isZero (n : ℕ) : ℕ := 1 - min n 1
+
+theorem isZero_eq_one_iff (n : ℕ) : isZero n = 1 ↔ n = 0 := by
+  unfold isZero; omega
+
+theorem primrec_isZero : Nat.Primrec isZero := by
+  have hmin : Nat.Primrec (fun n => min n 1) :=
+    (primrec_sub₂ primrec_id (primrec_sub₂ primrec_id (Nat.Primrec.const 1))).of_eq fun n => by
+      rcases n with _ | n <;> simp [min]
+  exact primrec_sub₂ (Nat.Primrec.const 1) hmin
+
+/-- `{0,1}` test for `f n ≤ g n` (truncated subtraction). -/
+theorem primrec_le {f g : ℕ → ℕ} (hf : Nat.Primrec f) (hg : Nat.Primrec g) :
+    Nat.Primrec (fun n => isZero (f n - g n)) :=
+  primrec_isZero.comp (primrec_sub₂ hf hg)
+
+/-- `{0,1}`-valued `max` of two primitive-recursive functions. -/
+theorem primrec_max {f g : ℕ → ℕ} (hf : Nat.Primrec f) (hg : Nat.Primrec g) :
+    Nat.Primrec (fun n => Nat.max (f n) (g n)) := by
+  refine (primrec_selectFn (primrec_le hf hg) hg hf).of_eq fun n => by
+    unfold selectFn isZero Nat.max
+    by_cases h : f n ≤ g n
+    · simp [Nat.sub_eq_zero_iff_le.mpr h, Nat.max_eq_right h]
+    · have hlt : g n < f n := Nat.lt_of_not_ge h
+      have hpos : 0 < f n - g n := Nat.sub_pos_of_lt hlt
+      have hmin : min (f n - g n) 1 = 1 := Nat.min_eq_right (Nat.succ_le_iff.mpr hpos)
+      simp [isZero, hmin, Nat.max_eq_left (Nat.le_of_lt hlt)]
+
+/-- Primitive-recursive `if` on a `{0,1}` condition. -/
+theorem primrec_ite {c t f : ℕ → ℕ} (hc : Nat.Primrec c) (ht : Nat.Primrec t) (hf : Nat.Primrec f) :
+    Nat.Primrec (fun n => selectFn (c n) (t n) (f n)) :=
+  primrec_selectFn hc ht hf
+
 /-- The `{0,1}`-valued bounded-`∀` indicator: `1` iff `g (pair i n) = 1` for all `i < N`. Folded
 right-to-left with `selectFn` so the result stays in `{0,1}`. -/
 def bForallFn (g : ℕ → ℕ) (n N : ℕ) : ℕ :=
@@ -887,6 +921,60 @@ theorem bForallFn_eq_one_iff (g : ℕ → ℕ) (n N : ℕ) :
         · exact (ih.mp h1) i hlt
         · subst heq; exact hgN
       · intro hall; exact hall N (Nat.lt_succ_self N)
+
+/-- The `{0,1}`-valued bounded-`∃` indicator: `1` iff `∃ i < N, g (pair i n) = 1`. Folded
+right-to-left with `selectFn` so the result stays in `{0,1}`. -/
+def bExistsFn (g : ℕ → ℕ) (n N : ℕ) : ℕ :=
+  Nat.rec (motive := fun _ => ℕ) 0 (fun i ih => selectFn ih 1 (isOne (g (Nat.pair i n)))) N
+
+theorem bExistsFn_le_one (g : ℕ → ℕ) (n N : ℕ) : bExistsFn g n N ≤ 1 := by
+  induction N with
+  | zero => simp [bExistsFn]
+  | succ N ih =>
+    show selectFn (bExistsFn g n N) 1 (isOne (g (Nat.pair N n))) ≤ 1
+    rcases (show bExistsFn g n N = 0 ∨ bExistsFn g n N = 1 by omega) with h | h
+    · rw [h, selectFn_zero]
+      exact isOne_le_one _
+    · rw [h, selectFn_one]
+
+theorem bExistsFn_eq_one_iff (g : ℕ → ℕ) (n N : ℕ) :
+    bExistsFn g n N = 1 ↔ ∃ i, i < N ∧ g (Nat.pair i n) = 1 := by
+  induction N with
+  | zero =>
+    simp [bExistsFn]
+  | succ N ih =>
+    have hstep : bExistsFn g n (N + 1)
+        = selectFn (bExistsFn g n N) 1 (isOne (g (Nat.pair N n))) := rfl
+    rw [hstep]
+    have hle := bExistsFn_le_one g n N
+    rcases (show bExistsFn g n N = 0 ∨ bExistsFn g n N = 1 by omega) with h0 | h1
+    · rw [h0, selectFn_zero, isOne_eq_one_iff]
+      constructor
+      · intro hgN; exact ⟨N, Nat.lt_succ_self N, hgN⟩
+      · intro ⟨i, hi, hg⟩
+        rcases (show i < N ∨ i = N by omega) with hlt | heq
+        · have hne : bExistsFn g n N = 1 := ih.mpr ⟨i, hlt, hg⟩
+          omega
+        · subst heq; exact hg
+    · rw [h1, selectFn_one]
+      constructor
+      · intro _
+        obtain ⟨i, hi, hg⟩ := ih.mp h1
+        exact ⟨i, Nat.lt_succ_of_lt hi, hg⟩
+      · intro _; rfl
+
+theorem primrec_bExistsFn {g : ℕ → ℕ} (hg : Nat.Primrec g) :
+    Nat.Primrec (fun t => bExistsFn g t.unpair.1 t.unpair.2) := by
+  have hGfn : Nat.Primrec (fun w =>
+      selectFn w.unpair.2.unpair.2 1 (isOne (g (Nat.pair w.unpair.2.unpair.1 w.unpair.1)))) :=
+    primrec_selectFn (Nat.Primrec.right.comp Nat.Primrec.right)
+      (Nat.Primrec.const 1)
+      (primrec_isOne.comp (hg.comp
+        ((Nat.Primrec.left.comp Nat.Primrec.right).pair Nat.Primrec.left)))
+  have hprec := Nat.Primrec.prec (Nat.Primrec.const 0) hGfn
+  refine (hprec.comp (Nat.Primrec.left.pair Nat.Primrec.right)).of_eq fun t => ?_
+  simp only [Nat.unpaired, unpair_pair_fst, unpair_pair_snd]
+  rfl
 
 /-- **Bounded universal quantifier preserves recursive decidability.** If `p` is recursively decidable
 and `bound` is primitive recursive, then `fun n => ∀ i < bound n, p (pair i n)` is recursively
@@ -1737,5 +1825,36 @@ theorem primrec_tabCode {g : ℕ → ℕ} (hg : Nat.Primrec g) :
     Nat.Primrec (fun t => tabCode g t.unpair.1 t.unpair.2) :=
   (Nat.Primrec.prec (Nat.Primrec.const 0) (primrec_tabStep hg)).of_eq fun t => by
     simp only [Nat.unpaired]; rfl
+
+/-- `Nat.max n 1` is primitive recursive. -/
+theorem primrec_max_one : Nat.Primrec (fun n => Nat.max n 1) := by
+  refine (primrec_selectFn (primrec_isOne.comp (primrec_sub₂ (Nat.Primrec.const 1) primrec_id))
+    (Nat.Primrec.const 1) primrec_id).of_eq fun n => by
+    unfold selectFn isOne Nat.max
+    rcases n with _ | n <;> simp
+
+/-- Tag-dispatch on `e.unpair.1 ∈ {0,1,2,3}` (else `fdef e`). -/
+theorem primrec_tagCase4 {f0 f1 f2 f3 fdef : ℕ → ℕ}
+    (hf0 : Nat.Primrec f0) (hf1 : Nat.Primrec f1) (hf2 : Nat.Primrec f2) (hf3 : Nat.Primrec f3)
+    (hfdef : Nat.Primrec fdef) :
+    Nat.Primrec (fun e =>
+      let t := e.unpair.1
+      selectFn (isOne (1 - t)) (f0 e)
+        (selectFn (isOne (2 - t)) (f1 e)
+          (selectFn (isOne (3 - t)) (f2 e)
+            (selectFn (isOne (4 - t)) (f3 e) (fdef e))))) := by
+  have ht : Nat.Primrec (fun e => e.unpair.1) := Nat.Primrec.left
+  have h01 : Nat.Primrec (fun e => isOne (1 - e.unpair.1)) :=
+    primrec_isOne.comp (primrec_sub₂ (Nat.Primrec.const 1) ht)
+  have h12 : Nat.Primrec (fun e => isOne (2 - e.unpair.1)) :=
+    primrec_isOne.comp (primrec_sub₂ (Nat.Primrec.const 2) ht)
+  have h23 : Nat.Primrec (fun e => isOne (3 - e.unpair.1)) :=
+    primrec_isOne.comp (primrec_sub₂ (Nat.Primrec.const 3) ht)
+  have h34 : Nat.Primrec (fun e => isOne (4 - e.unpair.1)) :=
+    primrec_isOne.comp (primrec_sub₂ (Nat.Primrec.const 4) ht)
+  refine (primrec_selectFn h01 hf0
+    (primrec_selectFn h12 hf1
+      (primrec_selectFn h23 hf2
+        (primrec_selectFn h34 hf3 hfdef)))).of_eq fun e => rfl
 
 end Domain.Recursive

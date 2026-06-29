@@ -281,11 +281,17 @@ theorem ssys_cons_char_iff (n m : ℕ) :
 
 /-! ### Session C9 — `RecDecidable₂` (BLOCKED)
 
-The `{0,1}` characteristic function `Ssys_consChar` and
-`Ssys_cons_computable : RecDecidable₂ (fun n m => ∃ k, SsysX k ⊆ SsysX n ∩ SsysX m)` need a
-`Nat.Primrec` port of `decideNonemptyB` / `consistentB` on Gödel-coded indices (the same bridge
-called out in `Exercise722DFA.lean`). The logical equivalence above (`ssys_cons_char_iff` via
-`ssysConsistentB` + `consistentB`) is in place; see `HANDOFF.md` checkpoint **SESSION C9 BLOCKED**. -/
+Scott's consistency on indices is already equivalent to the **Bool** decider `ssysConsistentB`
+(`ssys_cons_char_iff`). What remains is a **`Nat.Primrec` `{0,1}` characteristic function**
+`Ssys_consChar` with `Ssys_consChar (pair n m) = 1 ↔ ssysConsistentB n m`, then
+`Ssys_cons_computable` via `RecDecidable.of_iff` + `ssys_cons_char_iff` (pattern: `Example78.lean`
+`PNpres.cons_computable`).
+
+**Blocker:** `decideNonemptyB` / `consistentB` are computable on `SExpr` but not yet primitive-recursive
+on Gödel-coded indices. **`Recursive.lean`** now has **`bExistsFn`**, **`primrec_ite`**, **`primrec_max`**
+(engine for bounded search); the failed all-in-one port in `Exercise722Primrec.lean` was removed
+(2026-06-29). **Next retry:** small primrec layer importing *this file's* `SExpr.decode` / `ssysActive`
+— not a duplicate encode/decode tower. See `HANDOFF.md` checkpoint **2026-06-29**. -/
 
 end Exercise722
 
