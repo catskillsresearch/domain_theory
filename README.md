@@ -1,5 +1,20 @@
-[![Lean 4](https://img.shields.io/github/actions/workflow/status/catskillsresearch/hybrid_logic_lean_revisited/build.yml?label=Lean%204)](https://github.com/catskillsresearch/domain_theory/actions/workflows/build.yml)
-# domain_theory
+> **Archived monolith — superseded.** Active development lives in the four
+> split repositories (Part I–IV). This repo is kept as a read-only historical snapshot.
+>
+> | Part | Repository |
+> | --- | --- |
+> | I · Scott 1972 continuous lattices | [catskillsresearch/scott1972](https://github.com/catskillsresearch/scott1972) |
+> | II · Scott 1981 PRG-19 neighbourhood systems | [catskillsresearch/scott1980](https://github.com/catskillsresearch/scott1980) |
+> | III · Scott 1982 information systems | [catskillsresearch/scott1982](https://github.com/catskillsresearch/scott1982) |
+> | IV · Equivalence theorems | [catskillsresearch/scott_models](https://github.com/catskillsresearch/scott_models) |
+>
+> See [`SPLIT.md`](SPLIT.md) and `scripts/split_repos.py` / `scripts/split_arxiv.py` for
+> how this monolith was split. **Do not open PRs here** — use the repo for your part.
+
+
+
+# domain_theory *(archived monolith)*
+
 
 A **Lean 4** formalization of Dana Scott's domain theory via **Scott Information
 Systems**, with an accompanying paper.
@@ -64,4 +79,3 @@ This repository functions strictly as a unilateral broadcast of public code for 
 
 * **Limitations:** The code provided herein is for theoretical research and academic simulation purposes only.
 * **Liability Protection:** In accordance with Section 8 of the Apache 2.0 License, this software is provided "AS IS" without warranties of any kind. Catskills Research Company disclaims all liability for any direct, indirect, or consequential damages resulting from the use, misuse, or deployment of this simulation code.
-
