@@ -12,6 +12,7 @@ A session may begin after a context reset; chat memory is not durable, these fil
 1. Read this `HANDOFF.md` top-to-bottom (it is the source of truth for status + recent work).
 2. For the inventory of every item and its status, **`Grep` `arxiv.md`** for the item (e.g.
    `Theorem 6.9`) and read only that row — do **not** read `arxiv.md` whole (~2.5k lines).
+   Do **not** use `arxiv_with_code.md` (generated PDF artifact; stale; in `.cursorignore`).
 3. Per-item details live in the relevant `Domain/Neighborhood/*.lean` docstring/proof notes.
 4. Build with `lake build Domain` (filter output: `| grep -vE 'LEAN_PATH|trace:' | tail`).
 5. Follow `.cursor/rules/handoff-discipline.mdc` (choice discipline, axiom audits, and the
@@ -1126,8 +1127,9 @@ lake env lean scratch_axioms.lean ; rm -f scratch_axioms.lean
 - New work: `Domain/Neighborhood/Exercise<NN>.lean` (or `Theorem<NN>.lean`), imported from `Domain.lean`.
 - Source statements: `sources/PRG19_vision.md` — Lecture IV from 1647, V 2383, VI 3208, VII 4189,
   VIII 4729 (exact per-item line numbers are in the arxiv.md Goal Lists §4.2.IV–VIII).
-- Inventory/status: `arxiv.md` (§4.2.IV–VIII Goal Lists; flip `—` → **Pass** as you formalize).
-- `arxiv_with_code.md` is generated from `arxiv.md` by `scripts/generate_arxiv_with_code.py`.
+- Inventory/status: **`arxiv.md` only** (§4.2.IV–VIII Goal Lists; flip `—` → **Pass** as you formalize).
+- `arxiv_with_code.md` is **generated** (`scripts/generate_arxiv_with_code.py`) for PDF packaging —
+  **not** for agents; it inlines all Lean and goes stale; listed in `.cursorignore`.
 - This file: update the status section as you complete modules.
 
 ---

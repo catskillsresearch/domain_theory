@@ -69,7 +69,9 @@ inclusion.
   le_antisymm).
 
 ## The paper (arXiv pipeline)
-- `arxiv.md` is the narrative source ("Scott Information Systems in Lean 4").
+- `arxiv.md` is the narrative source and **formalization inventory** (status rows, goal lists).
+- **Do not** read or grep `arxiv_with_code.md` — auto-generated, stale, huge; PDF pipeline only
+  (see `.cursorignore` and `HANDOFF.md` Resume Protocol).
 - Build the review PDF (narrative + full Lean source appendix):
     bash scripts/build_arxiv_pdf.sh
   It runs: generate_arxiv_with_code.py (-> arxiv_with_code.md) -> build_arxiv_pdf.py

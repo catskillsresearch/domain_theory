@@ -51,8 +51,14 @@ def main() -> None:
     parts: list[str] = []
     parts.append(
         "<!-- AUTO-GENERATED: run scripts/generate_arxiv_with_code.sh to refresh -->\n"
+        "<!-- AGENTS: do not read or grep this file. Use arxiv.md for inventory; see .cursorignore -->\n"
     )
     parts.append(f"# {PAPER_TITLE} — full narrative + complete Lean source\n\n")
+    parts.append(
+        "> **Generated artifact — not for agents.** Status and goal lists live in "
+        "[`arxiv.md`](arxiv.md). This file exists only for `scripts/build_arxiv_pdf.sh`. "
+        "Do not treat it as a source of truth between regenerations.\n\n"
+    )
     parts.append(
         f"*Generated {date.today().isoformat()} from `arxiv.md` and all library "
         "`.lean` files in dependency order (`Domain.lean`).*\n\n"
